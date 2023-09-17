@@ -4,8 +4,7 @@ import com.grinderwolf.swm.api.SlimePlugin
 import com.grinderwolf.swm.api.loaders.SlimeLoader
 import com.grinderwolf.swm.api.world.SlimeWorld
 import gg.tropic.practice.PracticeGame
-import gg.tropic.practice.arena.ArenaLocation
-import gg.tropic.practice.ladder.DuelLadder
+import gg.tropic.practice.kit.DuelLadder
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service

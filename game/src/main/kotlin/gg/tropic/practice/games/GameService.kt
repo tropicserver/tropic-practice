@@ -4,8 +4,8 @@ import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.PacketContainer
 import gg.tropic.practice.PracticeGame
-import gg.tropic.practice.ladder.DuelLadder
-import gg.tropic.practice.ladder.DuelLadderFlag
+import gg.tropic.practice.kit.DuelLadder
+import gg.tropic.practice.kit.DuelLadderFlag
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service

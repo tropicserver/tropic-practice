@@ -19,6 +19,8 @@ import java.util.LinkedList
  */
 object PracticeShared
 {
+    const val KEY = "trpractice"
+
     private lateinit var redirector: ServerAggregateHandler
 
     fun load()

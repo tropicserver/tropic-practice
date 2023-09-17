@@ -1,9 +1,10 @@
 repositories {
     maven("https://repo.glaremasters.me/repository/concuncan/")
+    maven("https://repo.dmulloy2.net/repository/public/")
 }
 
 dependencies {
     api(project(":shared"))
     compileOnly("com.grinderwolf:slimeworldmanager-plugin:2.2.1")
-    compileOnly("com.grinderwolf:slimeworldmanager-api:2.2.1")
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
 }

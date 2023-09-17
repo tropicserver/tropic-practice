@@ -2,8 +2,8 @@ package gg.tropic.practice.games
 
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
-import gg.tropic.practice.ladder.DuelLadder
 import gg.scala.store.storage.storable.IDataStoreObject
+import gg.tropic.practice.kit.Kit
 import java.util.*
 
 /**
@@ -13,7 +13,7 @@ import java.util.*
 abstract class AbstractGame(
     val expectation: UUID,
     val teams: Map<GameTeamSide, GameTeam>,
-    val ladder: DuelLadder
+    val ladder: Kit
 ) : IDataStoreObject
 {
     override val identifier: UUID

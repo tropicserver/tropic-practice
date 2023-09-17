@@ -2,8 +2,7 @@ package gg.tropic.practice.arena
 
 import com.grinderwolf.swm.api.world.properties.SlimeProperties
 import com.grinderwolf.swm.api.world.properties.SlimePropertyMap
-import gg.tropic.practice.arena.ArenaLocation
-import gg.tropic.practice.ladder.DuelLadder
+import gg.tropic.practice.kit.DuelLadder
 
 /**
  * @author GrowlyX
@@ -16,9 +15,7 @@ data class Arena(
     val spawns: Map<Int, ArenaLocation> =
         mutableMapOf(),
     val compatible: List<DuelLadder> =
-        listOf(
-            *DuelLadder.values()
-        ),
+        DuelLadder.entries,
     val properties: SlimePropertyMap =
         SlimePropertyMap().apply {
             setString(SlimeProperties.DIFFICULTY, "normal")

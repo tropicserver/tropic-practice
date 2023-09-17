@@ -1,7 +1,6 @@
 package gg.tropic.practice.games
 
 import gg.scala.store.storage.storable.IDataStoreObject
-import net.evilblock.cubed.util.bukkit.player.PlayerSnapshot
 import java.util.*
 
 /**

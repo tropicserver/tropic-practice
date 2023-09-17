@@ -7,7 +7,6 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.resetAttributes
-import gg.tropic.practice.expectation.DuelExpectation
 import gg.tropic.practice.games.GameReport
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
@@ -134,7 +133,7 @@ object ExpectationService
                 {
                     val compatible = ArenaService
                         .selectRandomCompatible(
-                            expectation.ladder
+                            expectation.kitId
                         )
                     if (compatible == null)
                     {
@@ -149,7 +148,7 @@ object ExpectationService
                     val newGame = GameImpl(
                         expectation = expectation.identifier,
                         teams = expectation.teams,
-                        ladder = expectation.ladder,
+                        ladder = expectation.kitId,
                         state = GameState.Generating,
                         arenaName = compatible.uniqueId
                     )

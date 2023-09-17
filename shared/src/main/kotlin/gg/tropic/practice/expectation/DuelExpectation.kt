@@ -1,10 +1,8 @@
 package gg.tropic.practice.expectation
 
+import gg.scala.store.storage.storable.IDataStoreObject
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
-import gg.tropic.practice.ladder.DuelLadder
-import gg.scala.store.storage.storable.IDataStoreObject
-import org.bukkit.entity.Player
 import java.util.*
 
 /**
@@ -15,5 +13,5 @@ data class DuelExpectation(
     override val identifier: UUID,
     val players: List<UUID>,
     val teams: Map<GameTeamSide, GameTeam>,
-    val ladder: DuelLadder
+    val kitId: String
 ) : IDataStoreObject
