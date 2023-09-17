@@ -148,7 +148,7 @@ object ExpectationService
                     val newGame = GameImpl(
                         expectation = expectation.identifier,
                         teams = expectation.teams,
-                        ladder = expectation.kitId,
+                        kit = expectation.kitId,
                         state = GameState.Generating,
                         arenaName = compatible.uniqueId
                     )

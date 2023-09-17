@@ -1,19 +1,16 @@
 package gg.tropic.practice.games
 
-import gg.tropic.practice.arena.Arena
-import gg.tropic.practice.arena.ArenaService
+import gg.scala.store.controller.DataStoreObjectControllerCache
+import gg.scala.store.storage.type.DataStoreStorageType
+import gg.tropic.practice.expectation.DuelExpectation
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.feature.GameReportFeature
 import gg.tropic.practice.games.tasks.GameStartTask
 import gg.tropic.practice.games.tasks.GameStopTask
-import gg.tropic.practice.expectation.DuelExpectation
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
-import gg.tropic.practice.kit.DuelLadder
-import gg.tropic.practice.kit.DuelLadderFlag
-import gg.scala.store.controller.DataStoreObjectControllerCache
-import gg.scala.store.storage.storable.IDataStoreObject
-import gg.scala.store.storage.type.DataStoreStorageType
+import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.kit.feature.FeatureFlag
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Tasks
@@ -35,10 +32,10 @@ import java.util.logging.Logger
 class GameImpl(
     expectation: UUID,
     teams: Map<GameTeamSide, GameTeam>,
-    ladder: DuelLadder,
+    kit: Kit,
     var state: GameState,
     private val arenaName: String
-) : IDataStoreObject, AbstractGame(expectation, teams, ladder)
+) : AbstractGame(expectation, teams, kit)
 {
     @Transient
     var activeCountdown = 5
@@ -304,5 +301,10 @@ class GameImpl(
         return this.state == state
     }
 
-    fun flag(flag: DuelLadderFlag) = flag in this.ladder.flags
+    fun flag(flag: FeatureFlag) = this.ladder.features[flag] != null
+
+    fun flagMetaData(flag: FeatureFlag, key: String) = this.ladder
+        .features[flag]
+        ?.get(key)
+        ?: flag.schema[key]
 }

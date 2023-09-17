@@ -5,6 +5,7 @@ repositories {
 
 dependencies {
     api(project(":shared"))
+    api(project(":services:statistics"))
     compileOnly("com.grinderwolf:slimeworldmanager-plugin:2.2.1")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
 }

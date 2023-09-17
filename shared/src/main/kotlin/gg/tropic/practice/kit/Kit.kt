@@ -17,5 +17,5 @@ data class Kit(
         .build(),
     var contents: List<ItemStack> = listOf(),
     var additionalContents: List<ItemStack> = listOf(),
-    val features: MutableMap<FeatureFlag, MutableList<FlagMetadata>> = mutableMapOf()
+    val features: MutableMap<FeatureFlag, MutableMap<String, String>> = mutableMapOf()
 )
