@@ -13,5 +13,6 @@ data class DuelExpectation(
     override val identifier: UUID,
     val players: List<UUID>,
     val teams: Map<GameTeamSide, GameTeam>,
-    val kitId: String
+    val kitId: String,
+    val mapId: String
 ) : IDataStoreObject

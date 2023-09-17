@@ -2,17 +2,13 @@ package gg.tropic.practice.resources
 
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
-import gg.minequest.foundation.lib.spigot.chattools.MinequestChatTools
 import gg.scala.lemon.util.QuickAccess.username
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import org.bukkit.scoreboard.DisplaySlot
-import org.bukkit.scoreboard.Scoreboard
 import java.util.*
 
 /**
@@ -22,10 +18,6 @@ import java.util.*
 @ScoreboardAdapterRegister
 object DuelsScoreboardImpl : ScoreboardAdapter()
 {
-    @JvmStatic
-    val FOOTER = MinequestChatTools.getTranslatedName("minequest", "blue") +
-            "${CC.AQUA}.${CC.WHITE}" + MinequestChatTools.getTranslatedName("gg", "blue")
-
     override fun getLines(
         board: LinkedList<String>, player: Player
     )
@@ -159,9 +151,9 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
         }
 
         board += ""
-        board += "$FOOTER  ${CC.GRAY}"
+        board += "???.com  ${CC.GRAY}"
     }
 
     override fun getTitle(player: Player) =
-        "${CC.B_AQUA}MINEQUEST"
+        "${CC.B_AQUA}???"
 }
