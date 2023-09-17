@@ -16,7 +16,7 @@ object KitService : DataSyncService<KitContainer>()
     object KitKeys : DataSyncKeys
     {
         override fun store() = Key.key(PracticeShared.KEY, "kits")
-        override fun sync() = Key.key(PracticeShared.KEY, "sync")
+        override fun sync() = Key.key(PracticeShared.KEY, "ksync")
     }
 
     override fun keys() = KitKeys
