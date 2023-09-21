@@ -55,12 +55,24 @@ object KitCommandsAndCustomizers : ScalaCommand()
     }
 
     @AssignPermission
+    @Subcommand("delete")
+    @CommandCompletion("@kits")
+    @Description("Delete an existing kit.")
+    fun onDelete(player: ScalaPlayer, kit: Kit)
+    {
+        // TODO: ensure no matches are ongoing with this kit
+
+    }
+
+    @AssignPermission
     @Subcommand("create")
     @CommandCompletion("@kits")
     @Description("Create a new kit.")
     fun onCreate(player: ScalaPlayer, @Single id: String)
     {
         val lowercaseID = id.lowercase()
+
+        // TODO: ensure no matches are ongoing with this kit
 
         if (KitService.cached().kits[lowercaseID] != null)
         {
