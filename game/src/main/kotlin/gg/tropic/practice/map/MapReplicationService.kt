@@ -83,18 +83,32 @@ object MapReplicationService
 
         slimePlugin.generateWorld(readyMap.slimeWorld)
 
-        // TODO: This is a slightly weird way to do this, improve? Keep track of world generation state?
-        return CompletableFuture
-            .supplyAsync {
-                var world = Bukkit.getWorld(worldName)
+        // TODO: Listen to world load event and return the future then. this is just ridiculous. 
+        // TODO: Fix imports here & add some sort of timeout just in-case the world doesn't load properly.
+        val future = CompletableFuture<World>()
+        val terminable = CompositeTerminable.create()
 
-                while (world == null)
-                {
-                    world = Bukkit.getWorld(worldName)
-                }
-
-                return@supplyAsync world
+        Events
+            .subscribe(WorldLoadEvent::class.java)
+            .filter {
+                it.world.name == worldName
             }
+            .handler {
+                future.complete(it.world)
+                terminable.closeAndReportException()
+            }
+            .bindWith(terminable)
+
+        Schedulers
+            .async()
+            .runLater({
+                future.completedExceptionally(
+                    IllegalStateException("fuck the world did not load in time bim bim bam bam")
+                )
+            }, 20L * 5L)
+            .bindWith(terminable)
+    
+        return future
             .thenApply {
                 it.setGameRuleValue("naturalRegeneration", "false")
                 it.setGameRuleValue("sendCommandFeedback", "false")
