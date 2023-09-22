@@ -1,6 +1,4 @@
-package gg.tropic.practice.kit.statistics
-
-import java.util.concurrent.TimeUnit
+package gg.tropic.practice.statistics
 
 /**
  * @author GrowlyX
@@ -8,18 +6,15 @@ import java.util.concurrent.TimeUnit
  */
 open class KitStatistics
 {
-    var plays: Int = 0
-    var wins: Int = 0
-    var kills: Int = 0
-    var deaths: Int = 0
+    var plays = 0
+    var wins = 0
+    var kills = 0
+    var deaths = 0
 
-    var longestStreak: Int = 0
+    var longestStreak = 0
         private set
 
-    var streak: Volatile<Int> = Volatile(
-        defaultValue = 0,
-        lifetime = TimeUnit.DAYS.toMillis(1)
-    )
+    var streak = SingleWeekVolatile(defaultValue = 0)
 
     @Transient
     var backingApplyStreakUpdates: ApplyUpdates<Int>? = null

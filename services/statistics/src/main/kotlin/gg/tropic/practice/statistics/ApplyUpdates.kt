@@ -1,4 +1,4 @@
-package gg.tropic.practice.kit.statistics
+package gg.tropic.practice.statistics
 
 /**
  * @author GrowlyX
