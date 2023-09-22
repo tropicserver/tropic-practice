@@ -11,6 +11,7 @@ import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.map.MapService
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Tasks
@@ -34,7 +35,7 @@ class GameImpl(
     teams: Map<GameTeamSide, GameTeam>,
     kit: Kit,
     var state: GameState,
-    private val arenaName: String
+    private val mapId: String
 ) : AbstractGame(expectation, teams, kit)
 {
     @Transient
@@ -43,8 +44,8 @@ class GameImpl(
     private val snapshots =
         mutableMapOf<UUID, GameReportSnapshot>()
 
-    val arena: Arena
-        get() = ArenaService.arenas[this.arenaName]!!
+    val map: gg.tropic.practice.map.Map
+        get() = MapService.mapWithID(mapId)!!
 
     var arenaWorldName: String? = null
 
@@ -89,7 +90,7 @@ class GameImpl(
                 winners = listOf(), losers = listOf(),
                 snapshots = snapshots,
                 duration = this.durationMillis(),
-                arena = this.arenaName,
+                arena = this.mapId,
                 status = GameReportStatus.ForcefullyClosed
             )
         } else
@@ -103,7 +104,7 @@ class GameImpl(
                 losers = opponent.players,
                 snapshots = snapshots,
                 duration = this.durationMillis(),
-                arena = this.arenaName,
+                arena = this.mapId,
                 status = GameReportStatus.Completed
             )
         }
@@ -301,9 +302,9 @@ class GameImpl(
         return this.state == state
     }
 
-    fun flag(flag: FeatureFlag) = this.ladder.features[flag] != null
+    fun flag(flag: FeatureFlag) = this.kit.features[flag] != null
 
-    fun flagMetaData(flag: FeatureFlag, key: String) = this.ladder
+    fun flagMetaData(flag: FeatureFlag, key: String) = this.kit
         .features[flag]
         ?.get(key)
         ?: flag.schema[key]

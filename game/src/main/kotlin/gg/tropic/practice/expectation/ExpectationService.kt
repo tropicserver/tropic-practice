@@ -2,7 +2,6 @@ package gg.tropic.practice.expectation
 
 import gg.tropic.practice.PracticeConfig
 import gg.tropic.practice.PracticeGame
-import gg.tropic.practice.arena.ArenaService
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
@@ -14,6 +13,9 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.scala.store.storage.type.DataStoreStorageType
+import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.map.MapReplicationService
+import gg.tropic.practice.map.MapService
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.util.CC
@@ -131,30 +133,36 @@ object ExpectationService
 
                 if (game == null)
                 {
-                    val compatible = ArenaService
-                        .selectRandomCompatible(
-                            expectation.kitId
-                        )
-                    if (compatible == null)
-                    {
-                        it.player.kickPlayer(
-                            "${CC.RED}We couldn't find a compatible arena for you to play in!"
-                        )
+                    val kit = KitService.cached()
+                        .kits[expectation.kitId]
+                        ?: return@handler run {
+                            it.player.kickPlayer(
+                                "${CC.RED}We couldn't find the kit you were supposed to play with!"
+                            )
 
-                        deleteExpectation(expectation.identifier)
-                        return@handler
-                    }
+                            deleteExpectation(expectation.identifier)
+                        }
+
+                    val compatible = MapService
+                        .selectRandomMapCompatibleWith(kit)
+                        ?: return@handler run {
+                            it.player.kickPlayer(
+                                "${CC.RED}We couldn't find a compatible arena for you to play in!"
+                            )
+
+                            deleteExpectation(expectation.identifier)
+                        }
 
                     val newGame = GameImpl(
                         expectation = expectation.identifier,
                         teams = expectation.teams,
-                        kit = expectation.kitId,
+                        kit = kit,
                         state = GameState.Generating,
-                        arenaName = compatible.uniqueId
+                        mapId = expectation.mapId
                     )
 
                     // NEVER join this CompletableFuture
-                    ArenaService
+                    MapReplicationService
                         .generateArenaWorld(compatible)
                         .thenAccept { world ->
                             Tasks.sync {

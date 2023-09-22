@@ -44,7 +44,7 @@ class GameStartTask(
                         .side.ordinal
 
                     val spawn = this.game
-                        .arena.spawns[team]!!
+                        .map.spawns[team]!!
 
                     VisibilityHandler.update(player)
                     NametagHandler.reloadPlayer(player)
@@ -67,7 +67,7 @@ class GameStartTask(
                         )
                     }
 
-                    this.game.ladder.populate(player)
+                    this.game.kit.populate(player)
                     player.updateInventory()
                 }
 

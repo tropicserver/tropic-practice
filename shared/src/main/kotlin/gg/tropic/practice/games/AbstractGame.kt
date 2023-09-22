@@ -13,7 +13,7 @@ import java.util.*
 abstract class AbstractGame(
     val expectation: UUID,
     val teams: Map<GameTeamSide, GameTeam>,
-    val ladder: Kit
+    val kit: Kit
 ) : IDataStoreObject
 {
     override val identifier: UUID

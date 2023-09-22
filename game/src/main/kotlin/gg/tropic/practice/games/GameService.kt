@@ -9,6 +9,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.store.controller.DataStoreObjectControllerCache
+import gg.tropic.practice.kit.feature.FeatureFlag
 import me.lucko.helper.Events
 import me.lucko.helper.cooldown.Cooldown
 import me.lucko.helper.cooldown.CooldownMap
@@ -205,7 +206,7 @@ object GameService
                     ?: return@handler
 
                 if (
-                    game.ladder == DuelLadder.Sumo &&
+                    /*TODO: use height metadata -> game.kit == DuelLadder.Sumo*/ true &&
                     game.ensurePlaying() &&
                     it.player.location.y <= 50.0
                 )
@@ -222,7 +223,7 @@ object GameService
 
                 if (
                     game.state(GameState.Starting) &&
-                    game.flag(DuelLadderFlag.FrozenOnStart)
+                    game.flag(FeatureFlag.FrozenOnGameStart)
                 )
                 {
                     it.player.teleport(it.from)
@@ -261,7 +262,19 @@ object GameService
 
         Events.subscribe(FoodLevelChangeEvent::class.java)
             .handler {
-                it.isCancelled = true
+                val game = byPlayer(it.entity as Player)
+                    ?: return@handler
+
+                if (!game.ensurePlaying())
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+
+                if (game.flag(FeatureFlag.DoNotTakeHunger))
+                {
+                    it.isCancelled = true
+                }
             }
             .bindWith(plugin)
 
@@ -475,12 +488,13 @@ object GameService
                 val game = byPlayer(it.player)
                     ?: return@handler
 
-                if (it.blockPlaced.y > (game.arena.spawns[0]!!.location(it.player.world).y + 5))
+                // TODO: use flag metadata here
+                /*if (it.blockPlaced.y > (game.map.spawns[0]!!.location(it.player.world).y + 5))
                 {
                     it.player.sendMessage("${CC.RED}You have reached the build limit!")
                     it.isCancelled = true
                     return@handler
-                }
+                }*/
             }
 
         Events.subscribe(EntityDamageByEntityEvent::class.java)
@@ -589,9 +603,7 @@ object GameService
                 }
 
                 if (
-                    game.flag(
-                        DuelLadderFlag.DoNotTakeHealth
-                    )
+                    game.flag(FeatureFlag.DoNotTakeDamage)
                 )
                 {
                     it.damage = 0.0
@@ -611,9 +623,21 @@ object GameService
                     return@handler
                 }
 
+                if (!game.ensurePlaying())
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+
                 if (
-                    game.ensurePlaying() &&
-                    game.flag(DuelLadderFlag.PlaceBlocks) &&
+                    game.flag(FeatureFlag.BreakAllBlocks)
+                )
+                {
+                    return@handler
+                }
+
+                if (
+                    game.flag(FeatureFlag.BreakPlacedBlocks) &&
                     it.block.hasMetadata("placed")
                 )
                 {
@@ -639,7 +663,7 @@ object GameService
 
                 if (
                     !game.ensurePlaying() ||
-                    !game.flag(DuelLadderFlag.PlaceBlocks)
+                    !game.flag(FeatureFlag.PlaceBlocks)
                 )
                 {
                     it.isCancelled = true

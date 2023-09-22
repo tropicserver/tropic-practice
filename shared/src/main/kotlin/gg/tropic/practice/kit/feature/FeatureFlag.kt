@@ -12,7 +12,7 @@ enum class FeatureFlag(
 {
     Ranked,
     HeartsBelowNameTag,
-    DoNotTakeHealth,
+    DoNotTakeDamage,
     DoNotTakeHunger,
     DoNotRemoveArmor,
     RequiresBuildMap,

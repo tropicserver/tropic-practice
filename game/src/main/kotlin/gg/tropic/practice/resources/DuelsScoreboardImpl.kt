@@ -90,7 +90,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                     }ms"
                 } else
                 {
-                    board += "${CC.GRAY}Arena: ${CC.WHITE}${game.arena.display}"
+                    board += "${CC.GRAY}Arena: ${CC.WHITE}${game.map.display}"
                     board += ""
                     board += "${CC.GREEN}Your ping: ${CC.WHITE}${MinecraftReflection.getPing(player)}ms"
                     board += "${CC.RED}Opponent pings:"

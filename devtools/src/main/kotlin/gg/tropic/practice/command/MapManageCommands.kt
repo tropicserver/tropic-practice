@@ -129,7 +129,7 @@ object MapManageCommands : ScalaCommand()
                             isFlying = false
                             allowFlight = false
 
-                            sendMessage("${CC.B_GOLD}(!) ${CC.GOLD}Unloaded the DTT world, you're all set!")
+                            sendMessage("${CC.B_GOLD}(!) ${CC.GOLD}Unloaded the DTT world, you're all set! Please note that map changes (adding/deleting maps) won't propagate to the game servers immediately. A restart is required for the changes to take effect.")
                         }
                         .start(this)
                 }
