@@ -12,14 +12,10 @@ import gg.scala.commons.acf.annotation.Single
 import gg.scala.commons.acf.annotation.Subcommand
 import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
-import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
 import gg.scala.commons.command.ScalaCommand
-import gg.scala.commons.command.ScalaCommandManager
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
-import gg.tropic.practice.kit.group.KitGroup
-import gg.tropic.practice.kit.group.KitGroupService
 import net.evilblock.cubed.util.CC
 
 /**
@@ -29,31 +25,13 @@ import net.evilblock.cubed.util.CC
 @AutoRegister
 @CommandAlias("kit")
 @CommandPermission("practice.command.kit")
-object KitCommandsAndCustomizers : ScalaCommand()
+object KitCommands : ScalaCommand()
 {
     @Default
     @HelpCommand
     fun onDefault(help: CommandHelp)
     {
         help.showHelp()
-    }
-
-    @CommandManagerCustomizer
-    fun customize(manager: ScalaCommandManager)
-    {
-        manager.commandContexts.registerContext(Kit::class.java) {
-            val arg = it.popFirstArg()
-
-            KitService.cached().kits[arg]
-                ?: throw ConditionFailedException(
-                    "No kit with the ID ${CC.YELLOW}$arg${CC.RED} exists."
-                )
-        }
-
-        manager.commandCompletions
-            .registerCompletion("kits") {
-                KitService.cached().kits.keys
-            }
     }
 
     @AssignPermission

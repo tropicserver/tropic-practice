@@ -1,4 +1,4 @@
-package gg.tropic.practice.commands
+package gg.tropic.practice.commands.customizers
 
 import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
@@ -11,7 +11,7 @@ import net.evilblock.cubed.util.CC
  * @author GrowlyX
  * @since 9/22/2023
  */
-object KitGroupCustomizers
+object KitGroupCommandCustomizers
 {
     @CommandManagerCustomizer
     fun customize(manager: ScalaCommandManager)
