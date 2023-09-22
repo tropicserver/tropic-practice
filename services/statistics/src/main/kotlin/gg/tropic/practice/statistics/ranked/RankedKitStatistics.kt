@@ -20,29 +20,16 @@ class RankedKitStatistics : KitStatistics()
     val dailyEloChange = SingleDayLifetime(defaultValue = 0)
     val weeklyEloChange = SingleWeekLifetime(defaultValue = 0)
 
-    @Transient
-    private var backingApplyEloUpdates: ApplyUpdates<Int>? = null
-        get()
+    fun applyEloUpdates() = ApplyUpdates<Int>(listOf({
+        this.elo = it
+    }, {
+        dailyEloChange /= dailyEloChange() + (it - elo)
+    }, {
+        weeklyEloChange /= weeklyEloChange() + (it - elo)
+    }, {
+        if (it > highestElo)
         {
-            if (field == null)
-            {
-                field = ApplyUpdates(listOf({
-                    this.elo = it
-                }, {
-                    dailyEloChange /= dailyEloChange() + (it - elo)
-                }, {
-                    weeklyEloChange /= weeklyEloChange() + (it - elo)
-                }, {
-                    if (it > highestElo)
-                    {
-                        highestElo = it
-                    }
-                }))
-            }
-
-            return field!!
+            highestElo = it
         }
-
-    val applyEloUpdates: ApplyUpdates<Int>
-        get() = backingApplyEloUpdates!!
+    }))
 }

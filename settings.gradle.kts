@@ -10,4 +10,4 @@ plugins {
 }
 
 rootProject.name = "tropic-practice"
-include("shared", "game", "lobby", "services:queue", "services:statistics")
+include("shared", "game", "lobby", "services:application", "services:queue", "services:statistics")

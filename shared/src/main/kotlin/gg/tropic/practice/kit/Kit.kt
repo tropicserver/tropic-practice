@@ -1,7 +1,6 @@
 package gg.tropic.practice.kit
 
 import gg.tropic.practice.kit.feature.FeatureFlag
-import gg.tropic.practice.kit.feature.FlagMetadata
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
