@@ -2,8 +2,8 @@ package gg.tropic.practice.statistics.ranked
 
 import gg.tropic.practice.statistics.ApplyUpdates
 import gg.tropic.practice.statistics.KitStatistics
-import gg.tropic.practice.statistics.SingleDayVolatile
-import gg.tropic.practice.statistics.SingleWeekVolatile
+import gg.tropic.practice.statistics.SingleDayLifetime
+import gg.tropic.practice.statistics.SingleWeekLifetime
 
 /**
  * @author GrowlyX
@@ -17,8 +17,8 @@ class RankedKitStatistics : KitStatistics()
     var highestElo = elo
         private set
 
-    val dailyEloChange = SingleDayVolatile(defaultValue = 0)
-    val weeklyEloChange = SingleWeekVolatile(defaultValue = 0)
+    val dailyEloChange = SingleDayLifetime(defaultValue = 0)
+    val weeklyEloChange = SingleWeekLifetime(defaultValue = 0)
 
     @Transient
     private var backingApplyEloUpdates: ApplyUpdates<Int>? = null

@@ -14,7 +14,7 @@ open class KitStatistics
     var longestStreak = 0
         private set
 
-    var streak = SingleWeekVolatile(defaultValue = 0)
+    var streak = SingleWeekLifetime(defaultValue = 0)
 
     @Transient
     var backingApplyStreakUpdates: ApplyUpdates<Int>? = null
