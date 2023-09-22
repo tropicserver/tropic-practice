@@ -25,6 +25,11 @@ object MapService : DataSyncService<MapContainer>()
     override fun keys() = MapKeys
     override fun type() = MapContainer::class.java
 
+    fun mapWithID(id: String) = cached().maps.values
+        .firstOrNull {
+            it.name.equals(id, true)
+        }
+
     fun selectRandomMapCompatibleWith(kit: Kit): Map?
     {
         val groups = KitGroupService.groupsOf(kit)

@@ -2,11 +2,9 @@ package gg.tropic.practice.map.utilities
 
 import gg.tropic.practice.map.metadata.AbstractMapMetadata
 import gg.tropic.practice.map.metadata.sign.parseIntoMetadata
-import net.evilblock.cubed.util.bukkit.Tasks
-import org.bukkit.Material
-import org.bukkit.World
-import org.bukkit.block.Block
+import net.evilblock.cubed.util.bukkit.cuboid.Cuboid
 import org.bukkit.block.Sign
+import org.bukkit.util.Vector
 
 /**
  * @author GrowlyX
@@ -14,11 +12,10 @@ import org.bukkit.block.Sign
  */
 object MapMetadataScanUtilities
 {
-    fun populateMapMetadata(world: World)
+    fun buildMetadataFor(bounds: Cuboid): MapMetadata
     {
-        val scheduledRemoval = mutableListOf<Block>()
-        // TODO: loadedChunks might not contain the map chunks
-        val blocks = world.loadedChunks
+        val scheduledRemoval = mutableListOf<Vector>()
+        val blocks = bounds.getChunks()
             .flatMap {
                 it.tileEntities.toList()
             }
@@ -32,7 +29,7 @@ object MapMetadataScanUtilities
                 metadata
             }
             .onEach {
-                scheduledRemoval += it.location.block
+                scheduledRemoval += it.location.block.location.toVector()
             }
             .groupBy { it.id }
 
@@ -47,13 +44,9 @@ object MapMetadataScanUtilities
             )
         }
 
-        // TODO: we need to run this every time a
-        //  template replication is created lol
-        Tasks.sync {
-            for (sign in scheduledRemoval)
-            {
-                sign.type = Material.AIR
-            }
-        }
+        return MapMetadata(
+            metadataSignLocations = scheduledRemoval,
+            metadata = metadata
+        )
     }
 }

@@ -2,6 +2,7 @@ package gg.tropic.practice.map
 
 import gg.scala.store.storage.storable.IDataStoreObject
 import gg.tropic.practice.map.metadata.AbstractMapMetadata
+import gg.tropic.practice.map.utilities.MapMetadata
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.cuboid.Cuboid
 import org.bukkit.Material
@@ -20,7 +21,7 @@ data class Map(
     override val identifier: UUID,
     val name: String,
     val bounds: Cuboid,
-    val metadata: List<AbstractMapMetadata>,
+    val metadata: MapMetadata,
     var displayName: String,
     val displayIcon: ItemStack = ItemBuilder
         .of(Material.MAP)
