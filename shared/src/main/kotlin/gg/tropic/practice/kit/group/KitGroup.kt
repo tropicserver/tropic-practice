@@ -11,7 +11,8 @@ data class KitGroup(
     val contains: MutableList<String> = mutableListOf()
 )
 {
-    fun kits() = contains.mapNotNull {
-        KitService.cached().kits[it]
-    }
+    fun kits() = contains
+        .mapNotNull {
+            KitService.cached().kits[it]
+        }
 }

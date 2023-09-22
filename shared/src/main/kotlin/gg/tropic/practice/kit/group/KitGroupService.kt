@@ -4,6 +4,7 @@ import gg.scala.commons.persist.datasync.DataSyncKeys
 import gg.scala.commons.persist.datasync.DataSyncService
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeShared
+import gg.tropic.practice.kit.Kit
 import net.kyori.adventure.key.Key
 
 /**
@@ -21,4 +22,9 @@ object KitGroupService : DataSyncService<KitGroupContainer>()
 
     override fun keys() = GroupKeys
     override fun type() = KitGroupContainer::class.java
+
+    fun groupsOf(kit: Kit) = cached().groups
+        .filter {
+            kit.id in it.contains
+        }
 }

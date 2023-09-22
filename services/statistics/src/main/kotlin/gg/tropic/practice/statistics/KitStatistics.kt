@@ -16,25 +16,12 @@ open class KitStatistics
 
     var streak = SingleWeekLifetime(defaultValue = 0)
 
-    @Transient
-    var backingApplyStreakUpdates: ApplyUpdates<Int>? = null
-        get()
+    fun strakUpdates() = ApplyUpdates<Int>(listOf({
+        streak /= it
+    }, {
+        if (it > longestStreak)
         {
-            if (field == null)
-            {
-                field = ApplyUpdates(listOf({
-                    streak /= it
-                }, {
-                    if (it > longestStreak)
-                    {
-                        longestStreak = it
-                    }
-                }))
-            }
-
-            return field!!
+            longestStreak = it
         }
-
-    val applyStreakUpdates: ApplyUpdates<Int>
-        get() = backingApplyStreakUpdates!!
+    }))
 }

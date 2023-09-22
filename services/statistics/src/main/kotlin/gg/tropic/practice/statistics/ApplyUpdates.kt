@@ -8,7 +8,7 @@ class ApplyUpdates<T>(
     private val update: List<(T) -> Unit>
 )
 {
-    fun update(value: T)
+    fun apply(value: T)
     {
         update.forEach { it(value) }
     }

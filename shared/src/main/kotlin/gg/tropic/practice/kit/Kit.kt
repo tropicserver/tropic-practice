@@ -10,10 +10,12 @@ import org.bukkit.inventory.ItemStack
  * @since 9/17/2023
  */
 data class Kit(
-    val id: String, val displayName: String, var enabled: Boolean = false,
-    val icon: ItemStack = ItemBuilder
-        .of(Material.IRON_SWORD)
+    val id: String,
+    val displayName: String,
+    val displayIcon: ItemStack = ItemBuilder
+        .of(Material.POTATO)
         .build(),
+    var enabled: Boolean = false,
     var contents: List<ItemStack> = listOf(),
     var additionalContents: List<ItemStack> = listOf(),
     val features: MutableMap<FeatureFlag, MutableMap<String, String>> = mutableMapOf()

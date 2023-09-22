@@ -20,7 +20,7 @@ class RankedKitStatistics : KitStatistics()
     val dailyEloChange = SingleDayLifetime(defaultValue = 0)
     val weeklyEloChange = SingleWeekLifetime(defaultValue = 0)
 
-    fun applyEloUpdates() = ApplyUpdates<Int>(listOf({
+    fun eloUpdates() = ApplyUpdates<Int>(listOf({
         this.elo = it
     }, {
         dailyEloChange /= dailyEloChange() + (it - elo)

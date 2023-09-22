@@ -9,9 +9,9 @@ class ApplyUpdatesStateless(
     private val inherits: ApplyUpdatesStateless? = null
 )
 {
-    fun update()
+    fun apply()
     {
         update.forEach { it() }
-        inherits?.update()
+        inherits?.apply()
     }
 }
