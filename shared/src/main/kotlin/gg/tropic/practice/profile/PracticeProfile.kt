@@ -17,7 +17,7 @@ data class PracticeProfile(
 ) : IDataStoreObject
 {
     val globalStatistics = GlobalStatistics()
-    val unratedStatistics = mutableMapOf<
+    val casualStatistics = mutableMapOf<
         GameType,
         ConcurrentHashMap<
             String,

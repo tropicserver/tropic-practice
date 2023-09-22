@@ -18,6 +18,8 @@ import gg.scala.commons.command.ScalaCommandManager
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.kit.group.KitGroup
+import gg.tropic.practice.kit.group.KitGroupService
 import net.evilblock.cubed.util.CC
 
 /**

@@ -23,7 +23,7 @@ object PracticeProfileService : ProfileOrchestrator<PracticeProfile>()
 
         GameType.entries
             .forEach {
-                profile.unratedStatistics.putIfAbsent(it, ConcurrentHashMap())
+                profile.casualStatistics.putIfAbsent(it, ConcurrentHashMap())
                 profile.rankedStatistics.putIfAbsent(it, ConcurrentHashMap())
             }
     }

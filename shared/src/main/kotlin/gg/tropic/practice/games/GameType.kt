@@ -6,5 +6,5 @@ package gg.tropic.practice.games
  */
 enum class GameType
 {
-    Unrated, Ranked
+    Casual, Ranked
 }
