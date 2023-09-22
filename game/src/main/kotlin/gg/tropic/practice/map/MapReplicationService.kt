@@ -7,8 +7,12 @@ import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import me.lucko.helper.Events
+import me.lucko.helper.Schedulers
+import me.lucko.helper.terminable.composite.CompositeTerminable
 import org.bukkit.Bukkit
 import org.bukkit.World
+import org.bukkit.event.world.WorldLoadEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Level
@@ -37,8 +41,7 @@ object MapReplicationService
         slimePlugin = plugin.server.pluginManager
             .getPlugin("SlimeWorldManager") as SlimePlugin
 
-        // TODO: Mongo?
-        loader = slimePlugin.getLoader("file")
+        loader = slimePlugin.getLoader("mongo")
 
         populateSlimeCache()
     }
@@ -83,8 +86,6 @@ object MapReplicationService
 
         slimePlugin.generateWorld(readyMap.slimeWorld)
 
-        // TODO: Listen to world load event and return the future then. this is just ridiculous. 
-        // TODO: Fix imports here & add some sort of timeout just in-case the world doesn't load properly.
         val future = CompletableFuture<World>()
         val terminable = CompositeTerminable.create()
 
@@ -102,12 +103,12 @@ object MapReplicationService
         Schedulers
             .async()
             .runLater({
-                future.completedExceptionally(
-                    IllegalStateException("fuck the world did not load in time bim bim bam bam")
+                future.completeExceptionally(
+                    IllegalStateException("The world did not load on time")
                 )
             }, 20L * 5L)
             .bindWith(terminable)
-    
+
         return future
             .thenApply {
                 it.setGameRuleValue("naturalRegeneration", "false")
