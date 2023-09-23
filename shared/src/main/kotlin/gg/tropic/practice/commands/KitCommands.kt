@@ -14,6 +14,7 @@ import gg.tropic.practice.kit.group.KitGroupService
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent
+import org.bukkit.potion.PotionEffectType
 import java.util.*
 
 /**
@@ -65,6 +66,136 @@ object KitCommands : ScalaCommand()
         player.sendMessage("${CC.GRAY}Inventory contents ${CC.WHITE}(${kit.contents.size})${CC.GRAY}: ${CC.WHITE}Click to view.")
         //TODO: Implement a menu to view inventory contents once the kit management is implemented
     }
+
+    @AssignPermission
+    @Subcommand("inventory getcontents")
+    @CommandCompletion("@kits")
+    @Description("Equips the current kit contents to your player.")
+    fun onLoadContents(sender: ScalaPlayer, kit: Kit)
+    {
+        val inventory = kit.contents
+        val armor = kit.armorContents
+        val player = sender.bukkit()
+
+        player.inventory.contents = inventory
+        player.inventory.armorContents = armor
+
+        sender.sendMessage("${CC.GREEN}You have received inventory contents for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}.")
+    }
+
+    @AssignPermission
+    @Subcommand("inventory setcontents")
+    @CommandCompletion("@kits")
+    @Description("Sets your inventory to the kit's contents.")
+    fun onSetContents(sender: ScalaPlayer, kit: Kit)
+    {
+        val player = sender.bukkit()
+        val inventory = player.inventory.contents
+        val armor = player.inventory.armorContents
+
+        kit.contents = inventory
+        kit.armorContents = armor
+
+        with (KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        sender.sendMessage("${CC.GREEN}You have saved inventory contents for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}.")
+    }
+
+    @AssignPermission
+    @Subcommand("inventory effects add")
+    @CommandCompletion("@kits @effects")
+    @Description("Add effects to this kit.")
+    fun onKitAddEffect(player: ScalaPlayer, kit: Kit, potionEffectType: PotionEffectType, amplifier: Int)
+    {
+        kit.potionEffects[potionEffectType] = amplifier
+
+        with (KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        player.sendMessage("${CC.GREEN}You have added the potion effect ${CC.YELLOW}${
+            potionEffectType.name.lowercase()
+                .replaceFirstChar {
+                    it.titlecase(Locale.getDefault()) 
+                }
+        } ${CC.GREEN}with an amplifier of ${CC.YELLOW}$amplifier${CC.GREEN}.")
+    }
+
+    @AssignPermission
+    @Subcommand("inventory effects list")
+    @CommandCompletion("@kits")
+    @Description("Show all effects that a kit has.")
+    fun onKitEffectList(player: ScalaPlayer, kit: Kit)
+    {
+        player.sendMessage(
+            "${CC.GREEN}${kit.displayName}'s Effects"
+        )
+
+        val effects = kit.potionEffects.entries
+        val fancyMessage = FancyMessage()
+
+        if (effects.isNotEmpty())
+        {
+            for ((index, entry) in effects.withIndex())
+            {
+                val listComponents = FancyMessage()
+                    .withMessage(
+                        "${CC.GRAY}${
+                            entry.key.name.lowercase().replaceFirstChar { 
+                                it.titlecase(Locale.getDefault()) 
+                            }
+                        } (Amplifier ${entry.value})${if (index != effects.size - 1) ", " else ""}"
+                    )
+
+                fancyMessage.components.addAll(listComponents.components)
+            }
+
+            fancyMessage.sendToPlayer(player.bukkit())
+        } else
+        {
+            player.sendMessage(
+                "${CC.RED}None"
+            )
+        }
+    }
+
+    @AssignPermission
+    @Subcommand("inventory effects remove")
+    @CommandCompletion("@kits @effects")
+    @Description("Removes the given effect from the kit.")
+    fun onKitRemoveEffect(player: ScalaPlayer, kit: Kit, potionEffectType: PotionEffectType)
+    {
+        if (!kit.potionEffects.containsKey(potionEffectType))
+        {
+            throw ConditionFailedException(
+                "The kit ${CC.YELLOW}${kit.displayName} ${CC.RED}does contain the effect${
+                    potionEffectType.name.lowercase()
+                        .replaceFirstChar {
+                            it.titlecase(Locale.getDefault())
+                        }
+                }"
+            )
+        }
+
+        kit.potionEffects.remove(potionEffectType)
+
+        with (KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        player.sendMessage("${CC.GREEN}You have removed the potion effect ${CC.YELLOW}${
+            potionEffectType.name.lowercase()
+                .replaceFirstChar {
+                    it.titlecase(Locale.getDefault())
+                }
+        } ${CC.GREEN}from the ${CC.YELLOW}${kit.displayName} ${CC.GREEN}kit.")
+    }
+
 
     @AssignPermission
     @Subcommand("list")

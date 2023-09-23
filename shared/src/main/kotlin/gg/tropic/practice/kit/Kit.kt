@@ -5,6 +5,8 @@ import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 
 /**
  * @author GrowlyX
@@ -20,6 +22,7 @@ data class Kit(
     var armorContents: Array<ItemStack?> = arrayOfNulls(4),
     var contents: Array<ItemStack?> = arrayOfNulls(36),
     var additionalContents: Array<ItemStack?> = arrayOfNulls(27),
+    var potionEffects: HashMap<PotionEffectType, Int> = hashMapOf(),
     val features: MutableMap<FeatureFlag, MutableMap<String, String>> = mutableMapOf()
 )
 {
