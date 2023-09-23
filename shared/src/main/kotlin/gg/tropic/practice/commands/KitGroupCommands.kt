@@ -81,7 +81,6 @@ object KitGroupCommands : ScalaCommand()
     @Description("List all kit groups.")
     fun onList(player: ScalaPlayer)
     {
-        val listFancyMessage = FancyMessage()
         val kitGroups = KitGroupService.cached().groups
 
         player.sendMessage(
@@ -89,6 +88,7 @@ object KitGroupCommands : ScalaCommand()
             "${CC.WHITE}[click a kit to view information]"
         )
 
+        val listFancyMessage = FancyMessage()
         for ((i, group) in kitGroups.withIndex())
         {
             val uniqueInfoComponent = FancyMessage()

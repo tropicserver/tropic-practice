@@ -10,6 +10,8 @@ import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.FancyMessage
+import net.md_5.bungee.api.chat.ClickEvent
 
 /**
  * @author GrowlyX
@@ -31,12 +33,35 @@ object MapCommands : ScalaCommand()
     @Description("List all maps.")
     fun onList(player: ScalaPlayer)
     {
+        val maps = MapService.cached().maps.values
         player.sendMessage(
-            "${CC.GREEN}Maps:",
-            "${CC.GRAY}${
-                MapService.cached().maps.keys.joinToString(", ")
-            }"
+            "${CC.GREEN}All maps:",
+            "${CC.WHITE}[click a map to view information]"
         )
+
+        val listFancyMessage = FancyMessage()
+        for ((i, group) in maps.withIndex())
+        {
+            val uniqueInfoComponent = FancyMessage()
+                .withMessage(
+                    "${CC.GRAY}${group.name}${CC.WHITE}${
+                        if (i != (maps.size - 1)) ", " else "."
+                    }"
+                )
+                .andHoverOf(
+                    "${CC.GRAY}Click to view map information."
+                )
+                .andCommandOf(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/map info ${group.name}"
+                )
+
+            listFancyMessage.components.addAll(
+                uniqueInfoComponent.components
+            )
+        }
+
+        listFancyMessage.sendToPlayer(player.bukkit())
     }
 
     @Subcommand("groups add")
@@ -87,14 +112,37 @@ object MapCommands : ScalaCommand()
     }
 
     @Subcommand("groups list")
+    @CommandCompletion("@maps")
     @Description("List all associated kit groups for a map.")
     fun onGroupsList(player: ScalaPlayer, map: Map)
     {
         player.sendMessage(
-            "${CC.GREEN}Associated kit groups for map ${map.name}:",
-            "${CC.GRAY}${
-                map.associatedKitGroups.joinToString(", ")
-            }"
+            "${CC.GREEN}All associated kit groups for map ${CC.B_WHITE}${map.name}${CC.GREEN}:",
+            "${CC.WHITE}[click a kit group to view information]"
         )
+
+        val listFancyMessage = FancyMessage()
+        for ((i, group) in map.associatedKitGroups.withIndex())
+        {
+            val uniqueInfoComponent = FancyMessage()
+                .withMessage(
+                    "${CC.GRAY}$group${CC.WHITE}${
+                        if (i != (map.associatedKitGroups.size - 1)) ", " else "."
+                    }"
+                )
+                .andHoverOf(
+                    "${CC.GRAY}Click to view map information."
+                )
+                .andCommandOf(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/kitgroup info $group"
+                )
+
+            listFancyMessage.components.addAll(
+                uniqueInfoComponent.components
+            )
+        }
+
+        listFancyMessage.sendToPlayer(player.bukkit())
     }
 }
