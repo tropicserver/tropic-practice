@@ -22,7 +22,7 @@ data class Kit(
     var armorContents: Array<ItemStack?> = arrayOfNulls(4),
     var contents: Array<ItemStack?> = arrayOfNulls(36),
     var additionalContents: Array<ItemStack?> = arrayOfNulls(27),
-    var potionEffects: HashMap<PotionEffectType, Int> = hashMapOf(),
+    var potionEffects: MutableMap<PotionEffectType, Int> = mutableMapOf(),
     val features: MutableMap<FeatureFlag, MutableMap<String, String>> = mutableMapOf()
 )
 {
