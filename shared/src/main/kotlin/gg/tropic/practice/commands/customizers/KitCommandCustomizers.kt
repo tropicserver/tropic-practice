@@ -9,6 +9,7 @@ import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
 import gg.tropic.practice.map.Map
 import net.evilblock.cubed.util.CC
+import org.bukkit.potion.PotionEffectType
 
 /**
  * @author GrowlyX
@@ -16,6 +17,34 @@ import net.evilblock.cubed.util.CC
  */
 object KitCommandCustomizers
 {
+    private val potionEffectRegistry = """
+            SPEED
+            SLOW
+            FAST_DIGGING
+            SLOW_DIGGING
+            INCREASE_DAMAGE
+            HEAL
+            HARM
+            JUMP
+            CONFUSION
+            REGENERATION
+            DAMAGE_RESISTANCE
+            FIRE_RESISTANCE
+            WATER_BREATHING
+            INVISIBILITY
+            BLINDNESS
+            NIGHT_VISION
+            HUNGER
+            WEAKNESS
+            POISON
+            WITHER
+            HEALTH_BOOST
+            ABSORPTION 
+            SATURATION 
+        """.trimIndent()
+        .split("\n")
+        .associateWith { PotionEffectType.getByName(it) }
+
     @CommandManagerCustomizer
     fun customize(manager: ScalaCommandManager)
     {
@@ -43,6 +72,25 @@ object KitCommandCustomizers
                         kit.id in group.contains
                     }
                     .map(KitGroup::id)
+            }
+
+        manager.commandCompletions
+            .registerAsyncCompletion(
+                "effects"
+            ) {
+                potionEffectRegistry.keys
+            }
+
+        manager.commandContexts
+            .registerContext(
+                PotionEffectType::class.java
+            ) {
+                val arg = it.popFirstArg()
+
+                potionEffectRegistry[arg]
+                    ?: throw ConditionFailedException(
+                        "No potion effect with the ID $arg exists."
+                    )
             }
 
         manager.commandCompletions
