@@ -30,7 +30,7 @@ object MapCommandCustomizers
 
         manager.commandCompletions
             .registerCompletion("maps") {
-                MapService.cached().maps.values.map(Map::name)
+                MapService.cached().maps.keys
             }
     }
 }

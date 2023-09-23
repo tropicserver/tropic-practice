@@ -87,7 +87,6 @@ object MapManageCommands : ScalaCommand()
                                 sendMessage("${CC.B_GRAY}(!)${CC.GRAY} Created a metadata copy! We're now going to build the map data model...")
 
                                 val map = Map(
-                                    identifier = UUID.randomUUID(),
                                     name = mapName,
                                     bounds = bounds,
                                     metadata = metadata,
@@ -96,7 +95,7 @@ object MapManageCommands : ScalaCommand()
                                 )
 
                                 with(MapService.cached()) {
-                                    maps[map.identifier] = map
+                                    maps[map.name] = map
                                     MapService.sync(this)
 
                                     playSound(location, Sound.FIREWORK_LAUNCH, 1.0f, 1.0f)

@@ -19,7 +19,7 @@ import java.util.*
  */
 object PracticeShared
 {
-    const val KEY = "trpractice"
+    const val KEY = "tropicpractice"
 
     private lateinit var redirector: ServerAggregateHandler
 

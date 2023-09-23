@@ -5,6 +5,7 @@ import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
 import gg.scala.commons.command.ScalaCommandManager
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
+import gg.tropic.practice.map.Map
 import net.evilblock.cubed.util.CC
 
 /**
@@ -32,6 +33,28 @@ object KitGroupCommandCustomizers
             .registerCompletion("kit-groups") {
                 KitGroupService.cached()
                     .groups.map(KitGroup::id)
+            }
+
+        manager.commandCompletions
+            .registerCompletion("stranger-kit-groups") {
+                val map = it.getContextValue(Map::class.java)
+
+                KitGroupService.cached()
+                    .groups.map(KitGroup::id)
+                    .filterNot { group ->
+                        group in map.associatedKitGroups
+                    }
+            }
+
+        manager.commandCompletions
+            .registerCompletion("associated-kit-groups") {
+                val map = it.getContextValue(Map::class.java)
+
+                KitGroupService.cached()
+                    .groups.map(KitGroup::id)
+                    .filter { group ->
+                        group in map.associatedKitGroups
+                    }
             }
     }
 }
