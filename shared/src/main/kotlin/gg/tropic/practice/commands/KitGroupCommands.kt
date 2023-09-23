@@ -43,18 +43,37 @@ object KitGroupCommands : ScalaCommand()
     fun onInfo(player: ScalaPlayer, kitGroup: KitGroup)
     {
         val kits = kitGroup.kits()
-        //TODO: Bulk up KitGroup a little. Not much being displayed rn besides child kits
-        player.sendMessage(" ")
-        player.sendMessage("${CC.GREEN}Information for the kit group ${CC.WHITE}${kitGroup.id}")
-        player.sendMessage(" ")
-        player.sendMessage("${CC.GRAY}Kits Using Group ${CC.WHITE}(${
-            kits.size
-        })${CC.GRAY}: ${
-            if (kits.isNotEmpty())
-                kitGroup.kits().joinToString { "${CC.WHITE}${it.displayName}, " }
-            else "${CC.RED}None"
-        }")
-        player.sendMessage(" ")
+        player.sendMessage(
+            "${CC.GREEN}Viewing kit group ${CC.WHITE}${kitGroup.id}${CC.GREEN}:",
+            "${CC.GRAY}Associated with kits ${CC.WHITE}(${
+                kits.size
+            })${CC.GRAY}:",
+            "${CC.WHITE}[click a kit to view information]"
+        )
+
+        val listFancyMessage = FancyMessage()
+        for ((i, group) in kits.withIndex())
+        {
+            val uniqueInfoComponent = FancyMessage()
+                .withMessage(
+                    "${CC.GRAY}${group.id}${CC.WHITE}${
+                        if (i != (kits.size - 1)) ", " else "."
+                    }"
+                )
+                .andHoverOf(
+                    "${CC.GRAY}Click to view kit information."
+                )
+                .andCommandOf(
+                    ClickEvent.Action.RUN_COMMAND,
+                    "/kit info ${group.id}"
+                )
+
+            listFancyMessage.components.addAll(
+                uniqueInfoComponent.components
+            )
+        }
+
+        listFancyMessage.sendToPlayer(player.bukkit())
     }
 
     @AssignPermission
@@ -66,16 +85,16 @@ object KitGroupCommands : ScalaCommand()
         val kitGroups = KitGroupService.cached().groups
 
         player.sendMessage(
-            "${CC.GREEN}Kit Groups"
+            "${CC.GREEN}All kit groups:",
+            "${CC.WHITE}[click a kit to view information]"
         )
 
         for ((i, group) in kitGroups.withIndex())
         {
-            //TODO: A lot of gray here, maybe switch up hover events here and in kit list command
             val uniqueInfoComponent = FancyMessage()
                 .withMessage(
-                    "${CC.GRAY}${group.id}${
-                        if (i != (kitGroups.size - 1)) ", " else ""
+                    "${CC.GRAY}${group.id}${CC.WHITE}${
+                        if (i != (kitGroups.size - 1)) ", " else "."
                     }"
                 )
                 .andHoverOf(
@@ -86,7 +105,9 @@ object KitGroupCommands : ScalaCommand()
                     "/kitgroup info ${group.id}"
                 )
 
-            listFancyMessage.components.add(uniqueInfoComponent.components[0])
+            listFancyMessage.components.addAll(
+                uniqueInfoComponent.components
+            )
         }
 
         listFancyMessage.sendToPlayer(player.bukkit())
@@ -109,12 +130,10 @@ object KitGroupCommands : ScalaCommand()
             )
         }
 
-        val kitGroup = KitGroup(
-            id = lowercaseID,
-        )
+        val kitGroup = KitGroup(id = lowercaseID)
 
         with(KitGroupService.cached()) {
-            KitGroupService.cached().groups += kitGroup
+            KitGroupService.cached().add(kitGroup)
             KitGroupService.sync(this)
         }
 
@@ -129,9 +148,6 @@ object KitGroupCommands : ScalaCommand()
     @Description("Delete an existing kit group.")
     fun onDelete(player: ScalaPlayer, kitGroup: KitGroup)
     {
-        // handle default kit group deletion in the command
-        // as well as container so we can prompt users to not
-        // do this!
         if (kitGroup.id == KitGroupContainer.DEFAULT)
         {
             throw ConditionFailedException(
@@ -145,7 +161,7 @@ object KitGroupCommands : ScalaCommand()
         }
 
         player.sendMessage(
-            "${CC.GREEN}You deleted the existing kit group ${CC.YELLOW}${kitGroup.id}${CC.GREEN}."
+            "${CC.GREEN}You deleted the kit group ${CC.YELLOW}${kitGroup.id}${CC.GREEN}."
         )
     }
 }

@@ -16,8 +16,18 @@ class KitGroupContainer
             KitGroup(id = DEFAULT)
         )
 
-    val groups: MutableList<KitGroup>
+    val groups: List<KitGroup>
         get() = backingGroups
+
+    fun add(group: KitGroup)
+    {
+        if (group.id == DEFAULT)
+        {
+            throw IllegalStateException("stop")
+        }
+
+        backingGroups += group
+    }
 
     fun remove(group: KitGroup)
     {
