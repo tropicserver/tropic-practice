@@ -17,6 +17,7 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
 import net.evilblock.cubed.util.CC
+import java.util.*
 
 /**
  * @author GrowlyX
@@ -34,7 +35,7 @@ object KitCommands : ScalaCommand()
         help.showHelp()
     }
 
-    @AssignPermission
+    /*@AssignPermission
     @Subcommand("delete")
     @CommandCompletion("@kits")
     @Description("Delete an existing kit.")
@@ -42,7 +43,7 @@ object KitCommands : ScalaCommand()
     {
         // TODO: ensure no matches are ongoing with this kit
 
-    }
+    }*/
 
     @AssignPermission
     @Subcommand("create")
@@ -63,7 +64,13 @@ object KitCommands : ScalaCommand()
 
         val kit = Kit(
             id = lowercaseID,
-            displayName = id.capitalize()
+            displayName = id
+                .replaceFirstChar {
+                    if (it.isLowerCase())
+                        it.titlecase(Locale.getDefault())
+                    else
+                        it.toString()
+                }
         )
 
         with(KitService.cached()) {

@@ -4,14 +4,14 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     `maven-publish`
-    kotlin("jvm") version "1.9.10"
-    kotlin("kapt") version "1.9.10"
+    kotlin("jvm") version "1.9.0"
+    kotlin("kapt") version "1.9.0"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
 allprojects {
     group = "gg.tropic.practice"
-    version = "1.0-SNAPSHOT"
+    version = "1.0.0"
 
     repositories {
         mavenCentral()
@@ -30,10 +30,8 @@ subprojects {
     apply(plugin = "maven-publish")
 
     dependencies {
-        compileOnly(kotlin("stdlib"))
-
-        kapt("gg.scala.commons:bukkit:3.2.1")
-        compileOnly("gg.scala.commons:bukkit:3.2.1")
+        kapt("gg.scala.commons:bukkit:3.2.2")
+        compileOnly("gg.scala.commons:bukkit:3.2.2")
 
         compileOnly("gg.scala.store:spigot:0.1.8")
         compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.5")
