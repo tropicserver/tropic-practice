@@ -19,3 +19,9 @@ import gg.scala.commons.core.plugin.*
     PluginDependency("ScBasics", soft = true)
 )
 class PracticeDevTools : ExtendedScalaPlugin()
+{
+    init
+    {
+        PracticeShared
+    }
+}

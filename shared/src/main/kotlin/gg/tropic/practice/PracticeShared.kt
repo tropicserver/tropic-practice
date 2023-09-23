@@ -1,6 +1,5 @@
 package gg.tropic.practice
 
-import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
@@ -22,15 +21,14 @@ import java.util.*
  * @author GrowlyX
  * @since 8/5/2022
  */
-@Service(priority = 10)
 object PracticeShared
 {
     const val KEY = "tropicpractice"
 
     private lateinit var redirector: ServerAggregateHandler
 
-    @Configure
-    fun configure()
+    // i don't like this, but we need to do it
+    init
     {
         Serializers.create {
             registerTypeAdapter(
