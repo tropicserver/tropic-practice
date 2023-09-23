@@ -5,9 +5,9 @@ import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
 import gg.scala.commons.command.ScalaCommandManager
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
-import gg.tropic.practice.map.Map
 import net.evilblock.cubed.util.CC
 import org.bukkit.potion.PotionEffectType
 
@@ -60,6 +60,52 @@ object KitCommandCustomizers
         manager.commandCompletions
             .registerAsyncCompletion("kits") {
                 KitService.cached().kits.keys
+            }
+
+        manager.commandCompletions
+            .registerAsyncCompletion("stranger-feature-flags-schemakeys") {
+                val kit = it.getContextValue(Kit::class.java)
+                val flag = it.getContextValue(FeatureFlag::class.java)
+                val entry = kit.features[flag] ?: emptyMap()
+
+                flag.schema.keys
+                    .filterNot { key ->
+                        key in entry.keys
+                    }
+            }
+
+        manager.commandCompletions
+            .registerAsyncCompletion("existing-feature-flags-schemakeys") {
+                val kit = it.getContextValue(Kit::class.java)
+                val flag = it.getContextValue(FeatureFlag::class.java)
+                val entry = kit.features[flag] ?: emptyMap()
+
+                flag.schema.keys
+                    .filter { key ->
+                        key in entry.keys
+                    }
+            }
+
+        manager.commandCompletions
+            .registerAsyncCompletion("stranger-feature-flags") {
+                val kit = it.getContextValue(Kit::class.java)
+
+                FeatureFlag.entries
+                    .filterNot { flag ->
+                        flag in kit.features
+                    }
+                    .map(FeatureFlag::name)
+            }
+
+        manager.commandCompletions
+            .registerAsyncCompletion("existing-feature-flags") {
+                val kit = it.getContextValue(Kit::class.java)
+
+                FeatureFlag.entries
+                    .filter { flag ->
+                        flag in kit.features
+                    }
+                    .map(FeatureFlag::name)
             }
 
         manager.commandCompletions

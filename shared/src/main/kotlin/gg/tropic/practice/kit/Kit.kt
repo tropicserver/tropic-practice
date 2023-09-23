@@ -26,6 +26,10 @@ data class Kit(
     val features: MutableMap<FeatureFlag, MutableMap<String, String>> = mutableMapOf()
 )
 {
+    fun features(flag: FeatureFlag) = features.containsKey(flag)
+    fun featureConfig(flag: FeatureFlag, key: String) =
+        features[flag]?.get(key) ?: flag.schema[key]!!
+
     fun populate(player: Player)
     {
         player.inventory.clear()

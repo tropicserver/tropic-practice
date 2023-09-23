@@ -9,6 +9,7 @@ import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
 import net.evilblock.cubed.util.CC
@@ -67,6 +68,71 @@ object KitCommands : ScalaCommand()
         //TODO: Implement a menu to view inventory contents once the kit management is implemented
     }
 
+
+
+    @Subcommand("features add")
+    @CommandCompletion("@kits @stranger-feature-flags")
+    @Description("Add a feature flag to a kit.")
+    fun onFeaturesAdd(player: ScalaPlayer, kit: Kit, feature: FeatureFlag)
+    {
+        if (kit.features(feature))
+        {
+            throw ConditionFailedException(
+                "This kit already features the flag ${CC.YELLOW}${feature.name}${CC.RED}."
+            )
+        }
+
+        if (kit.features.keys.intersect(feature.incompatibleWith()).isNotEmpty())
+        {
+            throw ConditionFailedException(
+                "This kit already features a flag that is incompatible with ${CC.YELLOW}${feature.name}${CC.RED}."
+            )
+        }
+
+        if (feature.requires.any { it !in kit.features.keys })
+        {
+            throw ConditionFailedException(
+                "This kit does not feature the required flags ${CC.YELLOW}${feature.requires.joinToString(", ")}${CC.RED} to add the flag ${CC.YELLOW}${feature.name}${CC.RED}."
+            )
+        }
+
+        with(KitService.cached()) {
+            kit.features[feature] = mutableMapOf()
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have added the feature flag ${CC.YELLOW}${feature.name}${CC.GREEN} to the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN} with all default metadata."
+        )
+    }
+
+    @CommandCompletion("@kits")
+    @Subcommand("features view")
+    @Description("View all feature flags associated with this kit.")
+    fun onFeaturesView(player: ScalaPlayer, kit: Kit)
+    {
+        player.sendMessage("${CC.GREEN}Feature flags for kit ${CC.B_WHITE}${kit.displayName}${CC.GREEN}:")
+
+        if (kit.features.isEmpty())
+        {
+            player.sendMessage("${CC.RED}None")
+            return
+        }
+
+        kit.features
+            .forEach { (flag, meta) ->
+                player.sendMessage(" - ${CC.WHITE}${flag.name}")
+
+                if (meta.isNotEmpty())
+                {
+                    player.sendMessage("   ${CC.GRAY}Metadata:")
+                    meta.forEach { (k, v) ->
+                        player.sendMessage("    ${CC.WHITE}$k: $v")
+                    }
+                }
+            }
+    }
+
     @AssignPermission
     @Subcommand("inventory getcontents")
     @CommandCompletion("@kits")
@@ -96,7 +162,7 @@ object KitCommands : ScalaCommand()
         kit.contents = inventory
         kit.armorContents = armor
 
-        with (KitService.cached()) {
+        with(KitService.cached()) {
             KitService.cached().kits[kit.id] = kit
             KitService.sync(this)
         }
@@ -112,7 +178,7 @@ object KitCommands : ScalaCommand()
     {
         kit.potionEffects[potionEffectType] = amplifier
 
-        with (KitService.cached()) {
+        with(KitService.cached()) {
             KitService.cached().kits[kit.id] = kit
             KitService.sync(this)
         }
