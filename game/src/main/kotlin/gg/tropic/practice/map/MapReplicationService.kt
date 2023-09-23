@@ -32,7 +32,7 @@ object MapReplicationService
 
     // TODO: New map changes don't propagate properly, might
     //  require restart for all game servers.
-    private val readyMaps = mutableMapOf<UUID, ReadyMapTemplate>()
+    private val readyMaps = mutableMapOf<String, ReadyMapTemplate>()
     private val mapReplications = mutableListOf<BuiltMapReplication>()
 
     @Configure
@@ -59,7 +59,7 @@ object MapReplicationService
                         SlimePropertyMap() /* TODO: arena.properties Do we need this? */
                     )
 
-                readyMaps[arena.identifier] = ReadyMapTemplate(slimeWorld)
+                readyMaps[arena.name] = ReadyMapTemplate(slimeWorld)
 
                 plugin.logger.info(
                     "Populated slime cache with SlimeWorld for arena ${arena.name}."
@@ -79,7 +79,7 @@ object MapReplicationService
                 UUID.randomUUID().toString().substring(0..8)
             }"
 
-        val readyMap = readyMaps[arena.identifier]
+        val readyMap = readyMaps[arena.name]
             ?: return CompletableFuture.failedFuture(
                 IllegalStateException("Map ${arena.name} does not have a ready SlimeWorld. Map changes have not propagated to this server?")
             )

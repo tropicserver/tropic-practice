@@ -64,7 +64,6 @@ object KitCommands : ScalaCommand()
         player.sendMessage("${CC.GRAY}Armor contents ${CC.WHITE}(${kit.armorContents.size})${CC.GRAY}: ${CC.WHITE}Click to view.")
         player.sendMessage("${CC.GRAY}Inventory contents ${CC.WHITE}(${kit.contents.size})${CC.GRAY}: ${CC.WHITE}Click to view.")
         //TODO: Implement a menu to view inventory contents once the kit management is implemented
-        player.sendMessage(" ")
     }
 
     @AssignPermission

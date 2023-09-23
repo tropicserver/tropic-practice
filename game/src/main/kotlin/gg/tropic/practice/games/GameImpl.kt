@@ -13,6 +13,7 @@ import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.map.MapService
 import me.lucko.helper.Schedulers
+import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.kyori.adventure.audience.Audience
@@ -36,7 +37,7 @@ class GameImpl(
     kit: Kit,
     var state: GameState,
     private val mapId: String
-) : AbstractGame(expectation, teams, kit)
+) : AbstractGame(expectation, teams, kit), CompositeTerminable by CompositeTerminable.create()
 {
     @Transient
     var activeCountdown = 5
@@ -125,6 +126,7 @@ class GameImpl(
                 0L, TimeUnit.SECONDS,
                 1L, TimeUnit.SECONDS
             )
+        stopTask.task.bindWith(this)
     }
 
     fun initializeAndStart()
@@ -136,6 +138,7 @@ class GameImpl(
                 1L, TimeUnit.SECONDS,
                 1L, TimeUnit.SECONDS
             )
+        startTask.task.bindWith(this)
 
         DataStoreObjectControllerCache
             .findNotNull<DuelExpectation>()
@@ -230,19 +233,15 @@ class GameImpl(
             it.players
         }
 
-    private var closed = false
-
     fun closeAndCleanup(
         reason: String,
         kickPlayers: Boolean = true
     )
     {
-        if (closed)
+        if (isClosed)
         {
             return
         }
-
-        this.closed = true
 
         kotlin.runCatching {
             Logger.getGlobal().info(
@@ -293,6 +292,8 @@ class GameImpl(
         }.onFailure {
             it.printStackTrace()
         }
+
+        closeAndReportException()
     }
 
     fun ensurePlaying() = this.state(GameState.Playing)

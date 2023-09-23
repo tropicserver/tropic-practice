@@ -161,7 +161,7 @@ object ExpectationService
                         mapId = expectation.mapId
                     )
 
-                    // NEVER join this CompletableFuture
+                    // TODO: do this before players log on at all? try to use a random map pre-genned?
                     MapReplicationService
                         .generateArenaWorld(compatible)
                         .thenAccept { world ->
