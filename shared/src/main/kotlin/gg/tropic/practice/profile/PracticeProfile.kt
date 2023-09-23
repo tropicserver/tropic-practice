@@ -1,7 +1,7 @@
 package gg.tropic.practice.profile
 
 import gg.scala.store.storage.storable.IDataStoreObject
-import gg.tropic.practice.games.GameType
+import gg.tropic.practice.profile.loadout.Loadout
 import gg.tropic.practice.statistics.GlobalStatistics
 import gg.tropic.practice.statistics.KitStatistics
 import gg.tropic.practice.statistics.ranked.RankedKitStatistics
@@ -25,5 +25,13 @@ data class PracticeProfile(
     val rankedStatistics = ConcurrentHashMap<
         String,
         RankedKitStatistics
+    >()
+
+    val customLoadouts = ConcurrentHashMap<
+        String,
+        ConcurrentHashMap<
+            String,
+            Loadout
+        >
     >()
 }

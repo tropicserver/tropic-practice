@@ -1,6 +1,5 @@
 package gg.tropic.practice.games
 
-import gg.scala.store.storage.storable.IDataStoreObject
 import java.util.*
 
 /**
@@ -8,7 +7,7 @@ import java.util.*
  * @since 8/4/2022
  */
 class GameReport(
-    override val identifier: UUID,
+    val identifier: UUID,
     val winners: List<UUID>,
     val losers: List<UUID>,
     val snapshots: Map<UUID, GameReportSnapshot>,
@@ -17,4 +16,4 @@ class GameReport(
     val status: GameReportStatus,
     val matchDate: Date = Date(),
     var viewed: Boolean = false
-) : IDataStoreObject
+)

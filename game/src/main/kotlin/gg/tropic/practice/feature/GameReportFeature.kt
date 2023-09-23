@@ -1,12 +1,9 @@
 package gg.tropic.practice.feature
 
-import gg.tropic.practice.games.GameReport
-import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.scala.lemon.Lemon
+import gg.tropic.practice.games.GameReport
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
-import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
@@ -19,12 +16,6 @@ object GameReportFeature
 {
     private val connection = ScalaCommonsSpigot.instance.kvConnection
     private val matchPersistCacheMillis = TimeUnit.DAYS.toSeconds(3L)
-
-    @Configure
-    fun configure()
-    {
-        connection
-    }
 
     fun saveSnapshotForAllParticipants(snapshot: GameReport): CompletableFuture<Void>
     {
