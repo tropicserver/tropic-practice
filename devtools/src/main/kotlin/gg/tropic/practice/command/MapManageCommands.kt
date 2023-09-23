@@ -47,7 +47,7 @@ object MapManageCommands : ScalaCommand()
         slimePlugin = plugin.server.pluginManager
             .getPlugin("SlimeWorldManager") as SlimePlugin
 
-        loader = slimePlugin.getLoader("mongo")
+        loader = slimePlugin.getLoader("mongodb")
     }
 
     @Default

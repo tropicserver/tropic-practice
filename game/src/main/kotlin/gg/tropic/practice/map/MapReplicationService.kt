@@ -41,7 +41,7 @@ object MapReplicationService
         slimePlugin = plugin.server.pluginManager
             .getPlugin("SlimeWorldManager") as SlimePlugin
 
-        loader = slimePlugin.getLoader("mongo")
+        loader = slimePlugin.getLoader("mongodb")
 
         populateSlimeCache()
     }

@@ -30,6 +30,8 @@ subprojects {
     apply(plugin = "maven-publish")
 
     dependencies {
+        compileOnly(kotlin("stdlib"))
+
         kapt("gg.scala.commons:bukkit:3.2.1")
         compileOnly("gg.scala.commons:bukkit:3.2.1")
 
