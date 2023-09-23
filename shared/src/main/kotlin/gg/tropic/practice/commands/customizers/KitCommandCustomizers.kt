@@ -5,6 +5,9 @@ import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
 import gg.scala.commons.command.ScalaCommandManager
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.kit.group.KitGroup
+import gg.tropic.practice.kit.group.KitGroupService
+import gg.tropic.practice.map.Map
 import net.evilblock.cubed.util.CC
 
 /**
@@ -28,6 +31,30 @@ object KitCommandCustomizers
         manager.commandCompletions
             .registerAsyncCompletion("kits") {
                 KitService.cached().kits.keys
+            }
+
+        manager.commandCompletions
+            .registerAsyncCompletion("stranger-kit-groups-to-kit") {
+                val kit = it.getContextValue(Kit::class.java)
+
+                KitGroupService.cached()
+                    .groups
+                    .filterNot { group ->
+                        kit.id in group.contains
+                    }
+                    .map(KitGroup::id)
+            }
+
+        manager.commandCompletions
+            .registerAsyncCompletion("associated-kit-groups-with-kit") {
+                val kit = it.getContextValue(Kit::class.java)
+
+                KitGroupService.cached()
+                    .groups
+                    .filter { group ->
+                        kit.id in group.contains
+                    }
+                    .map(KitGroup::id)
             }
     }
 }

@@ -80,7 +80,7 @@ object MapCommands : ScalaCommand()
         if (group.id in map.associatedKitGroups)
         {
             throw ConditionFailedException(
-                "The kit group ${group.id} is already associated with map ${map.name}."
+                "The kit group ${CC.YELLOW}${group.id}${CC.RED} is already associated with map ${CC.YELLOW}${map.name}${CC.RED}."
             )
         }
 
@@ -100,14 +100,14 @@ object MapCommands : ScalaCommand()
         if (group.id !in map.associatedKitGroups)
         {
             throw ConditionFailedException(
-                "The kit group ${group.id} is not associated with map ${map.name}."
+                "The kit group ${CC.YELLOW}${group.id}${CC.RED} is not associated with map ${CC.YELLOW}${map.name}${CC.RED}."
             )
         }
 
         if (map.associatedKitGroups.size == 1)
         {
             throw ConditionFailedException(
-                "You cannot remove this kit group when there are no other kit groups associated with this map. Please run ${CC.WHITE}/map groups add ${map.name} __default__${CC.RED} to add back the default group before you remove the ${CC.YELLOW}${group.id}${CC.RED} group."
+                "You cannot remove this kit group when there are no other kit groups associated with this map. Please run ${CC.YELLOW}/map groups add ${map.name} __default__${CC.RED} to add back the default group before you remove the ${CC.YELLOW}${group.id}${CC.RED} group."
             )
         }
 
