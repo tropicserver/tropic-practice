@@ -43,6 +43,7 @@ object KitGroupCommands : ScalaCommand()
     fun onInfo(player: ScalaPlayer, kitGroup: KitGroup)
     {
         val kits = kitGroup.kits()
+        //TODO: Bulk up KitGroup a little. Not much being displayed rn besides child kits
         player.sendMessage(" ")
         player.sendMessage("${CC.GREEN}Information for the kit group ${CC.WHITE}${kitGroup.id}")
         player.sendMessage(" ")
@@ -70,6 +71,7 @@ object KitGroupCommands : ScalaCommand()
 
         for ((i, group) in kitGroups.withIndex())
         {
+            //TODO: A lot of gray here, maybe switch up hover events here and in kit list command
             val uniqueInfoComponent = FancyMessage()
                 .withMessage(
                     "${CC.GRAY}${group.id}${
