@@ -16,7 +16,7 @@ class KitGroupContainer
             KitGroup(id = DEFAULT)
         )
 
-    val groups: List<KitGroup>
+    val groups: MutableList<KitGroup>
         get() = backingGroups
 
     fun remove(group: KitGroup)
