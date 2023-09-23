@@ -31,6 +31,23 @@ data class Kit(
         player.inventory.clear()
         player.inventory.armorContents = armorContents
         player.inventory.contents = contents
+
+        if (player.activePotionEffects.isNotEmpty())
+        {
+            player.activePotionEffects
+                .forEach { effect ->
+                    player.removePotionEffect(effect.type)
+                }
+        }
+
+        if (potionEffects.isNotEmpty())
+        {
+            potionEffects.forEach { (t, u) ->
+                // TODO: timed potion effects?
+                player.addPotionEffect(PotionEffect(t, Int.MAX_VALUE, u))
+            }
+        }
+
         player.updateInventory()
     }
 
