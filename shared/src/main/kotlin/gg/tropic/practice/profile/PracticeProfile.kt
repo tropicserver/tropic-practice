@@ -30,7 +30,7 @@ data class PracticeProfile(
     val customLoadouts = ConcurrentHashMap<
         String,
         ConcurrentHashMap<
-            String,
+            String, // "Default #1"
             Loadout
         >
     >()

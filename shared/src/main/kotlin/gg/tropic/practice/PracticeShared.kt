@@ -1,5 +1,8 @@
 package gg.tropic.practice
 
+import com.google.gson.TypeAdapter
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
@@ -15,6 +18,7 @@ import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.serializers.impl.AbstractTypeSerializer
 import net.evilblock.cubed.util.CC
 import org.bukkit.entity.Player
+import org.bukkit.potion.PotionEffectType
 import java.util.*
 
 /**
@@ -35,13 +39,28 @@ object PracticeShared
                 AbstractMapMetadata::class.java,
                 AbstractTypeSerializer<AbstractMapMetadata>()
             )
+
+            registerTypeAdapter(
+                PotionEffectType::class.java,
+                object : TypeAdapter<PotionEffectType>()
+                {
+                    override fun write(out: JsonWriter?, value: PotionEffectType?)
+                    {
+                        out?.value(value?.name)
+                    }
+
+                    override fun read(`in`: JsonReader?): PotionEffectType?
+                    {
+                        return PotionEffectType.getByName(`in`?.nextString())
+                    }
+                }
+            )
         }
     }
 
     fun load()
     {
         DataStoreObjectControllerCache.create<DuelExpectation>()
-
         DataStoreObjectControllerCache.create<AbstractGame>()
 
         redirector = LeastTrafficServerAggregateHandler("duels")

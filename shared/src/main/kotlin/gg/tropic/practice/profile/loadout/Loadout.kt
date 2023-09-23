@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack
 data class Loadout(
     val name: String,
     val pairedKit: String,
-    val inventoryContents: Array<ItemStack?> = arrayOfNulls(27)
+    val inventoryContents: Array<ItemStack?> = arrayOfNulls(36)
 )
 {
     override fun equals(other: Any?): Boolean
