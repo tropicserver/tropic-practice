@@ -27,7 +27,7 @@ class GameStopTask(
         {
             this.game.sendMessage(
                 "",
-                "  ${CC.B_AQUA}GAME OVERVIEW:",
+                "  ${CC.B_PRI}GAME OVERVIEW:",
                 "  ${CC.GRAY}Duration: ${CC.WHITE}${this.game.getDuration()}",
                 "",
                 "  ${CC.GREEN}Winner${

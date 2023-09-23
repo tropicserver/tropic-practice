@@ -81,7 +81,7 @@ class GameStartTask(
 
             this.game.sendMessage(
                 "",
-                "${CC.D_AQUA}Starting $teamVersus game between:",
+                "${CC.PRI}Starting ${CC.B_PRI}$teamVersus${CC.PRI} game between:",
                 "${CC.WHITE}${
                     this.game.teams[GameTeamSide.A]!!.players
                         .joinToString(", ") { 

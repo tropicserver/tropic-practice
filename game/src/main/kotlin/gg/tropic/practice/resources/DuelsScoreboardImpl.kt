@@ -1,5 +1,6 @@
 package gg.tropic.practice.resources
 
+import gg.scala.lemon.LemonConstants
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.scala.lemon.util.QuickAccess.username
@@ -90,7 +91,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                     }ms"
                 } else
                 {
-                    board += "${CC.GRAY}Arena: ${CC.WHITE}${game.map.display}"
+                    board += "${CC.GRAY}Map: ${CC.WHITE}${game.map.displayName}"
                     board += ""
                     board += "${CC.GREEN}Your ping: ${CC.WHITE}${MinecraftReflection.getPing(player)}ms"
                     board += "${CC.RED}Opponent pings:"
@@ -151,9 +152,9 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
         }
 
         board += ""
-        board += "???.com  ${CC.GRAY}"
+        board += "${LemonConstants.WEB_LINK}  ${CC.GRAY}"
     }
 
     override fun getTitle(player: Player) =
-        "${CC.B_AQUA}???"
+        "${CC.B_PRI}${LemonConstants.SERVER_NAME}"
 }
