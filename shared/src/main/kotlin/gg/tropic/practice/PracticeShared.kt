@@ -1,5 +1,7 @@
 package gg.tropic.practice
 
+import gg.scala.flavor.service.Configure
+import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
@@ -8,7 +10,10 @@ import gg.scala.store.storage.type.DataStoreStorageType
 import gg.tropic.practice.expectation.DuelExpectation
 import gg.tropic.practice.games.AbstractGame
 import gg.tropic.practice.games.GameReport
+import gg.tropic.practice.map.metadata.AbstractMapMetadata
 import me.lucko.helper.Schedulers
+import net.evilblock.cubed.serializers.Serializers
+import net.evilblock.cubed.serializers.impl.AbstractTypeSerializer
 import net.evilblock.cubed.util.CC
 import org.bukkit.entity.Player
 import java.util.*
@@ -17,11 +22,23 @@ import java.util.*
  * @author GrowlyX
  * @since 8/5/2022
  */
+@Service(priority = 10)
 object PracticeShared
 {
     const val KEY = "tropicpractice"
 
     private lateinit var redirector: ServerAggregateHandler
+
+    @Configure
+    fun configure()
+    {
+        Serializers.create {
+            registerTypeAdapter(
+                AbstractMapMetadata::class.java,
+                AbstractTypeSerializer<AbstractMapMetadata>()
+            )
+        }
+    }
 
     fun load()
     {

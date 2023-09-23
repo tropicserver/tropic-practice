@@ -29,17 +29,6 @@ object MapService : DataSyncService<MapContainer>()
     override fun keys() = MapKeys
     override fun type() = MapContainer::class.java
 
-    @Configure
-    fun configure()
-    {
-        Serializers.create {
-            registerTypeAdapter(
-                AbstractMapMetadata::class.java,
-                AbstractTypeSerializer<AbstractMapMetadata>()
-            )
-        }
-    }
-
     fun mapWithID(id: String) = cached().maps.values
         .firstOrNull {
             it.name.equals(id, true)

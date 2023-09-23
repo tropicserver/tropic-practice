@@ -29,7 +29,7 @@ object MapCommandCustomizers
         }
 
         manager.commandCompletions
-            .registerCompletion("maps") {
+            .registerAsyncCompletion("maps") {
                 MapService.cached().maps.keys
             }
     }

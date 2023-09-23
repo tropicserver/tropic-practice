@@ -27,8 +27,20 @@ object MapCommands : ScalaCommand()
         help.showHelp()
     }
 
+    @Subcommand("list")
+    @Description("List all maps.")
+    fun onList(player: ScalaPlayer)
+    {
+        player.sendMessage(
+            "${CC.GREEN}Maps:",
+            "${CC.GRAY}${
+                MapService.cached().maps.keys.joinToString(", ")
+            }"
+        )
+    }
+
     @Subcommand("groups add")
-    @CommandCompletion("@stranger-kit-groups")
+    @CommandCompletion("@maps @stranger-kit-groups")
     @Description("Associate a kit group with a map.")
     fun onGroupsAdd(player: ScalaPlayer, map: Map, group: KitGroup)
     {
@@ -48,7 +60,7 @@ object MapCommands : ScalaCommand()
     }
 
     @Subcommand("groups remove")
-    @CommandCompletion("@associated-kit-groups")
+    @CommandCompletion("@maps @associated-kit-groups")
     @Description("Remove an associated kit group from a map.")
     fun onGroupsRemove(player: ScalaPlayer, map: Map, group: KitGroup)
     {

@@ -30,13 +30,13 @@ object KitGroupCommandCustomizers
         }
 
         manager.commandCompletions
-            .registerCompletion("kit-groups") {
+            .registerAsyncCompletion("kit-groups") {
                 KitGroupService.cached()
                     .groups.map(KitGroup::id)
             }
 
         manager.commandCompletions
-            .registerCompletion("stranger-kit-groups") {
+            .registerAsyncCompletion("stranger-kit-groups") {
                 val map = it.getContextValue(Map::class.java)
 
                 KitGroupService.cached()
@@ -47,7 +47,7 @@ object KitGroupCommandCustomizers
             }
 
         manager.commandCompletions
-            .registerCompletion("associated-kit-groups") {
+            .registerAsyncCompletion("associated-kit-groups") {
                 val map = it.getContextValue(Map::class.java)
 
                 KitGroupService.cached()

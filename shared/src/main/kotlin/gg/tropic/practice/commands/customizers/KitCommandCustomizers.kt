@@ -26,7 +26,7 @@ object KitCommandCustomizers
         }
 
         manager.commandCompletions
-            .registerCompletion("kits") {
+            .registerAsyncCompletion("kits") {
                 KitService.cached().kits.keys
             }
     }
