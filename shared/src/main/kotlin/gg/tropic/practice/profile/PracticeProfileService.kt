@@ -3,6 +3,9 @@ package gg.tropic.practice.profile
 import gg.scala.commons.persist.ProfileOrchestrator
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.games.GameType
+import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.statistics.KitStatistics
+import gg.tropic.practice.statistics.ranked.RankedKitStatistics
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -21,10 +24,9 @@ object PracticeProfileService : ProfileOrchestrator<PracticeProfile>()
         val profile = find(uniqueId)
             ?: return
 
-        GameType.entries
-            .forEach {
-                profile.casualStatistics.putIfAbsent(it, ConcurrentHashMap())
-                profile.rankedStatistics.putIfAbsent(it, ConcurrentHashMap())
-            }
+        KitService.cached().kits.values.forEach {
+            profile.rankedStatistics.putIfAbsent(it.id, RankedKitStatistics())
+            profile.casualStatistics.putIfAbsent(it.id, KitStatistics())
+        }
     }
 }

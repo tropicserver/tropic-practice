@@ -17,19 +17,13 @@ data class PracticeProfile(
 ) : IDataStoreObject
 {
     val globalStatistics = GlobalStatistics()
-    val casualStatistics = mutableMapOf<
-        GameType,
-        ConcurrentHashMap<
-            String,
-            KitStatistics
-        >
+    val casualStatistics = ConcurrentHashMap<
+        String,
+        KitStatistics
     >()
 
-    val rankedStatistics = mutableMapOf<
-        GameType,
-        ConcurrentHashMap<
-            String,
-            RankedKitStatistics
-        >
+    val rankedStatistics = ConcurrentHashMap<
+        String,
+        RankedKitStatistics
     >()
 }
