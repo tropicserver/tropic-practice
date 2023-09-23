@@ -9,10 +9,10 @@ import org.joda.time.PeriodType
  * @since 9/21/2023
  */
 abstract class Volatile<T : Any>(
-    val defaultValue: T
+    private val defaultValue: T
 )
 {
-    abstract val lifetime: DateTime.() -> DateTime
+    abstract fun lifetime(): DateTime.() -> DateTime
 
     private var value = defaultValue
     private var lastValidation = DateTime
@@ -31,7 +31,7 @@ abstract class Volatile<T : Any>(
 
     fun get(): T
     {
-        if (lifetime(DateTime(lastValidation)).isAfterNow)
+        if (lifetime()(DateTime(lastValidation)).isAfterNow)
         {
             value = defaultValue
             lastValidation = DateTime.now().millis
@@ -43,7 +43,7 @@ abstract class Volatile<T : Any>(
     fun timeUntilNextRefreshMillis() =
         Period(
             DateTime.now(),
-            lifetime(
+            lifetime()(
                 DateTime(lastValidation)
             ),
             PeriodType.millis()
