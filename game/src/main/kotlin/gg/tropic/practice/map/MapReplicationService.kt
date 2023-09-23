@@ -110,6 +110,10 @@ object MapReplicationService
             .bindWith(terminable)
 
         return future
+            .thenCompose { world ->
+                arena.metadata.clearSignLocations(world)
+                    .thenApply { world }
+            }
             .thenApply {
                 it.setGameRuleValue("naturalRegeneration", "false")
                 it.setGameRuleValue("sendCommandFeedback", "false")
