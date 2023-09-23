@@ -41,7 +41,6 @@ object PracticeShared
     fun load()
     {
         DataStoreObjectControllerCache.create<DuelExpectation>()
-        DataStoreObjectControllerCache.create<GameReport>()
 
         DataStoreObjectControllerCache.create<AbstractGame>()
 
