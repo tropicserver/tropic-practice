@@ -61,7 +61,15 @@ object MapCommands : ScalaCommand()
             )
         }
 
-        listFancyMessage.sendToPlayer(player.bukkit())
+        if (listFancyMessage.components.isNotEmpty())
+        {
+            listFancyMessage.sendToPlayer(player.bukkit())
+        } else
+        {
+            player.sendMessage(
+                "${CC.RED}None"
+            )
+        }
     }
 
     @Subcommand("groups add")
@@ -99,7 +107,7 @@ object MapCommands : ScalaCommand()
         if (map.associatedKitGroups.size == 1)
         {
             throw ConditionFailedException(
-                "You cannot remove this kit group when there are no other kit groups associated with a map. Please run ${CC.WHITE}/map groups add ${map.name} __default__${CC.RED} to add back the default group before you remove the ${CC.YELLOW}${group.id}${CC.RED} group."
+                "You cannot remove this kit group when there are no other kit groups associated with this map. Please run ${CC.WHITE}/map groups add ${map.name} __default__${CC.RED} to add back the default group before you remove the ${CC.YELLOW}${group.id}${CC.RED} group."
             )
         }
 
@@ -143,6 +151,14 @@ object MapCommands : ScalaCommand()
             )
         }
 
-        listFancyMessage.sendToPlayer(player.bukkit())
+        if (listFancyMessage.components.isNotEmpty())
+        {
+            listFancyMessage.sendToPlayer(player.bukkit())
+        } else
+        {
+            player.sendMessage(
+                "${CC.RED}None"
+            )
+        }
     }
 }

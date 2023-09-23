@@ -2,21 +2,14 @@ package gg.tropic.practice.commands
 
 import gg.scala.commons.acf.CommandHelp
 import gg.scala.commons.acf.ConditionFailedException
-import gg.scala.commons.acf.annotation.CommandAlias
-import gg.scala.commons.acf.annotation.CommandCompletion
-import gg.scala.commons.acf.annotation.CommandPermission
-import gg.scala.commons.acf.annotation.Default
-import gg.scala.commons.acf.annotation.Description
-import gg.scala.commons.acf.annotation.HelpCommand
-import gg.scala.commons.acf.annotation.Single
-import gg.scala.commons.acf.annotation.Subcommand
+import gg.scala.commons.acf.annotation.*
 import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
-import gg.tropic.practice.kit.group.KitGroup
+import gg.tropic.practice.kit.group.KitGroupService
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent
@@ -146,6 +139,14 @@ object KitCommands : ScalaCommand()
 
         with(KitService.cached()) {
             kits[lowercaseID] = kit
+
+            with(KitGroupService) {
+                with(cached()) {
+                    default().contains += lowercaseID
+                    KitGroupService.sync(this)
+                }
+            }
+
             KitService.sync(this)
         }
 

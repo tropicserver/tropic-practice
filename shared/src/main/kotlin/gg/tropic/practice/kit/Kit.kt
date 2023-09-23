@@ -13,7 +13,7 @@ class Kit(
     val id: String,
     val displayName: String,
     val displayIcon: ItemStack = ItemBuilder
-        .of(Material.POTATO)
+        .of(Material.IRON_SWORD)
         .build(),
     var enabled: Boolean = false,
     var armorContents: Array<ItemStack?> = arrayOfNulls(4),
