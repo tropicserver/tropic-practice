@@ -9,7 +9,5 @@ import net.evilblock.cubed.serializers.impl.AbstractTypeSerializable
 abstract class AbstractMapMetadata : AbstractTypeSerializable
 {
     abstract val id: String
-
-    abstract fun adjustLocations(xDiff: Double, zDiff: Double): AbstractMapMetadata
 }
 

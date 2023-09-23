@@ -3,6 +3,7 @@ package gg.tropic.practice.kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 /**
@@ -18,6 +19,15 @@ class Kit(
     var enabled: Boolean = false,
     var armorContents: Array<ItemStack?> = arrayOfNulls(4),
     var contents: Array<ItemStack?> = arrayOfNulls(36),
-    var additionalContents: List<ItemStack> = listOf(),
+    var additionalContents: Array<ItemStack?> = arrayOfNulls(27),
     val features: MutableMap<FeatureFlag, MutableMap<String, String>> = mutableMapOf()
 )
+{
+    fun populate(player: Player)
+    {
+        player.inventory.clear()
+        player.inventory.armorContents = armorContents
+        player.inventory.contents = contents
+        player.updateInventory()
+    }
+}

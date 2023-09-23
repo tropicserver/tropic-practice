@@ -1,8 +1,9 @@
 package gg.tropic.practice.map.utilities
 
 import gg.tropic.practice.map.metadata.AbstractMapMetadata
+import gg.tropic.practice.map.metadata.anonymous.Bounds
 import gg.tropic.practice.map.metadata.sign.parseIntoMetadata
-import net.evilblock.cubed.util.bukkit.cuboid.Cuboid
+import org.bukkit.World
 import org.bukkit.block.Sign
 import org.bukkit.util.Vector
 
@@ -12,13 +13,10 @@ import org.bukkit.util.Vector
  */
 object MapMetadataScanUtilities
 {
-    fun buildMetadataFor(bounds: Cuboid): MapMetadata
+    fun buildMetadataFor(bounds: Bounds, world: World): MapMetadata
     {
         val scheduledRemoval = mutableListOf<Vector>()
-        val blocks = bounds.getChunks()
-            .flatMap {
-                it.tileEntities.toList()
-            }
+        val blocks = bounds.getTileEntities(world)
 
         val modelMappings = blocks
             .filterIsInstance<Sign>()

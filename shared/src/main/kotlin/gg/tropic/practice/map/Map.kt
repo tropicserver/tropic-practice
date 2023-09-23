@@ -1,8 +1,10 @@
 package gg.tropic.practice.map
 
+import gg.tropic.practice.games.team.GameTeamSide
+import gg.tropic.practice.map.metadata.anonymous.Bounds
+import gg.tropic.practice.map.metadata.impl.MapSpawnMetadata
 import gg.tropic.practice.map.utilities.MapMetadata
 import net.evilblock.cubed.util.bukkit.ItemBuilder
-import net.evilblock.cubed.util.bukkit.cuboid.Cuboid
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 
@@ -16,7 +18,7 @@ import org.bukkit.inventory.ItemStack
  */
 data class Map(
     val name: String,
-    val bounds: Cuboid,
+    val bounds: Bounds,
     val metadata: MapMetadata,
     var displayName: String,
     val displayIcon: ItemStack = ItemBuilder
@@ -26,3 +28,12 @@ data class Map(
     val associatedKitGroups: MutableSet<String> =
         mutableSetOf("__default__")
 )
+{
+    fun findSpawnLocationMatchingTeam(team: GameTeamSide) = metadata
+        .metadata
+        .filterIsInstance<MapSpawnMetadata>()
+        .firstOrNull {
+            it.id == team.name.lowercase()
+        }
+        ?.position
+}

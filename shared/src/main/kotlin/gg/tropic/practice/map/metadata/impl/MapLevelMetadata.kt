@@ -17,5 +17,4 @@ data class MapLevelMetadata(
         get() = (yAxis - below)..yAxis
 
     override fun getAbstractType() = MapLevelMetadata::class.java
-    override fun adjustLocations(xDiff: Double, zDiff: Double) = this.copy()
 }

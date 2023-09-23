@@ -6,6 +6,7 @@ import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.resetAttributes
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.kit.feature.FeatureFlag
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
@@ -39,32 +40,34 @@ class GameStartTask(
             this.game.toBukkitPlayers()
                 .filterNotNull()
                 .forEach { player ->
-                    val team = this.game
-                        .getTeamOf(player)
-                        .side.ordinal
-
-                    val spawn = this.game
-                        .map.spawns[team]!!
+                    val team = this.game.getTeamOf(player).side
+                    val spawn = this.game.map.findSpawnLocationMatchingTeam(team)
 
                     VisibilityHandler.update(player)
                     NametagHandler.reloadPlayer(player)
 
-                    val objective = player.scoreboard
-                        .getObjective("commonsHealth")
-                        ?: player.scoreboard
-                            .registerNewObjective(
-                                "commonsHealth", "health"
-                            )
+                    if (game.flag(FeatureFlag.HeartsBelowNameTag))
+                    {
+                        val objective = player.scoreboard
+                            .getObjective("commonsHealth")
+                            ?: player.scoreboard
+                                .registerNewObjective(
+                                    "commonsHealth", "health"
+                                )
 
-                    objective.displaySlot = DisplaySlot.BELOW_NAME
-                    objective.displayName = "${CC.D_RED}${Constants.HEART_SYMBOL}"
+                        objective.displaySlot = DisplaySlot.BELOW_NAME
+                        objective.displayName = "${CC.D_RED}${Constants.HEART_SYMBOL}"
+                    }
 
                     player.resetAttributes()
 
                     Tasks.sync {
-                        player.teleport(
-                            spawn.location(this.game.arenaWorld)
-                        )
+                        // TODO: What the hell do we do here?
+                        val world = spawn
+                            ?.toLocation(this.game.arenaWorld)
+                            ?: return@sync
+
+                        player.teleport(world)
                     }
 
                     this.game.kit.populate(player)

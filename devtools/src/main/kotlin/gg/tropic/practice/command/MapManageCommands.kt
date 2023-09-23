@@ -10,10 +10,11 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapManageServices
 import gg.tropic.practice.map.MapService
+import gg.tropic.practice.map.metadata.anonymous.Bounds
+import gg.tropic.practice.map.metadata.anonymous.toPosition
 import gg.tropic.practice.map.utilities.MapMetadataScanUtilities
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Tasks
-import net.evilblock.cubed.util.bukkit.cuboid.Cuboid
 import net.evilblock.cubed.util.bukkit.prompt.InputPrompt
 import org.bukkit.Bukkit
 import org.bukkit.Sound
@@ -79,9 +80,12 @@ object MapManageCommands : ScalaCommand()
                                 val highest = location
 
                                 sendMessage("${CC.GRAY}Building a metadata copy...")
-                                val bounds = Cuboid(l1 = lowest, l2 = highest)
+                                val bounds = Bounds(
+                                    lowest.toPosition(),
+                                    highest.toPosition()
+                                )
                                 val metadata = MapMetadataScanUtilities
-                                    .buildMetadataFor(bounds)
+                                    .buildMetadataFor(bounds, devToolsMap)
 
                                 sendMessage("${CC.B_GRAY}(!)${CC.GRAY} Created a metadata copy! We're now going to build the map data model...")
 
