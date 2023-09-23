@@ -1,5 +1,6 @@
 package gg.tropic.practice.map.metadata.scanner.impl
 
+import gg.tropic.practice.map.metadata.anonymous.toPosition
 import gg.tropic.practice.map.metadata.impl.MapZoneMetadata
 import gg.tropic.practice.map.metadata.scanner.AbstractMapMetadataScanner
 import gg.tropic.practice.map.metadata.sign.MapSignMetadataModel
@@ -18,7 +19,9 @@ object MapZoneMetadataScanner : AbstractMapMetadataScanner<MapZoneMetadata>()
     ): MapZoneMetadata
     {
         return MapZoneMetadata(
-            id, models[0].location, models[1].location
+            id,
+            models[0].location.toPosition(),
+            models[1].location.toPosition()
         )
     }
 }

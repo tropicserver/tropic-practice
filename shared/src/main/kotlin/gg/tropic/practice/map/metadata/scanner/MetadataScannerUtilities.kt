@@ -3,7 +3,6 @@ package gg.tropic.practice.map.metadata.scanner
 import gg.tropic.practice.map.metadata.scanner.impl.MapLevelMetadataScanner
 import gg.tropic.practice.map.metadata.scanner.impl.MapSpawnMetadataScanner
 import gg.tropic.practice.map.metadata.scanner.impl.MapZoneMetadataScanner
-import gg.tropic.practice.map.metadata.scanner.impl.MapBedMetadataScanner
 
 /**
  * @author GrowlyX
@@ -12,10 +11,10 @@ import gg.tropic.practice.map.metadata.scanner.impl.MapBedMetadataScanner
 object MetadataScannerUtilities
 {
     private val scanners = mutableListOf<AbstractMapMetadataScanner<*>>(
+        // TODO: dynamic scan with @Service please
         MapZoneMetadataScanner,
         MapSpawnMetadataScanner,
-        MapLevelMetadataScanner,
-        MapBedMetadataScanner
+        MapLevelMetadataScanner
     )
 
     fun matches(type: String) =

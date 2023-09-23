@@ -1,5 +1,6 @@
 package gg.tropic.practice.map.metadata.scanner.impl
 
+import gg.tropic.practice.map.metadata.anonymous.toPosition
 import gg.tropic.practice.map.metadata.impl.MapSpawnMetadata
 import gg.tropic.practice.map.metadata.scanner.AbstractMapMetadataScanner
 import gg.tropic.practice.map.metadata.sign.MapSignMetadataModel
@@ -36,9 +37,9 @@ object MapSpawnMetadataScanner : AbstractMapMetadataScanner<MapSpawnMetadata>()
         val sign = model.location.block.state.data as Sign
         location.yaw = manualMappings[sign.facing]!!
 
-        location.z = location.z + 0.500F
-        location.x = location.x + 0.500F
+        location.z += 0.500F
+        location.x += 0.500F
 
-        return MapSpawnMetadata(id, location)
+        return MapSpawnMetadata(id, location.toPosition())
     }
 }
