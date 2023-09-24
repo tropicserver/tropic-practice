@@ -4,7 +4,9 @@ import gg.scala.aware.AwareBuilder
 import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
 import gg.scala.aware.message.AwareMessage
 import gg.scala.aware.thread.AwareThreadContext
+import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.agnostic.sync.ServerSync
+import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import me.lucko.helper.Schedulers
@@ -19,6 +21,9 @@ import java.util.logging.Logger
 @Service
 object ReplicationManagerService : CompositeTerminable by CompositeTerminable.create()
 {
+    @Inject
+    lateinit var plugin: ExtendedScalaPlugin
+
     private val aware by lazy {
         AwareBuilder
             .of<AwareMessage>("replicationmanager")
@@ -45,6 +50,8 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                 )
             }, 0L, 10L)
             .bindWith(this)
+
+        plugin.logger.info("Bound status service. Status updates for available replications will be pushed to the replicationmanager channel ever 0.5 secnods.")
     }
 
     @Configure

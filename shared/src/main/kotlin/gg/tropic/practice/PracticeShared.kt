@@ -92,6 +92,8 @@ object PracticeShared
 
         val playersLinked = LinkedList(players)
 
+        // TODO: rework. pregen map and then send a packet
+        //  to push all players to the servers.
         Schedulers.sync().runRepeating({ task ->
             if (playersLinked.isEmpty())
             {

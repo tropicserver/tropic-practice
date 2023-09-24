@@ -1,6 +1,7 @@
 package gg.tropic.practice.expectation
 
 import gg.scala.store.storage.storable.IDataStoreObject
+import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
 import java.util.*
@@ -14,5 +15,9 @@ data class DuelExpectation(
     val players: List<UUID>,
     val teams: Map<GameTeamSide, GameTeam>,
     val kitId: String,
-    val mapId: String
+    val mapId: String,
+    /**
+     * Null queue types mean it is a private duel.
+     */
+    val queueType: QueueType? = null
 ) : IDataStoreObject
