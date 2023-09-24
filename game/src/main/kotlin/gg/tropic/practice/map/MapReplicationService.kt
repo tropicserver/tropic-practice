@@ -88,7 +88,7 @@ object MapReplicationService
     fun findScheduledReplication(expectation: UUID) = mapReplications
         .firstOrNull { it.scheduledForExpectation == expectation }
 
-    private const val TARGET_PRE_GEN_REPLICATIONS = 8
+    private const val TARGET_PRE_GEN_REPLICATIONS = 32
     private fun preGenerateMapReplications(): CompletableFuture<Void>
     {
         return CompletableFuture.allOf(
