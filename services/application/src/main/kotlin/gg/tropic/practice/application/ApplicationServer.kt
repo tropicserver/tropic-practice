@@ -15,8 +15,10 @@ import gg.scala.store.connection.mongo.AbstractDataStoreMongoConnection
 import gg.scala.store.connection.mongo.impl.UriDataStoreMongoConnection
 import gg.scala.store.connection.mongo.impl.details.DataStoreMongoConnectionDetails
 import gg.scala.store.connection.redis.AbstractDataStoreRedisConnection
+import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
+import gg.tropic.practice.application.api.defaults.game.ImmutableAbstractGame
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.replications.manager.ReplicationManager
@@ -123,6 +125,8 @@ fun main(args: Array<String>)
         DistributedRedisUuidCacheTranslator(aware),
         MojangDataResolver
     )
+
+    DataStoreObjectControllerCache.create<ImmutableAbstractGame>()
 
     // TODO: logging? how do we know what the fuck is going on?
     MapDataSync.load()
