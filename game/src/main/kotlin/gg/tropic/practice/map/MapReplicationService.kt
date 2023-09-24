@@ -133,7 +133,7 @@ object MapReplicationService
     {
         val worldName =
             "${arena.name}-${
-                UUID.randomUUID().toString().substring(0..8)
+                UUID.randomUUID().toString().substring(0..7)
             }"
 
         val readyMap = readyMaps[arena.name]
@@ -141,10 +141,15 @@ object MapReplicationService
                 IllegalStateException("Map ${arena.name} does not have a ready SlimeWorld. Map changes have not propagated to this server?")
             )
 
-        slimePlugin.generateWorld(readyMap.slimeWorld)
-
         val future = CompletableFuture<World>()
         val terminable = CompositeTerminable.create()
+
+        CompletableFuture.runAsync {
+            // TODO: don't need to remember this shit hopefully
+            slimePlugin.generateWorld(
+                readyMap.slimeWorld.clone(worldName)
+            )
+        }
 
         Events
             .subscribe(WorldLoadEvent::class.java)

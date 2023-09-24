@@ -95,7 +95,7 @@ class GameQueue(
                 .join()
 
             /**
-             * Ok. At this point, we have a [DuelExpectation] that is saved in Redis, and
+             * At this point, we have a [DuelExpectation] that is saved in Redis, and
              * we've gotten rid of the queue entries from the list portion of queue. The players
              * still think they are in the queue, so we can generate the map and THEN update
              * their personal queue status. If they, for some reason, LEAVE the queue at this time, then FUCK ME!
