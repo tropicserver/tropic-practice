@@ -32,16 +32,22 @@ class EditorKitSelectionMenu(
     {
         val loadouts = practiceProfile.getLoadoutsFromKit(kit)
 
-        if (loadouts.size == 0)
+        if (type == ClickType.LEFT)
         {
+            if (loadouts.size >= 8)
+            {
+                player.sendMessage("${CC.RED}You have reached the maximum amount of custom kits!")
+                return
+            }
+
             EditLoadoutContentsMenu(
                 kit, Loadout(
-                    "Default #1",
+                    "Default #${loadouts.size+1}",
                     kit.id,
                     System.currentTimeMillis()
                 ), practiceProfile
-            )
-        } else
+            ).openMenu(player)
+        } else if (type == ClickType.SHIFT_LEFT)
         {
             SelectCustomKitMenu(
                 practiceProfile,
