@@ -89,6 +89,25 @@ object KitCommands : ScalaCommand()
     }
 
     @AssignPermission
+    @Subcommand("description")
+    @CommandCompletion("@kits")
+    @Description("Edit a kit's description.")
+    fun onDescription(player: ScalaPlayer, kit: Kit, description: String)
+    {
+        kit.description = description
+
+        with(KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have set the description for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN} to:",
+            description
+        )
+    }
+
+    @AssignPermission
     @Subcommand("features add")
     @CommandCompletion("@kits @stranger-feature-flags")
     @Description("Add a feature flag to a kit.")
