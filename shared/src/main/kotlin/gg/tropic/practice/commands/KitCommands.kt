@@ -240,7 +240,7 @@ object KitCommands : ScalaCommand()
     }
 
     @CommandCompletion("@kits")
-    @Subcommand("features view")
+    @Subcommand("features list")
     @Description("View all feature flags associated with this kit.")
     fun onFeaturesView(player: ScalaPlayer, kit: Kit)
     {
