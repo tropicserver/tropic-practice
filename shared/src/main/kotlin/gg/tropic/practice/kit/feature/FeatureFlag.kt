@@ -20,12 +20,20 @@ enum class FeatureFlag(
     RequiresBuildMap,
     PlaceBlocks,
     BreakAllBlocks(
-        incompatibleWith = { setOf(BreakPlacedBlocks) },
+        incompatibleWith = { setOf(BreakPlacedBlocks, BreakSpecificBlockTypes) },
         requires = setOf(RequiresBuildMap)
     ),
     BreakPlacedBlocks(
         incompatibleWith = { setOf(BreakAllBlocks) },
         requires = setOf(RequiresBuildMap)
+    ),
+    BreakSpecificBlockTypes(
+        incompatibleWith = { setOf(BreakAllBlocks) },
+        requires = setOf(RequiresBuildMap),
+        schema = mutableMapOf(
+            // Default for bridges LMAO
+            "types" to "STAINED_CLAY:11,STAINDED_CLAY:14"
+        )
     ),
     FrozenOnGameStart,
     NewlyCreated,

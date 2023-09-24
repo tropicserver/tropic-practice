@@ -188,14 +188,14 @@ object GameService
         Events.subscribe(PlayerMoveEvent::class.java)
             .filter {
                 it.to.x.toInt() != it.from.x.toInt() ||
-                        it.to.z.toInt() != it.from.z.toInt()
+                    it.to.z.toInt() != it.from.z.toInt()
             }
             .handler {
                 val game = byPlayer(it.player)
                     ?: return@handler
 
                 if (
-                    /*TODO: use height metadata -> game.kit == DuelLadder.Sumo*/ true &&
+                /*TODO: use height metadata -> game.kit == DuelLadder.Sumo*/ true &&
                     game.ensurePlaying() &&
                     it.player.location.y <= 50.0
                 )
@@ -403,8 +403,8 @@ object GameService
         Events.subscribe(FoodLevelChangeEvent::class.java)
             .handler {
                 val game = byPlayer(
-                        it.entity as Player
-                    )
+                    it.entity as Player
+                )
                     ?: return@handler
 
                 if (!game.ensurePlaying())
@@ -431,8 +431,8 @@ object GameService
                 }
 
                 val game = byPlayer(
-                        it.entity as Player
-                    )
+                    it.entity as Player
+                )
                     ?: return@handler
 
                 if (!game.ensurePlaying())
@@ -447,13 +447,13 @@ object GameService
             .filter { it.damager is FishHook && ((it.damager as FishHook).shooter) is Player && it.entity is Player }
             .handler { event ->
                 val game = byPlayer(
-                        event.entity as Player
-                    )
+                    event.entity as Player
+                )
                     ?: return@handler
 
                 val damagerGame = byPlayer(
-                        ((event.damager as FishHook).shooter) as Player
-                    )
+                    ((event.damager as FishHook).shooter) as Player
+                )
                     ?: return@handler
 
                 if (damagerGame.expectation == game.expectation)
@@ -472,31 +472,17 @@ object GameService
                 }
             }
 
-        Events.subscribe(BlockPlaceEvent::class.java)
-            .handler {
-                val game = byPlayer(it.player)
-                    ?: return@handler
-
-                // TODO: use flag metadata here
-                /*if (it.blockPlaced.y > (game.map.spawns[0]!!.location(it.player.world).y + 5))
-                {
-                    it.player.sendMessage("${CC.RED}You have reached the build limit!")
-                    it.isCancelled = true
-                    return@handler
-                }*/
-            }
-
         Events.subscribe(EntityDamageByEntityEvent::class.java)
             .filter { it.damager is Arrow && ((it.damager as Arrow).shooter) is Player && it.entity is Player }
             .handler { event ->
                 val game = byPlayer(
-                        event.entity as Player
-                    )
+                    event.entity as Player
+                )
                     ?: return@handler
 
                 val damagerGame = byPlayer(
-                        ((event.damager as Arrow).shooter) as Player
-                    )
+                    ((event.damager as Arrow).shooter) as Player
+                )
                     ?: return@handler
 
                 if (damagerGame.expectation == game.expectation)
@@ -539,8 +525,8 @@ object GameService
             }
             .handler {
                 val game = byPlayer(
-                        it.entity as Player
-                    )
+                    it.entity as Player
+                )
                     ?: return@handler
 
                 if (!game.ensurePlaying())
@@ -569,8 +555,8 @@ object GameService
                 }
 
                 val damagerGame = byPlayer(
-                        it.damager as Player
-                    )
+                    it.damager as Player
+                )
                     ?: return@handler
 
                 if (damagerGame.expectation == game.expectation)
@@ -639,6 +625,31 @@ object GameService
                 )
                 {
                     return@handler
+                }
+
+                // TODO: try to cache this so we don't have to parse each time?
+                val specificBlockTypes = game
+                    .flagMetaData(
+                        FeatureFlag.BreakSpecificBlockTypes,
+                        "types"
+                    )
+                    ?.split(",")
+                    ?.map { pair ->
+                        val components = pair.split(":")
+                        Material.valueOf(components[0]) to (components.getOrNull(1)?.toInt() ?: 0)
+                    }
+
+                if (specificBlockTypes != null)
+                {
+                    if (
+                        specificBlockTypes
+                            .any { (type, data) ->
+                                it.block.type == type && it.block.data == data.toByte()
+                            }
+                    )
+                    {
+                        return@handler
+                    }
                 }
 
                 it.isCancelled = true
