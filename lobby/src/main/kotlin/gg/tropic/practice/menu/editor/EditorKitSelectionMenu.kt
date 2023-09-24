@@ -20,7 +20,7 @@ class EditorKitSelectionMenu(
 
         return mutableListOf(
             "${CC.GRAY}Custom loadouts:",
-            "${CC.WHITE}${loadouts.size}/8",
+            "${CC.WHITE}${loadouts.size}/7",
             " "
         ).apply {
             if (loadouts.size != 0)
@@ -37,7 +37,7 @@ class EditorKitSelectionMenu(
 
         if (type == ClickType.LEFT)
         {
-            if (loadouts.size >= 8)
+            if (loadouts.size >= 7)
             {
                 player.sendMessage("${CC.RED}You have reached the maximum number of custom kits!")
                 return
@@ -48,6 +48,8 @@ class EditorKitSelectionMenu(
                 kit.id,
                 System.currentTimeMillis()
             )
+
+            practiceProfile.customLoadouts[kit.id]?.add(loadout)
 
             EditLoadoutContentsMenu(kit, loadout, practiceProfile).openMenu(player)
         } else if (type == ClickType.SHIFT_LEFT)

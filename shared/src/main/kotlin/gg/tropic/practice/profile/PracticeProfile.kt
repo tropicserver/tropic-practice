@@ -31,13 +31,12 @@ data class PracticeProfile(
 
     val customLoadouts = mutableMapOf<
         String,
-        ConcurrentHashMap<
-            String, // "Default #1"
+        MutableList<
             Loadout
         >
     >()
 
-    fun getLoadoutsFromKit(kit: Kit) = customLoadouts[kit.id] ?: ConcurrentHashMap()
+    fun getLoadoutsFromKit(kit: Kit) = customLoadouts[kit.id] ?: mutableListOf()
 
     fun save() = DataStoreObjectControllerCache
         .findNotNull<PracticeProfile>()

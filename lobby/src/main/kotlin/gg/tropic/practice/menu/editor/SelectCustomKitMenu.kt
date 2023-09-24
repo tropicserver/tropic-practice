@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 class SelectCustomKitMenu(
     private val practiceProfile: PracticeProfile,
-    private val currentLoadouts: ConcurrentHashMap<String, Loadout>,
+    private val currentLoadouts: MutableList<Loadout>,
     private val kit: Kit
 ) : Menu()
 {
@@ -36,13 +36,13 @@ class SelectCustomKitMenu(
     {
         val buttons = mutableMapOf<Int, Button>()
 
-        for ((index, loadoutAt) in currentLoadouts.entries.withIndex())
+        for ((index, loadoutAt) in currentLoadouts.withIndex())
         {
-            val dateCreated = Date(loadoutAt.value.timestamp)
+            val dateCreated = Date(loadoutAt.timestamp)
 
             buttons[index + 10] = ItemBuilder
                 .of(Material.PAPER)
-                .name("${CC.GREEN}${loadoutAt.key}")
+                .name("${CC.GREEN}${loadoutAt.name}")
                 .addToLore(
                     "${CC.GRAY}Last edited: ${CC.WHITE}${
                         DATE_FORMAT.format(dateCreated)
@@ -54,11 +54,11 @@ class SelectCustomKitMenu(
                 .toButton { _, type ->
                     if (type!!.isShiftClick)
                     {
-                        practiceProfile.customLoadouts[kit.id]?.remove(loadoutAt.key)
+                        practiceProfile.customLoadouts[kit.id]?.remove(loadoutAt)
 
                         practiceProfile.save().thenRun {
                             player.sendMessage(
-                                "${CC.GREEN}You have just deleted the ${CC.YELLOW}${loadoutAt.key} ${CC.GREEN}loadout for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+                                "${CC.GREEN}You have just deleted the ${CC.YELLOW}${loadoutAt.name} ${CC.GREEN}loadout for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
                             )
 
                             val newLoadouts = practiceProfile.getLoadoutsFromKit(kit)
@@ -78,7 +78,7 @@ class SelectCustomKitMenu(
                         return@toButton
                     }
 
-                    EditLoadoutContentsMenu(kit, loadoutAt.value, practiceProfile).openMenu(player)
+                    EditLoadoutContentsMenu(kit, loadoutAt, practiceProfile).openMenu(player)
                 }
         }
 

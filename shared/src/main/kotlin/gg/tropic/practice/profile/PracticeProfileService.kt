@@ -28,7 +28,7 @@ object PracticeProfileService : ProfileOrchestrator<PracticeProfile>()
                 profile.rankedStatistics.putIfAbsent(it.id, RankedKitStatistics())
                 profile.casualStatistics.putIfAbsent(it.id, KitStatistics())
 
-                profile.customLoadouts.putIfAbsent(it.id, ConcurrentHashMap())
+                profile.customLoadouts.putIfAbsent(it.id, mutableListOf())
             }
     }
 }

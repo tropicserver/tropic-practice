@@ -30,7 +30,9 @@ class EditLoadoutContentsMenu(
             buttons[int] = PaginatedMenu.PLACEHOLDER
         }
 
-        buttons[11] = ItemBuilder
+        val hasExtraContents = kit.additionalContents.isNotEmpty() && kit.additionalContents.any { it != null }
+
+        buttons[if (!hasExtraContents) 11 else 10] = ItemBuilder
             .of(Material.WOOL)
             .data(13)
             .name("${CC.B_GREEN}Save Loadout")
@@ -46,7 +48,7 @@ class EditLoadoutContentsMenu(
                 }
             }
 
-        buttons[13] = ItemBuilder
+        buttons[if (!hasExtraContents) 13 else 12] = ItemBuilder
             .of(Material.WOOL)
             .data(4)
             .name("${CC.B_YELLOW}Reset Loadout")
@@ -71,15 +73,12 @@ class EditLoadoutContentsMenu(
 
                 loadout.timestamp = System.currentTimeMillis()
 
-                val kitLoadouts = practiceProfile.customLoadouts[kit.id]!!
-                kitLoadouts[loadout.name] = loadout
-
                 practiceProfile.save().thenRun {
                     player.sendMessage("${CC.GREEN}You have reset this loadout's content.")
                 }
             }
 
-        buttons[15] = ItemBuilder
+        buttons[if (!hasExtraContents) 15 else 14] = ItemBuilder
             .of(Material.WOOL)
             .data(14)
             .name("${CC.B_RED}Cancel Edit")
@@ -93,6 +92,22 @@ class EditLoadoutContentsMenu(
             .toButton { _, _ ->
                 handleBackwardsMenuNavigation(player)
             }
+
+        if (hasExtraContents)
+        {
+            buttons[16] = ItemBuilder
+                .of(Material.CHEST)
+                .name("${CC.B_BLUE}Additional Contents")
+                .addToLore(
+                    "${CC.GRAY}View the additional contents",
+                    "${CC.GRAY}of this kit.",
+                    "",
+                    "${CC.GREEN}Click to view!"
+                )
+                .toButton { _, _, ->
+
+                }
+        }
 
         return buttons
     }
@@ -143,10 +158,6 @@ class EditLoadoutContentsMenu(
         }
 
         loadout.timestamp = System.currentTimeMillis()
-
-        val kitLoadouts = practiceProfile.customLoadouts[kit.id]!!
-
-        kitLoadouts[loadout.name] = loadout
 
         return practiceProfile.save()
     }
