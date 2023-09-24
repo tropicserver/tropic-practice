@@ -7,6 +7,7 @@ import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
+import net.evilblock.cubed.util.text.TextSplitter
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 
@@ -56,13 +57,30 @@ abstract class TemplateKitMenu : PaginatedMenu()
             .forEach {
                 buttons[buttons.size] = ItemBuilder
                     .copyOf(it.displayIcon)
-                    .name("${CC.GREEN}${it.displayName}${
-                        if (it.features(FeatureFlag.NewlyCreated)) 
-                            " ${CC.B_YELLOW}NEW!" else ""
-                    }${
-                        itemTitleExtensionOf(player, it)
-                    }")
-                    .setLore(itemDescriptionOf(player, it))
+                    .name(
+                        "${CC.GREEN}${it.displayName}${
+                            if (it.features(FeatureFlag.NewlyCreated))
+                                " ${CC.B_YELLOW}NEW!" else ""
+                        }${
+                            itemTitleExtensionOf(player, it)
+                        }"
+                    )
+                    .apply {
+                        if (it.description.isNotBlank())
+                        {
+                            setLore(
+                                TextSplitter.split(
+                                    it.description,
+                                    CC.GRAY, ""
+                                )
+                            )
+                            addToLore("")
+                        }
+                    }
+                    .addToLore(
+                        *itemDescriptionOf(player, it)
+                            .toTypedArray()
+                    )
                     .toButton { _, type ->
                         itemClicked(player, it, type!!)
                     }
