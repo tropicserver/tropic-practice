@@ -7,5 +7,5 @@ package gg.tropic.practice.application.api
 object DPSRedisShared
 {
     val keyValueCache = DPSRedisService("dpskv")
-        .configurePopulator { internal().connect() }
+        .configure { internal().connect() }
 }

@@ -27,7 +27,7 @@ abstract class DPSDataSync<T>
             .apply {
                 start()
             }
-            .configurePopulator { this }
+            .configure { this }
     }
 
     fun sync() = backingSync

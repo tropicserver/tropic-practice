@@ -6,6 +6,7 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.replications.manager.ReplicationManager
 import net.evilblock.cubed.serializers.Serializers
 
 /**
@@ -24,8 +25,16 @@ fun main(args: Array<String>)
     }
 
     DPSRedisShared.keyValueCache
+    ServerSync.configureIndependent()
+
+    // TODO: logging? how do we know what the fuck is going on?
     MapDataSync.load()
     KitDataSync.load()
 
-    ServerSync.configureIndependent()
+    ReplicationManager.load()
+
+    while (true)
+    {
+        Thread.sleep(Long.MAX_VALUE)
+    }
 }

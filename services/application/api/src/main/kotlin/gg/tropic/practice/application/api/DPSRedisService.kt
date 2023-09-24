@@ -22,14 +22,7 @@ class DPSRedisService(
             .build()
     }
 
-    fun configure(
-        lambda: Aware<AwareMessage>.() -> Unit
-    )
-    {
-        this.aware.lambda()
-    }
-
-    fun <T> configurePopulator(
+    fun <T> configure(
         lambda: Aware<AwareMessage>.() -> T
     ): T
     {
