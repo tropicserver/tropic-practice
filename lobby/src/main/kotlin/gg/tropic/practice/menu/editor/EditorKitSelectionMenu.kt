@@ -19,11 +19,11 @@ class EditorKitSelectionMenu(
         val loadouts = practiceProfile.getLoadoutsFromKit(kit)
 
         return listOf(
+            "${CC.GRAY}Custom loadouts:",
+            "${CC.WHITE}${loadouts.size}/8",
             " ",
-            "${CC.GRAY}Custom Kits: ${loadouts.size}/8",
-            " ",
-            "${CC.B_RED}Shift-Click to edit",
-            "${CC.GREEN}Click to create new"
+            "${CC.B_GREEN}Shift-click to edit!",
+            "${CC.GREEN}Click to create new!"
         )
     }
 
@@ -56,5 +56,5 @@ class EditorKitSelectionMenu(
         }
     }
 
-    override fun getPrePaginatedTitle(player: Player) = "Select a kit to edit"
+    override fun getPrePaginatedTitle(player: Player) = "Select a kit to edit..."
 }
