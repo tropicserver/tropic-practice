@@ -1,7 +1,8 @@
 package gg.tropic.practice.replications.manager
 
-import com.google.common.cache.CacheBuilder
-import com.google.common.cache.RemovalCause
+import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.RemovalCause
+import com.github.benmanes.caffeine.cache.RemovalListener
 import gg.scala.aware.thread.AwareThreadContext
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
@@ -20,12 +21,9 @@ object ReplicationManager
     private val redis = DPSRedisService("replicationmanager")
         .apply(DPSRedisService::start)
 
-    private val gameInstanceCache = CacheBuilder
-        .newBuilder()
+    private val gameInstanceCache = Caffeine.newBuilder()
         .expireAfterWrite(2L, TimeUnit.SECONDS)
-        .removalListener<String, String> {
-            syncStatusIndexes()
-        }
+        .removalListener<String, String> { _, _, _ -> syncStatusIndexes() }
         .build<String, String>()
 
     private val dpsCache = DPSRedisShared.keyValueCache
@@ -105,12 +103,12 @@ object ReplicationManager
         Unavailable
     }
 
-    private val replicationCallbacks = CacheBuilder
+    private val replicationCallbacks = Caffeine
         .newBuilder()
-        .removalListener<UUID, CompletableFuture<ReplicationResult>> {
-            if (it.cause == RemovalCause.EXPIRED)
+        .removalListener<UUID, CompletableFuture<ReplicationResult>> { _, value, cause ->
+            if (cause == RemovalCause.EXPIRED)
             {
-                it.value.complete(ReplicationResult.Unavailable)
+                value?.complete(ReplicationResult.Unavailable)
             }
         }
         .expireAfterWrite(5L, TimeUnit.SECONDS)
