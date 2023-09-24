@@ -71,7 +71,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
                             setLore(
                                 TextSplitter.split(
                                     it.description,
-                                    CC.GRAY, ""
+                                    CC.GRAY, " "
                                 )
                             )
                             addToLore("")
