@@ -34,7 +34,7 @@ object KitGroupCommands : ScalaCommand()
     {
         val kits = kitGroup.kits()
         player.sendMessage(
-            "${CC.GREEN}Viewing kit group ${CC.WHITE}${kitGroup.id}${CC.GREEN}:",
+            "${CC.GREEN}Viewing kit group ${CC.B_WHITE}${kitGroup.id}${CC.GREEN}:",
             "${CC.GRAY}Associated with kits ${CC.WHITE}(${
                 kits.size
             })${CC.GRAY}:",

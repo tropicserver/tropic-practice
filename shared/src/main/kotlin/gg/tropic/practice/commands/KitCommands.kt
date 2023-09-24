@@ -208,7 +208,7 @@ object KitCommands : ScalaCommand()
         }
 
         player.sendMessage(
-            "${CC.GREEN}Metadata for feature flag ${CC.YELLOW}${feature.name}${CC.GREEN} for kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}:"
+            "${CC.GREEN}Metadata for feature flag ${CC.B_GREEN}${feature.name}${CC.GREEN} for kit ${CC.B_GREEN}${kit.displayName}${CC.GREEN}:"
         )
 
         metadata.forEach { (k, v) ->
