@@ -30,14 +30,14 @@ class ApplicationServerArgs(parser: ArgParser)
 {
     val redisHost by parser
         .storing(
-            "-rh", "--redishost",
+            "--redishost",
             help = "The host of the Redis server"
         )
         .default("127.0.0.1")
 
     val redisPort by parser
         .storing(
-            "-rp", "--redisport",
+            "--redisport",
             help = "The port of the Redis server"
         ) {
             toInt()
@@ -46,21 +46,21 @@ class ApplicationServerArgs(parser: ArgParser)
 
     val mongoHost by parser
         .storing(
-            "-mh", "--mongohost",
+            "--mongohost",
             help = "The host of the Mongo server"
         )
         .default("127.0.0.1")
 
     val mongoDatabase by parser
         .storing(
-            "-mdb", "--mongodatabase",
+            "--mongodatabase",
             help = "The database for the Mongo server"
         )
         .default("Scala")
 
     val mongoPort by parser
         .storing(
-            "-mp", "--mongoport",
+            "--mongoport",
             help = "The port of the Mongo server"
         ) {
             toInt()
