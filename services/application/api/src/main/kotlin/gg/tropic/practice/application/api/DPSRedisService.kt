@@ -16,7 +16,7 @@ class DPSRedisService(
 {
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>(channel)
+            .of<AwareMessage>("practice:$channel")
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()

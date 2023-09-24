@@ -21,6 +21,7 @@ import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.ImmutableAbstractGame
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.queue.GameQueueManager
 import gg.tropic.practice.replications.manager.ReplicationManager
 import net.evilblock.cubed.serializers.Serializers
 
@@ -132,6 +133,7 @@ fun main(args: Array<String>)
     MapDataSync.load()
     KitDataSync.load()
 
+    GameQueueManager.load()
     ReplicationManager.load()
 
     while (true)

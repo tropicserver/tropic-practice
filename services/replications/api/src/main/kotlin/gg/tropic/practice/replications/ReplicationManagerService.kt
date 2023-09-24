@@ -26,7 +26,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
 
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>("replicationmanager")
+            .of<AwareMessage>("practice:replicationmanager")
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()
@@ -51,7 +51,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
             }, 0L, 10L)
             .bindWith(this)
 
-        plugin.logger.info("Bound status service. Status updates for available replications will be pushed to the replicationmanager channel ever 0.5 secnods.")
+        plugin.logger.info("Bound status service. Status updates for available replications will be pushed to the replicationmanager channel ever 0.5 seconds.")
     }
 
     @Configure

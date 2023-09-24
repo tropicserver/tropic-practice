@@ -18,4 +18,14 @@ object KitDataSync : DPSDataSync<ImmutableKitContainer>()
 
     override fun keys() = DPSMapKeys
     override fun type() = ImmutableKitContainer::class.java
+
+    private val hooks = mutableListOf<() -> Unit>()
+
+    fun onReload(hook: () -> Unit) = hooks.add(hook)
+
+    override fun postReload()
+    {
+        super.postReload()
+        hooks.forEach { it() }
+    }
 }
