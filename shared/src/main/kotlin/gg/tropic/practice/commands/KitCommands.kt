@@ -370,6 +370,26 @@ object KitCommands : ScalaCommand()
         sender.sendMessage("${CC.GREEN}You have saved inventory contents for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}.")
     }
 
+
+    @AssignPermission
+    @Subcommand("inventory setadditionalcontents")
+    @CommandCompletion("@kits")
+    @Description("Sets your inventory to the kit's additional contents.")
+    fun onSetAdditionalContents(sender: ScalaPlayer, kit: Kit)
+    {
+        val player = sender.bukkit()
+        val inventory = player.inventory.contents.takeLast(27)
+
+        kit.additionalContents = inventory.toTypedArray()
+
+        with(KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        sender.sendMessage("${CC.GREEN}You have saved additional contents for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}.")
+    }
+
     @AssignPermission
     @Subcommand("inventory effects add")
     @CommandCompletion("@kits @effects")
