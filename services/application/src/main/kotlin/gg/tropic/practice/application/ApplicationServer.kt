@@ -21,6 +21,7 @@ import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.AbstractGame
 import gg.tropic.practice.application.api.defaults.game.DuelExpectation
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
+import gg.tropic.practice.application.api.defaults.kit.group.KitGroupDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.queue.GameQueueManager
 import gg.tropic.practice.replications.manager.ReplicationManager
@@ -134,6 +135,7 @@ fun main(args: Array<String>)
     // TODO: logging? how do we know what the fuck is going on?
     MapDataSync.load()
     KitDataSync.load()
+    KitGroupDataSync.load()
 
     GameQueueManager.load()
     ReplicationManager.load()
