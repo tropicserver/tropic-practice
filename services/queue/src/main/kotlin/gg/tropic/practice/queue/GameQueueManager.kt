@@ -28,7 +28,12 @@ object GameQueueManager
         .rpop("tropicpractice:queues:$id:queue")
         .let {
             Serializers.gson.fromJson(
-                it, QueueEntry::class.java
+                dpsRedisCache.sync()
+                    .hget(
+                        "tropicpractice:queues:$id:entries",
+                        it
+                    ),
+                QueueEntry::class.java
             )
         }
 
