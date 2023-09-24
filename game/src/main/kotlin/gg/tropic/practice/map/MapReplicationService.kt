@@ -45,7 +45,6 @@ object MapReplicationService
             .getPlugin("SlimeWorldManager") as SlimePlugin
 
         loader = slimePlugin.getLoader("mongodb")
-
         populateSlimeCache()
 
         ReplicationManagerService.bindToStatusService {

@@ -6,7 +6,6 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.resetAttributes
-import gg.tropic.practice.games.GameReport
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -49,7 +48,6 @@ object ExpectationService
     fun configure()
     {
         DataStoreObjectControllerCache.create<DuelExpectation>()
-        DataStoreObjectControllerCache.create<GameReport>()
 
         fun deleteExpectation(identifier: UUID)
         {
