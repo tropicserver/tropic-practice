@@ -50,9 +50,10 @@ object KitCommands : ScalaCommand()
     @Description("Show information about a given kit.")
     fun onInfo(player: ScalaPlayer, kit: Kit)
     {
-        player.sendMessage("${CC.GREEN}Information for the kit ${CC.WHITE}${kit.displayName}")
+        player.sendMessage("${CC.GREEN}Information for the kit ${CC.B_WHITE}${kit.displayName}")
         player.sendMessage(" ")
         player.sendMessage("${CC.GRAY}ID: ${CC.WHITE}${kit.id}")
+        player.sendMessage("${CC.GRAY}Description: ${CC.WHITE}${kit.description}")
         player.sendMessage("${CC.GRAY}Enabled: ${if (kit.enabled) "${CC.GREEN}True" else "${CC.RED}False"}")
         player.sendMessage("${CC.GRAY}Icon: ${CC.WHITE}${
             kit.displayIcon.type.name.replaceFirstChar {
