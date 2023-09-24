@@ -47,6 +47,17 @@ object MapReplicationService
         loader = slimePlugin.getLoader("mongodb")
         populateSlimeCache()
 
+        preGenerateMapReplications().thenRun {
+            plugin.logger.info(
+                "Generated $TARGET_PRE_GEN_REPLICATIONS map replications for each of the ${MapService.maps().count()} available maps. This server currently has ${mapReplications.size} available replications."
+            )
+        }.exceptionally {
+            plugin.logger.log(
+                Level.SEVERE, "Failed to pre-generate map replications", it
+            )
+            return@exceptionally null
+        }
+
         ReplicationManagerService.bindToStatusService {
             val replicationStatuses = mapReplications
                 .map {
@@ -63,9 +74,24 @@ object MapReplicationService
         }
     }
 
+    private const val TARGET_PRE_GEN_REPLICATIONS = 8
+    private fun preGenerateMapReplications(): CompletableFuture<Void>
+    {
+        return CompletableFuture.allOf(
+            *MapService.maps()
+                .flatMap {
+                    (0 until TARGET_PRE_GEN_REPLICATIONS)
+                        .map { _ ->
+                            generateArenaWorld(it)
+                        }
+                }
+                .toTypedArray()
+        )
+    }
+
     private fun populateSlimeCache()
     {
-        for (arena in MapService.cached().maps.values)
+        for (arena in MapService.maps())
         {
             kotlin.runCatching {
                 val slimeWorld = slimePlugin
