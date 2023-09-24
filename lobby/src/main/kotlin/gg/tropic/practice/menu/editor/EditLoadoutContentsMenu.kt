@@ -9,8 +9,10 @@ import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
+import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import java.util.concurrent.CompletableFuture
 
 class EditLoadoutContentsMenu(
     private val kit: Kit,
@@ -38,9 +40,10 @@ class EditLoadoutContentsMenu(
                 "${CC.YELLOW}Click to save!"
             )
             .toButton { _, _ ->
-                //TODO: Go back a step to overview of kits (MMC Feature)
-                handleLoadoutSave(player)
-                player.sendMessage("${CC.GREEN}Saving loadout...")
+                handleLoadoutSave(player).thenRun {
+                    handleBackwardsMenuNavigation(player)
+                    player.sendMessage("${CC.GREEN}Saving loadout...")
+                }
             }
 
         buttons[13] = ItemBuilder
@@ -54,6 +57,11 @@ class EditLoadoutContentsMenu(
                 "${CC.YELLOW}Click to reset loadout!"
             )
             .toButton { _, _ ->
+                // handle player inventory reset first
+                player.inventory.contents = kit.contents
+                player.updateInventory()
+
+                // then handle saving
                 for (int in 0 until 36)
                 {
                     val defaultContent = kit.contents[int]
@@ -61,8 +69,14 @@ class EditLoadoutContentsMenu(
                     loadout.inventoryContents[int] = defaultContent
                 }
 
-                handleBackwardsMenuNavigation(player)
-                player.sendMessage("${CC.GREEN}You have reset this loadout's content.")
+                loadout.timestamp = System.currentTimeMillis()
+
+                val kitLoadouts = practiceProfile.customLoadouts[kit.id]!!
+                kitLoadouts[loadout.name] = loadout
+
+                practiceProfile.save().thenRun {
+                    player.sendMessage("${CC.GREEN}You have reset this loadout's content.")
+                }
             }
 
         buttons[15] = ItemBuilder
@@ -87,45 +101,16 @@ class EditLoadoutContentsMenu(
     {
         if (manualClose)
         {
-            handleLoadoutSave(player)
-            player.sendMessage("${CC.GREEN}Saving loadout...")
+            //save active loadout
+            handleLoadoutSave(player).thenRun {
+                player.sendMessage("${CC.GREEN}Saving loadout...")
 
-            player.inventory.clear()
-            player.updateInventory()
-
-            //TODO: Give back lobby item logic
-        }
-    }
-
-    private fun handleLoadoutSave(player: Player)
-    {
-        for (i in 0 until 36)
-        {
-            val edited = player.inventory.getItem(i)
-
-            loadout.inventoryContents[i] = edited
-        }
-
-        val kitLoadouts = practiceProfile.customLoadouts[kit.id]!!
-
-        kitLoadouts[loadout.name] = loadout
-
-        with (PracticeProfileService.)
-    }
-
-    fun handleBackwardsMenuNavigation(player: Player)
-    {
-        val loadouts = practiceProfile.getLoadoutsFromKit(kit)
-        if (loadouts.size == 0)
-        {
-            EditorKitSelectionMenu(practiceProfile).openMenu(player)
-        } else
-        {
-            SelectCustomKitMenu(
-                practiceProfile,
-                loadouts,
-                kit
-            ).openMenu(player)
+                //revert user to previous state
+                Tasks.sync {
+                    resetInventory(player)
+                    handleBackwardsMenuNavigation(player)
+                }
+            }
         }
     }
 
@@ -140,5 +125,52 @@ class EditLoadoutContentsMenu(
     override fun size(buttons: Map<Int, Button>): Int = 27
 
     override fun getTitle(player: Player): String = "Editing '${loadout.name}'"
+
+
+
+    fun resetInventory(player: Player)
+    {
+        player.inventory.clear()
+        player.updateInventory()
+
+        //TODO: Give back lobby item logic
+    }
+
+    private fun handleLoadoutSave(player: Player) : CompletableFuture<Void>
+    {
+        for (i in 0 until 36)
+        {
+            val edited = player.inventory.getItem(i)
+
+            loadout.inventoryContents[i] = edited
+        }
+
+        loadout.timestamp = System.currentTimeMillis()
+
+        val kitLoadouts = practiceProfile.customLoadouts[kit.id]!!
+
+        kitLoadouts[loadout.name] = loadout
+
+        return practiceProfile.save()
+    }
+
+    fun handleBackwardsMenuNavigation(player: Player)
+    {
+        val loadouts = practiceProfile.getLoadoutsFromKit(kit)
+
+        resetInventory(player)
+
+        if (loadouts.size == 0)
+        {
+            EditorKitSelectionMenu(practiceProfile).openMenu(player)
+        } else
+        {
+            SelectCustomKitMenu(
+                practiceProfile,
+                loadouts,
+                kit
+            ).openMenu(player)
+        }
+    }
 
 }
