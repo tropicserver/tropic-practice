@@ -400,20 +400,6 @@ object GameService
             }
             .bindWith(plugin)
 
-        Events.subscribe(FoodLevelChangeEvent::class.java)
-            .handler {
-                val game = byPlayer(
-                    it.entity as Player
-                )
-                    ?: return@handler
-
-                if (!game.ensurePlaying())
-                {
-                    it.isCancelled = true
-                    return@handler
-                }
-            }
-
         Events
             .subscribe(EntityDamageEvent::class.java)
             .filter { it.entity is Player }
@@ -723,6 +709,7 @@ object GameService
                     }
                 }
 
+                // TODO: add the vector to a list in GameImpl so we can reset if needed for multi round.
                 it.blockPlaced.setMetadata(
                     "placed",
                     FixedMetadataValue(plugin, true)
