@@ -5,20 +5,16 @@ import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.tropic.practice.menu.TestQueueMenu
 import gg.tropic.practice.menu.editor.EditorKitSelectionMenu
 import gg.tropic.practice.profile.PracticeProfileService
 
 @AutoRegister
-object KitEditorCommand : ScalaCommand()
+object QueueTestCommand : ScalaCommand()
 {
-    @CommandAlias("kiteditor")
+    @CommandAlias("testqueue")
     fun onKitEditor(player: ScalaPlayer)
     {
-        val profile = PracticeProfileService.find(player.uniqueId)
-            ?: throw ConditionFailedException(
-                "You profile doesn't exist!"
-            )
-
-        EditorKitSelectionMenu(profile).openMenu(player.bukkit())
+        TestQueueMenu().openMenu(player.bukkit())
     }
 }

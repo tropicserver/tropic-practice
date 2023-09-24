@@ -2,7 +2,6 @@ package gg.tropic.practice.replications.manager
 
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.RemovalCause
-import com.github.benmanes.caffeine.cache.RemovalListener
 import gg.scala.aware.thread.AwareThreadContext
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
