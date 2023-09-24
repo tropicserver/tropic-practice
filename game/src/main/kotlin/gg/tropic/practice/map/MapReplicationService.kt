@@ -7,6 +7,9 @@ import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.tropic.practice.replications.Replication
+import gg.tropic.practice.replications.ReplicationManagerService
+import gg.tropic.practice.replications.ReplicationStatus
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
@@ -44,6 +47,21 @@ object MapReplicationService
         loader = slimePlugin.getLoader("mongodb")
 
         populateSlimeCache()
+
+        ReplicationManagerService.bindToStatusService {
+            val replicationStatuses = mapReplications
+                .map {
+                    Replication(
+                        associatedMapName = it.associatedMap.name,
+                        name = it.world.name, inUse = it.inUse
+                    )
+                }
+                .groupBy {
+                    it.associatedMapName
+                }
+
+            ReplicationStatus(replicationStatuses)
+        }
     }
 
     private fun populateSlimeCache()

@@ -8,5 +8,6 @@ import org.bukkit.World
  */
 data class BuiltMapReplication(
     val associatedMap: Map,
-    val world: World
+    val world: World,
+    var inUse: Boolean = false
 )
