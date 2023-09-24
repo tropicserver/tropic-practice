@@ -16,7 +16,7 @@ data class Kit(
     val id: String,
     val displayName: String,
     var description: String = "",
-    val displayIcon: ItemStack = ItemBuilder
+    var displayIcon: ItemStack = ItemBuilder
         .of(Material.IRON_SWORD)
         .build(),
     var enabled: Boolean = false,

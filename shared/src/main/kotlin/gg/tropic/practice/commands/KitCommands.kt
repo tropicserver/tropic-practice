@@ -15,6 +15,7 @@ import gg.tropic.practice.kit.group.KitGroupService
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent
+import org.bukkit.Material
 import org.bukkit.potion.PotionEffectType
 import java.util.*
 
@@ -86,6 +87,34 @@ object KitCommands : ScalaCommand()
 
         player.sendMessage(
             "${CC.GREEN}You have ${if (kit.enabled) "${CC.B_GREEN}enabled" else "${CC.RED}disabled"} ${CC.GREEN}the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+        )
+    }
+
+    @AssignPermission
+    @Subcommand("displayicon")
+    @CommandCompletion("@kits")
+    @Description("Set a kit's display icon to the item you have held in your hand.")
+    fun onDisplayIcon(player: ScalaPlayer, kit: Kit)
+    {
+        val item = player.bukkit().inventory.itemInHand
+        if (item == null || item.type == Material.AIR)
+        {
+            throw ConditionFailedException(
+                "You must be holding an item in your hand to set it as the display icon for the kit ${CC.YELLOW}${kit.displayName}${CC.RED}."
+            )
+        }
+
+        kit.displayIcon = item
+
+        with(KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have set the display icon for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN} to the item in your hand with the type ${CC.WHITE}${
+                item.type.name.lowercase().replace("_", " ")
+            }${CC.GREEN}."
         )
     }
 
