@@ -28,12 +28,7 @@ class DuelGamesMenu(
     }
 
     override fun size(buttons: Map<Int, Button>) = 36
-
-    override fun getAllPagesButtonSlots() =
-        listOf(
-            10, 11, 12, 13, 14, 15, 16,
-            19, 20, 21, 22, 23, 24, 25
-        )
+    override fun getAllPagesButtonSlots() = (10..16) + (19..25)
 
     override fun getAllPagesButtons(player: Player): Map<Int, Button>
     {
@@ -88,7 +83,7 @@ class DuelGamesMenu(
                                 report.duration, "mm:ss"
                             )
                     }",
-                    "${CC.GRAY}Arena: ${CC.WHITE}${report.arena}",
+                    "${CC.GRAY}Map: ${CC.WHITE}${report.map}",
                     "",
                     "${CC.GREEN}Click to view inventories!"
                 )

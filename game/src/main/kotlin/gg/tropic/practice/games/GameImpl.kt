@@ -91,7 +91,7 @@ class GameImpl(
                 winners = listOf(), losers = listOf(),
                 snapshots = snapshots,
                 duration = this.durationMillis(),
-                arena = this.mapId,
+                map = this.mapId,
                 status = GameReportStatus.ForcefullyClosed
             )
         } else
@@ -105,7 +105,7 @@ class GameImpl(
                 losers = opponent.players,
                 snapshots = snapshots,
                 duration = this.durationMillis(),
-                arena = this.mapId,
+                map = this.mapId,
                 status = GameReportStatus.Completed
             )
         }

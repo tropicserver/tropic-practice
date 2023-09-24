@@ -13,5 +13,8 @@ rootProject.name = "tropic-practice"
 include(
     "shared", "game", "lobby", "devtools",
     "services:application", "services:queue", "services:statistics",
-    "services:statistics:leaderboards"
+    "services:statistics:leaderboards",
+    "services:replications:manager",
+    "services:replications:api",
+    "services:application:api",
 )
