@@ -1,6 +1,7 @@
 package gg.tropic.practice.menu.editor
 
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.player.hotbar.LobbyHotbarService
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.profile.loadout.Loadout
@@ -129,7 +130,7 @@ class EditLoadoutContentsMenu(
         player.inventory.clear()
         player.updateInventory()
 
-        //TODO: Give back lobby item logic
+        LobbyHotbarService.reset(player)
     }
 
     private fun handleLoadoutSave(player: Player) : CompletableFuture<Void>

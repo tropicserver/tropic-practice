@@ -18,13 +18,17 @@ class EditorKitSelectionMenu(
     {
         val loadouts = practiceProfile.getLoadoutsFromKit(kit)
 
-        return listOf(
+        return mutableListOf(
             "${CC.GRAY}Custom loadouts:",
             "${CC.WHITE}${loadouts.size}/8",
-            " ",
-            "${CC.B_GREEN}Shift-click to edit!",
-            "${CC.GREEN}Click to create new!"
-        )
+            " "
+        ).apply {
+            if (loadouts.size != 0)
+            {
+                this += "${CC.B_GREEN}Shift-click to edit!"
+            }
+            this += "${CC.GREEN}Click to create new!"
+        }
     }
 
     override fun itemClicked(player: Player, kit: Kit, type: ClickType)
@@ -48,11 +52,14 @@ class EditorKitSelectionMenu(
             EditLoadoutContentsMenu(kit, loadout, practiceProfile).openMenu(player)
         } else if (type == ClickType.SHIFT_LEFT)
         {
-            SelectCustomKitMenu(
-                practiceProfile,
-                loadouts,
-                kit
-            ).openMenu(player)
+            if (loadouts.size != 0)
+            {
+                SelectCustomKitMenu(
+                    practiceProfile,
+                    loadouts,
+                    kit
+                ).openMenu(player)
+            }
         }
     }
 
