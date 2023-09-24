@@ -8,7 +8,8 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.kit.Kit
-import gg.tropic.practice.menu.EditLoadoutContentsMenu
+import gg.tropic.practice.menu.editor.EditLoadoutContentsMenu
+import gg.tropic.practice.menu.editor.EditorKitSelectionMenu
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.profile.loadout.Loadout
 
@@ -18,8 +19,7 @@ import gg.tropic.practice.profile.loadout.Loadout
 object KitEditorCommand : ScalaCommand()
 {
     @Default
-    @CommandCompletion("@kits")
-    fun onKitEditor(player: ScalaPlayer, kit: Kit)
+    fun onKitEditor(player: ScalaPlayer)
     {
         val profile = PracticeProfileService.find(player.uniqueId)
             ?: throw ConditionFailedException(
@@ -27,6 +27,6 @@ object KitEditorCommand : ScalaCommand()
             )
 
         // purely for testing
-        EditLoadoutContentsMenu(kit, Loadout("Default #999", kit.id)).openMenu(player.bukkit())
+        EditorKitSelectionMenu(profile).openMenu(player.bukkit())
     }
 }

@@ -1,6 +1,8 @@
-package gg.tropic.practice.menu
+package gg.tropic.practice.menu.editor
 
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.profile.PracticeProfile
+import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.profile.loadout.Loadout
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
@@ -11,8 +13,9 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 
 class EditLoadoutContentsMenu(
-    private val testContents: Kit,
-    private val loadout: Loadout
+    private val kit: Kit,
+    private val loadout: Loadout,
+    private val practiceProfile: PracticeProfile
 ) : Menu()
 {
     override fun getButtons(player: Player): Map<Int, Button>
@@ -53,12 +56,12 @@ class EditLoadoutContentsMenu(
             .toButton { _, _ ->
                 for (int in 0 until 36)
                 {
-                    val defaultContent = testContents.contents[int]
+                    val defaultContent = kit.contents[int]
 
                     loadout.inventoryContents[int] = defaultContent
                 }
 
-                //TODO: Go back a step to overview of kits (MMC Feature)
+                handleBackwardsMenuNavigation(player)
                 player.sendMessage("${CC.GREEN}You have reset this loadout's content.")
             }
 
@@ -74,7 +77,7 @@ class EditLoadoutContentsMenu(
                 "${CC.YELLOW}Click to cancel!"
             )
             .toButton { _, _ ->
-                //TODO: Go back a step to overview of kits (MMC Feature)
+                handleBackwardsMenuNavigation(player)
             }
 
         return buttons
@@ -102,11 +105,33 @@ class EditLoadoutContentsMenu(
 
             loadout.inventoryContents[i] = edited
         }
+
+        val kitLoadouts = practiceProfile.customLoadouts[kit.id]!!
+
+        kitLoadouts[loadout.name] = loadout
+
+        with (PracticeProfileService.)
+    }
+
+    fun handleBackwardsMenuNavigation(player: Player)
+    {
+        val loadouts = practiceProfile.getLoadoutsFromKit(kit)
+        if (loadouts.size == 0)
+        {
+            EditorKitSelectionMenu(practiceProfile).openMenu(player)
+        } else
+        {
+            SelectCustomKitMenu(
+                practiceProfile,
+                loadouts,
+                kit
+            ).openMenu(player)
+        }
     }
 
     override fun onOpen(player: Player)
     {
-        val inventory = testContents.contents
+        val inventory = kit.contents
 
         player.inventory.contents = inventory
         player.updateInventory()
