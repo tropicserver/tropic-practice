@@ -3,7 +3,6 @@ package gg.tropic.practice
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
@@ -11,7 +10,6 @@ import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.scala.store.storage.type.DataStoreStorageType
 import gg.tropic.practice.expectation.DuelExpectation
 import gg.tropic.practice.games.AbstractGame
-import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.map.metadata.AbstractMapMetadata
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.serializers.Serializers

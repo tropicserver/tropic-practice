@@ -4,6 +4,7 @@ import gg.scala.aware.AwareHub
 import gg.scala.aware.uri.WrappedAwareUri
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.tropic.practice.application.api.DPSRedisShared
+import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import net.evilblock.cubed.serializers.Serializers
 
 /**
@@ -22,5 +23,7 @@ fun main(args: Array<String>)
     }
 
     DPSRedisShared.keyValueCache
+    MapDataSync.load()
+
     ServerSync.configureIndependent()
 }
