@@ -51,8 +51,7 @@ subprojects {
             archiveClassifier.set("")
             exclude(
                 "**/*.kotlin_metadata",
-                "**/*.kotlin_builtins",
-                "META-INF/"
+                "**/*.kotlin_builtins"
             )
 
             archiveFileName.set(

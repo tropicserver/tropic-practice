@@ -16,6 +16,9 @@ dependencies {
     implementation("gg.scala.commons:serversync:3.2.2")
     implementation("gg.scala.commons:serializers:3.2.2")
 
+    implementation("net.kyori:adventure-key:4.11.0")
+    implementation("net.kyori:adventure-text-serializer-gson:4.11.0")
+
     implementation("com.xenomachina:kotlin-argparser:2.0.7")
     implementation("gg.scala.store:shared:0.1.8")
 
