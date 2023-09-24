@@ -33,7 +33,7 @@ class PracticeGame : ExtendedScalaPlugin()
                 player.world.name == other.world.name
             }
 
-        val lobbyRedirector = LeastTrafficServerAggregateHandler("practice:lobby")
+        val lobbyRedirector = LeastTrafficServerAggregateHandler("miplobby")
         lobbyRedirector.subscribe()
 
         flavor {

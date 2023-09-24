@@ -98,8 +98,10 @@ class GameQueue(
          * still think they are in the queue, so we can generate the map and THEN update
          * their personal queue status. If they, for some reason, LEAVE the queue at this time, then FUCK ME!
          */
+        println("blyatt 1")
         // We need to synchronize this to prevent multiple games being allocated to the same map replication.
         synchronized(REPLICATION_LOCK_OBJECT) {
+            println("blyatt 2")
             val serverStatuses = ReplicationManager.allServerStatuses()
 
             // We're associating the server statuses by each server instead
@@ -122,17 +124,20 @@ class GameQueue(
             val serverToRequestReplication = serverStatuses.keys.random()
             val replication = if (availableReplication == null)
             {
+                println("blyatt 3.A")
                 ReplicationManager.requestReplication(
                     serverToRequestReplication, map.name, expectation.identifier
                 )
             } else
             {
+                println("blyatt 3.B")
                 ReplicationManager.allocateReplication(
                     serverToRequestReplication, map.name, expectation.identifier
                 )
             }
 
             replication.thenAccept {
+                println("blyatt 4")
                 if (it == ReplicationManager.ReplicationResult.Completed)
                 {
                     ReplicationManager.sendPlayersToServer(
@@ -145,6 +150,9 @@ class GameQueue(
                     GameQueueManager.destroyQueueStates(first)
                     GameQueueManager.destroyQueueStates(second)
                 }
+            }.exceptionally {
+                it.printStackTrace()
+                return@exceptionally null
             }
         }
     }

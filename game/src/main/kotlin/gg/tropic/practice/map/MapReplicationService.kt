@@ -61,11 +61,24 @@ object MapReplicationService
         ReplicationManagerService.buildNewReplication = { map, expectation ->
             generateArenaWorld(map)
                 .thenAccept { repl ->
-                    // TODO: Marking in-use so others don't fucking claim it LAWL
-                    repl.inUse = true
                     repl.scheduledForExpectation = expectation
                     mapReplications += repl
                 }
+        }
+
+        ReplicationManagerService.allocateExistingReplication = scope@{ map, expectation ->
+            val replication = this.mapReplications
+                .firstOrNull {
+                    it.associatedMap.name == map.name && !it.inUse && it.scheduledForExpectation == null
+                }
+                ?: return@scope run {
+                    println("No associated map found")
+                    CompletableFuture.completedFuture(null)
+                }
+
+            replication.scheduledForExpectation = expectation
+            println("Scheduled shit")
+            return@scope CompletableFuture.completedFuture(null)
         }
 
         ReplicationManagerService.bindToStatusService {

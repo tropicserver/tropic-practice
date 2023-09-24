@@ -89,6 +89,7 @@ object ReplicationManager
 
             listen("replication-allocated") {
                 val requestID = retrieve<UUID>("requestID")
+                println("Got blyatt back")
 
                 replicationCallbacks.getIfPresent(requestID)
                     ?.complete(ReplicationResult.Completed)

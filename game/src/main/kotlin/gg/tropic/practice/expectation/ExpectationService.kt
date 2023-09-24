@@ -171,6 +171,7 @@ object ExpectationService
                             deleteExpectation(expectation.identifier)
                         }
 
+                    scheduledMap.inUse = true
                     newGame.arenaWorldName = scheduledMap.world.name
 
                     if (!startIfReady(newGame))

@@ -62,9 +62,36 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
         CompletableFuture.completedFuture(null)
     }
 
+    var allocateExistingReplication: (Map, UUID) -> CompletableFuture<Void> = { _, _ ->
+        CompletableFuture.completedFuture(null)
+    }
+
     @Configure
     fun configure()
     {
+        aware.listen("allocate-replication") {
+            val server = retrieve<String>("server")
+            if (ServerSync.local.id != server)
+            {
+                return@listen
+            }
+
+            val map = MapService
+                .mapWithID(retrieve<String>("map"))
+                ?: return@listen
+
+            val requestID = retrieve<UUID>("requestID")
+            val expectationID = retrieve<UUID>("expectationID")
+            allocateExistingReplication(map, expectationID).thenRun {
+                createMessage(
+                    "replication-ready",
+                    "requestID" to requestID
+                ).publish(
+                    AwareThreadContext.SYNC
+                )
+            }
+        }
+
         aware.listen("request-replication") {
             val server = retrieve<String>("server")
             if (ServerSync.local.id != server)
