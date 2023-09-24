@@ -39,13 +39,13 @@ class EditorKitSelectionMenu(
                 return
             }
 
-            EditLoadoutContentsMenu(
-                kit, Loadout(
-                    "Default #${loadouts.size+1}",
-                    kit.id,
-                    System.currentTimeMillis()
-                ), practiceProfile
-            ).openMenu(player)
+            val loadout = Loadout(
+                name = "Default #${loadouts.size+1}",
+                kit.id,
+                System.currentTimeMillis()
+            )
+
+            EditLoadoutContentsMenu(kit, loadout, practiceProfile).openMenu(player)
         } else if (type == ClickType.SHIFT_LEFT)
         {
             SelectCustomKitMenu(
@@ -56,8 +56,5 @@ class EditorKitSelectionMenu(
         }
     }
 
-    override fun getPrePaginatedTitle(player: Player): String
-    {
-        return "Select a kit to edit"
-    }
+    override fun getPrePaginatedTitle(player: Player) = "Select a kit to edit"
 }

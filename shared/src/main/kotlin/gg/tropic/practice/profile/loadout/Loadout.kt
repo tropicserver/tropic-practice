@@ -22,6 +22,7 @@ data class Loadout(
 
         if (name != other.name) return false
         if (pairedKit != other.pairedKit) return false
+        if (timestamp != other.timestamp) return false
         if (!inventoryContents.contentEquals(other.inventoryContents)) return false
 
         return true
@@ -31,6 +32,7 @@ data class Loadout(
     {
         var result = name.hashCode()
         result = 31 * result + pairedKit.hashCode()
+        result = 31 * result + timestamp.hashCode()
         result = 31 * result + inventoryContents.contentHashCode()
         return result
     }
