@@ -12,7 +12,9 @@ enum class FeatureFlag(
 {
     Ranked,
     HeartsBelowNameTag,
-    DoNotTakeDamage,
+    DoNotTakeDamage(
+        schema = mutableMapOf("doDamageTick" to "false")
+    ),
     DoNotTakeHunger,
     DoNotRemoveArmor,
     RequiresBuildMap,
@@ -25,15 +27,12 @@ enum class FeatureFlag(
         incompatibleWith = { setOf(BreakAllBlocks) },
         requires = setOf(RequiresBuildMap)
     ),
-    MaxBuildHeight(
-        requires = setOf(RequiresBuildMap, PlaceBlocks)
-    ),
     FrozenOnGameStart,
     NewlyCreated,
     MenuOrderWeight(
         schema = mutableMapOf("weight" to "0")
     ),
-    ExpireBlocksAfterSeconds(
+    ExpirePlacedBlocksAfterNSeconds(
         schema = mutableMapOf("time" to "10"),
         requires = setOf(PlaceBlocks)
     ),

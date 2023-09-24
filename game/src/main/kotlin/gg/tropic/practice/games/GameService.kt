@@ -11,6 +11,7 @@ import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.kit.feature.FeatureFlag
 import me.lucko.helper.Events
+import me.lucko.helper.Schedulers
 import me.lucko.helper.cooldown.Cooldown
 import me.lucko.helper.cooldown.CooldownMap
 import net.evilblock.cubed.nametag.NametagHandler
@@ -20,7 +21,6 @@ import net.evilblock.cubed.visibility.VisibilityHandler
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound
-import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.entity.*
 import org.bukkit.event.block.BlockBreakEvent
@@ -35,8 +35,6 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
-import java.util.function.Function
-import java.util.function.Predicate
 import kotlin.math.ceil
 
 /**
@@ -593,11 +591,21 @@ object GameService
                     }
                 }
 
-                if (
-                    game.flag(FeatureFlag.DoNotTakeDamage)
-                )
+                val doNotTakeDamage = game
+                    .flagMetaData(
+                        FeatureFlag.DoNotTakeDamage, "doDamageTick"
+                    )
+                    ?.toBooleanStrictOrNull()
+
+                if (doNotTakeDamage != null)
                 {
-                    it.damage = 0.0
+                    if (doNotTakeDamage)
+                    {
+                        it.damage = 0.0
+                        return@handler
+                    }
+
+                    it.isCancelled = true
                 }
             }
 
@@ -620,9 +628,7 @@ object GameService
                     return@handler
                 }
 
-                if (
-                    game.flag(FeatureFlag.BreakAllBlocks)
-                )
+                if (game.flag(FeatureFlag.BreakAllBlocks))
                 {
                     return@handler
                 }
@@ -710,6 +716,25 @@ object GameService
                     "placed",
                     FixedMetadataValue(plugin, true)
                 )
+
+                val blockExpiration = game
+                    .flagMetaData(
+                        FeatureFlag.ExpirePlacedBlocksAfterNSeconds,
+                        "time"
+                    )
+                    ?.toIntOrNull()
+
+                if (blockExpiration != null)
+                {
+                    Schedulers
+                        .sync()
+                        .runLater({
+                            if (it.blockPlaced.hasMetadata("placed"))
+                            {
+                                it.blockPlaced.type = Material.AIR
+                            }
+                        }, blockExpiration * 20L)
+                }
             }
             .bindWith(plugin)
     }
