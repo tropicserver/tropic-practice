@@ -12,7 +12,6 @@ class EditorKitSelectionMenu(
     private val practiceProfile: PracticeProfile
 ) : TemplateKitMenu()
 {
-
     override fun filterDisplayOfKit(player: Player, kit: Kit): Boolean = true
 
     override fun itemDescriptionOf(player: Player, kit: Kit): List<String>
@@ -55,7 +54,6 @@ class EditorKitSelectionMenu(
                 kit
             ).openMenu(player)
         }
-
     }
 
     override fun getPrePaginatedTitle(player: Player): String
