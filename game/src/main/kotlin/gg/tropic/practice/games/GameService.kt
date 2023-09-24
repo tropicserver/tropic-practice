@@ -3,12 +3,12 @@ package gg.tropic.practice.games
 import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.PacketContainer
-import gg.tropic.practice.PracticeGame
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.store.controller.DataStoreObjectControllerCache
+import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.kit.feature.FeatureFlag
 import me.lucko.helper.Events
 import me.lucko.helper.cooldown.Cooldown
@@ -20,32 +20,23 @@ import net.evilblock.cubed.visibility.VisibilityHandler
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound
-import org.bukkit.entity.Arrow
-import org.bukkit.entity.Entity
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.FishHook
-import org.bukkit.entity.Player
-import org.bukkit.entity.Projectile
+import org.bukkit.block.Block
+import org.bukkit.block.BlockFace
+import org.bukkit.entity.*
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.*
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause
-import org.bukkit.event.entity.FoodLevelChangeEvent
-import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.entity.ProjectileLaunchEvent
 import org.bukkit.event.inventory.CraftItemEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerItemConsumeEvent
-import org.bukkit.event.player.PlayerMoveEvent
-import org.bukkit.event.player.PlayerPickupItemEvent
-import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.*
 import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
+import java.util.function.Function
+import java.util.function.Predicate
 import kotlin.math.ceil
 
 /**
@@ -648,6 +639,13 @@ object GameService
             }
             .bindWith(plugin)
 
+        val validBlockPlace = listOf(
+            BlockFace.NORTH,
+            BlockFace.EAST,
+            BlockFace.SOUTH,
+            BlockFace.WEST
+        )
+
         Events.subscribe(BlockPlaceEvent::class.java)
             .handler {
                 val game = byPlayer(it.player)
@@ -661,13 +659,51 @@ object GameService
                     return@handler
                 }
 
-                if (
-                    !game.ensurePlaying() ||
-                    !game.flag(FeatureFlag.PlaceBlocks)
-                )
+                if (!game.ensurePlaying())
                 {
                     it.isCancelled = true
                     return@handler
+                }
+
+                if (!game.flag(FeatureFlag.PlaceBlocks))
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+
+                val zone = game.map.findZoneContainingEntity(it.player)
+
+                if (zone != null && zone.id.startsWith("restrict"))
+                {
+                    it.isCancelled = true
+                    it.player.sendMessage(
+                        "${CC.RED}You cannot build in this area!"
+                    )
+                    return@handler
+                }
+
+                val levelRestrictions = game.map.findMapLevelRestrictions()
+
+                if (levelRestrictions != null)
+                {
+                    if (it.block.y !in levelRestrictions.range)
+                    {
+                        if (
+                            !levelRestrictions.allowBuildOnBlockSideBlockFaces ||
+                            validBlockPlace
+                                .any { face ->
+                                    it.blockPlaced.getRelative(face)
+                                        .hasMetadata("placed")
+                                }
+                        )
+                        {
+                            it.isCancelled = true
+                            it.player.sendMessage(
+                                "${CC.RED}You cannot build in this area!"
+                            )
+                        }
+                        return@handler
+                    }
                 }
 
                 it.blockPlaced.setMetadata(

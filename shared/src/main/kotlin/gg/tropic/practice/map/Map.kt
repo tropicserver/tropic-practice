@@ -2,10 +2,14 @@ package gg.tropic.practice.map
 
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.map.metadata.anonymous.Bounds
+import gg.tropic.practice.map.metadata.anonymous.toPosition
+import gg.tropic.practice.map.metadata.impl.MapLevelMetadata
 import gg.tropic.practice.map.metadata.impl.MapSpawnMetadata
+import gg.tropic.practice.map.metadata.impl.MapZoneMetadata
 import gg.tropic.practice.map.utilities.MapMetadata
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
+import org.bukkit.entity.Entity
 import org.bukkit.inventory.ItemStack
 
 /**
@@ -29,6 +33,18 @@ data class Map(
         mutableSetOf("__default__")
 )
 {
+    fun findMapLevelRestrictions() = metadata
+        .metadata
+        .filterIsInstance<MapLevelMetadata>()
+        .firstOrNull()
+
+    fun findZoneContainingEntity(entity: Entity) = metadata
+        .metadata
+        .filterIsInstance<MapZoneMetadata>()
+        .firstOrNull {
+            it.bounds.contains(entity.location.toPosition())
+        }
+
     fun findSpawnLocationMatchingTeam(team: GameTeamSide) = metadata
         .metadata
         .filterIsInstance<MapSpawnMetadata>()

@@ -9,7 +9,7 @@ import gg.tropic.practice.map.metadata.AbstractMapMetadata
 data class MapLevelMetadata(
     val yAxis: Int,
     val below: Int = 2,
-    val allowBuildOnEx: Boolean = false,
+    val allowBuildOnBlockSideBlockFaces: Boolean = false,
     override val id: String = "level",
 ) : AbstractMapMetadata()
 {
