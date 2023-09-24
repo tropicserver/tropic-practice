@@ -71,6 +71,24 @@ object KitCommands : ScalaCommand()
     }
 
     @AssignPermission
+    @Subcommand("toggle")
+    @CommandCompletion("@kits")
+    @Description("Toggle a kit's enabled state.")
+    fun onToggle(player: ScalaPlayer, kit: Kit)
+    {
+        kit.enabled = !kit.enabled
+
+        with(KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have ${if (kit.enabled) "${CC.B_GREEN}enabled" else "${CC.RED}disabled"} ${CC.GREEN}the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+        )
+    }
+
+    @AssignPermission
     @Subcommand("features add")
     @CommandCompletion("@kits @stranger-feature-flags")
     @Description("Add a feature flag to a kit.")
