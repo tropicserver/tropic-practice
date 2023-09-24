@@ -32,17 +32,16 @@ class EditLoadoutContentsMenu(
         buttons[11] = ItemBuilder
             .of(Material.WOOL)
             .data(13)
-            .name("${CC.BD_GREEN}Save Loadout")
+            .name("${CC.B_GREEN}Save Loadout")
             .addToLore(
                 "${CC.GRAY}Save your current inventory",
                 "${CC.GRAY}as the loadout's contents.",
                 "",
-                "${CC.YELLOW}Click to save!"
+                "${CC.GREEN}Click to save!"
             )
             .toButton { _, _ ->
                 handleLoadoutSave(player).thenRun {
                     handleBackwardsMenuNavigation(player)
-                    player.sendMessage("${CC.GREEN}Saving loadout...")
                 }
             }
 
@@ -54,7 +53,7 @@ class EditLoadoutContentsMenu(
                 "${CC.GRAY}Reset the loadout to it's",
                 "${CC.GRAY}default contents.",
                 "",
-                "${CC.YELLOW}Click to reset loadout!"
+                "${CC.GREEN}Click to reset loadout!"
             )
             .toButton { _, _ ->
                 // handle player inventory reset first
@@ -88,7 +87,7 @@ class EditLoadoutContentsMenu(
                 "${CC.GRAY}process and return to the",
                 "${CC.GRAY}main menu.",
                 "",
-                "${CC.YELLOW}Click to cancel!"
+                "${CC.GREEN}Click to cancel!"
             )
             .toButton { _, _ ->
                 handleBackwardsMenuNavigation(player)
@@ -123,12 +122,9 @@ class EditLoadoutContentsMenu(
     }
 
     override fun size(buttons: Map<Int, Button>): Int = 27
-
     override fun getTitle(player: Player): String = "Editing '${loadout.name}'"
 
-
-
-    fun resetInventory(player: Player)
+    private fun resetInventory(player: Player)
     {
         player.inventory.clear()
         player.updateInventory()
@@ -154,7 +150,7 @@ class EditLoadoutContentsMenu(
         return practiceProfile.save()
     }
 
-    fun handleBackwardsMenuNavigation(player: Player)
+    private fun handleBackwardsMenuNavigation(player: Player)
     {
         val loadouts = practiceProfile.getLoadoutsFromKit(kit)
 
@@ -172,5 +168,4 @@ class EditLoadoutContentsMenu(
             ).openMenu(player)
         }
     }
-
 }

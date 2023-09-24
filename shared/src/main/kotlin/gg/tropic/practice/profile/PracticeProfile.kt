@@ -29,7 +29,7 @@ data class PracticeProfile(
         RankedKitStatistics
     >()
 
-    val customLoadouts = ConcurrentHashMap<
+    val customLoadouts = mutableMapOf<
         String,
         ConcurrentHashMap<
             String, // "Default #1"
@@ -37,7 +37,7 @@ data class PracticeProfile(
         >
     >()
 
-    fun getLoadoutsFromKit(kit: Kit) : ConcurrentHashMap<String, Loadout> = customLoadouts[kit.id] ?: ConcurrentHashMap()
+    fun getLoadoutsFromKit(kit: Kit) = customLoadouts[kit.id] ?: ConcurrentHashMap()
 
     fun save() = DataStoreObjectControllerCache
         .findNotNull<PracticeProfile>()

@@ -35,7 +35,7 @@ class EditorKitSelectionMenu(
         {
             if (loadouts.size >= 8)
             {
-                player.sendMessage("${CC.RED}You have reached the maximum amount of custom kits!")
+                player.sendMessage("${CC.RED}You have reached the maximum number of custom kits!")
                 return
             }
 

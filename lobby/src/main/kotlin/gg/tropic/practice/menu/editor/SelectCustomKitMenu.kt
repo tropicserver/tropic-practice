@@ -5,13 +5,13 @@ import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.loadout.Loadout
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
-import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -21,38 +21,40 @@ class SelectCustomKitMenu(
     private val kit: Kit
 ) : Menu()
 {
+    companion object
+    {
+        @JvmStatic
+        val DATE_FORMAT = SimpleDateFormat()
+    }
+
+    init
+    {
+        placeholder = true
+    }
+
     override fun getButtons(player: Player): Map<Int, Button>
     {
         val buttons = mutableMapOf<Int, Button>()
 
-        for (int in 0 until 27)
+        for ((index, loadoutAt) in currentLoadouts.entries.withIndex())
         {
-            buttons[int] = PaginatedMenu.PLACEHOLDER
-        }
-
-        for (int in 10 until 17)
-        {
-            val loadoutAt = currentLoadouts.entries.elementAtOrNull(int - 10) ?: continue
             val dateCreated = Date(loadoutAt.value.timestamp)
 
-            //TODO: use a non-deprecated method for this
-            buttons[int] = ItemBuilder
+            buttons[index + 10] = ItemBuilder
                 .of(Material.PAPER)
-                .name("${CC.WHITE}${loadoutAt.key}")
+                .name("${CC.GREEN}${loadoutAt.key}")
                 .addToLore(
-                    "${CC.GRAY}Last edited: ${CC.WHITE}${dateCreated.month}/${dateCreated.day}/${dateCreated.year - 100}",
+                    "${CC.GRAY}Last edited: ${CC.WHITE}${
+                        DATE_FORMAT.format(dateCreated)
+                    }",
                     "",
                     "${CC.B_RED}Shift-click to delete!",
                     "${CC.GREEN}Click to edit!"
                 )
                 .toButton { _, type ->
-
-                    if (type == ClickType.LEFT)
+                    if (type!!.isShiftClick)
                     {
-                        EditLoadoutContentsMenu(kit, loadoutAt.value, practiceProfile).openMenu(player)
-                    } else if (type == ClickType.SHIFT_LEFT)
-                    {
-                        practiceProfile.customLoadouts[kit.id]!!.remove(loadoutAt.key)
+                        practiceProfile.customLoadouts[kit.id]?.remove(loadoutAt.key)
 
                         practiceProfile.save().thenRun {
                             player.sendMessage(
@@ -73,7 +75,10 @@ class SelectCustomKitMenu(
                                 ).openMenu(player)
                             }
                         }
+                        return@toButton
                     }
+
+                    EditLoadoutContentsMenu(kit, loadoutAt.value, practiceProfile).openMenu(player)
                 }
         }
 
@@ -91,6 +96,5 @@ class SelectCustomKitMenu(
     }
 
     override fun getTitle(player: Player): String = "Choose a loadout to edit..."
-
     override fun size(buttons: Map<Int, Button>): Int = 27
 }
