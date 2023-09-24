@@ -34,7 +34,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
     override fun getMaxItemsPerPage(player: Player) = 21
 
     override fun getAllPagesButtonSlots() =
-        (11..17) + (20..26) + (29..35)
+        (10..16) + (19..25) + (28..34)
 
     override fun getPageButtonSlots() = 19 to 27
 
