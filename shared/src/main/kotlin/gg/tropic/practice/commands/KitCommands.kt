@@ -63,13 +63,14 @@ object KitCommands : ScalaCommand()
             }
         }")
         player.sendMessage(" ")
+        // TODO: fancy message
+        player.sendMessage("${CC.GRAY}Metadata: ${CC.WHITE}Click to view.")
+        player.sendMessage(" ")
         player.sendMessage("${CC.GRAY}Armor contents ${CC.WHITE}(${kit.armorContents.size})${CC.GRAY}: ${CC.WHITE}Click to view.")
         player.sendMessage("${CC.GRAY}Inventory contents ${CC.WHITE}(${kit.contents.size})${CC.GRAY}: ${CC.WHITE}Click to view.")
-        //TODO: Implement a menu to view inventory contents once the kit management is implemented
     }
 
-
-
+    @AssignPermission
     @Subcommand("features add")
     @CommandCompletion("@kits @stranger-feature-flags")
     @Description("Add a feature flag to a kit.")
@@ -106,6 +107,138 @@ object KitCommands : ScalaCommand()
         )
     }
 
+    @Subcommand("features metadata remove")
+    @Description("Remove metadata from a feature flag associated with a kit.")
+    @CommandCompletion("@kits @existing-feature-flags @existing-feature-flags-schemakeys")
+    fun onFeatureMetadataRemove(
+        player: ScalaPlayer, kit: Kit, feature: FeatureFlag,
+        @Single key: String
+    )
+    {
+        if (!kit.features(feature))
+        {
+            throw ConditionFailedException(
+                "This kit is not associated with the feature ${CC.YELLOW}${feature.name}${CC.RED}."
+            )
+        }
+
+        val metadata = kit.features[feature]!!
+
+        if (key !in metadata.keys)
+        {
+            throw ConditionFailedException(
+                "This kit does not have metadata with the key ${CC.YELLOW}$key${CC.RED} associated with the feature ${CC.YELLOW}${feature.name}${CC.RED}."
+            )
+        }
+
+        metadata -= key
+
+        with(KitService.cached()) {
+            kit.features[feature] = metadata
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have removed metadata with the key ${CC.YELLOW}$key${CC.GREEN} from the feature flag ${CC.YELLOW}${feature.name}${CC.GREEN} for kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+        )
+    }
+
+    @Subcommand("features metadata add")
+    @Description("Add metadata to a feature flag associated with a kit.")
+    @CommandCompletion("@kits @existing-feature-flags @stranger-feature-flags-schemakeys")
+    fun onFeatureMetadataAdd(
+        player: ScalaPlayer, kit: Kit, feature: FeatureFlag,
+        @Single key: String, @Single value: String
+    )
+    {
+        if (!kit.features(feature))
+        {
+            throw ConditionFailedException(
+                "This kit is not associated with the feature ${CC.YELLOW}${feature.name}${CC.RED}."
+            )
+        }
+
+        val metadata = kit.features[feature]!!
+
+        if (key in metadata.keys)
+        {
+            throw ConditionFailedException(
+                "This kit already has metadata with the key ${CC.YELLOW}$key${CC.RED} associated with the feature ${CC.YELLOW}${feature.name}${CC.RED}."
+            )
+        }
+
+        if (key !in feature.schema.keys)
+        {
+            throw ConditionFailedException(
+                "The feature flag ${CC.YELLOW}${feature.name}${CC.RED} does not have a schema key with the name ${CC.YELLOW}$key${CC.RED}. The available schema keys are ${CC.YELLOW}${feature.schema.keys.joinToString(", ")}${CC.RED}."
+            )
+        }
+
+        metadata[key] = value
+
+        with(KitService.cached()) {
+            kit.features[feature] = metadata
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have added metadata with the key ${CC.YELLOW}$key${CC.GREEN} and value ${CC.YELLOW}$value${CC.GREEN} to the feature flag ${CC.YELLOW}${feature.name}${CC.GREEN} for kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+        )
+    }
+
+    @Subcommand("features metadata list")
+    @CommandCompletion("@kits @existing-feature-flags")
+    @Description("List all metadata for a feature flag associated with a kit.")
+    fun onFeatureMetadataList(player: ScalaPlayer, kit: Kit, feature: FeatureFlag)
+    {
+        if (!kit.features(feature))
+        {
+            throw ConditionFailedException(
+                "This kit is not associated with the feature ${CC.YELLOW}${feature.name}${CC.RED}."
+            )
+        }
+
+        val metadata = kit.features[feature]!!
+
+        if (metadata.isEmpty())
+        {
+            throw ConditionFailedException(
+                "This kit does not have any metadata associated with the feature ${CC.YELLOW}${feature.name}${CC.RED}."
+            )
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}Metadata for feature flag ${CC.YELLOW}${feature.name}${CC.GREEN} for kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}:"
+        )
+
+        metadata.forEach { (k, v) ->
+            player.sendMessage(" - ${CC.WHITE}$k: $v")
+        }
+    }
+
+    @AssignPermission
+    @Subcommand("features remove")
+    @Description("Remove a feature flag from a kit.")
+    @CommandCompletion("@kits @existing-feature-flags")
+    fun onFeaturesRemove(player: ScalaPlayer, kit: Kit, feature: FeatureFlag)
+    {
+        if (!kit.features(feature))
+        {
+            throw ConditionFailedException(
+                "This kit is not associated with the feature ${CC.YELLOW}${feature.name}${CC.RED}."
+            )
+        }
+
+        with(KitService.cached()) {
+            kit.features -= feature
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have removed the feature flag ${CC.YELLOW}${feature.name}${CC.GREEN} from the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+        )
+    }
+
     @CommandCompletion("@kits")
     @Subcommand("features view")
     @Description("View all feature flags associated with this kit.")
@@ -125,9 +258,9 @@ object KitCommands : ScalaCommand()
 
                 if (meta.isNotEmpty())
                 {
-                    player.sendMessage("   ${CC.GRAY}Metadata:")
+                    player.sendMessage("    ${CC.GRAY}Metadata:")
                     meta.forEach { (k, v) ->
-                        player.sendMessage("    ${CC.WHITE}$k: $v")
+                        player.sendMessage("     ${CC.WHITE}$k: $v")
                     }
                 }
             }
@@ -191,14 +324,13 @@ object KitCommands : ScalaCommand()
         } ${CC.GREEN}with an amplifier of ${CC.YELLOW}$amplifier${CC.GREEN}.")
     }
 
-    @AssignPermission
     @Subcommand("inventory effects list")
     @CommandCompletion("@kits")
     @Description("Show all effects that a kit has.")
     fun onKitEffectList(player: ScalaPlayer, kit: Kit)
     {
         player.sendMessage(
-            "${CC.GREEN}${kit.displayName}'s Effects"
+            "${CC.GREEN}${kit.displayName}'s game effects:"
         )
 
         val effects = kit.potionEffects.entries
@@ -262,8 +394,6 @@ object KitCommands : ScalaCommand()
         } ${CC.GREEN}from the ${CC.YELLOW}${kit.displayName} ${CC.GREEN}kit.")
     }
 
-
-    @AssignPermission
     @Subcommand("list")
     @Description("List all kits.")
     fun onList(player: ScalaPlayer)
