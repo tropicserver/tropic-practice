@@ -1,5 +1,6 @@
 package gg.tropic.practice.profile
 
+import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.scala.store.storage.storable.IDataStoreObject
 import gg.tropic.practice.profile.loadout.Loadout
 import gg.tropic.practice.statistics.GlobalStatistics
@@ -34,4 +35,8 @@ data class PracticeProfile(
             Loadout
         >
     >()
+
+    fun save() = DataStoreObjectControllerCache
+        .findNotNull<PracticeProfile>()
+        .save(this)
 }
