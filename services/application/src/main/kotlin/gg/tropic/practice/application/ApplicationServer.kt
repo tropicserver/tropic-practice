@@ -18,7 +18,8 @@ import gg.scala.store.connection.redis.AbstractDataStoreRedisConnection
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
-import gg.tropic.practice.application.api.defaults.game.ImmutableAbstractGame
+import gg.tropic.practice.application.api.defaults.game.AbstractGame
+import gg.tropic.practice.application.api.defaults.game.DuelExpectation
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.queue.GameQueueManager
@@ -127,7 +128,8 @@ fun main(args: Array<String>)
         MojangDataResolver
     )
 
-    DataStoreObjectControllerCache.create<ImmutableAbstractGame>()
+    DataStoreObjectControllerCache.create<AbstractGame>()
+    DataStoreObjectControllerCache.create<DuelExpectation>()
 
     // TODO: logging? how do we know what the fuck is going on?
     MapDataSync.load()

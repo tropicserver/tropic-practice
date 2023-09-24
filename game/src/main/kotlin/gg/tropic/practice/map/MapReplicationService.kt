@@ -4,6 +4,7 @@ import com.grinderwolf.swm.api.SlimePlugin
 import com.grinderwolf.swm.api.loaders.SlimeLoader
 import com.grinderwolf.swm.api.world.properties.SlimePropertyMap
 import gg.scala.commons.ExtendedScalaPlugin
+import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -57,12 +58,23 @@ object MapReplicationService
             return@exceptionally null
         }
 
+        ReplicationManagerService.buildNewReplication = { map, expectation ->
+            generateArenaWorld(map)
+                .thenAccept { repl ->
+                    // TODO: Marking in-use so others don't fucking claim it LAWL
+                    repl.inUse = true
+                    repl.scheduledForExpectation = expectation
+                    mapReplications += repl
+                }
+        }
+
         ReplicationManagerService.bindToStatusService {
             val replicationStatuses = mapReplications
                 .map {
                     Replication(
                         associatedMapName = it.associatedMap.name,
-                        name = it.world.name, inUse = it.inUse
+                        name = it.world.name, inUse = it.inUse,
+                        server = ServerSync.local.id
                     )
                 }
                 .groupBy {
@@ -73,6 +85,9 @@ object MapReplicationService
         }
     }
 
+    fun findScheduledReplication(expectation: UUID) = mapReplications
+        .firstOrNull { it.scheduledForExpectation == expectation }
+
     private const val TARGET_PRE_GEN_REPLICATIONS = 8
     private fun preGenerateMapReplications(): CompletableFuture<Void>
     {
@@ -81,7 +96,7 @@ object MapReplicationService
                 .flatMap {
                     (0 until TARGET_PRE_GEN_REPLICATIONS)
                         .map { _ ->
-                            generateArenaWorld(it)
+                            generateArenaWorld(it).thenAccept { mapReplications += it }
                         }
                 }
                 .toTypedArray()
@@ -114,7 +129,7 @@ object MapReplicationService
         }
     }
 
-    fun generateArenaWorld(arena: Map): CompletableFuture<World>
+    fun generateArenaWorld(arena: Map): CompletableFuture<BuiltMapReplication>
     {
         val worldName =
             "${arena.name}-${
@@ -160,10 +175,7 @@ object MapReplicationService
                 it.setGameRuleValue("naturalRegeneration", "false")
                 it.setGameRuleValue("sendCommandFeedback", "false")
                 it.setGameRuleValue("logAdminCommands", "false")
-
-                // TODO: forward this directly to the requested game
-                mapReplications += BuiltMapReplication(arena, it)
-                return@thenApply it
+                return@thenApply BuiltMapReplication(arena, it)
             }
     }
 }

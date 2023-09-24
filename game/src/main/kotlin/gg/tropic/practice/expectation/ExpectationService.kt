@@ -20,6 +20,7 @@ import me.lucko.helper.Schedulers
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import org.bukkit.World
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -129,6 +130,17 @@ object ExpectationService
                         game.expectation == expectation.identifier
                     }
 
+                fun GameImpl.teleportToSpawn()
+                {
+                    it.player.teleport(
+                        map
+                            .findSpawnLocationMatchingTeam(
+                                getTeamOf(it.player).side
+                            )!!
+                            .toLocation(arenaWorld)
+                    )
+                }
+
                 if (game == null)
                 {
                     val kit = KitService.cached()
@@ -141,84 +153,51 @@ object ExpectationService
                             deleteExpectation(expectation.identifier)
                         }
 
-                    val compatible = MapService
-                        .selectRandomMapCompatibleWith(kit)
+                    val newGame = GameImpl(
+                        expectation = expectation.identifier,
+                        teams = expectation.teams,
+                        kit = kit,
+                        state = GameState.Waiting,
+                        mapId = expectation.mapId
+                    )
+
+                    val scheduledMap = MapReplicationService
+                        .findScheduledReplication(expectation.identifier)
                         ?: return@handler run {
                             it.player.kickPlayer(
-                                "${CC.RED}We couldn't find a compatible arena for you to play in!"
+                                "${CC.RED}You don't have a map allocated for this game!"
                             )
 
                             deleteExpectation(expectation.identifier)
                         }
 
-                    val newGame = GameImpl(
-                        expectation = expectation.identifier,
-                        teams = expectation.teams,
-                        kit = kit,
-                        state = GameState.Generating,
-                        mapId = expectation.mapId
-                    )
+                    newGame.arenaWorldName = scheduledMap.world.name
 
-                    // TODO: do this before players log on at all? try to use a random map pre-genned?
-                    MapReplicationService
-                        .generateArenaWorld(compatible)
-                        .thenAccept { world ->
-                            Tasks.sync {
-                                newGame.arenaWorldName = world.name
-
-                                if (!startIfReady(newGame))
+                    if (!startIfReady(newGame))
+                    {
+                        Schedulers.sync()
+                            .callLater(
                                 {
-                                    newGame.state = GameState.Waiting
-
-                                    Schedulers.sync()
-                                        .callLater(
-                                            {
-                                                val offline = newGame
-                                                    .toBukkitPlayers()
-                                                    .any { other ->
-                                                        other == null
-                                                    }
-
-                                                if (offline)
-                                                {
-                                                    newGame.closeAndCleanup(
-                                                        "Opponents or teammates did not join on time!"
-                                                    )
-                                                }
-                                            },
-                                            10L, TimeUnit.SECONDS
+                                    if (newGame.state == GameState.Waiting)
+                                    {
+                                        newGame.closeAndCleanup(
+                                            "Opponents or teammates did not join on time!"
                                         )
-                                }
-                            }
-                        }
+                                    }
+                                },
+                                10L, TimeUnit.SECONDS
+                            )
+                    }
 
                     DataStoreObjectControllerCache
                         .findNotNull<GameImpl>()
                         .save(newGame, DataStoreStorageType.REDIS)
 
                     GameService.games[expectation.identifier] = newGame
-
-                    Tasks.sync {
-                        it.player.teleport(waitingLocation)
-                    }
-
-                    it.player.sendMessage(
-                        "${CC.GREEN}Generating the arena..."
-                    )
+                    newGame.teleportToSpawn()
                 } else
                 {
-                    Tasks.sync {
-                        it.player.teleport(waitingLocation)
-                    }
-
-                    if (game.state == GameState.Generating)
-                    {
-                        it.player.sendMessage(
-                            "${CC.GREEN}Generating the arena..."
-                        )
-                        return@handler
-                    }
-
+                    game.teleportToSpawn()
                     if (game.state(GameState.Waiting))
                     {
                         startIfReady(game)

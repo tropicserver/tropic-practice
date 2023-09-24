@@ -1,6 +1,7 @@
 package gg.tropic.practice.map
 
 import org.bukkit.World
+import java.util.UUID
 
 /**
  * @author GrowlyX
@@ -9,5 +10,6 @@ import org.bukkit.World
 data class BuiltMapReplication(
     val associatedMap: Map,
     val world: World,
+    var scheduledForExpectation: UUID? = null,
     var inUse: Boolean = false
 )

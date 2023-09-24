@@ -19,6 +19,19 @@ object GameQueueManager
 
     private val dpsRedisCache = DPSRedisShared.keyValueCache
 
+    fun queueSizeFromId(id: String) = dpsRedisCache
+        .sync()
+        .llen("tropicpractice:queues:$id:queue")
+
+    fun popQueueEntryFromId(id: String) = dpsRedisCache
+        .sync()
+        .rpop("tropicpractice:queues:$id:queue")
+        .let {
+            Serializers.gson.fromJson(
+                it, QueueEntry::class.java
+            )
+        }
+
     fun load()
     {
         KitDataSync.onReload {
@@ -39,9 +52,14 @@ object GameQueueManager
 
                 queues[queueId]?.apply {
                     dpsRedisCache.sync().hset(
-                        "tropicpractice:queues:$queueId",
+                        "tropicpractice:queues:$queueId:entries",
                         entry.leader.toString(),
                         Serializers.gson.toJson(entry)
+                    )
+
+                    dpsRedisCache.sync().lpush(
+                        "tropicpractice:queues:$queueId:queue",
+                        entry.leader.toString()
                     )
 
                     val queueState = QueueState(
@@ -73,20 +91,31 @@ object GameQueueManager
                 val queueId = "$kit:${queueType.name}:${teamSize}v${teamSize}"
 
                 queues[queueId]?.apply {
-                    dpsRedisCache.sync().hdel(
-                        "tropicpractice:queues:$queueId",
+                    dpsRedisCache.sync().lrem(
+                        "tropicpractice:queues:$queueId:queue",
+                        1,
                         entry.leader.toString()
                     )
 
-                    for (player in entry.players)
-                    {
-                        dpsRedisCache.sync().hdel(
-                            "tropicpractice:queue-states",
-                            player.toString()
-                        )
-                    }
+                    dpsRedisCache.sync().hdel(
+                        "tropicpractice:queues:$queueId:entries",
+                        entry.leader.toString()
+                    )
+
+                    destroyQueueStates(entry)
                 }
             }
+        }
+    }
+
+    fun destroyQueueStates(entry: QueueEntry)
+    {
+        for (player in entry.players)
+        {
+            dpsRedisCache.sync().hdel(
+                "tropicpractice:queue-states",
+                player.toString()
+            )
         }
     }
 
@@ -130,7 +159,7 @@ object GameQueueManager
 
             if (existingKit == null)
             {
-                queues.remove(key)
+                queues.remove(key)?.destroy()
             }
         }
     }

@@ -5,6 +5,7 @@ package gg.tropic.practice.replications.manager
  * @since 9/24/2023
  */
 data class Replication(
+    val server: String,
     val associatedMapName: String,
     val name: String,
     val inUse: Boolean = false

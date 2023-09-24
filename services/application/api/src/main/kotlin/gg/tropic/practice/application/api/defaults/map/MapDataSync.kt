@@ -2,6 +2,9 @@ package gg.tropic.practice.application.api.defaults.map
 
 import gg.tropic.practice.application.api.DPSDataSync
 import gg.tropic.practice.application.api.DPSDataSyncKeys
+import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
+import gg.tropic.practice.application.api.defaults.kit.group.ImmutableKitGroup
+import gg.tropic.practice.application.api.defaults.kit.group.KitGroupDataSync
 import net.kyori.adventure.key.Key
 
 /**
@@ -18,4 +21,16 @@ object MapDataSync : DPSDataSync<ImmutableMapContainer>()
 
     override fun keys() = DPSMapKeys
     override fun type() = ImmutableMapContainer::class.java
+
+    fun selectRandomMapCompatibleWith(kit: ImmutableKit): ImmutableMap?
+    {
+        val groups = KitGroupDataSync.groupsOf(kit)
+            .map(ImmutableKitGroup::id)
+
+        return cached().maps.values
+            .shuffled()
+            .firstOrNull {
+                groups.intersect(it.associatedKitGroups).isNotEmpty()
+            }
+    }
 }

@@ -2,15 +2,11 @@ package gg.tropic.practice.map
 
 import gg.scala.commons.persist.datasync.DataSyncKeys
 import gg.scala.commons.persist.datasync.DataSyncService
-import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeShared
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
-import gg.tropic.practice.map.metadata.AbstractMapMetadata
-import net.evilblock.cubed.serializers.Serializers
-import net.evilblock.cubed.serializers.impl.AbstractTypeSerializer
 import net.kyori.adventure.key.Key
 
 /**
@@ -36,6 +32,8 @@ object MapService : DataSyncService<MapContainer>()
             it.name.equals(id, true)
         }
 
+    // TODO: Are we even going to do this? Can we just forward it to the
+    //  queue system to allocate and do its shit? it's just easier for duels
     fun selectRandomMapCompatibleWith(kit: Kit): Map?
     {
         val groups = KitGroupService.groupsOf(kit)

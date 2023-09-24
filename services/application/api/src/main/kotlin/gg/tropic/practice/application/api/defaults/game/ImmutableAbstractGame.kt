@@ -18,7 +18,7 @@ class GameTeam(
     val players: List<UUID>
 )
 
-class ImmutableAbstractGame(
+class AbstractGame(
     val expectation: UUID,
     val teams: Map<GameTeamSide, GameTeam>,
     val kit: ImmutableKit
