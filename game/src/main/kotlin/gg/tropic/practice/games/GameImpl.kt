@@ -14,6 +14,7 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.map.MapService
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
+import me.lucko.helper.utils.Players
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.kyori.adventure.audience.Audience
@@ -258,7 +259,13 @@ class GameImpl(
                     "${CC.WHITE}$reason"
                 )
 
-                val online = this.toBukkitPlayers()
+                val online = Players.all()
+                    .onEach {
+                        println("${it.name} is on ${it.location.world.name} when supposed to be on ${arenaWorld.name}")
+                    }
+                    .filter {
+                        it.location.world.name == arenaWorld.name
+                    }
                     .filterNotNull()
                     .toTypedArray()
 
@@ -280,14 +287,6 @@ class GameImpl(
                             this.arenaWorld, false
                         )
                     }
-                }
-                .thenComposeAsync {
-                    DataStoreObjectControllerCache
-                        .findNotNull<DuelExpectation>()
-                        .delete(
-                            this.identifier,
-                            DataStoreStorageType.REDIS
-                        )
                 }
         }.onFailure {
             it.printStackTrace()

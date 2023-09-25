@@ -61,15 +61,6 @@ class GameStartTask(
 
                     player.resetAttributes()
 
-                    Tasks.sync {
-                        // TODO: What the hell do we do here?
-                        val world = spawn
-                            ?.toLocation(this.game.arenaWorld)
-                            ?: return@sync
-
-                        player.teleport(world)
-                    }
-
                     this.game.kit.populate(player)
                     player.updateInventory()
                 }

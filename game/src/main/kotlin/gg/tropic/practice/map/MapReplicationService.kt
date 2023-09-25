@@ -9,12 +9,21 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.scala.store.controller.DataStoreObjectControllerCache
+import gg.scala.store.storage.type.DataStoreStorageType
+import gg.tropic.practice.expectation.DuelExpectation
+import gg.tropic.practice.expectation.ExpectationService
+import gg.tropic.practice.games.GameImpl
+import gg.tropic.practice.games.GameService
+import gg.tropic.practice.games.GameState
+import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.replications.Replication
 import gg.tropic.practice.replications.ReplicationManagerService
 import gg.tropic.practice.replications.ReplicationStatus
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
+import net.evilblock.cubed.util.CC
 import org.bukkit.World
 import org.bukkit.event.world.WorldLoadEvent
 import java.util.*
@@ -59,11 +68,103 @@ object MapReplicationService
             return@exceptionally null
         }
 
+        fun deleteExpectation(identifier: UUID)
+        {
+            DataStoreObjectControllerCache
+                .findNotNull<DuelExpectation>()
+                .delete(
+                    identifier, DataStoreStorageType.REDIS
+                )
+        }
+
+        fun startIfReady(game: GameImpl): Boolean
+        {
+            if (
+                game.toBukkitPlayers()
+                    .none { other ->
+                        other == null
+                    }
+            )
+            {
+                game.initializeAndStart()
+                return true
+            }
+
+            return false
+        }
+
+        val buildGameResources = handler@{ expectationID: UUID ->
+            val expectation = DataStoreObjectControllerCache
+                .findNotNull<DuelExpectation>()
+                .load(
+                    expectationID,
+                    DataStoreStorageType.REDIS
+                )
+                .join()
+                ?: return@handler
+
+            val kit = KitService.cached()
+                .kits[expectation.kitId]
+                ?: return@handler run {
+                    deleteExpectation(expectation.identifier)
+                }
+
+            val newGame = GameImpl(
+                expectation = expectation.identifier,
+                teams = expectation.teams,
+                kit = kit,
+                state = GameState.Waiting,
+                mapId = expectation.mapId
+            )
+
+            val scheduledMap = findScheduledReplication(expectation.identifier)
+                ?: return@handler run {
+                    deleteExpectation(expectation.identifier)
+                }
+
+            scheduledMap.inUse = true
+            newGame.arenaWorldName = scheduledMap.world.name
+
+            val start = System.currentTimeMillis()
+
+            Schedulers.async()
+                .runRepeating(
+                    { task ->
+                        if (System.currentTimeMillis() >= start + 5000L)
+                        {
+                            newGame.closeAndCleanup(
+                                "Opponents or teammates did not join on time!"
+                            )
+                            task.closeAndReportException()
+                            return@runRepeating
+                        }
+
+                        if (newGame.state == GameState.Waiting)
+                        {
+                            if (startIfReady(newGame))
+                            {
+                                task.closeAndReportException()
+                            }
+                        }
+                    },
+                    10L, 2L
+                )
+
+            DataStoreObjectControllerCache
+                .findNotNull<GameImpl>()
+                .save(newGame, DataStoreStorageType.REDIS)
+                .join()
+
+            GameService.games[expectation.identifier] = newGame
+        }
+
         ReplicationManagerService.buildNewReplication = { map, expectation ->
             generateArenaWorld(map)
                 .thenAccept { repl ->
                     repl.scheduledForExpectation = expectation
                     mapReplications += repl
+
+                    buildGameResources(expectation)
                 }
         }
 
@@ -78,6 +179,8 @@ object MapReplicationService
                 }
 
             replication.scheduledForExpectation = expectation
+            buildGameResources(expectation)
+
             println("Scheduled shit")
             return@scope CompletableFuture.completedFuture(null)
         }
@@ -148,11 +251,7 @@ object MapReplicationService
 
     fun generateArenaWorld(arena: Map): CompletableFuture<BuiltMapReplication>
     {
-        val worldName =
-            "${arena.name}-${
-                UUID.randomUUID().toString().substring(0..7)
-            }"
-
+        val worldName = UUID.randomUUID().toString()
         val readyMap = readyMaps[arena.name]
             ?: return CompletableFuture.failedFuture(
                 IllegalStateException("Map ${arena.name} does not have a ready SlimeWorld. Map changes have not propagated to this server?")

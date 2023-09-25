@@ -742,4 +742,10 @@ object GameService
             .find {
                 player.uniqueId in it.toPlayers()
             }
+
+    fun byPlayer(player: UUID) =
+        games.values
+            .find {
+                player in it.toPlayers()
+            }
 }
