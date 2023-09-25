@@ -1,10 +1,11 @@
 # Infrastructure
 
 **Components:**
-- Game Server: Hosts a certain amount of games each. Runs the plugin built from the game module.
-- Lobby Server: Frontend for all other components listed here.
+- **Game Server:** Hosts a certain amount of games each. Runs the plugin built from the game module.
+- **Lobby Server:** Frontend for all other components listed here.
 - **Application:** Standalone application computing data shared on all server instances.
     - Queue: List of players for each GameType, TeamSize & Kit tuple which is iterated through and matched based on the amount of players in the queue entry, and other constraints (matchmaking settings like ping/ELO restrictions). Each queue is iterated through independently.
+    - Leaderboards: Runs and caches leaderboards for all player profiles. Caches leaderboard entries in a sorted set in Redis. 
     - ReplicationManager: Keeps statuses of available map replications for each game server.
         - If it does not receive another status update within 2 seconds, the game server is marked as unhealthy and replications are not used for any new matches.
 
