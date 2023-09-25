@@ -260,7 +260,7 @@ class GameImpl(
 
         kotlin.runCatching {
             Logger.getGlobal().info(
-                "[Duels] cleaning up $expectation for $reason."
+                "[Practice] cleaning up $expectation for $reason."
             )
 
             GameService.games

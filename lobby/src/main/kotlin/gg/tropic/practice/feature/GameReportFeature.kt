@@ -31,7 +31,7 @@ object GameReportFeature
         return CompletableFuture
             .supplyAsync {
                 connection.sync()
-                    .keys("duels:snapshots:players:$uniqueId:matches:*")
+                    .keys("tropicpractice:snapshots:players:$uniqueId:matches:*")
             }
             .thenApply {
                 it.map { key ->
@@ -42,7 +42,7 @@ object GameReportFeature
             .thenApply {
                 it
                     .mapNotNull { uniqueId ->
-                        connection.sync().get("duels:snapshots:matches:$uniqueId")
+                        connection.sync().get("tropicpractice:snapshots:matches:$uniqueId")
                     }
                     .mapNotNull {
                         kotlin

@@ -41,7 +41,7 @@ class DuelGamesMenu(
                 report.viewed = true
 
                 GameReportFeature.connection.async().set(
-                    "duels:snapshots:matches:${report.identifier}",
+                    "tropicpractice:snapshots:matches:${report.identifier}",
                     Serializers.gson.toJson(report)
                 )
             }

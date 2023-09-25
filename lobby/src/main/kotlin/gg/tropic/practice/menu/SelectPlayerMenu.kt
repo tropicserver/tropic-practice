@@ -55,5 +55,5 @@ class SelectPlayerMenu(
         return buttons
     }
 
-    override fun getPrePaginatedTitle(player: Player) = "Previous Duels ${Constants.DOUBLE_ARROW_RIGHT} Select a Player"
+    override fun getPrePaginatedTitle(player: Player) = "Previous Games ${Constants.DOUBLE_ARROW_RIGHT} Select a Player"
 }

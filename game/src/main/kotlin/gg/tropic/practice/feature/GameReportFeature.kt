@@ -22,7 +22,7 @@ object GameReportFeature
         return CompletableFuture
             .runAsync {
                 connection.sync().setex(
-                    "duels:snapshots:matches:${snapshot.identifier}",
+                    "tropicpractice:snapshots:matches:${snapshot.identifier}",
                     matchPersistCacheMillis,
                     Serializers.gson.toJson(snapshot)
                 )
@@ -32,7 +32,7 @@ object GameReportFeature
                     .flatten()
                     .forEach {
                         connection.sync().setex(
-                            "duels:snapshots:players:$it:matches:${snapshot.identifier}",
+                            "tropicpractice:snapshots:players:$it:matches:${snapshot.identifier}",
                             matchPersistCacheMillis, snapshot.identifier.toString()
                         )
                     }

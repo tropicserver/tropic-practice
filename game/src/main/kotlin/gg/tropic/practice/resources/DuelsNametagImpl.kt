@@ -12,7 +12,7 @@ import org.bukkit.entity.Player
  * @since 8/9/2022
  */
 @NametagProviderRegister
-object DuelsNametagImpl : NametagProvider("duels", 3000000)
+object DuelsNametagImpl : NametagProvider("practice", 3000000)
 {
     override fun fetchNametag(
         toRefresh: Player, refreshFor: Player

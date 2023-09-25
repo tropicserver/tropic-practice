@@ -37,8 +37,8 @@ object DuelsSettingCategory : SettingCategory
 
     override fun display(player: Player) = true
 
-    override val displayName = "Duels"
+    override val displayName = "Practice"
     override val description = listOf(
-        "Duel settings."
+        "Practice settings."
     )
 }
