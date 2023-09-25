@@ -4,6 +4,7 @@ import gg.scala.lemon.LemonConstants
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.math.Numbers
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -17,8 +18,15 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
     override fun getLines(board: LinkedList<String>, player: Player)
     {
         board += ""
-        board += "${CC.WHITE}Online: ${CC.PRI}0"
-        board += "${CC.WHITE}Playing: ${CC.PRI}0"
+        board += "${CC.WHITE}Online: ${CC.PRI}${
+            Numbers.format(ScoreboardInfoService.scoreboardInfo.online)
+        }"
+        board += "${CC.WHITE}Playing: ${CC.PRI}${
+            Numbers.format(ScoreboardInfoService.scoreboardInfo.playing)
+        }"
+        board += "${CC.WHITE}Queued: ${CC.GOLD}${
+            Numbers.format(ScoreboardInfoService.scoreboardInfo.queued)
+        }"
 
         if (player.hasPermission("practice.staff"))
         {
@@ -40,16 +48,13 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             board += ""
             board += "${CC.GOLD}Dev:"
             board += "${CC.WHITE}Game servers: ${CC.PRI}${
-                DevInfoService.devInfo.gameServers
-            }"
-            board += "${CC.WHITE}  Queued: ${CC.GOLD}${
-                DevInfoService.devInfo.queued
+                ScoreboardInfoService.scoreboardInfo.gameServers
             }"
             board += "${CC.WHITE}  Mean TPS: ${CC.GREEN}${
-                "%.2f".format(DevInfoService.devInfo.meanTPS)
+                "%.2f".format(ScoreboardInfoService.scoreboardInfo.meanTPS)
             }"
             board += "${CC.WHITE}Available Rpls.: ${CC.PRI}${
-                DevInfoService.devInfo.availableReplications
+                ScoreboardInfoService.scoreboardInfo.availableReplications
             }"
         }
 

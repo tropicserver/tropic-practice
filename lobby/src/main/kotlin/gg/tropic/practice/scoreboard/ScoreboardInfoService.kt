@@ -2,10 +2,8 @@ package gg.tropic.practice.scoreboard
 
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
-import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.tropic.practice.PracticeLobby
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
@@ -15,12 +13,11 @@ import net.evilblock.cubed.serializers.Serializers
  * @since 9/24/2023
  */
 @Service
-object DevInfoService
+object ScoreboardInfoService
 {
-    @Inject
-    lateinit var plugin: PracticeLobby
-
-    data class DevInfo(
+    data class ScoreboardInfo(
+        val online: Int,
+        val playing: Int,
         val gameServers: Int,
         val queued: Int,
         val meanTPS: Double,
@@ -42,7 +39,7 @@ object DevInfoService
         val replications: Map<String, List<Replication>>
     )
 
-    var devInfo = DevInfo(0, 0, 0.0, 0)
+    var scoreboardInfo = ScoreboardInfo(0, 0, 0, 0, 0.0, 0)
 
     @Configure
     fun configure()
@@ -50,12 +47,18 @@ object DevInfoService
         Schedulers
             .async()
             .runRepeating(Runnable {
-                val servers = ServerContainer
+                val gameServers = ServerContainer
                     .getServersInGroupCasted<GameServer>("mipgame")
 
-                devInfo = DevInfo(
-                    gameServers = servers.size,
-                    meanTPS = servers.map { it.getTPS()!! }.average(),
+                val servers = ServerContainer
+                    .getServersInGroupCasted<GameServer>("mip")
+
+                scoreboardInfo = ScoreboardInfo(
+                    online = servers.sumOf { it.getPlayersCount() ?: 0 },
+                    // TODO: load game impls and count from those
+                    playing = gameServers.sumOf { it.getPlayersCount() ?: 0 },
+                    gameServers = gameServers.size,
+                    meanTPS = gameServers.map { it.getTPS()!! }.average(),
                     queued = ScalaCommonsSpigot
                         .instance
                         .kvConnection

@@ -1,19 +1,11 @@
 package gg.tropic.practice
 
-import gg.tropic.practice.commands.DuelRequestsCommand
+import gg.scala.commons.ExtendedScalaPlugin
+import gg.scala.commons.annotations.container.ContainerEnable
+import gg.scala.commons.core.plugin.*
 import gg.tropic.practice.feature.GameReportFeature
 import gg.tropic.practice.provider.SettingProvider
 import gg.tropic.practice.provider.impl.LemonSettingProvider
-import gg.tropic.practice.PracticeShared
-import gg.scala.commons.ExtendedScalaPlugin
-import gg.scala.commons.annotations.commands.ManualRegister
-import gg.scala.commons.annotations.container.ContainerEnable
-import gg.scala.commons.command.ScalaCommandManager
-import gg.scala.commons.core.plugin.Plugin
-import gg.scala.commons.core.plugin.PluginAuthor
-import gg.scala.commons.core.plugin.PluginDependency
-import gg.scala.commons.core.plugin.PluginDependencyComposite
-import gg.scala.commons.core.plugin.PluginWebsite
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
@@ -38,6 +30,11 @@ import org.bukkit.event.player.PlayerJoinEvent
 class PracticeLobby : ExtendedScalaPlugin()
 {
     var settingProvider: SettingProvider = LemonSettingProvider
+
+    init
+    {
+        PracticeShared
+    }
 
     @ContainerEnable
     fun containerEnable()

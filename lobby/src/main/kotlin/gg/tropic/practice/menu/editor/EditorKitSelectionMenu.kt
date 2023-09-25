@@ -46,7 +46,8 @@ class EditorKitSelectionMenu(
             val loadout = Loadout(
                 name = "Default #${loadouts.size+1}",
                 kit.id,
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                inventoryContents = kit.contents
             )
 
             practiceProfile.customLoadouts[kit.id]?.add(loadout)

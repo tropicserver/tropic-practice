@@ -10,10 +10,8 @@ import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.bukkit.event.inventory.ClickType
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 
 class SelectCustomKitMenu(
     private val practiceProfile: PracticeProfile,
@@ -48,36 +46,9 @@ class SelectCustomKitMenu(
                         DATE_FORMAT.format(dateCreated)
                     }",
                     "",
-                    "${CC.B_RED}Shift-click to delete!",
                     "${CC.GREEN}Click to edit!"
                 )
-                .toButton { _, type ->
-                    if (type!!.isShiftClick)
-                    {
-                        practiceProfile.customLoadouts[kit.id]?.remove(loadoutAt)
-
-                        practiceProfile.save().thenRun {
-                            player.sendMessage(
-                                "${CC.GREEN}You have just deleted the ${CC.YELLOW}${loadoutAt.name} ${CC.GREEN}loadout for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
-                            )
-
-                            val newLoadouts = practiceProfile.getLoadoutsFromKit(kit)
-
-                            if (newLoadouts.size == 0)
-                            {
-                                EditorKitSelectionMenu(practiceProfile).openMenu(player)
-                            } else
-                            {
-                                SelectCustomKitMenu(
-                                    practiceProfile,
-                                    newLoadouts,
-                                    kit
-                                ).openMenu(player)
-                            }
-                        }
-                        return@toButton
-                    }
-
+                .toButton { _, _ ->
                     EditLoadoutContentsMenu(kit, loadoutAt, practiceProfile).openMenu(player)
                 }
         }

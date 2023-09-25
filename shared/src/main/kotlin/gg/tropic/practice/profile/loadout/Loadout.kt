@@ -7,7 +7,7 @@ import org.bukkit.inventory.ItemStack
  * @since 9/23/2023
  */
 data class Loadout(
-    val name: String,
+    var name: String,
     val pairedKit: String,
     var timestamp: Long,
     val inventoryContents: Array<ItemStack?> = arrayOfNulls(36)
