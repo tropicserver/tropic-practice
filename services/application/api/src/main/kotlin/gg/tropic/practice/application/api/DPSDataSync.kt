@@ -23,7 +23,7 @@ abstract class DPSDataSync<T>
         )
 
     private val backingSync by lazy {
-        DPSRedisService("${keys().sync()}:datasync")
+        DPSRedisService("${keys().sync()}:datasync", raw = true)
             .apply {
                 start()
             }
@@ -31,7 +31,7 @@ abstract class DPSDataSync<T>
     }
 
     fun sync() = backingSync
-    open fun cache() = cache!!
+    open fun cache() = cache
 
     open fun cleanup()
     {
