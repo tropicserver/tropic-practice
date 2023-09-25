@@ -7,6 +7,9 @@ import gg.scala.commons.acf.annotation.*
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.scala.store.controller.DataStoreObjectControllerCache
+import gg.scala.store.storage.type.DataStoreStorageType
+import gg.tropic.practice.games.AbstractGame
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapManageServices
 import gg.tropic.practice.map.MapService
@@ -19,6 +22,7 @@ import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.bukkit.prompt.InputPrompt
 import org.bukkit.Bukkit
 import org.bukkit.Sound
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -130,6 +134,24 @@ object MapManageCommands : ScalaCommand()
                     }
                 }
                 .start(this)
+        }
+    }
+
+    @Subcommand("deletes")
+    @Description("Deletes a map based on the input given.")
+    fun onDelete(player: ScalaPlayer, mapName: String) : CompletableFuture<Void>
+    {
+        val map = MapService.mapWithID(mapName)
+            ?: throw ConditionFailedException(
+                "A map with the ID ${CC.YELLOW}$mapName ${CC.RED}does not exist."
+            )
+
+        val ongoingGames = DataStoreObjectControllerCache
+            .findNotNull<AbstractGame>()
+            .loadAll(DataStoreStorageType.REDIS)
+
+        return ongoingGames.thenAccept {
+            //TODO: implement later
         }
     }
 }
