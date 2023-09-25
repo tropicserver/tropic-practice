@@ -87,7 +87,13 @@ object ScoreboardInfoService
                             )
                         }
                         .flatMap {
-                            it.value.replications.values.flatten()
+                            kotlin
+                                .runCatching {
+                                    // replicationmanager could be null?
+                                    it.value.replications.values.flatten()
+                                }
+                                .getOrNull()
+                                ?: listOf()
                         }
                         .count()
                 )

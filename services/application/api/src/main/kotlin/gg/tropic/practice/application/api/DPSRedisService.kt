@@ -11,12 +11,15 @@ import java.util.logging.Logger
  * @since 9/24/2023
  */
 class DPSRedisService(
-    private val channel: String
+    private val channel: String,
+    private val raw: Boolean = false
 )
 {
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:$channel")
+            .of<AwareMessage>("${
+                if (!raw) "practice:" else ""
+            }$channel")
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()
