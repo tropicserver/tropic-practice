@@ -62,7 +62,7 @@ class GameQueue(
 
         if (length < 2)
         {
-            Thread.sleep(1000)
+            Thread.sleep(200)
             return
         }
 
@@ -132,9 +132,11 @@ class GameQueue(
                 )
             }
 
-            replication.thenAccept {
+            replication.thenAcceptAsync {
                 if (it == ReplicationManager.ReplicationResult.Completed)
                 {
+                    Thread.sleep(100L)
+
                     ReplicationManager.sendPlayersToServer(
                         listOf(first.players, second.players).flatten(),
                         serverToRequestReplication
