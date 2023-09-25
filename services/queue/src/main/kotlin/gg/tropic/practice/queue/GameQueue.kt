@@ -102,8 +102,8 @@ class GameQueue(
             map = map,
             expectation = expectation
         ) {
-            GameQueueManager.destroyQueueStates(first)
-            GameQueueManager.destroyQueueStates(second)
+            GameQueueManager.destroyQueueStates(queueId(), first)
+            GameQueueManager.destroyQueueStates(queueId(), second)
         }
     }
 
