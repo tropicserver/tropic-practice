@@ -305,8 +305,16 @@ class GameImpl(
 
     fun flag(flag: FeatureFlag) = this.kit.features[flag] != null
 
-    fun flagMetaData(flag: FeatureFlag, key: String) = this.kit
-        .features[flag]
-        ?.get(key)
-        ?: flag.schema[key]
+    fun flagMetaData(flag: FeatureFlag, key: String): String?
+    {
+        if (!this.kit.features(flag))
+        {
+            return null
+        }
+
+        return this.kit
+            .features[flag]
+            ?.get(key)
+            ?: flag.schema[key]
+    }
 }

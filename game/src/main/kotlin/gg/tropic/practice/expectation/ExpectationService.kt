@@ -15,6 +15,7 @@ import gg.scala.store.storage.type.DataStoreStorageType
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
+import gg.tropic.practice.map.metadata.impl.MapSpawnMetadata
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.util.CC
@@ -75,10 +76,6 @@ object ExpectationService
 
             return false
         }
-
-        val waitingLocation = plugin
-            .config<PracticeConfig>()
-            .waitingLocation
 
         Events
             .subscribe(

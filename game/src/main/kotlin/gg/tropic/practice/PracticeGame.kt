@@ -25,6 +25,11 @@ import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHand
 )
 class PracticeGame : ExtendedScalaPlugin()
 {
+    init
+    {
+        PracticeShared
+    }
+
     @ContainerEnable
     fun containerEnable()
     {

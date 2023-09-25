@@ -12,6 +12,7 @@ import gg.tropic.practice.map.MapManageServices
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.map.metadata.anonymous.Bounds
 import gg.tropic.practice.map.metadata.anonymous.toPosition
+import gg.tropic.practice.map.metadata.impl.MapSpawnMetadata
 import gg.tropic.practice.map.utilities.MapMetadataScanUtilities
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Tasks
@@ -87,22 +88,31 @@ object MapManageCommands : ScalaCommand()
                                 val metadata = MapMetadataScanUtilities
                                     .buildMetadataFor(bounds, devToolsMap)
 
-                                sendMessage("${CC.B_GRAY}(!)${CC.GRAY} Created a metadata copy! We're now going to build the map data model...")
+                                var success = false
+                                if (metadata.metadata.filterIsInstance<MapSpawnMetadata>().isNotEmpty())
+                                {
+                                    sendMessage("${CC.B_GRAY}(!)${CC.GRAY} Created a metadata copy! We're now going to build the map data model...")
 
-                                val map = Map(
-                                    name = mapName,
-                                    bounds = bounds,
-                                    metadata = metadata,
-                                    displayName = mapName,
-                                    associatedSlimeTemplate = slimeTemplate
-                                )
+                                    val map = Map(
+                                        name = mapName,
+                                        bounds = bounds,
+                                        metadata = metadata,
+                                        displayName = mapName,
+                                        associatedSlimeTemplate = slimeTemplate
+                                    )
 
-                                with(MapService.cached()) {
-                                    maps[map.name] = map
-                                    MapService.sync(this)
+                                    with(MapService.cached()) {
+                                        maps[map.name] = map
+                                        MapService.sync(this)
 
-                                    playSound(location, Sound.FIREWORK_LAUNCH, 1.0f, 1.0f)
-                                    sendMessage("${CC.B_GREEN}(!)${CC.GREEN} Successfully created map ${CC.YELLOW}${map.name}${CC.GREEN}!")
+                                        playSound(location, Sound.FIREWORK_LAUNCH, 1.0f, 1.0f)
+                                        sendMessage("${CC.B_GREEN}(!)${CC.GREEN} Successfully created map ${CC.YELLOW}${map.name}${CC.GREEN}!")
+                                    }
+
+                                    success = true
+                                } else
+                                {
+                                    sendMessage("${CC.B_RED}(!) Failed to create a metadata copy! We found no spawn locations in the map. Please try again.")
                                 }
 
                                 teleport(currentLocation)
@@ -111,7 +121,10 @@ object MapManageCommands : ScalaCommand()
                                 isFlying = false
                                 allowFlight = false
 
-                                sendMessage("${CC.B_GOLD}(!) ${CC.GOLD}Unloaded the DTT world, you're all set! Please note that map changes (adding/deleting maps) won't propagate to the game servers immediately. A restart is required for the changes to take effect.")
+                                if (success)
+                                {
+                                    sendMessage("${CC.B_GOLD}(!) ${CC.GOLD}Unloaded the DTT world, you're all set! Please note that map changes (adding/deleting maps) won't propagate to the game servers immediately. A restart is required for the changes to take effect.")
+                                }
                             }
                             .start(this)
                     }

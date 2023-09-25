@@ -2,6 +2,7 @@ package gg.tropic.practice.map
 
 import com.grinderwolf.swm.api.SlimePlugin
 import com.grinderwolf.swm.api.loaders.SlimeLoader
+import com.grinderwolf.swm.api.world.properties.SlimeProperties
 import com.grinderwolf.swm.api.world.properties.SlimePropertyMap
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.agnostic.sync.ServerSync
@@ -126,7 +127,10 @@ object MapReplicationService
                         loader,
                         arena.associatedSlimeTemplate,
                         true,
-                        SlimePropertyMap() /* TODO: arena.properties Do we need this? */
+                        SlimePropertyMap().apply {
+                            setString(SlimeProperties.DIFFICULTY, "normal")
+                            setBoolean(SlimeProperties.PVP, true)
+                        }
                     )
 
                 readyMaps[arena.name] = ReadyMapTemplate(slimeWorld)
@@ -193,6 +197,7 @@ object MapReplicationService
                 it.setGameRuleValue("naturalRegeneration", "false")
                 it.setGameRuleValue("sendCommandFeedback", "false")
                 it.setGameRuleValue("logAdminCommands", "false")
+                it.setGameRuleValue("pvp", "true")
                 return@thenApply BuiltMapReplication(arena, it)
             }
     }

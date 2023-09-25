@@ -20,28 +20,41 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         board += "${CC.WHITE}Online: ${CC.PRI}0"
         board += "${CC.WHITE}Playing: ${CC.PRI}0"
 
-        // TODO: implement this all?
         if (player.hasPermission("practice.staff"))
         {
             board += ""
             board += "${CC.GOLD}Staff:"
-            board += "${CC.WHITE}Staff Mode: ${CC.RED}Disabled"
-            board += "${CC.WHITE}Vanish: ${CC.RED}Disabled"
+            board += "${CC.WHITE}Vanish: ${
+                if (player.hasMetadata("vanished"))
+                {
+                    "${CC.GREEN}Enabled"
+                } else
+                {
+                    "${CC.RED}Disabled"
+                }
+            }"
         }
 
-        // TODO: toggleable with command?
         if (player.hasPermission("practice.devinfo"))
         {
             board += ""
             board += "${CC.GOLD}Dev:"
-            board += "${CC.WHITE}Game servers: ${CC.PRI}0"
-            board += "${CC.WHITE}  Queued: ${CC.GOLD}0"
-            board += "${CC.WHITE}  Mean TPS: ${CC.GREEN}*20.0"
-            board += "${CC.WHITE}Available Rpls.: ${CC.PRI}0"
+            board += "${CC.WHITE}Game servers: ${CC.PRI}${
+                DevInfoService.devInfo.gameServers
+            }"
+            board += "${CC.WHITE}  Queued: ${CC.GOLD}${
+                DevInfoService.devInfo.queued
+            }"
+            board += "${CC.WHITE}  Mean TPS: ${CC.GREEN}${
+                "%.2f".format(DevInfoService.devInfo.meanTPS)
+            }"
+            board += "${CC.WHITE}Available Rpls.: ${CC.PRI}${
+                DevInfoService.devInfo.availableReplications
+            }"
         }
 
         board += ""
-        board += "${CC.GRAY}${LemonConstants.WEB_LINK}  ${CC.GRAY}"
+        board += "${CC.GRAY}${LemonConstants.WEB_LINK}  ${CC.GRAY}  ${CC.GRAY}  ${CC.GRAY}  ${CC.GRAY}  ${CC.GRAY}"
     }
 
     override fun getTitle(player: Player) =
