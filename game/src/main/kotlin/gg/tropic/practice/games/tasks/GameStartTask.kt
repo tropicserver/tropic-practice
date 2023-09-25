@@ -41,7 +41,6 @@ class GameStartTask(
                 .filterNotNull()
                 .forEach { player ->
                     val team = this.game.getTeamOf(player).side
-                    val spawn = this.game.map.findSpawnLocationMatchingTeam(team)
 
                     VisibilityHandler.update(player)
                     NametagHandler.reloadPlayer(player)

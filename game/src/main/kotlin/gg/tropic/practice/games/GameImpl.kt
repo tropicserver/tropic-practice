@@ -338,15 +338,14 @@ class GameImpl(
         loadoutSelection.clear()
     }
 
-    private val defaultLoadout = DefaultLoadout(kit)
-    private val defaultLoadoutID = UUID.randomUUID()
-
     fun enterLoadoutSelection(player: Player)
     {
+        val defaultLoadout = DefaultLoadout(kit)
+        val defaultLoadoutID = UUID.randomUUID()
+
         val profile = PracticeProfileService
             .find(player)
             ?: return run {
-                println("applying default")
                 defaultLoadout.apply(player)
             }
 
