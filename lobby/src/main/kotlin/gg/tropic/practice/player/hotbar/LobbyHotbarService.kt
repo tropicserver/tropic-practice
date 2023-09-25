@@ -1,5 +1,6 @@
 package gg.tropic.practice.player.hotbar
 
+import com.cryptomorin.xseries.XMaterial
 import gg.scala.basics.plugin.settings.SettingMenu
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
@@ -8,10 +9,13 @@ import gg.scala.lemon.hotbar.HotbarPreset
 import gg.scala.lemon.hotbar.HotbarPresetHandler
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.tropic.practice.PracticeLobby
+import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.menu.JoinQueueMenu
 import gg.tropic.practice.menu.editor.EditorKitSelectionMenu
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.profile.PracticeProfileService
+import gg.tropic.practice.queue.QueueService
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -22,6 +26,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 
 @Service
 object LobbyHotbarService
@@ -43,7 +48,9 @@ object LobbyHotbarService
                     .name("${CC.GREEN}Play Casual ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
-                it.onClick = { player -> }
+                it.onClick = { player ->
+                    JoinQueueMenu(QueueType.Casual).openMenu(player)
+                }
             }
         )
 
@@ -54,7 +61,9 @@ object LobbyHotbarService
                     .name("${CC.AQUA}Play Ranked ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
-                it.onClick = { player -> }
+                it.onClick = { player ->
+                    JoinQueueMenu(QueueType.Ranked).openMenu(player)
+                }
             }
         )
 
@@ -115,10 +124,58 @@ object LobbyHotbarService
         HotbarPresetHandler.startTrackingHotbar("idle", idlePreset)
         hotbarCache[PlayerState.Idle] = idlePreset
 
-        Events.subscribe(PlayerJoinEvent::class.java, EventPriority.LOW)
+        val inQueuePreset = HotbarPreset()
+        inQueuePreset.addSlot(
+            8,
+            StaticHotbarPresetEntry(
+                ItemBuilder(XMaterial.RED_DYE)
+                    .name("${CC.RED}Leave Queue ${CC.GRAY}(Right Click)")
+                    .setUnbreakable(true)
+            ).also {
+                it.onClick = scope@{ player ->
+                    val profile = LobbyPlayerService
+                        .find(player)
+                        ?: return@scope
+
+                    QueueService.leaveQueue(player)
+                    player.sendMessage(
+                        "${CC.RED}You left the queue!"
+                    )
+
+                    profile.state = PlayerState.Idle
+                }
+            }
+        )
+
+        HotbarPresetHandler.startTrackingHotbar("inQueue", inQueuePreset)
+        hotbarCache[PlayerState.InQueue] = inQueuePreset
+
+        Events
+            .subscribe(
+                PlayerJoinEvent::class.java,
+                EventPriority.LOW
+            )
             .handler { event ->
                 idlePreset.applyToPlayer(event.player)
-            }.bindWith(plugin)
+            }
+            .bindWith(plugin)
+
+        Events
+            .subscribe(
+                PlayerQuitEvent::class.java,
+                EventPriority.LOW
+            )
+            .handler { event ->
+                val profile = LobbyPlayerService
+                    .find(event.player.uniqueId)
+                    ?: return@handler
+
+                if (profile.inQueue())
+                {
+                    QueueService.leaveQueue(event.player)
+                }
+            }
+            .bindWith(plugin)
     }
 
     fun get(state: PlayerState) = hotbarCache[state]!!
