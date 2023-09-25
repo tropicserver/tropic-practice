@@ -82,38 +82,46 @@ object ReplicationManager
 
             listen("replication-ready") {
                 val requestID = retrieve<UUID>("requestID")
+                val result = retrieve<ReplicationResult>("result")
 
                 replicationCallbacks.getIfPresent(requestID)
-                    ?.complete(ReplicationResult.Completed)
-            }
-
-            listen("replication-allocated") {
-                val requestID = retrieve<UUID>("requestID")
-
-                replicationCallbacks.getIfPresent(requestID)
-                    ?.complete(ReplicationResult.Completed)
+                    ?.complete(result)
             }
         }
     }
 
-    enum class ReplicationResult
+    enum class ReplicationResultStatus
     {
         Completed,
         Unavailable
     }
+
+    data class ReplicationResult(
+        val status: ReplicationResultStatus,
+        val message: String? = null
+    )
 
     private val replicationCallbacks = Caffeine
         .newBuilder()
         .removalListener<UUID, CompletableFuture<ReplicationResult>> { _, value, cause ->
             if (cause == RemovalCause.EXPIRED)
             {
-                value?.complete(ReplicationResult.Unavailable)
+                value?.complete(
+                    ReplicationResult(
+                        status = ReplicationResultStatus.Unavailable,
+                        message = "We weren't able to allocate a map for you!"
+                    )
+                )
             }
         }
         .expireAfterWrite(5L, TimeUnit.SECONDS)
         .build<UUID, CompletableFuture<ReplicationResult>>()
 
-    fun allocateReplication(server: String, map: String, expectationID: UUID): CompletableFuture<ReplicationResult>
+    fun allocateReplication(
+        server: String,
+        map: String,
+        expectationID: UUID
+    ): CompletableFuture<ReplicationResult>
     {
         val future = CompletableFuture<ReplicationResult>()
         val requestID = UUID.randomUUID()
@@ -147,20 +155,5 @@ object ReplicationManager
 
         replicationCallbacks.put(requestID, future)
         return future
-    }
-
-    fun sendPlayersToServer(players: List<UUID>, server: String)
-    {
-        for (player in players)
-        {
-            redis.createMessage(
-                "redirect",
-                "playerID" to player,
-                "server" to server
-            ).publish(
-                AwareThreadContext.SYNC,
-                channel = "practice:redirector"
-            )
-        }
     }
 }

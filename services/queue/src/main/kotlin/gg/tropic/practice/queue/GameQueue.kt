@@ -2,13 +2,13 @@ package gg.tropic.practice.queue
 
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.scala.store.storage.type.DataStoreStorageType
+import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.DuelExpectation
 import gg.tropic.practice.application.api.defaults.game.GameTeam
 import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.games.QueueType
-import gg.tropic.practice.replications.manager.ReplicationManager
 import java.util.*
 import java.util.logging.Logger
 import kotlin.concurrent.thread
@@ -66,15 +66,21 @@ class GameQueue(
             return
         }
 
-        val first = GameQueueManager
-            .popQueueEntryFromId(queueId())
-        val second = GameQueueManager
-            .popQueueEntryFromId(queueId())
+        val first = GameQueueManager.popQueueEntryFromId(queueId())
+        val second = GameQueueManager.popQueueEntryFromId(queueId())
 
-        // TODO: give feedback if it's not gonna actually send them into a game
+        val users = listOf(first.players, second.players).flatten()
+
         val map = MapDataSync
             .selectRandomMapCompatibleWith(kit)
-            ?: return
+            ?: return run {
+                DPSRedisShared.sendMessage(
+                    users,
+                    listOf(
+                        "&c&lError: &cWe found no map compatible with the kit you are queueing for!"
+                    )
+                )
+            }
 
         val expectation = DuelExpectation(
             identifier = UUID.randomUUID(),
@@ -92,64 +98,12 @@ class GameQueue(
             .save(expectation, DataStoreStorageType.REDIS)
             .join()
 
-        /**
-         * At this point, we have a [DuelExpectation] that is saved in Redis, and
-         * we've gotten rid of the queue entries from the list portion of queue. The players
-         * still think they are in the queue, so we can generate the map and THEN update
-         * their personal queue status. If they, for some reason, LEAVE the queue at this time, then FUCK ME!
-         */
-        // We need to synchronize this to prevent multiple games being allocated to the same map replication.
-        synchronized(REPLICATION_LOCK_OBJECT) {
-            val serverStatuses = ReplicationManager.allServerStatuses()
-
-            // We're associating the server statuses by each server instead
-            // of the map id which it is presented as.
-            val serverToReplicationMappings = serverStatuses.values
-                .flatMap {
-                    it.replications.values.flatten()
-                }
-                .associateBy {
-                    it.server
-                }
-
-            val availableReplication = serverToReplicationMappings.values
-                .firstOrNull {
-                    !it.inUse && it.associatedMapName == map.name
-                }
-
-            // TODO: we're !ASSUMING! one of these servers are available lol
-            // TODO: Do some type of load balancing here? WTF?
-            val serverToRequestReplication = serverStatuses.keys.random()
-            val replication = if (availableReplication == null)
-            {
-                ReplicationManager.requestReplication(
-                    serverToRequestReplication, map.name, expectation.identifier
-                )
-            } else
-            {
-                ReplicationManager.allocateReplication(
-                    serverToRequestReplication, map.name, expectation.identifier
-                )
-            }
-
-            replication.thenAcceptAsync {
-                if (it == ReplicationManager.ReplicationResult.Completed)
-                {
-                    Thread.sleep(100L)
-
-                    ReplicationManager.sendPlayersToServer(
-                        listOf(first.players, second.players).flatten(),
-                        serverToRequestReplication
-                    )
-                }
-
-                // TODO: do they even know? LOL feedback pls
-                GameQueueManager.destroyQueueStates(first)
-                GameQueueManager.destroyQueueStates(second)
-            }.exceptionally {
-                it.printStackTrace()
-                return@exceptionally null
-            }
+        GameQueueManager.prepareGameFor(
+            map = map,
+            expectation = expectation
+        ) {
+            GameQueueManager.destroyQueueStates(first)
+            GameQueueManager.destroyQueueStates(second)
         }
     }
 

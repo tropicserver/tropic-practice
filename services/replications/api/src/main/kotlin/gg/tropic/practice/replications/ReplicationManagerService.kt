@@ -69,51 +69,61 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
     @Configure
     fun configure()
     {
+        fun AwareMessage.prepareReplication(
+            future: (Map, UUID) -> CompletableFuture<Void>
+        )
+        {
+            val server = retrieve<String>("server")
+            if (ServerSync.local.id != server)
+            {
+                return
+            }
+
+            val map = MapService
+                .mapWithID(retrieve<String>("map"))
+                ?: return
+
+            val requestID = retrieve<UUID>("requestID")
+            val expectationID = retrieve<UUID>("expectationID")
+            future(map, expectationID)
+                .thenRun {
+                    createMessage(
+                        "replication-ready",
+                        "requestID" to requestID,
+                        "result" to mapOf(
+                            "status" to "Completed",
+                            "message" to null
+                        )
+                    ).publish(
+                        AwareThreadContext.SYNC
+                    )
+                }
+                .exceptionally {
+                    createMessage(
+                        "replication-ready",
+                        "requestID" to requestID,
+                        "result" to mapOf(
+                            "status" to "Unavailable",
+                            "message" to it.message
+                        )
+                    ).publish(
+                        AwareThreadContext.SYNC
+                    )
+                    return@exceptionally null
+                }
+        }
+
         aware.listen("allocate-replication") {
-            val server = retrieve<String>("server")
-            if (ServerSync.local.id != server)
-            {
-                return@listen
-            }
-
-            val map = MapService
-                .mapWithID(retrieve<String>("map"))
-                ?: return@listen
-
-            val requestID = retrieve<UUID>("requestID")
-            val expectationID = retrieve<UUID>("expectationID")
-            allocateExistingReplication(map, expectationID).thenRun {
-                createMessage(
-                    "replication-ready",
-                    "requestID" to requestID
-                ).publish(
-                    AwareThreadContext.SYNC
-                )
+            prepareReplication { map, expectationID ->
+                allocateExistingReplication(map, expectationID)
             }
         }
-
         aware.listen("request-replication") {
-            val server = retrieve<String>("server")
-            if (ServerSync.local.id != server)
-            {
-                return@listen
-            }
-
-            val map = MapService
-                .mapWithID(retrieve<String>("map"))
-                ?: return@listen
-
-            val requestID = retrieve<UUID>("requestID")
-            val expectationID = retrieve<UUID>("expectationID")
-            buildNewReplication(map, expectationID).thenRun {
-                createMessage(
-                    "replication-ready",
-                    "requestID" to requestID
-                ).publish(
-                    AwareThreadContext.SYNC
-                )
+            prepareReplication { map, expectationID ->
+                buildNewReplication(map, expectationID)
             }
         }
+
         aware.connect().toCompletableFuture().join()
     }
 }

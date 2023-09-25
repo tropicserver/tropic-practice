@@ -1,11 +1,17 @@
 package gg.tropic.practice.queue
 
+import gg.scala.commons.agnostic.sync.server.ServerContainer
+import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
+import gg.tropic.practice.application.api.defaults.game.DuelExpectation
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
+import gg.tropic.practice.application.api.defaults.map.ImmutableMap
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.replications.manager.ReplicationManager
 import net.evilblock.cubed.serializers.Serializers
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -36,6 +42,95 @@ object GameQueueManager
                 QueueEntry::class.java
             )
         }
+
+    fun prepareGameFor(map: ImmutableMap, expectation: DuelExpectation, cleanup: () -> Unit): CompletableFuture<Void>
+    {
+        /**
+         * At this point, we have a [DuelExpectation] that is saved in Redis, and
+         * we've gotten rid of the queue entries from the list portion of queue. The players
+         * still think they are in the queue, so we can generate the map and THEN update
+         * their personal queue status. If they, for some reason, LEAVE the queue at this time, then FUCK ME!
+         */
+        // We need to synchronize this to prevent multiple games being allocated to the same map replication.
+        synchronized(GameQueue.REPLICATION_LOCK_OBJECT) {
+            val serverStatuses = ReplicationManager.allServerStatuses()
+
+            // We're associating the server statuses by each server instead
+            // of the map id which it is presented as.
+            val serverToReplicationMappings = serverStatuses.values
+                .flatMap {
+                    it.replications.values.flatten()
+                }
+                .associateBy {
+                    it.server
+                }
+
+            val availableReplication = serverToReplicationMappings.values
+                .firstOrNull {
+                    !it.inUse && it.associatedMapName == map.name
+                }
+
+            val serverToRequestReplication = ServerContainer
+                .getServersInGroupCasted<GameServer>("mipgame")
+                .sortedBy(GameServer::getPlayersCount)
+                .firstOrNull()
+                ?.id
+                ?: return run {
+                    DPSRedisShared.sendMessage(
+                        expectation.players,
+                        listOf(
+                            "&c&lError: &cWe found no game server available to house your game!"
+                        )
+                    )
+
+                    CompletableFuture.completedFuture(null)
+                }
+
+            val replication = if (availableReplication == null)
+            {
+                ReplicationManager.requestReplication(
+                    serverToRequestReplication, map.name, expectation.identifier
+                )
+            } else
+            {
+                ReplicationManager.allocateReplication(
+                    serverToRequestReplication, map.name, expectation.identifier
+                )
+            }
+
+            return replication.thenAcceptAsync {
+                if (it.status == ReplicationManager.ReplicationResultStatus.Completed)
+                {
+                    Thread.sleep(100L)
+                    DPSRedisShared.redirect(
+                        expectation.players, serverToRequestReplication
+                    )
+                }
+
+                if (it.status == ReplicationManager.ReplicationResultStatus.Unavailable)
+                {
+                    DPSRedisShared.sendMessage(
+                        expectation.players,
+                        listOf(
+                            "&c&lError: &cWe weren't able to allocate a map for you!",
+                            "&c&lReason: &f${it.message ?: "???"}"
+                        )
+                    )
+                }
+
+                cleanup()
+            }.exceptionally {
+                DPSRedisShared.sendMessage(
+                    expectation.players,
+                    listOf(
+                        "&c&lError: &cWe weren't able to allocate a map for you!",
+                        "&c&lReason: &f${it.message ?: "???"}" // TODO: better message?
+                    )
+                )
+                return@exceptionally null
+            }
+        }
+    }
 
     fun load()
     {

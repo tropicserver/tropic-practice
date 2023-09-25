@@ -9,7 +9,10 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
 import me.lucko.helper.Events
+import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.Color
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import java.util.*
@@ -24,7 +27,7 @@ object LobbyPlayerService
 
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:redirector")
+            .of<AwareMessage>("practice:lobbies")
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()
@@ -36,24 +39,54 @@ object LobbyPlayerService
     @Configure
     fun configure()
     {
-        Events.subscribe(PlayerJoinEvent::class.java)
+        Events
+            .subscribe(PlayerJoinEvent::class.java)
             .handler { event ->
-                playerCache[event.player.uniqueId] = LobbyPlayer(event.player.uniqueId)
-            }.bindWith(plugin)
+                playerCache[event.player.uniqueId] =
+                    LobbyPlayer(event.player.uniqueId)
+            }
+            .bindWith(plugin)
 
-        Events.subscribe(PlayerQuitEvent::class.java)
+        Events
+            .subscribe(PlayerQuitEvent::class.java)
             .handler { event ->
                 playerCache.remove(event.player.uniqueId)
-            }.bindWith(plugin)
+            }
+            .bindWith(plugin)
+
+        fun AwareMessage.usePlayer(use: Player.() -> Unit)
+        {
+            val players = retrieve<List<UUID>>("playerIDs")
+            players.forEach {
+                val bukkit = Bukkit
+                    .getPlayer(it)
+                    ?: return
+
+                use(bukkit)
+            }
+        }
+
+        aware.listen("send-message") {
+            usePlayer {
+                val message = retrieve<List<String>>("message")
+                message.forEach {
+                    sendMessage(
+                        Color.translate(
+                            it
+                                .replace("{primary}", CC.PRI)
+                                .replace("{secondary}", CC.SEC)
+                        )
+                    )
+                }
+            }
+        }
 
         aware.listen("redirect") {
-            val player = retrieve<UUID>("playerID")
-            val bukkit = Bukkit.getPlayer(player)
-                ?: return@listen
-
-            VelocityRedirectSystem.redirect(
-                bukkit, retrieve("server")
-            )
+            usePlayer {
+                VelocityRedirectSystem.redirect(
+                    this, retrieve("server")
+                )
+            }
         }
         aware.connect().toCompletableFuture().join()
     }

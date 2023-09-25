@@ -132,7 +132,6 @@ fun main(args: Array<String>)
     DataStoreObjectControllerCache.create<AbstractGame>()
     DataStoreObjectControllerCache.create<DuelExpectation>()
 
-    // TODO: logging? how do we know what the fuck is going on?
     MapDataSync.load()
     KitDataSync.load()
     KitGroupDataSync.load()

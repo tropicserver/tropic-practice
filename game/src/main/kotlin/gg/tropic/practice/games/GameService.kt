@@ -210,7 +210,7 @@ object GameService
                     ?: return@handler
 
                 if (
-                /*TODO: use height metadata -> game.kit == DuelLadder.Sumo*/ true &&
+                /*TODO: use height metadata -> game.kit == DuelLadder.Sumo*/ false &&
                     game.ensurePlaying() &&
                     it.player.location.y <= 50.0
                 )
