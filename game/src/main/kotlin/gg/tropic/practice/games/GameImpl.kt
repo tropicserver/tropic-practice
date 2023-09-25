@@ -393,7 +393,7 @@ class GameImpl(
                 loadout.apply(player)
 
                 player.sendMessage(
-                    "${CC.GREEN}You have selected the ${CC.WHITE}${loadout}${CC.GREEN} loadout!"
+                    "${CC.GREEN}You have selected the ${CC.WHITE}${loadout.displayName()}${CC.GREEN} loadout!"
                 )
             }
             .bindWith(terminable)
