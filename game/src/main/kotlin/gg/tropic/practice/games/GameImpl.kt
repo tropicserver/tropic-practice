@@ -23,6 +23,7 @@ import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import me.lucko.helper.utils.Players
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.ItemUtils
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.kyori.adventure.audience.Audience
@@ -345,6 +346,7 @@ class GameImpl(
         val profile = PracticeProfileService
             .find(player)
             ?: return run {
+                println("applying default")
                 defaultLoadout.apply(player)
             }
 
@@ -395,6 +397,23 @@ class GameImpl(
                 )
             }
             .bindWith(terminable)
+
+        applicableLoadouts.forEach { (t, u) ->
+            val item = ItemBuilder
+                .of(
+                    if (t == defaultLoadoutID.toString())
+                        Material.BOOK else Material.ENCHANTED_BOOK
+                )
+                .name("${CC.GREEN}${u.displayName()} ${CC.GRAY}(Right-Click)")
+                .addToLore(
+                    "${CC.GRAY}Click to select this loadout."
+                )
+                .build()
+
+            player.inventory.addItem(
+                ItemUtils.addToItemTag(item, "loadout", t)
+            )
+        }
 
         loadoutSelection[player.uniqueId] = terminable
     }
