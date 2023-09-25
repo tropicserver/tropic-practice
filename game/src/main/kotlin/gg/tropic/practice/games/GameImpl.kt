@@ -11,6 +11,7 @@ import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
@@ -280,8 +281,9 @@ class GameImpl(
                 )
                 .thenRun {
                     Tasks.delayed(20L) {
+                        MapReplicationService.removeReplicationMatchingWorld(arenaWorld)
                         Bukkit.unloadWorld(
-                            this.arenaWorld, false
+                            arenaWorld, false
                         )
                     }
                 }

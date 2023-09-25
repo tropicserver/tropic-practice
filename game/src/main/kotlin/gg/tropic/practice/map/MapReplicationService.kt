@@ -12,7 +12,6 @@ import gg.scala.flavor.service.Service
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.scala.store.storage.type.DataStoreStorageType
 import gg.tropic.practice.expectation.DuelExpectation
-import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
@@ -23,11 +22,11 @@ import gg.tropic.practice.replications.ReplicationStatus
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
-import net.evilblock.cubed.util.CC
 import org.bukkit.World
 import org.bukkit.event.world.WorldLoadEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.logging.Level
 
 /**
@@ -46,7 +45,12 @@ object MapReplicationService
     // TODO: New map changes don't propagate properly, might
     //  require restart for all game servers.
     private val readyMaps = mutableMapOf<String, ReadyMapTemplate>()
-    private val mapReplications = mutableListOf<BuiltMapReplication>()
+    private val mapReplications = CopyOnWriteArrayList<BuiltMapReplication>()
+
+    fun removeReplicationMatchingWorld(world: World) = mapReplications
+        .removeIf {
+            it.world.name == world.name
+        }
 
     @Configure
     fun configure()

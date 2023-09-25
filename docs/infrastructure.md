@@ -15,6 +15,8 @@
 - Each game server pushes its local replication status to the ReplicationManager every half-second.
 - **Replications:**
     - Have globally unique IDs.
-    - Are broadcasted to the ReplicationManager, and no one else.
+    - Are broadcast to the ReplicationManager.
     - Are bound to (when in use) to a game instance.
     - Are invalidated when the game instance bound to it is disposed of.
+    - **Generation:**
+      - 32 of each map is generated on startup. If anymore is needed, they are generated on-demand.
