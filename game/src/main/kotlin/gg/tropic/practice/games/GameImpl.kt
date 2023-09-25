@@ -5,6 +5,9 @@ import gg.scala.store.storage.type.DataStoreStorageType
 import gg.tropic.practice.expectation.DuelExpectation
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.feature.GameReportFeature
+import gg.tropic.practice.games.loadout.CustomLoadout
+import gg.tropic.practice.games.loadout.DefaultLoadout
+import gg.tropic.practice.games.loadout.SelectedLoadout
 import gg.tropic.practice.games.tasks.GameStartTask
 import gg.tropic.practice.games.tasks.GameStopTask
 import gg.tropic.practice.games.team.GameTeam
@@ -13,18 +16,25 @@ import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
+import gg.tropic.practice.profile.PracticeProfileService
+import gg.tropic.practice.profile.loadout.Loadout
+import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import me.lucko.helper.utils.Players
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.ItemUtils
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.World
 import org.bukkit.entity.Player
+import org.bukkit.event.block.Action
+import org.bukkit.event.player.PlayerInteractEvent
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
@@ -60,6 +70,8 @@ class GameImpl(
 
     private fun durationMillis() =
         System.currentTimeMillis() - this.startTimestamp
+
+    private val selectedKitLoadouts = mutableMapOf<UUID, SelectedLoadout>()
 
     fun takeSnapshot(player: Player)
     {
@@ -137,7 +149,7 @@ class GameImpl(
         startTask.task = Schedulers.sync()
             .runRepeating(
                 startTask,
-                1L, TimeUnit.SECONDS,
+                0L, TimeUnit.SECONDS,
                 1L, TimeUnit.SECONDS
             )
         startTask.task.bindWith(this)
@@ -314,5 +326,76 @@ class GameImpl(
             .features[flag]
             ?.get(key)
             ?: flag.schema[key]
+    }
+
+    private val loadoutSelection = mutableMapOf<UUID, CompositeTerminable>()
+    fun completeLoadoutSelection()
+    {
+        loadoutSelection.values.forEach(
+            CompositeTerminable::closeAndReportException
+        )
+        loadoutSelection.clear()
+    }
+
+    private val defaultLoadout = DefaultLoadout(kit)
+    private val defaultLoadoutID = UUID.randomUUID()
+
+    fun enterLoadoutSelection(player: Player)
+    {
+        val profile = PracticeProfileService
+            .find(player)
+            ?: return run {
+                defaultLoadout.apply(player)
+            }
+
+        val terminable = CompositeTerminable.create()
+        terminable.with {
+            if (!selectedKitLoadouts.containsKey(player.uniqueId))
+            {
+                selectedKitLoadouts[player.uniqueId] = defaultLoadout
+            }
+        }
+
+        val applicableLoadouts = profile.customLoadouts
+            .getOrDefault(kit.id, listOf())
+            .map {
+                @Suppress("USELESS_CAST")
+                CustomLoadout(it, kit) as SelectedLoadout
+            }
+            .associateBy {
+                UUID.randomUUID().toString()
+            }
+            .toMutableMap()
+            .apply {
+                this[defaultLoadoutID.toString()] = defaultLoadout
+            }
+
+        Events
+            .subscribe(PlayerInteractEvent::class.java)
+            .filter {
+                it.action == Action.RIGHT_CLICK_AIR
+            }
+            .filter {
+                ItemUtils.itemTagHasKey(it.item, "loadout")
+            }
+            .handler {
+                val itemTagValue = ItemUtils.readItemTagKey(it.item, "loadout")
+                val loadout = applicableLoadouts[itemTagValue]
+                    ?: defaultLoadout
+
+                selectedKitLoadouts[player.uniqueId] = loadout
+
+                terminable.closeAndReportException()
+                loadoutSelection.remove(player.uniqueId)
+
+                loadout.apply(player)
+
+                player.sendMessage(
+                    "${CC.GREEN}You have selected the ${CC.WHITE}${loadout}${CC.GREEN} loadout!"
+                )
+            }
+            .bindWith(terminable)
+
+        loadoutSelection[player.uniqueId] = terminable
     }
 }

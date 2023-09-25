@@ -169,6 +169,21 @@ object GameService
             }
             .bindWith(plugin)
 
+        Events
+            .subscribe(PlayerDropItemEvent::class.java)
+            .handler {
+                val game = byPlayer(it.player)
+                    ?: return@handler kotlin.run {
+                        it.isCancelled = true
+                    }
+
+                if (!game.ensurePlaying())
+                {
+                    it.isCancelled = true
+                }
+            }
+            .bindWith(plugin)
+
         Events.subscribe(PlayerPickupItemEvent::class.java)
             .handler {
                 val game = byPlayer(it.player)

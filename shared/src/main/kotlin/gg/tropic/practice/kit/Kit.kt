@@ -52,7 +52,11 @@ data class Kit(
                 player.addPotionEffect(PotionEffect(t, Int.MAX_VALUE, u))
             }
         }
+    }
 
+    fun populateAndUpdate(player: Player)
+    {
+        populate(player)
         player.updateInventory()
     }
 

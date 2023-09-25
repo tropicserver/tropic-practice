@@ -60,9 +60,7 @@ class GameStartTask(
                     }
 
                     player.resetAttributes()
-
-                    this.game.kit.populate(player)
-                    player.updateInventory()
+                    game.enterLoadoutSelection(player)
                 }
 
             val teamVersus = this.game.teams.values
@@ -128,6 +126,7 @@ class GameStartTask(
 
             this.game.startTimestamp = System.currentTimeMillis()
 
+            this.game.completeLoadoutSelection()
             this.game.sendMessage("${CC.GREEN}The game has started!")
             this.game.playSound(Sound.NOTE_PLING)
             this.game.audiences { it.clearTitle() }
