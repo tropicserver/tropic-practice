@@ -174,14 +174,12 @@ object MapReplicationService
                     it.associatedMap.name == map.name && !it.inUse && it.scheduledForExpectation == null
                 }
                 ?: return@scope run {
-                    println("No associated map found")
                     CompletableFuture.completedFuture(null)
                 }
 
             replication.scheduledForExpectation = expectation
             buildGameResources(expectation)
 
-            println("Scheduled shit")
             return@scope CompletableFuture.completedFuture(null)
         }
 
@@ -261,7 +259,6 @@ object MapReplicationService
         val terminable = CompositeTerminable.create()
 
         CompletableFuture.runAsync {
-            // TODO: don't need to remember this shit hopefully
             slimePlugin.generateWorld(
                 readyMap.slimeWorld.clone(worldName)
             )

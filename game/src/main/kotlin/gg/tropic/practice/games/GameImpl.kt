@@ -260,9 +260,6 @@ class GameImpl(
                 )
 
                 val online = Players.all()
-                    .onEach {
-                        println("${it.name} is on ${it.location.world.name} when supposed to be on ${arenaWorld.name}")
-                    }
                     .filter {
                         it.location.world.name == arenaWorld.name
                     }
