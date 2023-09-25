@@ -354,6 +354,7 @@ class GameImpl(
         terminable.with {
             if (!selectedKitLoadouts.containsKey(player.uniqueId))
             {
+                defaultLoadout.apply(player)
                 selectedKitLoadouts[player.uniqueId] = defaultLoadout
             }
         }

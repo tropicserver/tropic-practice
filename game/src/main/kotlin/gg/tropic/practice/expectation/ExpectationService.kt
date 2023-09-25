@@ -12,8 +12,8 @@ import net.evilblock.cubed.util.CC
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
-import org.bukkit.event.player.PlayerInitialSpawnEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.spigotmc.event.player.PlayerSpawnLocationEvent
 
 /**
  * @author GrowlyX
@@ -58,7 +58,7 @@ object ExpectationService
 
         Events
             .subscribe(
-                PlayerInitialSpawnEvent::class.java,
+                PlayerSpawnLocationEvent::class.java,
                 EventPriority.HIGHEST
             )
             .handler {
