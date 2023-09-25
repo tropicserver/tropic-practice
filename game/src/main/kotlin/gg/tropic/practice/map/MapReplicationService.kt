@@ -127,7 +127,8 @@ object MapReplicationService
 
             val start = System.currentTimeMillis()
 
-            Schedulers.async()
+            Schedulers
+                .async()
                 .runRepeating(
                     { task ->
                         if (System.currentTimeMillis() >= start + 5000L)
@@ -147,7 +148,7 @@ object MapReplicationService
                             }
                         }
                     },
-                    10L, 2L
+                    0L, 1L
                 )
 
             DataStoreObjectControllerCache
