@@ -5,6 +5,7 @@ import com.github.benmanes.caffeine.cache.RemovalCause
 import gg.scala.aware.thread.AwareThreadContext
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
+import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import net.evilblock.cubed.serializers.Serializers
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -120,7 +121,7 @@ object ReplicationManager
     fun allocateReplication(
         server: String,
         map: String,
-        expectationID: UUID
+        expectation: GameExpectation
     ): CompletableFuture<ReplicationResult>
     {
         val future = CompletableFuture<ReplicationResult>()
@@ -128,7 +129,7 @@ object ReplicationManager
         redis.createMessage(
             "allocate-replication",
             "requestID" to requestID,
-            "expectationID" to expectationID,
+            "expectation" to expectation,
             "map" to map,
             "server" to server
         ).publish(
@@ -139,14 +140,14 @@ object ReplicationManager
         return future
     }
 
-    fun requestReplication(server: String, map: String, expectationID: UUID): CompletableFuture<ReplicationResult>
+    fun requestReplication(server: String, map: String, expectation: GameExpectation): CompletableFuture<ReplicationResult>
     {
         val future = CompletableFuture<ReplicationResult>()
         val requestID = UUID.randomUUID()
         redis.createMessage(
             "request-replication",
             "requestID" to requestID,
-            "expectationID" to expectationID,
+            "expectation" to expectation,
             "map" to map,
             "server" to server
         ).publish(

@@ -11,7 +11,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.scala.store.storage.type.DataStoreStorageType
-import gg.tropic.practice.expectation.DuelExpectation
+import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
@@ -72,15 +72,6 @@ object MapReplicationService
             return@exceptionally null
         }
 
-        fun deleteExpectation(identifier: UUID)
-        {
-            DataStoreObjectControllerCache
-                .findNotNull<DuelExpectation>()
-                .delete(
-                    identifier, DataStoreStorageType.REDIS
-                )
-        }
-
         fun startIfReady(game: GameImpl): Boolean
         {
             if (
@@ -97,21 +88,10 @@ object MapReplicationService
             return false
         }
 
-        val buildGameResources = handler@{ expectationID: UUID ->
-            val expectation = DataStoreObjectControllerCache
-                .findNotNull<DuelExpectation>()
-                .load(
-                    expectationID,
-                    DataStoreStorageType.REDIS
-                )
-                .join()
-                ?: return@handler
-
+        val buildGameResources = handler@{ expectation: GameExpectation ->
             val kit = KitService.cached()
                 .kits[expectation.kitId]
-                ?: return@handler run {
-                    deleteExpectation(expectation.identifier)
-                }
+                ?: return@handler
 
             val newGame = GameImpl(
                 expectation = expectation.identifier,
@@ -122,9 +102,7 @@ object MapReplicationService
             )
 
             val scheduledMap = findScheduledReplication(expectation.identifier)
-                ?: return@handler run {
-                    deleteExpectation(expectation.identifier)
-                }
+                ?: return@handler
 
             scheduledMap.inUse = true
             newGame.arenaWorldName = scheduledMap.world.name
@@ -166,7 +144,7 @@ object MapReplicationService
         ReplicationManagerService.buildNewReplication = { map, expectation ->
             generateArenaWorld(map)
                 .thenAccept { repl ->
-                    repl.scheduledForExpectation = expectation
+                    repl.scheduledForExpectedGame = expectation.identifier
                     mapReplications += repl
 
                     buildGameResources(expectation)
@@ -177,13 +155,13 @@ object MapReplicationService
             val replication = this.mapReplications
                 .firstOrNull {
                     it.associatedMap.name == map.name && !it.inUse
-                        && it.scheduledForExpectation == null
+                        && it.scheduledForExpectedGame == null
                 }
                 ?: return@scope run {
                     CompletableFuture.completedFuture(null)
                 }
 
-            replication.scheduledForExpectation = expectation
+            replication.scheduledForExpectedGame = expectation.identifier
             buildGameResources(expectation)
 
             return@scope CompletableFuture.completedFuture(null)
@@ -207,7 +185,7 @@ object MapReplicationService
     }
 
     fun findScheduledReplication(expectation: UUID) = mapReplications
-        .firstOrNull { it.scheduledForExpectation == expectation }
+        .firstOrNull { it.scheduledForExpectedGame == expectation }
 
     private const val TARGET_PRE_GEN_REPLICATIONS = 8
     private fun preGenerateMapReplications(): CompletableFuture<Void>

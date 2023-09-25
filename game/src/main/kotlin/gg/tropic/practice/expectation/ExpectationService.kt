@@ -31,8 +31,6 @@ object ExpectationService
     @Configure
     fun configure()
     {
-        DataStoreObjectControllerCache.create<DuelExpectation>()
-
         Events
             .subscribe(
                 AsyncPlayerPreLoginEvent::class.java,

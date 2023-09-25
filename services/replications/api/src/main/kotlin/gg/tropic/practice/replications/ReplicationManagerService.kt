@@ -9,6 +9,7 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
 import me.lucko.helper.Schedulers
@@ -58,11 +59,11 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
         plugin.logger.info("Bound status service. Status updates for available replications will be pushed to the replicationmanager channel ever 0.5 seconds.")
     }
 
-    var buildNewReplication: (Map, UUID) -> CompletableFuture<Void> = { _, _ ->
+    var buildNewReplication: (Map, GameExpectation) -> CompletableFuture<Void> = { _, _ ->
         CompletableFuture.completedFuture(null)
     }
 
-    var allocateExistingReplication: (Map, UUID) -> CompletableFuture<Void> = { _, _ ->
+    var allocateExistingReplication: (Map, GameExpectation) -> CompletableFuture<Void> = { _, _ ->
         CompletableFuture.completedFuture(null)
     }
 
@@ -70,7 +71,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
     fun configure()
     {
         fun AwareMessage.prepareReplication(
-            future: (Map, UUID) -> CompletableFuture<Void>
+            future: (Map, GameExpectation) -> CompletableFuture<Void>
         )
         {
             val server = retrieve<String>("server")
@@ -84,8 +85,8 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                 ?: return
 
             val requestID = retrieve<UUID>("requestID")
-            val expectationID = retrieve<UUID>("expectationID")
-            future(map, expectationID)
+            val expectation = retrieve<GameExpectation>("expectation")
+            future(map, expectation)
                 .thenRun {
                     createMessage(
                         "replication-ready",
@@ -114,13 +115,13 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
         }
 
         aware.listen("allocate-replication") {
-            prepareReplication { map, expectationID ->
-                allocateExistingReplication(map, expectationID)
+            prepareReplication { map, expectation ->
+                allocateExistingReplication(map, expectation)
             }
         }
         aware.listen("request-replication") {
-            prepareReplication { map, expectationID ->
-                buildNewReplication(map, expectationID)
+            prepareReplication { map, expectation ->
+                buildNewReplication(map, expectation)
             }
         }
 

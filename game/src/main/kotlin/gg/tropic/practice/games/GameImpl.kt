@@ -2,7 +2,6 @@ package gg.tropic.practice.games
 
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.scala.store.storage.type.DataStoreStorageType
-import gg.tropic.practice.expectation.DuelExpectation
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.feature.GameReportFeature
 import gg.tropic.practice.games.loadout.CustomLoadout
@@ -17,7 +16,6 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.profile.PracticeProfileService
-import gg.tropic.practice.profile.loadout.Loadout
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
@@ -154,13 +152,6 @@ class GameImpl(
                 1L, TimeUnit.SECONDS
             )
         startTask.task.bindWith(this)
-
-        DataStoreObjectControllerCache
-            .findNotNull<DuelExpectation>()
-            .delete(
-                this.expectation,
-                DataStoreStorageType.REDIS
-            )
     }
 
     fun audiencesIndexed(lambda: (Audience, UUID) -> Unit) =

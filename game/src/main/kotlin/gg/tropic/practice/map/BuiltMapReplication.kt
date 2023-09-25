@@ -10,6 +10,6 @@ import java.util.UUID
 data class BuiltMapReplication(
     val associatedMap: Map,
     val world: World,
-    var scheduledForExpectation: UUID? = null,
+    var scheduledForExpectedGame: UUID? = null,
     var inUse: Boolean = false
 )

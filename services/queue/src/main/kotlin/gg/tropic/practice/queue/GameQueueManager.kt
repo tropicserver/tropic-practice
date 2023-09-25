@@ -4,7 +4,7 @@ import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
-import gg.tropic.practice.application.api.defaults.game.DuelExpectation
+import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.ImmutableMap
 import gg.tropic.practice.games.QueueType
@@ -43,10 +43,10 @@ object GameQueueManager
             )
         }
 
-    fun prepareGameFor(map: ImmutableMap, expectation: DuelExpectation, cleanup: () -> Unit): CompletableFuture<Void>
+    fun prepareGameFor(map: ImmutableMap, expectation: GameExpectation, cleanup: () -> Unit): CompletableFuture<Void>
     {
         /**
-         * At this point, we have a [DuelExpectation] that is saved in Redis, and
+         * At this point, we have a [GameExpectation] that is saved in Redis, and
          * we've gotten rid of the queue entries from the list portion of queue. The players
          * still think they are in the queue, so we can generate the map and THEN update
          * their personal queue status. If they, for some reason, LEAVE the queue at this time, then FUCK ME!
@@ -89,12 +89,12 @@ object GameQueueManager
             val replication = if (availableReplication == null)
             {
                 ReplicationManager.requestReplication(
-                    serverToRequestReplication, map.name, expectation.identifier
+                    serverToRequestReplication, map.name, expectation
                 )
             } else
             {
                 ReplicationManager.allocateReplication(
-                    serverToRequestReplication, map.name, expectation.identifier
+                    serverToRequestReplication, map.name, expectation
                 )
             }
 

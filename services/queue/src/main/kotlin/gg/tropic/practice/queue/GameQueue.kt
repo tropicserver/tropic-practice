@@ -1,9 +1,7 @@
 package gg.tropic.practice.queue
 
-import gg.scala.store.controller.DataStoreObjectControllerCache
-import gg.scala.store.storage.type.DataStoreStorageType
 import gg.tropic.practice.application.api.DPSRedisShared
-import gg.tropic.practice.application.api.defaults.game.DuelExpectation
+import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import gg.tropic.practice.application.api.defaults.game.GameTeam
 import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
@@ -82,7 +80,7 @@ class GameQueue(
                 )
             }
 
-        val expectation = DuelExpectation(
+        val expectation = GameExpectation(
             identifier = UUID.randomUUID(),
             players = listOf(first, second).flatMap { it.players },
             teams = mapOf(
@@ -92,11 +90,6 @@ class GameQueue(
             kitId = kit.id,
             mapId = map.name
         )
-
-        DataStoreObjectControllerCache
-            .findNotNull<DuelExpectation>()
-            .save(expectation, DataStoreStorageType.REDIS)
-            .join()
 
         GameQueueManager.prepareGameFor(
             map = map,

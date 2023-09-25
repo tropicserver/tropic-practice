@@ -19,7 +19,6 @@ import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.AbstractGame
-import gg.tropic.practice.application.api.defaults.game.DuelExpectation
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.kit.group.KitGroupDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
@@ -130,7 +129,6 @@ fun main(args: Array<String>)
     )
 
     DataStoreObjectControllerCache.create<AbstractGame>()
-    DataStoreObjectControllerCache.create<DuelExpectation>()
 
     MapDataSync.load()
     KitDataSync.load()
