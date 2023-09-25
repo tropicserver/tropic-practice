@@ -1,10 +1,12 @@
 package gg.tropic.practice.scoreboard
 
 import gg.scala.lemon.LemonConstants
+import gg.tropic.practice.player.LobbyPlayerService
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.math.Numbers
+import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -17,6 +19,8 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
 {
     override fun getLines(board: LinkedList<String>, player: Player)
     {
+        val profile = LobbyPlayerService.find(player.uniqueId)
+            ?: return
         board += ""
         board += "${CC.WHITE}Online: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.online)
@@ -24,28 +28,19 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         board += "${CC.WHITE}Playing: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.playing)
         }"
-        board += "${CC.WHITE}Queued: ${CC.GOLD}${
-            Numbers.format(ScoreboardInfoService.scoreboardInfo.queued)
-        }"
+        board += ""
 
-        if (player.hasPermission("practice.staff"))
+        if (profile.inQueue())
         {
-            board += ""
-            board += "${CC.GOLD}Staff:"
-            board += "${CC.WHITE}Vanish: ${
-                if (player.hasMetadata("vanished"))
-                {
-                    "${CC.GREEN}Enabled"
-                } else
-                {
-                    "${CC.RED}Disabled"
-                }
+            board += "${CC.GOLD}${profile.queuedForType().name} Queue:"
+            board += "${CC.WHITE}${profile.queuedForKit()?.displayName} 1v1"
+            board += "${CC.WHITE}Queued for ${CC.PRI}${
+                TimeUtil.formatIntoMMSS((profile.queuedForTime() / 1000).toInt())
             }"
         }
 
         if (player.hasPermission("practice.devinfo"))
         {
-            board += ""
             board += "${CC.GOLD}Dev:"
             board += "${CC.WHITE}Game servers: ${CC.PRI}${
                 ScoreboardInfoService.scoreboardInfo.gameServers

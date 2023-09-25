@@ -11,6 +11,7 @@ import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.replications.manager.ReplicationManager
 import net.evilblock.cubed.serializers.Serializers
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -182,27 +183,31 @@ object GameQueueManager
             }
 
             listen("leave") {
-                val entry = retrieve<QueueEntry>("entry")
-
-                val kit = retrieve<String>("kit")
-                val queueType = retrieve<QueueType>("queueType")
-                val teamSize = retrieve<Int>("teamSize")
-
-                val queueId = "$kit:${queueType.name}:${teamSize}v${teamSize}"
+                val leader = retrieve<UUID>("leader")
+                val queueId = retrieve<String>("queueID")
 
                 queues[queueId]?.apply {
                     dpsRedisCache.sync().lrem(
                         "tropicpractice:queues:$queueId:queue",
                         1,
-                        entry.leader.toString()
+                        leader.toString()
                     )
+
+                    val queueEntry = Serializers
+                        .gson.fromJson(
+                            dpsRedisCache.sync().hget(
+                                "tropicpractice:queues:$queueId:entries",
+                                leader.toString()
+                            ),
+                            QueueEntry::class.java
+                        )
 
                     dpsRedisCache.sync().hdel(
                         "tropicpractice:queues:$queueId:entries",
-                        entry.leader.toString()
+                        leader.toString()
                     )
 
-                    destroyQueueStates(queueId(), entry)
+                    destroyQueueStates(queueId(), queueEntry)
                 }
             }
         }

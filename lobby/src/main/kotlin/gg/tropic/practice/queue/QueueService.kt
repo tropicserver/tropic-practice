@@ -8,6 +8,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.player.LobbyPlayerService
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.entity.Player
 import java.util.logging.Logger
@@ -38,7 +39,25 @@ object QueueService
             .join()
     }
 
-    fun joinQueue(kit: Kit, player: Player)
+    fun leaveQueue(player: Player)
+    {
+        val lobbyPlayer = LobbyPlayerService
+            .find(player.uniqueId)
+            ?: return
+
+        val queueID = lobbyPlayer.buildQueueID()
+            ?: return
+
+        createMessage(
+            packet = "leave",
+            "leader" to player.uniqueId,
+            "queueID" to queueID
+        ).publish(
+            context = AwareThreadContext.SYNC
+        )
+    }
+
+    fun joinQueue(kit: Kit, queueType: QueueType, player: Player)
     {
         createMessage(
             packet = "join",
@@ -48,7 +67,7 @@ object QueueService
                 players = listOf(player.uniqueId)
             ),
             "kit" to kit.id,
-            "queueType" to QueueType.Casual,
+            "queueType" to queueType,
             "teamSize" to 1
         ).publish(
             context = AwareThreadContext.SYNC

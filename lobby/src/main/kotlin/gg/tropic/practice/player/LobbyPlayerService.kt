@@ -9,6 +9,8 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
 import me.lucko.helper.Events
+import me.lucko.helper.Schedulers
+import me.lucko.helper.utils.Players
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Color
 import org.bukkit.Bukkit
@@ -39,6 +41,14 @@ object LobbyPlayerService
     @Configure
     fun configure()
     {
+        Schedulers
+            .async()
+            .runRepeating(Runnable {
+                Players.all()
+                    .mapNotNull(::find)
+                    .forEach(LobbyPlayer::syncQueueState)
+            }, 0L, 5L)
+
         Events
             .subscribe(PlayerJoinEvent::class.java)
             .handler { event ->
@@ -92,4 +102,5 @@ object LobbyPlayerService
     }
 
     fun find(uniqueId: UUID) = playerCache[uniqueId]
+    fun find(player: Player) = playerCache[player.uniqueId]
 }
