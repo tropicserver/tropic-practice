@@ -16,9 +16,9 @@ data class MapMetadata(
     val metadata: List<AbstractMapMetadata>
 )
 {
-    fun clearSignLocations(world: World): CompletableFuture<Void>
+    fun clearSignLocations(world: World): CompletableFuture<World>
     {
-        val future = CompletableFuture<Void>()
+        val future = CompletableFuture<World>()
         val blocks = metadataSignLocations
             .mapNotNull {
                 world.getBlockAt(it.blockX, it.blockY, it.blockZ)
@@ -26,10 +26,11 @@ data class MapMetadata(
 
         Tasks.sync {
             blocks.forEach {
+                world.getChunkAt(it).load()
                 it.type = Material.AIR
             }
 
-            future.complete(null)
+            future.complete(world)
         }
 
         return future

@@ -33,6 +33,9 @@ data class Bounds(
         {
             for (z in minZ..maxZ)
             {
+                if (!world.isChunkLoaded(x, z))
+                    world.loadChunk(x, z, false)
+
                 chunks.add(
                     world.getChunkAt(x, z)
                 )

@@ -176,7 +176,8 @@ object MapReplicationService
         ReplicationManagerService.allocateExistingReplication = scope@{ map, expectation ->
             val replication = this.mapReplications
                 .firstOrNull {
-                    it.associatedMap.name == map.name && !it.inUse && it.scheduledForExpectation == null
+                    it.associatedMap.name == map.name && !it.inUse
+                        && it.scheduledForExpectation == null
                 }
                 ?: return@scope run {
                     CompletableFuture.completedFuture(null)
@@ -208,7 +209,7 @@ object MapReplicationService
     fun findScheduledReplication(expectation: UUID) = mapReplications
         .firstOrNull { it.scheduledForExpectation == expectation }
 
-    private const val TARGET_PRE_GEN_REPLICATIONS = 32
+    private const val TARGET_PRE_GEN_REPLICATIONS = 8
     private fun preGenerateMapReplications(): CompletableFuture<Void>
     {
         return CompletableFuture.allOf(
@@ -252,7 +253,7 @@ object MapReplicationService
         }
     }
 
-    fun generateArenaWorld(arena: Map): CompletableFuture<BuiltMapReplication>
+    private fun generateArenaWorld(arena: Map): CompletableFuture<BuiltMapReplication>
     {
         val worldName = UUID.randomUUID().toString()
         val readyMap = readyMaps[arena.name]
@@ -292,7 +293,6 @@ object MapReplicationService
         return future
             .thenCompose { world ->
                 arena.metadata.clearSignLocations(world)
-                    .thenApply { world }
             }
             .thenApply {
                 it.setGameRuleValue("naturalRegeneration", "false")
