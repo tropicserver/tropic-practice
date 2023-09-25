@@ -3,7 +3,6 @@ package gg.tropic.practice.expectation
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.GameService
@@ -13,8 +12,8 @@ import net.evilblock.cubed.util.CC
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
+import org.bukkit.event.player.PlayerInitialSpawnEvent
 import org.bukkit.event.player.PlayerJoinEvent
-import org.spigotmc.event.player.PlayerSpawnLocationEvent
 
 /**
  * @author GrowlyX
@@ -25,9 +24,6 @@ object ExpectationService
 {
     @Inject
     lateinit var plugin: PracticeGame
-
-    @Inject
-    lateinit var redirector: ServerAggregateHandler
 
     @Inject
     lateinit var audiences: BukkitAudiences
@@ -62,7 +58,7 @@ object ExpectationService
 
         Events
             .subscribe(
-                PlayerSpawnLocationEvent::class.java,
+                PlayerInitialSpawnEvent::class.java,
                 EventPriority.HIGHEST
             )
             .handler {

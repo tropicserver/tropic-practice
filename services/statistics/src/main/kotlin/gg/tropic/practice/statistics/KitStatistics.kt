@@ -14,14 +14,18 @@ open class KitStatistics
     var longestStreak = 0
         private set
 
-    var streak = SingleWeekLifetime(defaultValue = 0)
+    var streak = 0
+        private set
+    var dailyStreak = SingleDayLifetime(defaultValue = 0)
 
     fun strakUpdates() = ApplyUpdates<Int>(listOf({
-        streak /= it
+        dailyStreak /= it
     }, {
         if (it > longestStreak)
         {
             longestStreak = it
         }
+    }, {
+        streak = it
     }))
 }
