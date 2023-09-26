@@ -7,9 +7,6 @@ import gg.scala.commons.acf.annotation.*
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
-import gg.scala.store.controller.DataStoreObjectControllerCache
-import gg.scala.store.storage.type.DataStoreStorageType
-import gg.tropic.practice.games.AbstractGame
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapManageServices
 import gg.tropic.practice.map.MapService
@@ -137,7 +134,7 @@ object MapManageCommands : ScalaCommand()
         }
     }
 
-    @Subcommand("deletes")
+    @Subcommand("delete")
     @Description("Deletes a map based on the input given.")
     fun onDelete(player: ScalaPlayer, mapName: String) : CompletableFuture<Void>
     {
@@ -146,12 +143,6 @@ object MapManageCommands : ScalaCommand()
                 "A map with the ID ${CC.YELLOW}$mapName ${CC.RED}does not exist."
             )
 
-        val ongoingGames = DataStoreObjectControllerCache
-            .findNotNull<AbstractGame>()
-            .loadAll(DataStoreStorageType.REDIS)
-
-        return ongoingGames.thenAccept {
-            //TODO: implement later
-        }
+        return TODO()
     }
 }

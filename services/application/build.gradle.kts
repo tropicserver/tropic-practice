@@ -5,12 +5,13 @@ plugins {
 dependencies {
     implementation(kotlin("stdlib"))
 
+    implementation(project(":services:games:manager"))
+    implementation(project(":services:replications:manager"))
     implementation(project(":shared"))
     implementation(project(":services:queue"))
     implementation(project(":services:statistics"))
     implementation(project(":services:application:api"))
     implementation(project(":services:statistics:leaderboards"))
-    implementation(project(":services:replications:manager"))
 
     implementation("gg.scala.commons:store:3.2.2")
     implementation("gg.scala.commons:serversync:3.2.2")

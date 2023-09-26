@@ -15,13 +15,12 @@ import gg.scala.store.connection.mongo.AbstractDataStoreMongoConnection
 import gg.scala.store.connection.mongo.impl.UriDataStoreMongoConnection
 import gg.scala.store.connection.mongo.impl.details.DataStoreMongoConnectionDetails
 import gg.scala.store.connection.redis.AbstractDataStoreRedisConnection
-import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
-import gg.tropic.practice.application.api.defaults.game.AbstractGame
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.kit.group.KitGroupDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.queue.GameQueueManager
 import gg.tropic.practice.replications.manager.ReplicationManager
 import net.evilblock.cubed.serializers.Serializers
@@ -128,12 +127,11 @@ fun main(args: Array<String>)
         MojangDataResolver
     )
 
-    DataStoreObjectControllerCache.create<AbstractGame>()
-
     MapDataSync.load()
     KitDataSync.load()
     KitGroupDataSync.load()
 
+    GameManager.load()
     GameQueueManager.load()
     ReplicationManager.load()
 

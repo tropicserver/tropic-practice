@@ -1,17 +1,16 @@
 package gg.tropic.practice.games.tasks
 
+import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.event.GameStartEvent
-import gg.tropic.practice.resetAttributes
 import gg.tropic.practice.games.team.GameTeamSide
-import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.resetAttributes
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
-import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor

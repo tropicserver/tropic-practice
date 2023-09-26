@@ -9,8 +9,6 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.scala.store.controller.DataStoreObjectControllerCache
-import gg.scala.store.storage.type.DataStoreStorageType
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
@@ -132,11 +130,6 @@ object MapReplicationService
                     },
                     0L, 1L
                 )
-
-            DataStoreObjectControllerCache
-                .findNotNull<GameImpl>()
-                .save(newGame, DataStoreStorageType.REDIS)
-                .join()
 
             GameService.games[expectation.identifier] = newGame
         }

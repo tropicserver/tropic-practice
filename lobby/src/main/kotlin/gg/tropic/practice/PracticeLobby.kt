@@ -39,8 +39,6 @@ class PracticeLobby : ExtendedScalaPlugin()
     @ContainerEnable
     fun containerEnable()
     {
-        PracticeShared.load()
-
         Events
             .subscribe(PlayerJoinEvent::class.java)
             .handler { event ->

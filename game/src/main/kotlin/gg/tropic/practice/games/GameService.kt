@@ -3,12 +3,15 @@ package gg.tropic.practice.games
 import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.PacketContainer
+import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
-import gg.scala.store.controller.DataStoreObjectControllerCache
 import gg.tropic.practice.PracticeGame
+import gg.tropic.practice.games.api.GameManagerService
+import gg.tropic.practice.games.models.GameReference
+import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.kit.feature.FeatureFlag
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -65,7 +68,27 @@ object GameService
     @Configure
     fun configure()
     {
-        DataStoreObjectControllerCache.create<GameImpl>()
+        GameManagerService.bindToStatusService {
+            GameStatus(
+                games = games.values
+                    .map {
+                        GameReference(
+                            uniqueId = it.identifier,
+                            mapID = it.map.name,
+                            state = it.state.toString(),
+                            players = it.toPlayers(),
+                            spectators = it.arenaWorld.players
+                                .filter { player ->
+                                    player.hasMetadata("spectator")
+                                }
+                                .map(Player::getUniqueId),
+                            kitID = it.kit.id,
+                            replicationID = it.arenaWorldName!!,
+                            server = ServerSync.local.id
+                        )
+                    }
+            )
+        }
 
         fun overridePotionEffect(
             player: Player, effect: PotionEffect

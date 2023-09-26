@@ -1,7 +1,5 @@
 package gg.tropic.practice.games
 
-import gg.scala.store.controller.DataStoreObjectControllerCache
-import gg.scala.store.storage.type.DataStoreStorageType
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.feature.GameReportFeature
 import gg.tropic.practice.games.loadout.CustomLoadout
@@ -254,9 +252,6 @@ class GameImpl(
                 "[Practice] cleaning up $expectation for $reason."
             )
 
-            GameService.games
-                .remove(this.expectation)
-
             if (kickPlayers)
             {
                 this.sendMessage(
@@ -277,20 +272,14 @@ class GameImpl(
                 }
             }
 
-            DataStoreObjectControllerCache
-                .findNotNull<GameImpl>()
-                .delete(
-                    this.identifier,
-                    DataStoreStorageType.REDIS
+            GameService.games.remove(this.expectation)
+
+            Tasks.delayed(20L) {
+                MapReplicationService.removeReplicationMatchingWorld(arenaWorld)
+                Bukkit.unloadWorld(
+                    arenaWorld, false
                 )
-                .thenRun {
-                    Tasks.delayed(20L) {
-                        MapReplicationService.removeReplicationMatchingWorld(arenaWorld)
-                        Bukkit.unloadWorld(
-                            arenaWorld, false
-                        )
-                    }
-                }
+            }
         }.onFailure {
             it.printStackTrace()
         }

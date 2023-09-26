@@ -32,15 +32,8 @@ object ReplicationManager
         val indexes: Map<String, String>
     )
 
-    fun allServerStatuses() = dpsCache
-        .sync()
-        .get("tropicpractice:replicationmanager:status-indexes")
-        .let {
-            Serializers.gson.fromJson(
-                it, AllServerStatuses::class.java
-            )
-        }
-        .indexes.mapValues { (_, value) ->
+    fun allServerStatuses() = gameInstanceCache
+        .asMap().mapValues { (_, value) ->
             dpsCache
                 .sync()
                 .get(value)
@@ -140,7 +133,11 @@ object ReplicationManager
         return future
     }
 
-    fun requestReplication(server: String, map: String, expectation: GameExpectation): CompletableFuture<ReplicationResult>
+    fun requestReplication(
+        server: String,
+        map: String,
+        expectation: GameExpectation
+    ): CompletableFuture<ReplicationResult>
     {
         val future = CompletableFuture<ReplicationResult>()
         val requestID = UUID.randomUUID()

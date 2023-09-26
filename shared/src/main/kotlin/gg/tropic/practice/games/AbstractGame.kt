@@ -14,9 +14,9 @@ abstract class AbstractGame(
     val expectation: UUID,
     val teams: Map<GameTeamSide, GameTeam>,
     val kit: Kit
-) : IDataStoreObject
+)
 {
-    override val identifier: UUID
+    val identifier: UUID
         get() = this.expectation
 
     var report: GameReport? = null

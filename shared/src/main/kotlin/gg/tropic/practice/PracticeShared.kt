@@ -3,9 +3,6 @@ package gg.tropic.practice
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import gg.scala.store.controller.DataStoreObjectControllerCache
-import gg.tropic.practice.expectation.GameExpectation
-import gg.tropic.practice.games.AbstractGame
 import gg.tropic.practice.map.metadata.AbstractMapMetadata
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.serializers.impl.AbstractTypeSerializer
@@ -44,10 +41,5 @@ object PracticeShared
                 }
             )
         }
-    }
-
-    fun load()
-    {
-        DataStoreObjectControllerCache.create<AbstractGame>()
     }
 }
