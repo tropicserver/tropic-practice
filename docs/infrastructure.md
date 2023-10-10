@@ -4,9 +4,10 @@
 - **Game Server:** Hosts a certain amount of games each. Runs the plugin built from the game module.
 - **Lobby Server:** Frontend for all other components listed here.
 - **Application:** Standalone application computing data shared on all server instances.
-    - Queue: List of players for each GameType, TeamSize & Kit tuple which is iterated through and matched based on the amount of players in the queue entry, and other constraints (matchmaking settings like ping/ELO restrictions). Each queue is iterated through independently.
-    - Leaderboards: Runs and caches leaderboards for all player profiles. Caches leaderboard entries in a sorted set in Redis. 
-    - ReplicationManager: Keeps statuses of available map replications for each game server.
+    - **Queue:** List of players for each GameType, TeamSize & Kit tuple which is iterated through and matched based on the amount of players in the queue entry, and other constraints (matchmaking settings like ping/ELO restrictions). Each queue is iterated through independently.
+    - **Leaderboards:** Runs and caches leaderboards for all player profiles. Caches leaderboard entries in a sorted set in Redis.
+    - **GameManager:** Keeps statuses of ongoing games for each game server. Similar to ReplicationManager's behavior, games are invalidated if no status update is received by its server in under 2 seconds of its last update.
+    - **ReplicationManager:** Keeps statuses of available map replications for each game server.
         - If it does not receive another status update within 2 seconds, the game server is marked as unhealthy and replications are not used for any new matches.
 
 **Game Servers:**
@@ -20,4 +21,4 @@
     - Are bound to (when in use) to a game instance.
     - Are invalidated when the game instance bound to it is disposed of.
     - **Generation:**
-      - 32 of each map is generated on startup. If anymore is needed, they are generated on-demand.
+      - 8 of each map is generated on startup. Replications are generated on-demand if a replication request is received and there is no available replication. The generation process is fairly quick, and can be run asynchronously. 
