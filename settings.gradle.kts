@@ -14,10 +14,10 @@ include(
     "shared", "game", "lobby", "devtools",
     "services:application", "services:queue", "services:statistics",
     "services:statistics:leaderboards",
-    "services:replications:manager",
-    "services:replications:api",
+    "services:api",
     "services:application:api",
+    "services:replications:manager",
+    "services:replications:replication-models",
     "services:games:manager",
-    "services:games:api",
-    "services:games:models",
+    "services:games:game-models"
 )

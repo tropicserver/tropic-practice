@@ -6,7 +6,9 @@ dependencies {
     implementation(kotlin("stdlib"))
 
     implementation(project(":services:games:manager"))
+    implementation(project(":services:games:game-models"))
     implementation(project(":services:replications:manager"))
+    implementation(project(":services:replications:replication-models"))
     implementation(project(":shared"))
     implementation(project(":services:queue"))
     implementation(project(":services:statistics"))
