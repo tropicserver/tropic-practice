@@ -16,8 +16,8 @@ include(
     "services:statistics:leaderboards",
     "services:api",
     "services:application:api",
-    "services:replications:manager",
+    "services:replications:replication-manager",
     "services:replications:replication-models",
-    "services:games:manager",
+    "services:games:game-manager",
     "services:games:game-models"
 )

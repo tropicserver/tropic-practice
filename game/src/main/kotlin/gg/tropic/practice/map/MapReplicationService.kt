@@ -14,9 +14,9 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.kit.KitService
-import gg.tropic.practice.replications.Replication
 import gg.tropic.practice.replications.ReplicationManagerService
-import gg.tropic.practice.replications.ReplicationStatus
+import gg.tropic.practice.replications.models.Replication
+import gg.tropic.practice.replications.models.ReplicationStatus
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
