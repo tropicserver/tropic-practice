@@ -28,12 +28,12 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         board += "${CC.WHITE}Playing: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.playing)
         }"
-        board += ""
 
         if (profile.inQueue())
         {
+            board += ""
             board += "${CC.GOLD}${profile.queuedForType().name} Queue:"
-            board += "${CC.WHITE}${profile.queuedForKit()?.displayName} 1v1"
+            board += "${CC.GRAY}${profile.queuedForKit()?.displayName} 1v1"
             board += "${CC.WHITE}Queued for ${CC.PRI}${
                 TimeUtil.formatIntoMMSS((profile.queuedForTime() / 1000).toInt())
             }"
@@ -41,6 +41,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
 
         if (player.hasPermission("practice.devinfo"))
         {
+            board += ""
             board += "${CC.GOLD}Dev:"
             board += "${CC.WHITE}Game servers: ${CC.PRI}${
                 ScoreboardInfoService.scoreboardInfo.gameServers
