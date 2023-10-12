@@ -46,6 +46,18 @@ object GameQueueManager
 
     fun prepareGameFor(map: ImmutableMap, expectation: GameExpectation, cleanup: () -> Unit): CompletableFuture<Void>
     {
+        if (map.locked)
+        {
+            DPSRedisShared.sendMessage(
+                expectation.players,
+                listOf(
+                    "&c&lError: &cThe map you were allocated to play a game on is locked!"
+                )
+            )
+
+            return CompletableFuture.completedFuture(null)
+        }
+
         /**
          * At this point, we have a [GameExpectation] that is saved in Redis, and
          * we've gotten rid of the queue entries from the list portion of queue. The players

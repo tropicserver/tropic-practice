@@ -36,6 +36,8 @@ data class Map(
         mutableSetOf("__default__")
 )
 {
+    var locked = false
+
     fun findMapLevelRestrictions() = metadata
         .metadata
         .filterIsInstance<MapLevelMetadata>()

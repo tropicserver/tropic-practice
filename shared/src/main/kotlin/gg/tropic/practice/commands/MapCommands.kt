@@ -3,6 +3,7 @@ package gg.tropic.practice.commands
 import gg.scala.commons.acf.CommandHelp
 import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.*
+import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
@@ -27,6 +28,21 @@ object MapCommands : ScalaCommand()
     fun onDefault(help: CommandHelp)
     {
         help.showHelp()
+    }
+
+    @AssignPermission
+    @Subcommand("lock|unlock")
+    @Description("Lock a map from being used in any new games.")
+    fun onLock(player: ScalaPlayer, map: Map)
+    {
+        with(MapService.cached()) {
+            map.locked = !map.locked
+            MapService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}The map lock is now: ${CC.YELLOW}${map.locked}"
+        )
     }
 
     @Subcommand("list")

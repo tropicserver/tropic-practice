@@ -57,6 +57,12 @@ object GameManagerService
         plugin.logger.info("Bound status service. Status updates for available games will be pushed to the gamemanager channel ever 0.25 seconds.")
     }
 
+    fun allGames() = allGameStatuses()
+        .thenApply {
+            it.values
+                .flatMap(GameStatus::games)
+        }
+
     fun allGameStatuses() = CompletableFuture
         .supplyAsync {
             ScalaCommonsSpigot.instance.kvConnection

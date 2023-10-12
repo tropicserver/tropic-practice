@@ -28,6 +28,7 @@ object MapDataSync : DPSDataSync<ImmutableMapContainer>()
             .map(ImmutableKitGroup::id)
 
         return cached().maps.values
+            .filterNot(ImmutableMap::locked)
             .shuffled()
             .firstOrNull {
                 groups.intersect(it.associatedKitGroups).isNotEmpty()
