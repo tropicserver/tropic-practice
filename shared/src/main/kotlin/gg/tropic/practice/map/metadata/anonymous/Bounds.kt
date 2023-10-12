@@ -29,9 +29,9 @@ data class Bounds(
         val minZ = lowerLeft.z.toInt()
         val maxZ = upperRight.z.toInt()
 
-        for (x in minX..maxX)
+        for (x in (if (maxX > minX) minX..maxX else maxX..minX))
         {
-            for (z in minZ..maxZ)
+            for (z in (if (maxZ > minZ) minZ..maxZ else maxZ..minZ))
             {
                 if (!world.isChunkLoaded(x, z))
                     world.loadChunk(x, z, false)

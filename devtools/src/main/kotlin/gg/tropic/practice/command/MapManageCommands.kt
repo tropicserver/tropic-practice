@@ -86,6 +86,8 @@ object MapManageCommands : ScalaCommand()
                                     lowest.toPosition(),
                                     highest.toPosition()
                                 )
+
+                                println(bounds.getChunks(devToolsMap).size)
                                 val metadata = MapMetadataScanUtilities
                                     .buildMetadataFor(bounds, devToolsMap)
 
