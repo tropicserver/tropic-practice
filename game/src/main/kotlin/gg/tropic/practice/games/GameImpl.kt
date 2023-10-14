@@ -114,7 +114,7 @@ class GameImpl(
                 .filterNotNull()
                 .mapNotNull(PracticeProfileService::find)
                 .forEach {
-                    it.globalStatistics.userPlayedGameAndLost()
+                    it.globalStatistics.userPlayedGameAndLost().apply()
                     it.save()
                 }
 
@@ -122,7 +122,7 @@ class GameImpl(
                 .filterNotNull()
                 .mapNotNull(PracticeProfileService::find)
                 .forEach {
-                    it.globalStatistics.userPlayedGameAndWon()
+                    it.globalStatistics.userPlayedGameAndWon().apply()
                     it.save()
                 }
 

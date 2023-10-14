@@ -48,6 +48,12 @@ class GlobalStatistics
         }
     )
 
+    fun userWasKilled() = ApplyUpdatesStateless(
+        listOf {
+            totalDeaths++
+        }
+    )
+
     fun userWonGameAndKilledOpponent() = ApplyUpdatesStateless(
         listOf({
             totalWins++

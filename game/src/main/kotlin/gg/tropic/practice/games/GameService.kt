@@ -390,8 +390,17 @@ object GameService
                     with(PracticeProfileService.find(killerPlayer)) {
                         if (this != null)
                         {
-                            globalStatistics.userKilledOpponent()
+                            globalStatistics.userKilledOpponent().apply()
+                            save()
                         }
+                    }
+                }
+
+                with(PracticeProfileService.find(it.entity)) {
+                    if (this != null)
+                    {
+                        globalStatistics.userWasKilled().apply()
+                        save()
                     }
                 }
 
