@@ -13,6 +13,8 @@ import me.lucko.helper.Schedulers
 import me.lucko.helper.utils.Players
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Color
+import net.evilblock.cubed.util.time.TimeUtil
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
@@ -25,6 +27,10 @@ object LobbyPlayerService
 {
     @Inject
     lateinit var plugin: PracticeLobby
+
+    @Inject
+    lateinit var audiences: BukkitAudiences
+
     private val playerCache = mutableMapOf<UUID, LobbyPlayer>()
 
     private val aware by lazy {
@@ -46,7 +52,19 @@ object LobbyPlayerService
             .runRepeating(Runnable {
                 Players.all()
                     .mapNotNull(::find)
-                    .forEach(LobbyPlayer::syncQueueState)
+                    .onEach(LobbyPlayer::syncQueueState)
+                    .filter(LobbyPlayer::inQueue)
+                    .onEach {
+                        val audience = audiences.player(it.player)
+
+                        audience.sendActionBar(
+                            "${CC.GREEN}You are in queue for ${CC.PRI}${
+                                it.queuedForKit()?.displayName ?: "???"
+                            } ${CC.GRAY}(${
+                                TimeUtil.formatIntoMMSS((it.queuedForTime() / 1000).toInt())
+                            })".component
+                        )
+                    }
             }, 0L, 5L)
 
         Events
