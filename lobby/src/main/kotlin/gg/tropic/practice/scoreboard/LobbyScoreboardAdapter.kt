@@ -59,5 +59,5 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
     }
 
     override fun getTitle(player: Player) =
-        "${CC.B_PRI}DUELS ${CC.GRAY}(beta)"
+        "${CC.B_PRI}Tropic Practice ${CC.GRAY}(beta)"
 }

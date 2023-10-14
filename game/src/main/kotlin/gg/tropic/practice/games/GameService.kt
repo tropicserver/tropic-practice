@@ -13,6 +13,7 @@ import gg.tropic.practice.games.api.GameManagerService
 import gg.tropic.practice.games.models.GameReference
 import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.profile.PracticeProfileService
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.cooldown.Cooldown
@@ -383,6 +384,16 @@ object GameService
                         if (killerPlayer == null) "killed" else "slain by ${CC.GREEN}${killerPlayer.name}${CC.GRAY}"
                     }!"
                 )
+
+                if (killerPlayer is Player)
+                {
+                    with(PracticeProfileService.find(killerPlayer)) {
+                        if (this != null)
+                        {
+                            globalStatistics.userKilledOpponent()
+                        }
+                    }
+                }
 
                 if (noAlive)
                 {

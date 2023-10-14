@@ -91,8 +91,8 @@ class GameImpl(
     {
         this.toBukkitPlayers()
             .filterNotNull()
-            .forEach {
-                this.takeSnapshotIfNotAlreadyExists(it)
+            .onEach {
+                takeSnapshotIfNotAlreadyExists(it)
             }
 
         if (winner == null)
@@ -109,6 +109,22 @@ class GameImpl(
         {
             val opponent = this.getOpponent(winner)
                 ?: return
+
+            opponent.toBukkitPlayers()
+                .filterNotNull()
+                .mapNotNull(PracticeProfileService::find)
+                .forEach {
+                    it.globalStatistics.userPlayedGameAndLost()
+                    it.save()
+                }
+
+            winner.toBukkitPlayers()
+                .filterNotNull()
+                .mapNotNull(PracticeProfileService::find)
+                .forEach {
+                    it.globalStatistics.userPlayedGameAndWon()
+                    it.save()
+                }
 
             this.report = GameReport(
                 identifier = UUID.randomUUID(),

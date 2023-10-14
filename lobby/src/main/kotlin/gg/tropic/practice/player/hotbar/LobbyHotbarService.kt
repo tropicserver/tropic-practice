@@ -75,7 +75,7 @@ object LobbyHotbarService
                     .setUnbreakable(true)
             ).also {
                 it.onClick = { player ->
-                    player.performCommand("/cosmetics")
+                    player.performCommand("cosmetics")
                 }
             }
         )
@@ -95,7 +95,7 @@ object LobbyHotbarService
             6,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.FIREBALL)
-                    .name("${CC.YELLOW}Open Leaderboards ${CC.GRAY}(Right Click)")
+                    .name("${CC.YELLOW}Leaderboards ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
                 it.onClick = { player -> }

@@ -42,6 +42,12 @@ class GlobalStatistics
         sharedGamePlays()
     )
 
+    fun userKilledOpponent() = ApplyUpdatesStateless(
+        listOf {
+            totalKills++
+        }
+    )
+
     fun userWonGameAndKilledOpponent() = ApplyUpdatesStateless(
         listOf({
             totalWins++
