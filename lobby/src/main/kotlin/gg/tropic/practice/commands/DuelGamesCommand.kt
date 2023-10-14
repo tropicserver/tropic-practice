@@ -5,7 +5,7 @@ import gg.scala.commons.acf.annotation.Conditions
 import gg.scala.commons.acf.annotation.Default
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
-import gg.tropic.practice.feature.GameReportFeature
+import gg.tropic.practice.reports.GameReportService
 import gg.tropic.practice.menu.DuelGamesMenu
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.entity.Player
@@ -25,7 +25,7 @@ object DuelGamesCommand : ScalaCommand()
         player: Player
     ): CompletableFuture<Void>
     {
-        return GameReportFeature
+        return GameReportService
             .loadSnapshotsForParticipant(player.uniqueId)
             .thenAccept {
                 Tasks.sync {

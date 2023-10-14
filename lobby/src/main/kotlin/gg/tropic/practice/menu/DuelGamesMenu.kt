@@ -1,9 +1,10 @@
 package gg.tropic.practice.menu
 
-import gg.tropic.practice.feature.GameReportFeature
+import gg.tropic.practice.reports.GameReportService
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameReportStatus
 import gg.scala.lemon.util.QuickAccess.username
+import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.serializers.Serializers
@@ -13,6 +14,8 @@ import net.evilblock.cubed.util.time.TimeUtil
 import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ForkJoinPool
 
 /**
  * @author GrowlyX
@@ -40,17 +43,23 @@ class DuelGamesMenu(
             {
                 report.viewed = true
 
-                GameReportFeature.connection.async().set(
-                    "tropicpractice:snapshots:matches:${report.identifier}",
-                    Serializers.gson.toJson(report)
-                )
+                ForkJoinPool.commonPool().submit {
+                    ScalaCommonsSpigot.instance.kvConnection
+                        .sync()
+                        .set(
+                            "tropicpractice:snapshots:matches:${report.identifier}",
+                            Serializers.gson.toJson(report)
+                        )
+                }
             }
 
             buttons[buttons.size] = ItemBuilder
                 .of(Material.PAPER)
-                .name("${CC.GOLD}${
-                    TimeUtil.formatIntoFullCalendarString(report.matchDate)
-                }")
+                .name(
+                    "${CC.GOLD}${
+                        TimeUtil.formatIntoFullCalendarString(report.matchDate)
+                    }"
+                )
                 .addToLore(
                     "${CC.D_GRAY}(${
                         when (report.status)
@@ -63,7 +72,7 @@ class DuelGamesMenu(
                     "${CC.GREEN}Winner${
                         if (report.winners.size == 1) "" else "s"
                     }: ${CC.WHITE}${
-                        if (report.winners.isEmpty()) "N/A" else 
+                        if (report.winners.isEmpty()) "N/A" else
                             report.winners.joinToString(", ") {
                                 it.username()
                             }
@@ -71,7 +80,7 @@ class DuelGamesMenu(
                     "${CC.RED}Loser${
                         if (report.losers.size == 1) "" else "s"
                     }: ${CC.WHITE}${
-                        if (report.losers.isEmpty()) "N/A" else 
+                        if (report.losers.isEmpty()) "N/A" else
                             report.losers.joinToString(", ") {
                                 it.username()
                             }

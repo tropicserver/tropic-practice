@@ -3,7 +3,7 @@ package gg.tropic.practice
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.annotations.container.ContainerEnable
 import gg.scala.commons.core.plugin.*
-import gg.tropic.practice.feature.GameReportFeature
+import gg.tropic.practice.reports.GameReportService
 import gg.tropic.practice.provider.SettingProvider
 import gg.tropic.practice.provider.impl.LemonSettingProvider
 import me.lucko.helper.Events
@@ -25,6 +25,7 @@ import org.bukkit.event.player.PlayerJoinEvent
 @PluginDependencyComposite(
     PluginDependency("scala-commons"),
     PluginDependency("Lemon"),
+    PluginDependency("CoreGameExtensions", soft = true),
     PluginDependency("ScBasics", soft = true)
 )
 class PracticeLobby : ExtendedScalaPlugin()
@@ -42,7 +43,7 @@ class PracticeLobby : ExtendedScalaPlugin()
         Events
             .subscribe(PlayerJoinEvent::class.java)
             .handler { event ->
-                GameReportFeature
+                GameReportService
                     .loadSnapshotsForParticipant(event.player.uniqueId)
                     .thenAcceptAsync {
                         val filtered = it
