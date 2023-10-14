@@ -138,6 +138,25 @@ object KitCommands : ScalaCommand()
     }
 
     @AssignPermission
+    @Subcommand("displayname")
+    @CommandCompletion("@kits")
+    @Description("Edit a kit's display name.")
+    fun onDisplayName(player: ScalaPlayer, kit: Kit, displayName: String)
+    {
+        kit.displayName = displayName
+
+        with(KitService.cached()) {
+            KitService.cached().kits[kit.id] = kit
+            KitService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have set the Display Name for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN} to:",
+            displayName
+        )
+    }
+
+    @AssignPermission
     @Subcommand("features add")
     @CommandCompletion("@kits @stranger-feature-flags")
     @Description("Add a feature flag to a kit.")

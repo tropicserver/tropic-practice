@@ -60,7 +60,9 @@ object LobbyPlayerService
                         val audience = audiences.player(it.player)
 
                         audience.sendActionBar(
-                            "${CC.GREEN}You are in queue for ${CC.PRI}${
+                            "${CC.GREEN}You are queued for ${CC.PRI}${
+                                it.queuedForType().name
+                            } ${
                                 it.queuedForKit()?.displayName ?: "???"
                             } ${CC.GRAY}(${
                                 TimeUtil.formatIntoMMSS((it.queuedForTime() / 1000).toInt())

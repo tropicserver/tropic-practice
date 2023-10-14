@@ -14,7 +14,7 @@ import org.bukkit.potion.PotionEffectType
  */
 data class Kit(
     val id: String,
-    val displayName: String,
+    var displayName: String,
     var description: String = "",
     var displayIcon: ItemStack = ItemBuilder
         .of(Material.IRON_SWORD)
