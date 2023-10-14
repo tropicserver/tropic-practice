@@ -1,6 +1,7 @@
 package gg.tropic.practice.commands
 
 import gg.scala.commons.acf.annotation.CommandAlias
+import gg.scala.commons.acf.annotation.Conditions
 import gg.scala.commons.acf.annotation.Default
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
@@ -15,11 +16,14 @@ import java.util.concurrent.CompletableFuture
  * @since 8/5/2022
  */
 @AutoRegister
-@CommandAlias("games")
+@CommandAlias("games|matchhistory")
 object DuelGamesCommand : ScalaCommand()
 {
     @Default
-    fun onDefault(player: Player): CompletableFuture<Void>
+    fun onDefault(
+        @Conditions("cooldown:duration=10,unit=SECONDS")
+        player: Player
+    ): CompletableFuture<Void>
     {
         return GameReportFeature
             .loadSnapshotsForParticipant(player.uniqueId)

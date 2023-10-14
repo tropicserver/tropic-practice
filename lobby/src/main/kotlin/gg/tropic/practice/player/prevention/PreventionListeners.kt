@@ -12,7 +12,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.player.PlayerDropItemEvent
-import org.bukkit.event.player.PlayerLevelChangeEvent
 
 @Service
 object PreventionListeners
@@ -37,6 +36,5 @@ object PreventionListeners
                     it.isCancelled = true
                 }.bindWith(plugin)
         }
-
     }
 }

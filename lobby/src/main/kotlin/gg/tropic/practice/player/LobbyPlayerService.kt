@@ -8,6 +8,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
+import gg.tropic.practice.configuration.LobbyConfigurationService
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.utils.Players
@@ -17,6 +18,7 @@ import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.event.player.PlayerInitialSpawnEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import java.util.*
@@ -66,6 +68,14 @@ object LobbyPlayerService
                         )
                     }
             }, 0L, 5L)
+
+        Events
+            .subscribe(PlayerInitialSpawnEvent::class.java)
+            .handler {
+                with(LobbyConfigurationService.cached()) {
+                    it.spawnLocation = spawnLocation
+                }
+            }
 
         Events
             .subscribe(PlayerJoinEvent::class.java)
