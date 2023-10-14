@@ -8,15 +8,18 @@ import gg.scala.commons.acf.annotation.Description
 import gg.scala.commons.acf.annotation.HelpCommand
 import gg.scala.commons.acf.annotation.Subcommand
 import gg.scala.commons.annotations.commands.AssignPermission
+import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.configuration.LobbyConfigurationService
+import gg.tropic.practice.map.metadata.anonymous.toPosition
 import net.evilblock.cubed.util.CC
 
 /**
  * @author GrowlyX
  * @since 10/13/2023
  */
+@AutoRegister
 @CommandAlias("practicelobbyadmin|pla")
 @CommandPermission("practice.lobby.commands.admin")
 object LobbyAdminCommands : ScalaCommand()
@@ -40,7 +43,7 @@ object LobbyAdminCommands : ScalaCommand()
         normalized.z = location.z.toInt() + 0.500
 
         with(LobbyConfigurationService.cached()) {
-            spawnLocation = normalized
+            spawnLocation = normalized.toPosition()
             LobbyConfigurationService.sync(this)
         }
 

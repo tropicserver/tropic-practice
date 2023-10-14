@@ -74,6 +74,9 @@ object LobbyPlayerService
             .handler {
                 with(LobbyConfigurationService.cached()) {
                     it.spawnLocation = spawnLocation
+                        .toLocation(
+                            Bukkit.getWorlds().first()
+                        )
                 }
             }
 
