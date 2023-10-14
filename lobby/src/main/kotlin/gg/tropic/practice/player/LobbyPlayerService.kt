@@ -89,10 +89,6 @@ object LobbyPlayerService
             .handler { event ->
                 playerCache[event.player.uniqueId] =
                     LobbyPlayer(event.player.uniqueId)
-
-                Tasks.delayed(1L) {
-                    EquipOnLoginCosmeticService.callOnLoginFor(event.player)
-                }
             }
             .bindWith(plugin)
 

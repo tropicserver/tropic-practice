@@ -9,6 +9,10 @@ dependencies {
     api(project(":services:api"))
     api(project(":services:games:game-models"))
     api(project(":services:replications:replication-models"))
+
     compileOnly("com.grinderwolf:slimeworldmanager-plugin:2.2.1")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
+    compileOnly(
+        "gg.tropic.game.extensions:tropic-core-game-extensions:1.1.1"
+    )
 }

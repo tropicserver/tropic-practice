@@ -4,7 +4,7 @@ import gg.scala.commons.annotations.plugin.SoftDependency
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.flavor.service.ignore.IgnoreAutoScan
-import gg.tropic.game.extensions.cosmetics.EquipOnLoginCosmeticService
+import gg.tropic.game.extensions.cosmetics.CosmeticLocalConfig
 
 /**
  * @author GrowlyX
@@ -18,6 +18,6 @@ object CoreGameExtensionsService
     @Configure
     fun configure()
     {
-        EquipOnLoginCosmeticService.defaultFunctionality = false
+        CosmeticLocalConfig.enableCosmeticResources = false
     }
 }
