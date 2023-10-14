@@ -68,6 +68,19 @@ object LobbyHotbarService
         )
 
         idlePreset.addSlot(
+            2,
+            StaticHotbarPresetEntry(
+                ItemBuilder(Material.CHEST)
+                    .name("${CC.GOLD}Cosmetics ${CC.GRAY}(Right Click)")
+                    .setUnbreakable(true)
+            ).also {
+                it.onClick = { player ->
+                    player.performCommand("/cosmetics")
+                }
+            }
+        )
+
+        idlePreset.addSlot(
             4,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.SKULL_ITEM)
@@ -81,7 +94,7 @@ object LobbyHotbarService
         idlePreset.addSlot(
             6,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.PAINTING)
+                ItemBuilder(Material.FIREBALL)
                     .name("${CC.YELLOW}Open Leaderboards ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
