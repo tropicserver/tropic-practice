@@ -233,19 +233,34 @@ object GameService
                 val game = byPlayer(it.player)
                     ?: return@handler
 
-                if (
-                /*TODO: use height metadata -> game.kit == DuelLadder.Sumo*/ false &&
-                    game.ensurePlaying() &&
-                    it.player.location.y <= 50.0
-                )
+                if (game.ensurePlaying())
                 {
-                    game.sendMessage(
-                        "${CC.RED}${it.player.name}${CC.GRAY} was killed!"
-                    )
+                    fun completeGameArbitraryKiller()
+                    {
+                        game.sendMessage(
+                            "${CC.RED}${it.player.name}${CC.GRAY} was killed!"
+                        )
 
-                    game.complete(
-                        game.getOpponent(it.player)
+                        game.complete(
+                            game.getOpponent(it.player)
+                        )
+                    }
+
+                    if (/*TODO: use height metadata -> game.kit == DuelLadder.Sumo*/ false && it.player.location.y <= 50.0)
+                    {
+                        completeGameArbitraryKiller()
+                        return@handler
+                    }
+
+                    if (
+                        game.flag(FeatureFlag.DeathOnLiquidInteraction) &&
+                        it.to.block.isLiquid
                     )
+                    {
+                        completeGameArbitraryKiller()
+                        return@handler
+                    }
+
                     return@handler
                 }
 
