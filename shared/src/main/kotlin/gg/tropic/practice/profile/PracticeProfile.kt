@@ -36,6 +36,18 @@ data class PracticeProfile(
         >
     >()
 
+    fun getCasualStatsFor(kit: Kit) = casualStatistics
+        .putIfAbsent(
+            kit.id, KitStatistics()
+        )
+        ?: casualStatistics[kit.id]!!
+
+    fun getRankedStatsFor(kit: Kit) = rankedStatistics
+        .putIfAbsent(
+            kit.id, RankedKitStatistics()
+        )
+        ?: rankedStatistics[kit.id]!!
+
     fun getLoadoutsFromKit(kit: Kit) = customLoadouts[kit.id] ?: mutableListOf()
 
     fun save() = DataStoreObjectControllerCache

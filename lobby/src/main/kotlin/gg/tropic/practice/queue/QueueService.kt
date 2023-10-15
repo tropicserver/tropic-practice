@@ -9,6 +9,7 @@ import gg.scala.flavor.service.Service
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.player.LobbyPlayerService
+import gg.tropic.practice.profile.PracticeProfileService
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.entity.Player
 import java.util.logging.Logger
@@ -59,11 +60,15 @@ object QueueService
 
     fun joinQueue(kit: Kit, queueType: QueueType, teamSize: Int, player: Player)
     {
+        val profile = PracticeProfileService.find(player)
+            ?: return
+
         createMessage(
             packet = "join",
             "entry" to QueueEntry(
                 leader = player.uniqueId,
                 leaderPing = MinecraftReflection.getPing(player),
+                leaderELO = profile.getRankedStatsFor(kit).elo,
                 players = listOf(player.uniqueId)
             ),
             "kit" to kit.id,

@@ -77,6 +77,7 @@ fun main(args: Array<String>)
         .parseInto {
             ApplicationServerArgs(it)
         }
+
     AwareHub.configure(
         WrappedAwareUri(
             parsedArgs.redisHost,
