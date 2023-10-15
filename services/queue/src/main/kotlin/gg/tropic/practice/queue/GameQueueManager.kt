@@ -61,6 +61,10 @@ object GameQueueManager
             }
         }
 
+        /**
+         * Although we check for the map lock when searching for a random map,
+         * we want to handle this edge case for duels and anything else.
+         */
         if (map.locked)
         {
             DPSRedisShared.sendMessage(
@@ -144,8 +148,7 @@ object GameQueueManager
                     DPSRedisShared.sendMessage(
                         expectation.players,
                         listOf(
-                            "&c&lError: &cWe weren't able to allocate a map for you!",
-                            "&c&lReason: &f${it.message ?: "???"}"
+                            "&c&lError: &cWe weren't able to allocate a map for you! (${it.message ?: "???"})",
                         )
                     )
                 }
@@ -155,8 +158,7 @@ object GameQueueManager
                 DPSRedisShared.sendMessage(
                     expectation.players,
                     listOf(
-                        "&c&lError: &cWe weren't able to allocate a map for you!",
-                        "&c&lReason: &f${it.message ?: "???"}" // TODO: better message?
+                        "&c&lError: &cWe weren't able to allocate a map for you! (${it.message ?: "???"})"
                     )
                 )
 

@@ -32,7 +32,7 @@ object DPSRedisShared
         lobbyBridge.createMessage(
             packet = "send-message",
             "playerIDs" to players,
-            "message" to messages
+            "message" to messages.first()
         ).publish(
             AwareThreadContext.SYNC
         )
