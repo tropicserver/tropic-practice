@@ -23,6 +23,7 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.spigotmc.event.player.PlayerSpawnLocationEvent
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
 
 @Service
@@ -90,8 +91,10 @@ object LobbyPlayerService
         Events
             .subscribe(PlayerJoinEvent::class.java)
             .handler { event ->
-                playerCache[event.player.uniqueId] =
-                    LobbyPlayer(event.player.uniqueId)
+                val player = LobbyPlayer(event.player.uniqueId)
+                playerCache[event.player.uniqueId] = player
+
+                CompletableFuture.runAsync(player::syncQueueState)
 
                 with(LobbyConfigurationService.cached()) {
                     if (loginMOTD.isNotEmpty())

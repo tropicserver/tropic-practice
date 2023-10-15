@@ -14,15 +14,18 @@ data class LobbyPlayer(
 {
     val stateUpdateLock = Any()
 
-    var state: PlayerState = PlayerState.Idle
+    var state: PlayerState = PlayerState.None
         set(value)
         {
-            val bukkit = Bukkit.getPlayer(uniqueId)!!
             field = value
 
-            LobbyHotbarService
-                .get(value)
-                .applyToPlayer(bukkit)
+            if (field != PlayerState.None)
+            {
+                val bukkit = Bukkit.getPlayer(uniqueId)!!
+                LobbyHotbarService
+                    .get(value)
+                    .applyToPlayer(bukkit)
+            }
         }
 
     private var queueState: QueueState? = null
@@ -58,9 +61,11 @@ data class LobbyPlayer(
             PlayerState.Idle
         }
 
+        // don't try to acquire lock if we don't need to
         if (newState != state)
         {
             synchronized(stateUpdateLock) {
+                // check if the state has changed before we acquired the lock
                 if (newState != state)
                 {
                     state = newState

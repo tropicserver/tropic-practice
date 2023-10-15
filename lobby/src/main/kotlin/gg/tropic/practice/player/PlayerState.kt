@@ -2,5 +2,5 @@ package gg.tropic.practice.player
 
 enum class PlayerState
 {
-    InQueue, Idle
+    InQueue, Idle, None
 }
