@@ -57,7 +57,7 @@ object QueueService
         )
     }
 
-    fun joinQueue(kit: Kit, queueType: QueueType, player: Player)
+    fun joinQueue(kit: Kit, queueType: QueueType, teamSize: Int, player: Player)
     {
         createMessage(
             packet = "join",
@@ -68,7 +68,7 @@ object QueueService
             ),
             "kit" to kit.id,
             "queueType" to queueType,
-            "teamSize" to 2
+            "teamSize" to teamSize
         ).publish(
             context = AwareThreadContext.SYNC
         )
