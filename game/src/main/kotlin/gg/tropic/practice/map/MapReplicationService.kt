@@ -61,7 +61,9 @@ object MapReplicationService
 
         preGenerateMapReplications().thenRun {
             plugin.logger.info(
-                "Generated $TARGET_PRE_GEN_REPLICATIONS map replications for each of the ${MapService.maps().count()} available maps. This server currently has ${mapReplications.size} available replications."
+                "Generated $TARGET_PRE_GEN_REPLICATIONS map replications for each of the ${
+                    MapService.maps().count()
+                } available maps. This server currently has ${mapReplications.size} available replications."
             )
         }.exceptionally {
             plugin.logger.log(
@@ -235,11 +237,12 @@ object MapReplicationService
         val future = CompletableFuture<World>()
         val terminable = CompositeTerminable.create()
 
-        CompletableFuture.runAsync {
-            slimePlugin.generateWorld(
-                readyMap.slimeWorld.clone(worldName)
-            )
-        }
+        CompletableFuture
+            .runAsync {
+                slimePlugin.generateWorld(
+                    readyMap.slimeWorld.clone(worldName)
+                )
+            }
 
         Events
             .subscribe(WorldLoadEvent::class.java)

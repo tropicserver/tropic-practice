@@ -36,6 +36,7 @@ object ExpectationService
                 EventPriority.HIGHEST
             )
             .handler { event ->
+                // TODO: spectator pipeline
                 GameService.byPlayer(event.uniqueId)
                     ?: return@handler run {
                         event.disallow(
@@ -51,25 +52,19 @@ object ExpectationService
             .handler {
                 it.player.resetAttributes()
                 it.player.removeMetadata("spectator", plugin)
-            }
 
-        Events
-            .subscribe(
-                PlayerSpawnLocationEvent::class.java,
-                EventPriority.HIGHEST
-            )
-            .handler {
                 val game = GameService.byPlayer(it.player)
                     ?: return@handler
 
-                it.spawnLocation = with(game) {
-                    map
+                with(game) {
+                    val location = map
                         .findSpawnLocationMatchingTeam(
                             getTeamOf(it.player).side
                         )!!
                         .toLocation(arenaWorld)
+
+                    it.player.teleport(location)
                 }
             }
-            .bindWith(plugin)
     }
 }

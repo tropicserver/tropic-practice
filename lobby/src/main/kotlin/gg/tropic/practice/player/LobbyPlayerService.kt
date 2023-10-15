@@ -21,6 +21,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerInitialSpawnEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.spigotmc.event.player.PlayerSpawnLocationEvent
 import java.util.*
 import java.util.logging.Logger
 
@@ -72,7 +73,7 @@ object LobbyPlayerService
             }, 0L, 5L)
 
         Events
-            .subscribe(PlayerInitialSpawnEvent::class.java)
+            .subscribe(PlayerSpawnLocationEvent::class.java)
             .handler {
                 with(LobbyConfigurationService.cached()) {
                     it.spawnLocation = spawnLocation
