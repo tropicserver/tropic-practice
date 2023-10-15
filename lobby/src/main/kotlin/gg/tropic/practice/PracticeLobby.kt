@@ -1,5 +1,7 @@
 package gg.tropic.practice
 
+import gg.scala.basics.plugin.settings.SettingContainer
+import gg.scala.basics.plugin.settings.SettingMenu
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.annotations.container.ContainerEnable
 import gg.scala.commons.core.plugin.*
@@ -40,6 +42,8 @@ class PracticeLobby : ExtendedScalaPlugin()
     @ContainerEnable
     fun containerEnable()
     {
+        SettingMenu.defaultCategory = "Practice"
+
         Events
             .subscribe(PlayerJoinEvent::class.java)
             .handler { event ->
