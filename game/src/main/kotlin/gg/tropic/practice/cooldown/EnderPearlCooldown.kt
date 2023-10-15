@@ -3,6 +3,7 @@ package gg.tropic.practice.cooldown
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.scala.lemon.cooldown.CooldownHandler
 import gg.scala.lemon.cooldown.CooldownHandler.notifyAndContinueNoBypass
 import gg.scala.lemon.cooldown.type.PlayerStaticCooldown
 import gg.tropic.practice.PracticeGame
@@ -10,6 +11,7 @@ import gg.tropic.practice.games.GameService
 import gg.tropic.practice.kit.feature.FeatureFlag
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
+import net.evilblock.cubed.util.CC
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.EnderPearl
@@ -51,6 +53,7 @@ object EnderPearlCooldown : PlayerStaticCooldown(
     @Configure
     fun configure()
     {
+        // We need this for the exp bar
         notifyOnExpiration()
         whenExpired { } // do nothing
 
@@ -83,7 +86,7 @@ object EnderPearlCooldown : PlayerStaticCooldown(
             .handler {
                 val player = it.player
 
-                if (!notifyAndContinueNoBypass(this.javaClass, player, "pearling"))
+                if (!notifyAndContinueNoBypass(this.javaClass, player, "throwing an enderpearl"))
                 {
                     it.isCancelled = true
                     player.updateInventory()
@@ -110,5 +113,7 @@ object EnderPearlCooldown : PlayerStaticCooldown(
                 }
             }
             .bindWith(plugin)
+
+        CooldownHandler.register(this)
     }
 }
