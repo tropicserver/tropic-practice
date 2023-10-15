@@ -17,7 +17,8 @@ import org.bukkit.entity.Player
  */
 class PlayerViewMenu(
     private val gameReport: GameReport,
-    private val snapshot: GameReportSnapshot
+    private val snapshot: GameReportSnapshot,
+    private val originalMenu: Menu
 ) : Menu("Viewing player...")
 {
     override fun onClose(player: Player, manualClose: Boolean)
@@ -25,7 +26,7 @@ class PlayerViewMenu(
         if (manualClose)
         {
             Tasks.delayed(1L) {
-                SelectPlayerMenu(gameReport, this).openMenu(player)
+                SelectPlayerMenu(gameReport, originalMenu).openMenu(player)
             }
         }
     }

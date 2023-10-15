@@ -10,6 +10,7 @@ import gg.scala.lemon.hotbar.HotbarPresetHandler
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.menu.CasualQueueSelectSizeMenu
 import gg.tropic.practice.menu.JoinQueueMenu
 import gg.tropic.practice.menu.editor.EditorKitSelectionMenu
 import gg.tropic.practice.player.LobbyPlayerService
@@ -24,9 +25,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
-import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
 
 @Service
 object LobbyHotbarService
@@ -49,7 +48,7 @@ object LobbyHotbarService
                     .setUnbreakable(true)
             ).also {
                 it.onClick = { player ->
-                    JoinQueueMenu(QueueType.Casual, 1).openMenu(player)
+                    CasualQueueSelectSizeMenu().openMenu(player)
                 }
             }
         )

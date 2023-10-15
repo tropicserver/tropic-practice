@@ -50,7 +50,7 @@ class SelectPlayerMenu(
                         "${CC.GREEN}Click to view inventory!"
                     )
                     .toButton { _, _ ->
-                        PlayerViewMenu(game, it.value).openMenu(player)
+                        PlayerViewMenu(game, it.value, gamesMenu).openMenu(player)
                     }
             }
 

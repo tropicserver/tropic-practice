@@ -64,5 +64,5 @@ class JoinQueueMenu(
     }
 
     override fun getPrePaginatedTitle(player: Player) =
-        "Joining a ${queueType.name} ${teamSize}v$teamSize queue..."
+        "Queueing ${queueType.name} ${teamSize}v$teamSize..."
 }

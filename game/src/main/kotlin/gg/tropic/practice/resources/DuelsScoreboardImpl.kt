@@ -60,7 +60,11 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                     {
                         board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
                     }
+
+                    board += ""
                 }
+
+                board += "${CC.WHITE}Map: ${CC.GOLD}${game.map.displayName}"
             }
             GameState.Playing ->
             {
