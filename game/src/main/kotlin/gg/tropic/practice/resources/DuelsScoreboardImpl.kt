@@ -23,40 +23,33 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
         board: LinkedList<String>, player: Player
     )
     {
-        val game = GameService
-            .byPlayer(player)
-            ?: return kotlin.run {
-                board.add("${CC.RED}No game found.")
-            }
+        val game = GameService.byPlayer(player)
+            ?: return
 
         board += ""
 
         when (game.state)
         {
-            GameState.Generating ->
-            {
-                board += "${CC.GRAY}Generating the world..."
-            }
             GameState.Waiting ->
             {
-                board += "${CC.GRAY}Waiting for players..."
+                board += "${CC.WHITE}Waiting for players..."
             }
             GameState.Starting ->
             {
                 val opponent = game.getOpponent(player)
                     ?: return
 
-                board += "${CC.GRAY}The game is starting!"
+                board += "${CC.WHITE}The game is starting!"
                 board += ""
 
                 if (opponent.players.size == 1)
                 {
-                    board += "${CC.GRAY}Opponent: ${CC.WHITE}${
+                    board += "${CC.WHITE}Opponent: ${CC.GOLD}${
                         opponent.players.first().username()
                     }"
                 } else
                 {
-                    board += "${CC.GRAY}Opponents:"
+                    board += "${CC.GOLD}Opponents:"
 
                     for (other in opponent.players.take(3))
                     {
@@ -65,7 +58,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
 
                     if (opponent.players.size > 3)
                     {
-                        board += "${CC.D_GRAY}(and ${opponent.players.size - 3} more...)"
+                        board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
                     }
                 }
             }
@@ -74,16 +67,16 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                 val opponent = game.getOpponent(player)
                     ?: return
 
-                board += "${CC.GRAY}Duration: ${CC.WHITE}${game.getDuration()}"
+                board += "${CC.WHITE}Duration: ${CC.GOLD}${game.getDuration()}"
 
                 if (opponent.players.size == 1)
                 {
                     val opponentPlayer = opponent.players.first()
 
-                    board += "${CC.GRAY}Opponent: ${CC.WHITE}${opponentPlayer.username()}"
+                    board += "${CC.WHITE}Opponent: ${CC.GOLD}${opponentPlayer.username()}"
                     board += ""
-                    board += "${CC.GREEN}Your ping: ${CC.WHITE}${MinecraftReflection.getPing(player)}ms"
-                    board += "${CC.RED}Their ping: ${CC.WHITE}${
+                    board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
+                    board += "${CC.WHITE}Their ping: ${CC.RED}${
                         if (Bukkit.getPlayer(opponentPlayer) != null)
                             MinecraftReflection.getPing(
                                 Bukkit.getPlayer(opponentPlayer)
@@ -91,9 +84,9 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                     }ms"
                 } else
                 {
-                    board += "${CC.GRAY}Map: ${CC.WHITE}${game.map.displayName}"
+                    board += "${CC.WHITE}Map: ${CC.GOLD}${game.map.displayName}"
                     board += ""
-                    board += "${CC.GREEN}Your ping: ${CC.WHITE}${MinecraftReflection.getPing(player)}ms"
+                    board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
                     board += "${CC.RED}Opponent pings:"
 
                     for (other in opponent.players.take(3))
@@ -110,7 +103,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
 
                     if (opponent.players.size > 3)
                     {
-                        board += "${CC.D_GRAY}(and ${opponent.players.size - 3} more...)"
+                        board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
                     }
                 }
             }
@@ -120,7 +113,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
 
                 if (report != null)
                 {
-                    board += "${CC.GREEN}Winner: ${CC.WHITE}${
+                    board += "${CC.WHITE}Winner: ${CC.GREEN}${
                         when (report.winners.size)
                         {
                             0 -> "N/A"
@@ -131,7 +124,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                             }
                         }
                     }"
-                    board += "${CC.RED}Loser: ${CC.WHITE}${
+                    board += "${CC.WHITE}Loser: ${CC.RED}${
                         when (report.losers.size)
                         {
                             0 -> "N/A"
@@ -143,7 +136,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                         }
                     }"
                     board += ""
-                    board += "${CC.GRAY}Thanks for playing!"
+                    board += "${CC.WHITE}Thanks for playing!"
                 } else
                 {
                     board += "${CC.D_GRAY}Loading game report..."
@@ -152,7 +145,9 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
         }
 
         board += ""
-        board += "${LemonConstants.WEB_LINK}  ${CC.GRAY}"
+
+        // apparently this works?
+        board += CC.GRAY + LemonConstants.WEB_LINK + "          "  + CC.GRAY + "      "  + CC.GRAY
     }
 
     override fun getTitle(player: Player) =

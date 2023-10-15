@@ -6,5 +6,5 @@ package gg.tropic.practice.games
  */
 enum class GameState
 {
-    Generating, Waiting, Starting, Playing, Completed
+    Waiting, Starting, Playing, Completed
 }
