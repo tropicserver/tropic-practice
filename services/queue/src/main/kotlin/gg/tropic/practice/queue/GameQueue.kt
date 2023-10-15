@@ -58,7 +58,7 @@ class GameQueue(
         val length = GameQueueManager
             .queueSizeFromId(queueId())
 
-        if (length < 2)
+        if (length < teamSize * 2)
         {
             Thread.sleep(200)
             return
