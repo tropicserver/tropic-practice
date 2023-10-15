@@ -30,10 +30,10 @@ object GameQueueManager
         .sync()
         .llen("tropicpractice:queues:$id:queue")
 
-    fun popQueueEntryFromId(id: String) = dpsRedisCache
+    fun popQueueEntryFromId(id: String, amount: Int) = dpsRedisCache
         .sync()
-        .rpop("tropicpractice:queues:$id:queue")
-        .let {
+        .rpop("tropicpractice:queues:$id:queue", amount.toLong())
+        .map {
             Serializers.gson.fromJson(
                 dpsRedisCache.sync()
                     .hget(

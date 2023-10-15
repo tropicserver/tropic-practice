@@ -64,10 +64,16 @@ class GameQueue(
             return
         }
 
-        val first = GameQueueManager.popQueueEntryFromId(queueId())
-        val second = GameQueueManager.popQueueEntryFromId(queueId())
+        val first = GameQueueManager.popQueueEntryFromId(queueId(), teamSize)
+        val second = GameQueueManager.popQueueEntryFromId(queueId(), teamSize)
 
-        val users = listOf(first.players, second.players).flatten()
+        val firstPlayers = first.flatMap { it.players }
+        val secondPlayers = second.flatMap { it.players }
+
+        val users = listOf(
+            firstPlayers,
+            secondPlayers
+        ).flatten()
 
         val map = MapDataSync
             .selectRandomMapCompatibleWith(kit)
@@ -82,10 +88,15 @@ class GameQueue(
 
         val expectation = GameExpectation(
             identifier = UUID.randomUUID(),
-            players = listOf(first, second).flatMap { it.players },
+            players = listOf(first, second)
+                .flatMap {
+                    it.flatMap { entry ->
+                        entry.players
+                    }
+                },
             teams = mapOf(
-                GameTeamSide.A to GameTeam(side = GameTeamSide.A, players = first.players),
-                GameTeamSide.B to GameTeam(side = GameTeamSide.B, players = second.players),
+                GameTeamSide.A to GameTeam(side = GameTeamSide.A, players = firstPlayers),
+                GameTeamSide.B to GameTeam(side = GameTeamSide.B, players = secondPlayers),
             ),
             kitId = kit.id,
             mapId = map.name
@@ -95,8 +106,13 @@ class GameQueue(
             map = map,
             expectation = expectation
         ) {
-            GameQueueManager.destroyQueueStates(queueId(), first)
-            GameQueueManager.destroyQueueStates(queueId(), second)
+            for (queueEntry in first + second)
+            {
+                GameQueueManager
+                    .destroyQueueStates(
+                        queueId(), queueEntry
+                    )
+            }
         }
     }
 
