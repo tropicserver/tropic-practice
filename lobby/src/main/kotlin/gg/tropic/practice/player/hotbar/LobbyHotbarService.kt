@@ -72,7 +72,6 @@ object LobbyHotbarService
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.CHEST)
                     .name("${CC.GOLD}Cosmetics ${CC.GRAY}(Right Click)")
-                    .setUnbreakable(true)
             ).also {
                 it.onClick = { player ->
                     player.performCommand("cosmetics")
@@ -83,9 +82,8 @@ object LobbyHotbarService
         idlePreset.addSlot(
             4,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.SKULL_ITEM)
-                    .name("${CC.L_PURPLE}Create a Party ${CC.GRAY}(Right Click)")
-                    .setUnbreakable(true)
+                ItemBuilder(Material.NETHER_STAR)
+                    .name("${CC.PINK}Create a Party ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player -> }
             }
@@ -108,7 +106,6 @@ object LobbyHotbarService
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.BOOK)
                     .name("${CC.D_AQUA}Kit Editor ${CC.GRAY}(Right Click)")
-                    .setUnbreakable(true)
             ).also {
                 it.onClick = { player ->
                     val profile = PracticeProfileService.find(player)
@@ -126,7 +123,6 @@ object LobbyHotbarService
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.REDSTONE_COMPARATOR)
                     .name("${CC.D_PURPLE}Edit Settings ${CC.GRAY}(Right Click)")
-                    .setUnbreakable(true)
             ).also {
                 it.onClick = { player ->
                     SettingMenu(player).openMenu(player)
@@ -143,7 +139,6 @@ object LobbyHotbarService
             StaticHotbarPresetEntry(
                 ItemBuilder(XMaterial.RED_DYE)
                     .name("${CC.RED}Leave Queue ${CC.GRAY}(Right Click)")
-                    .setUnbreakable(true)
             ).also {
                 it.onClick = scope@{ player ->
                     val profile = LobbyPlayerService
@@ -155,6 +150,7 @@ object LobbyHotbarService
                         "${CC.RED}You left the queue!"
                     )
 
+                    // set idle as the queue service takes a bit to sync
                     profile.state = PlayerState.Idle
                 }
             }

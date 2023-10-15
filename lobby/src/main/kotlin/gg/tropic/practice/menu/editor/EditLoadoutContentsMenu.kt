@@ -181,7 +181,7 @@ class EditLoadoutContentsMenu(
         {
             buttons[24] = ItemBuilder
                 .of(Material.CHEST)
-                .name("${CC.BD_AQUA}Additional Contents")
+                .name("${CC.B_AQUA}Additional Contents")
                 .addToLore(
                     "${CC.WHITE}View the additional contents",
                     "${CC.WHITE}of this kit.",

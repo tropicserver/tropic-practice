@@ -20,7 +20,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
 {
     init
     {
-        placeholder = true
+        placeholdBorders = true
     }
 
     abstract fun filterDisplayOfKit(player: Player, kit: Kit): Boolean
@@ -38,7 +38,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
     override fun getAllPagesButtonSlots() =
         (10..16) + (19..25) + (28..34)
 
-    override fun getPageButtonSlots() = 19 to 27
+    override fun getPageButtonSlots() = 18 to 27
 
     override fun getAllPagesButtons(player: Player): Map<Int, Button>
     {

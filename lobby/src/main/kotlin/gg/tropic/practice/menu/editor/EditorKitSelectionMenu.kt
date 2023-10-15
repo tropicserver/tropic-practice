@@ -20,7 +20,7 @@ class EditorKitSelectionMenu(
 
         return mutableListOf(
             "${CC.WHITE}Custom loadouts:",
-            "${CC.D_AQUA}${loadouts.size}/7",
+            "${CC.PRI}${loadouts.size}/7",
             " "
         ).apply {
             if (loadouts.size != 0)

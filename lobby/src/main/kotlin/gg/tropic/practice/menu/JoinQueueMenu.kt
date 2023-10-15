@@ -27,13 +27,13 @@ class JoinQueueMenu(
         }
 
     override fun itemDescriptionOf(player: Player, kit: Kit) = listOf(
-        "${CC.WHITE}Playing: ${CC.GREEN}0",
-        "${CC.WHITE}Queued: ${CC.GREEN}0",
+        "${CC.WHITE}Playing: ${CC.PRI}0",
+        "${CC.WHITE}Queued: ${CC.PRI}0",
         "",
         "${CC.B_GREEN}Daily Win Streaks:",
-        "${CC.GREEN}#1 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
-        "${CC.GREEN}#2 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
-        "${CC.GREEN}#3 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
+        "${CC.GREEN}#1 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
+        "${CC.GREEN}#2 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
+        "${CC.GREEN}#3 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
         "",
         "${CC.GREEN}Click to join!"
     )
@@ -44,9 +44,15 @@ class JoinQueueMenu(
             .find(player.uniqueId)
             ?: return
 
-        player.closeInventory()
+        if (lobbyPlayer.state == PlayerState.InQueue)
+        {
+            player.sendMessage("${CC.RED}You are already in a queue!")
+            return
+        }
 
+        player.closeInventory()
         QueueService.joinQueue(kit, queueType, teamSize, player)
+
         lobbyPlayer.state = PlayerState.InQueue
 
         player.playSound(player.location, Sound.NOTE_PLING, 1f, 1f)

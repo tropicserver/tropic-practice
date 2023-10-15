@@ -47,5 +47,13 @@ data class LobbyPlayer(
                     .gson
                     .fromJson(it, QueueState::class.java)
             }
+
+        state = if (queueState != null)
+        {
+            PlayerState.InQueue
+        } else
+        {
+            PlayerState.Idle
+        }
     }
 }

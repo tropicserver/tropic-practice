@@ -43,7 +43,7 @@ class SelectCustomKitMenu(
                 .name("${CC.B_GREEN}${loadoutAt.name}")
                 .addToLore(
                     "${CC.WHITE}Last edited:",
-                    "${CC.AQUA}${
+                    "${CC.PRI}${
                         DATE_FORMAT.format(dateCreated)
                     }",
                     "",
