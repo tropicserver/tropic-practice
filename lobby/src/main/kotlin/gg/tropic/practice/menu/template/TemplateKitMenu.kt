@@ -10,6 +10,7 @@ import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.text.TextSplitter
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
+import org.bukkit.inventory.ItemFlag
 
 /**
  * @author GrowlyX
@@ -77,6 +78,11 @@ abstract class TemplateKitMenu : PaginatedMenu()
                             addToLore("")
                         }
                     }
+                    .addFlags(
+                        ItemFlag.HIDE_ATTRIBUTES,
+                        ItemFlag.HIDE_ENCHANTS,
+                        ItemFlag.HIDE_POTION_EFFECTS
+                    )
                     .addToLore(
                         *itemDescriptionOf(player, it)
                             .toTypedArray()

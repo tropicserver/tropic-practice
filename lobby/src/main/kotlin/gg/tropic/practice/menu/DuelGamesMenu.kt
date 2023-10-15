@@ -1,9 +1,8 @@
 package gg.tropic.practice.menu
 
-import gg.tropic.practice.reports.GameReportService
+import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameReportStatus
-import gg.scala.lemon.util.QuickAccess.username
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
@@ -14,7 +13,6 @@ import net.evilblock.cubed.util.time.TimeUtil
 import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ForkJoinPool
 
 /**

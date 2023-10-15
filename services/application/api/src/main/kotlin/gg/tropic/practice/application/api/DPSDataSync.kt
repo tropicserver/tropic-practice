@@ -23,7 +23,9 @@ abstract class DPSDataSync<T>
         )
 
     private val backingSync by lazy {
-        DPSRedisService("${keys().sync()}:datasync", raw = true)
+        // this is the channel which commons is
+        // listening on apparently?
+        DPSRedisService("UuidCache", raw = true)
             .apply {
                 start()
             }
