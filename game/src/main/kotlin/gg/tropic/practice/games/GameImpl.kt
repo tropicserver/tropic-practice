@@ -371,6 +371,9 @@ class GameImpl(
         Events
             .subscribe(PlayerInteractEvent::class.java)
             .filter {
+                it.player.uniqueId == player.uniqueId
+            }
+            .filter {
                 it.action == Action.RIGHT_CLICK_AIR
             }
             .filter {
