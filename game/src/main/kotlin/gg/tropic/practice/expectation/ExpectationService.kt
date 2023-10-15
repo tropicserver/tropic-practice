@@ -9,6 +9,7 @@ import gg.tropic.practice.resetAttributes
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import org.bukkit.Bukkit
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -48,6 +49,16 @@ object ExpectationService
             .bindWith(plugin)
 
         Events
+            .subscribe(PlayerSpawnLocationEvent::class.java)
+            .handler {
+                // TODO: make this configurable
+                it.spawnLocation = Bukkit
+                    .getWorld("world")
+                    .spawnLocation
+            }
+            .bindWith(plugin)
+
+        Events
             .subscribe(PlayerJoinEvent::class.java)
             .handler {
                 it.player.resetAttributes()
@@ -66,5 +77,6 @@ object ExpectationService
                     it.player.teleport(location)
                 }
             }
+            .bindWith(plugin)
     }
 }
