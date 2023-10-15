@@ -9,7 +9,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.tropic.practice.PracticeGame
-import gg.tropic.practice.api.games.GameManagerService
+import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.games.models.GameReference
 import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.kit.feature.FeatureFlag
@@ -21,6 +21,7 @@ import me.lucko.helper.cooldown.CooldownMap
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants.HEART_SYMBOL
+import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.visibility.VisibilityHandler
 import org.bukkit.Location
 import org.bukkit.Material
@@ -224,11 +225,9 @@ object GameService
                 }
             }
 
-        Events.subscribe(PlayerMoveEvent::class.java)
-            .filter {
-                it.to.x.toInt() != it.from.x.toInt() ||
-                    it.to.z.toInt() != it.from.z.toInt()
-            }
+        Events
+            .subscribe(PlayerMoveEvent::class.java)
+            .filter(EventUtils::hasPlayerMoved)
             .handler {
                 val game = byPlayer(it.player)
                     ?: return@handler

@@ -10,9 +10,11 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
+import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -28,6 +30,40 @@ object MapCommands : ScalaCommand()
     fun onDefault(help: CommandHelp)
     {
         help.showHelp()
+    }
+
+    @Subcommand("delete")
+    @Description("Deletes a map based on the input given.")
+    fun onDelete(player: ScalaPlayer, mapName: String): CompletableFuture<Void>
+    {
+        val map = MapService.mapWithID(mapName)
+            ?: throw ConditionFailedException(
+                "A map with the ID ${CC.YELLOW}$mapName ${CC.RED}does not exist."
+            )
+
+        return GameManagerService.allGames()
+            .thenApply {
+                it.filter { ref ->
+                    ref.mapID == map.name
+                }
+            }
+            .thenAccept {
+                if (it.isNotEmpty())
+                {
+                    throw ConditionFailedException(
+                        "You cannot delete this map as there are games ongoing bound to this map ID. Lock the map from being used in any new games by using ${CC.BOLD}/map lock ${map.name}${CC.RED}."
+                    )
+                }
+
+                with(MapService.cached()) {
+                    maps.remove(map.name)
+                    MapService.sync(this)
+                }
+
+                player.sendMessage(
+                    "${CC.GREEN}You deleted the map with the ID ${CC.YELLOW}${map.name}${CC.GREEN}."
+                )
+            }
     }
 
     @AssignPermission

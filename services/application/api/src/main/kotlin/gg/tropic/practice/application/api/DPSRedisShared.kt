@@ -30,7 +30,7 @@ object DPSRedisShared
     fun sendMessage(players: List<UUID>, messages: List<String>)
     {
         lobbyBridge.createMessage(
-            packet = "send-messages",
+            packet = "send-message",
             "playerIDs" to players,
             "message" to messages
         ).publish(

@@ -56,7 +56,9 @@ object GameQueueManager
                 )
             )
 
-            return CompletableFuture.completedFuture(null)
+            return CompletableFuture.runAsync {
+                cleanup()
+            }
         }
 
         if (map.locked)
@@ -68,7 +70,9 @@ object GameQueueManager
                 )
             )
 
-            return CompletableFuture.completedFuture(null)
+            return CompletableFuture.runAsync {
+                cleanup()
+            }
         }
 
         /**
@@ -109,7 +113,9 @@ object GameQueueManager
                         )
                     )
 
-                    CompletableFuture.completedFuture(null)
+                    CompletableFuture.runAsync {
+                        cleanup()
+                    }
                 }
 
             val replication = if (availableReplication == null)
@@ -153,6 +159,8 @@ object GameQueueManager
                         "&c&lReason: &f${it.message ?: "???"}" // TODO: better message?
                     )
                 )
+
+                cleanup()
                 return@exceptionally null
             }
         }

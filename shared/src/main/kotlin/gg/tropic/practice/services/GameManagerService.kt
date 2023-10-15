@@ -1,4 +1,4 @@
-package gg.tropic.practice.api.games
+package gg.tropic.practice.services
 
 import gg.scala.aware.AwareBuilder
 import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
