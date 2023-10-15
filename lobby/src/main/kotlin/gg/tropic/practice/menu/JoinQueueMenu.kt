@@ -31,9 +31,9 @@ class JoinQueueMenu(
         "${CC.WHITE}Queued: ${CC.PRI}0",
         "",
         "${CC.B_GREEN}Daily Win Streaks:",
-        "${CC.GREEN}#1 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
-        "${CC.GREEN}#2 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
-        "${CC.GREEN}#3 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
+        "${CC.GREEN}#1 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}0",
+        "${CC.GREEN}#2 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}0",
+        "${CC.GREEN}#3 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}0",
         "",
         "${CC.GREEN}Click to join!"
     )

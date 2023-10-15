@@ -37,12 +37,11 @@ object EnderPearlCooldown : PlayerStaticCooldown(
         val game = GameService.byPlayer(t)
             ?: return 0L
 
-        val duration = game
-            .flagMetaData(
+        val duration = game.kit
+            .featureConfig(
                 FeatureFlag.EnderPearlCooldown,
                 "duration"
             )
-            ?: return 0L
 
         return TimeUnit.SECONDS.toMillis(
             duration.toLong() + 1L
