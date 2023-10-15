@@ -12,7 +12,8 @@ enum class FeatureFlag(
 {
     Ranked,
     QueueSizes(
-        schema = mutableMapOf("sizes" to "1")
+        // another example: 3:Ranked,2:Casual,10:Ranked+Casual
+        schema = mutableMapOf("sizes" to "1:Casual+Ranked")
     ),
     HeartsBelowNameTag,
     DoNotTakeDamage(

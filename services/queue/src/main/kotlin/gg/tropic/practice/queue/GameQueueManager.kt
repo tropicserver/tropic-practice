@@ -264,20 +264,30 @@ object GameQueueManager
             .forEach { kit ->
                 QueueType.entries
                     .forEach scope@{
-                        val sizes = kit
+                        val sizeModels = kit
                             .featureConfig(
                                 FeatureFlag.QueueSizes,
                                 key = "sizes"
                             )
                             .split(",")
-                            .map(String::toInt)
+                            .map { sizeModel ->
+                                val split = sizeModel.split(":")
+                                split[0].toInt() to (split.getOrNull(1)
+                                    ?.split("+")
+                                    ?.map(QueueType::valueOf)
+                                    ?: listOf(QueueType.Casual))
+                            }
 
-                        for (size in sizes)
+                        for (model in sizeModels)
                         {
-                            if (it == QueueType.Ranked && !kit.features(FeatureFlag.Ranked))
+                            if (
+                                it == QueueType.Ranked &&
+                                !kit.features(FeatureFlag.Ranked) &&
+                                QueueType.Ranked in model.second
+                            )
                             {
                                 // a ranked queue exists for this kit, but the kit no longer supports ranked
-                                val existingRanked = GameQueue(kit, it, size)
+                                val existingRanked = GameQueue(kit, it, model.first)
                                 if (queues.containsKey(existingRanked.queueId()))
                                 {
                                     queues
@@ -290,7 +300,7 @@ object GameQueueManager
                             val queue = GameQueue(
                                 kit = kit,
                                 queueType = it,
-                                teamSize = size
+                                teamSize = model.first
                             )
 
                             if (!queues.containsKey(queue.queueId()))

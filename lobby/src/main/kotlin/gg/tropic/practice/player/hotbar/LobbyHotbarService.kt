@@ -49,7 +49,7 @@ object LobbyHotbarService
                     .setUnbreakable(true)
             ).also {
                 it.onClick = { player ->
-                    JoinQueueMenu(QueueType.Casual).openMenu(player)
+                    JoinQueueMenu(QueueType.Casual, 1).openMenu(player)
                 }
             }
         )
@@ -62,7 +62,7 @@ object LobbyHotbarService
                     .setUnbreakable(true)
             ).also {
                 it.onClick = { player ->
-                    JoinQueueMenu(QueueType.Ranked).openMenu(player)
+                    JoinQueueMenu(QueueType.Ranked, 1).openMenu(player)
                 }
             }
         )

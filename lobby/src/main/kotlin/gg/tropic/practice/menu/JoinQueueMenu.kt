@@ -16,7 +16,8 @@ import org.bukkit.event.inventory.ClickType
  * @since 9/24/2023
  */
 class JoinQueueMenu(
-    private val queueType: QueueType
+    private val queueType: QueueType,
+    private val teamSize: Int
 ) : TemplateKitMenu()
 {
     override fun filterDisplayOfKit(player: Player, kit: Kit) = true
@@ -39,5 +40,6 @@ class JoinQueueMenu(
         )
     }
 
-    override fun getPrePaginatedTitle(player: Player) = "Queueing: ${queueType.name} 1v1"
+    override fun getPrePaginatedTitle(player: Player) =
+        "Joining a ${queueType.name} ${teamSize}v$teamSize queue..."
 }

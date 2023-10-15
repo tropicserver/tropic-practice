@@ -35,7 +35,11 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         {
             board += ""
             board += "${CC.GOLD}${profile.queuedForType().name} Queue:"
-            board += "${CC.GRAY}${profile.queuedForKit()?.displayName} 1v1"
+            board += "${CC.GRAY}${profile.queuedForKit()?.displayName} ${
+                profile.queuedForTeamSize()
+            }v${
+                profile.queuedForTeamSize()
+            }"
             board += "${CC.WHITE}Queued for ${CC.PRI}${
                 TimeUtil.formatIntoMMSS((profile.queuedForTime() / 1000).toInt())
             }"

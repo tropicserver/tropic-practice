@@ -64,6 +64,10 @@ object LobbyPlayerService
                             "${CC.GREEN}You are queued for ${CC.PRI}${
                                 it.queuedForType().name
                             } ${
+                                it.queuedForTeamSize()
+                            }v${
+                                it.queuedForTeamSize()
+                            } ${
                                 it.queuedForKit()?.displayName ?: "???"
                             } ${CC.GRAY}(${
                                 TimeUtil.formatIntoMMSS((it.queuedForTime() / 1000).toInt())
