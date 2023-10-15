@@ -1,5 +1,6 @@
 package gg.tropic.practice.kit
 
+import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.feature.FeatureFlag
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
@@ -27,9 +28,38 @@ data class Kit(
     val features: MutableMap<FeatureFlag, MutableMap<String, String>> = mutableMapOf()
 )
 {
+    val allowedBlockTypeMappings by lazy {
+        featureConfigNullable(
+            FeatureFlag.BreakSpecificBlockTypes,
+            "types"
+        )
+            ?.split(",")
+            ?.map { pair ->
+                val components = pair.split(":")
+                Material.valueOf(components[0]) to (components.getOrNull(1)?.toInt() ?: 0)
+            }
+    }
+
+    val queueSizes by lazy {
+        featureConfig(
+            FeatureFlag.QueueSizes,
+            key = "sizes"
+        )
+            .split(",")
+            .map { sizeModel ->
+                val split = sizeModel.split(":")
+                split[0].toInt() to (split.getOrNull(1)
+                    ?.split("+")
+                    ?.map(QueueType::valueOf)
+                    ?: listOf(QueueType.Casual))
+            }
+    }
+
     fun features(flag: FeatureFlag) = features.containsKey(flag)
     fun featureConfig(flag: FeatureFlag, key: String) =
         features[flag]?.get(key) ?: flag.schema[key]!!
+
+    fun featureConfigNullable(flag: FeatureFlag, key: String) = features[flag]?.get(key)
 
     fun populate(player: Player)
     {

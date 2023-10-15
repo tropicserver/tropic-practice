@@ -2,7 +2,6 @@ package gg.tropic.practice.games
 
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
-import gg.scala.store.storage.storable.IDataStoreObject
 import gg.tropic.practice.kit.Kit
 import java.util.*
 

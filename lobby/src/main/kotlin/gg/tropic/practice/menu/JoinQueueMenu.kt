@@ -7,6 +7,7 @@ import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
@@ -20,8 +21,22 @@ class JoinQueueMenu(
     private val teamSize: Int
 ) : TemplateKitMenu()
 {
-    override fun filterDisplayOfKit(player: Player, kit: Kit) = true
-    override fun itemDescriptionOf(player: Player, kit: Kit) = listOf("${CC.YELLOW}Click to join!")
+    override fun filterDisplayOfKit(player: Player, kit: Kit) = kit.queueSizes
+        .any {
+            it.first == teamSize && queueType in it.second
+        }
+
+    override fun itemDescriptionOf(player: Player, kit: Kit) = listOf(
+        "${CC.WHITE}Playing: ${CC.GREEN}0",
+        "${CC.WHITE}Queued: ${CC.GREEN}0",
+        "",
+        "${CC.B_GREEN}Daily Win Streaks:",
+        "${CC.GREEN}#1 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
+        "${CC.GREEN}#2 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
+        "${CC.GREEN}#3 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}0",
+        "",
+        "${CC.GREEN}Click to join!"
+    )
 
     override fun itemClicked(player: Player, kit: Kit, type: ClickType)
     {
@@ -36,7 +51,7 @@ class JoinQueueMenu(
 
         player.playSound(player.location, Sound.NOTE_PLING, 1f, 1f)
         player.sendMessage(
-            "${CC.GREEN}You have joined the ${CC.PRI}${queueType.name} ${kit.displayName}${CC.GREEN} queue!"
+            "${CC.GREEN}You have joined the ${CC.PRI}${queueType.name} ${teamSize}v$teamSize ${kit.displayName}${CC.GREEN} queue!"
         )
     }
 

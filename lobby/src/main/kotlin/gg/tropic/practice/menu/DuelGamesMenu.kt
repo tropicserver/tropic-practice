@@ -54,7 +54,7 @@ class DuelGamesMenu(
             buttons[buttons.size] = ItemBuilder
                 .of(Material.PAPER)
                 .name(
-                    "${CC.GOLD}${
+                    "${CC.B_GREEN}${
                         TimeUtil.formatIntoFullCalendarString(report.matchDate)
                     }"
                 )
@@ -67,30 +67,30 @@ class DuelGamesMenu(
                         }
                     })",
                     "",
-                    "${CC.GREEN}Winner${
+                    "${CC.WHITE}Winner${
                         if (report.winners.size == 1) "" else "s"
-                    }: ${CC.WHITE}${
+                    }: ${CC.GREEN}${
                         if (report.winners.isEmpty()) "N/A" else
                             report.winners.joinToString(", ") {
                                 it.username()
                             }
                     }",
-                    "${CC.RED}Loser${
+                    "${CC.WHITE}Loser${
                         if (report.losers.size == 1) "" else "s"
-                    }: ${CC.WHITE}${
+                    }: ${CC.RED}${
                         if (report.losers.isEmpty()) "N/A" else
                             report.losers.joinToString(", ") {
                                 it.username()
                             }
                     }",
                     "",
-                    "${CC.GRAY}Duration: ${CC.WHITE}${
+                    "${CC.WHITE}Duration: ${CC.D_AQUA}${
                         DurationFormatUtils
                             .formatDuration(
                                 report.duration, "mm:ss"
                             )
                     }",
-                    "${CC.GRAY}Map: ${CC.WHITE}${report.map}",
+                    "${CC.WHITE}Map: ${CC.D_AQUA}${report.map}",
                     "",
                     "${CC.GREEN}Click to view inventories!"
                 )

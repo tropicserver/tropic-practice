@@ -19,8 +19,8 @@ class EditorKitSelectionMenu(
         val loadouts = practiceProfile.getLoadoutsFromKit(kit)
 
         return mutableListOf(
-            "${CC.GRAY}Custom loadouts:",
-            "${CC.WHITE}${loadouts.size}/7",
+            "${CC.WHITE}Custom loadouts:",
+            "${CC.D_AQUA}${loadouts.size}/7",
             " "
         ).apply {
             if (loadouts.size != 0)
@@ -39,7 +39,7 @@ class EditorKitSelectionMenu(
         {
             if (loadouts.size >= 7)
             {
-                player.sendMessage("${CC.RED}You have reached the maximum number of custom kits!")
+                player.sendMessage("${CC.RED}You have reached the limit of custom loadouts!")
                 return
             }
 

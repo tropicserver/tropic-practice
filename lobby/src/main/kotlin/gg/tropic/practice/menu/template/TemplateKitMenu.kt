@@ -59,7 +59,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
                 buttons[buttons.size] = ItemBuilder
                     .copyOf(it.displayIcon)
                     .name(
-                        "${CC.GREEN}${it.displayName}${
+                        "${CC.B_GREEN}${it.displayName}${
                             if (it.features(FeatureFlag.NewlyCreated))
                                 " ${CC.B_YELLOW}NEW!" else ""
                         }${

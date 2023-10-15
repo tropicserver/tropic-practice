@@ -40,8 +40,8 @@ class EditLoadoutContentsMenu(
             .of(XMaterial.LIME_WOOL)
             .name("${CC.B_GREEN}Save Loadout")
             .addToLore(
-                "${CC.GRAY}Save your current inventory",
-                "${CC.GRAY}as the loadout's contents.",
+                "${CC.WHITE}Save your current inventory",
+                "${CC.WHITE}as the loadout's contents.",
                 "",
                 "${CC.GREEN}Click to save!"
             )
@@ -56,8 +56,8 @@ class EditLoadoutContentsMenu(
             .data(4)
             .name("${CC.B_YELLOW}Reset Loadout")
             .addToLore(
-                "${CC.GRAY}Reset the loadout to it's",
-                "${CC.GRAY}default contents.",
+                "${CC.WHITE}Reset the loadout to it's",
+                "${CC.WHITE}default contents.",
                 "",
                 "${CC.YELLOW}Click to reset loadout!"
             )
@@ -86,9 +86,9 @@ class EditLoadoutContentsMenu(
             .data(14)
             .name("${CC.B_RED}Cancel Edit")
             .addToLore(
-                "${CC.GRAY}Cancel the loadout editing",
-                "${CC.GRAY}process and return to the",
-                "${CC.GRAY}main menu.",
+                "${CC.WHITE}Cancel the loadout editing",
+                "${CC.WHITE}process and return to the",
+                "${CC.WHITE}main menu.",
                 "",
                 "${CC.RED}Click to cancel!"
             )
@@ -181,10 +181,10 @@ class EditLoadoutContentsMenu(
         {
             buttons[24] = ItemBuilder
                 .of(Material.CHEST)
-                .name("${CC.B_AQUA}Additional Contents")
+                .name("${CC.BD_AQUA}Additional Contents")
                 .addToLore(
-                    "${CC.GRAY}View the additional contents",
-                    "${CC.GRAY}of this kit.",
+                    "${CC.WHITE}View the additional contents",
+                    "${CC.WHITE}of this kit.",
                     "",
                     "${CC.AQUA}Click to view!"
                 )

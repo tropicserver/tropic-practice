@@ -40,11 +40,11 @@ class PlayerViewMenu(
         }
 
         buttons[46] = ItemBuilder.of(Material.GOLDEN_APPLE)
-            .name("${CC.WHITE}Health: ${CC.B_GOLD}${snapshot.health}")
+            .name("${CC.WHITE}Health: ${CC.RED}${snapshot.health}")
             .toButton()
 
         buttons[47] = ItemBuilder.of(Material.GOLDEN_CARROT)
-            .name("${CC.WHITE}Food Level: ${CC.B_GOLD}${snapshot.foodLevel}")
+            .name("${CC.WHITE}Food Level: ${CC.RED}${snapshot.foodLevel}")
             .toButton()
 
         snapshot.inventoryContents.withIndex()

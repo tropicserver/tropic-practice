@@ -1,13 +1,11 @@
 package gg.tropic.practice.menu
 
-import gg.tropic.practice.commands.DuelGamesCommand
 import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Material
@@ -37,15 +35,17 @@ class SelectPlayerMenu(
         val buttons = mutableMapOf<Int, Button>()
 
         game.snapshots
+            .entries
+            .sortedByDescending { it.key in game.losers }
             .onEach {
                 buttons[buttons.size] = ItemBuilder
                     .of(Material.SKULL_ITEM)
                     .data(3)
                     .owner(it.key.username())
-                    .name("${CC.B_GOLD}${it.key.username()}")
+                    .name("${CC.B_GREEN}${it.key.username()}")
                     .addToLore(
                         "${CC.WHITE}This player is on the:",
-                        "${CC.GRAY}${if (it.key in game.losers) "losing" else "winning"} team",
+                        "${CC.GREEN}${if (it.key in game.losers) "losing" else "winning"} team",
                         "",
                         "${CC.GREEN}Click to view inventory!"
                     )
@@ -57,5 +57,5 @@ class SelectPlayerMenu(
         return buttons
     }
 
-    override fun getPrePaginatedTitle(player: Player) = "Previous Games ${Constants.DOUBLE_ARROW_RIGHT} Select a Player"
+    override fun getPrePaginatedTitle(player: Player) = "Select a player..."
 }

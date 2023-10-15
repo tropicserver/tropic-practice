@@ -685,22 +685,10 @@ object GameService
                     return@handler
                 }
 
-                // TODO: try to cache this so we don't have to parse each time?
-                val specificBlockTypes = game
-                    .flagMetaData(
-                        FeatureFlag.BreakSpecificBlockTypes,
-                        "types"
-                    )
-                    ?.split(",")
-                    ?.map { pair ->
-                        val components = pair.split(":")
-                        Material.valueOf(components[0]) to (components.getOrNull(1)?.toInt() ?: 0)
-                    }
-
-                if (specificBlockTypes != null)
+                if (game.kit.allowedBlockTypeMappings != null)
                 {
                     if (
-                        specificBlockTypes
+                        game.kit.allowedBlockTypeMappings!!
                             .any { (type, data) ->
                                 it.block.type == type && it.block.data == data.toByte()
                             }

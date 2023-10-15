@@ -40,9 +40,10 @@ class SelectCustomKitMenu(
 
             buttons[index + 10] = ItemBuilder
                 .of(Material.PAPER)
-                .name("${CC.GREEN}${loadoutAt.name}")
+                .name("${CC.B_GREEN}${loadoutAt.name}")
                 .addToLore(
-                    "${CC.GRAY}Last edited: ${CC.WHITE}${
+                    "${CC.WHITE}Last edited:",
+                    "${CC.AQUA}${
                         DATE_FORMAT.format(dateCreated)
                     }",
                     "",
