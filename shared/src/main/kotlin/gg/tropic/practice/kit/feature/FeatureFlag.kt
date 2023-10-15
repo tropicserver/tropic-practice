@@ -39,6 +39,9 @@ enum class FeatureFlag(
             "types" to "STAINED_CLAY:11,STAINDED_CLAY:14"
         )
     ),
+    EnderPearlCooldown(
+        schema = mutableMapOf("duration" to "15")
+    ),
     FrozenOnGameStart,
     NewlyCreated,
     MenuOrderWeight(

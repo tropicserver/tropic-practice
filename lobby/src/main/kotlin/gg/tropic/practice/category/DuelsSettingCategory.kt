@@ -38,7 +38,7 @@ object DuelsSettingCategory : SettingCategory
         },
         SettingContainer.buildEntry {
             id = "lobby-scoreboard-view"
-            displayName = "Lobby Scoreboard View"
+            displayName = "Lobby scoreboard view"
 
             clazz = LobbyScoreboardView::class.java
             default = LobbyScoreboardView.None
