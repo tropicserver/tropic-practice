@@ -9,6 +9,8 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.LobbyConfigurationService
+import gg.tropic.practice.player.hotbar.LobbyHotbarService
+import gg.tropic.practice.queue.QueueService
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.utils.Players
@@ -18,6 +20,7 @@ import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerInitialSpawnEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -108,7 +111,14 @@ object LobbyPlayerService
         Events
             .subscribe(PlayerQuitEvent::class.java)
             .handler { event ->
-                playerCache.remove(event.player.uniqueId)
+                val profile = playerCache
+                    .remove(event.player.uniqueId)
+                    ?: return@handler
+
+                if (profile.leaveQueueOnLogout && profile.inQueue())
+                {
+                    QueueService.leaveQueue(event.player)
+                }
             }
             .bindWith(plugin)
 

@@ -170,23 +170,6 @@ object LobbyHotbarService
                 idlePreset.applyToPlayer(event.player)
             }
             .bindWith(plugin)
-
-        Events
-            .subscribe(
-                PlayerQuitEvent::class.java,
-                EventPriority.LOW
-            )
-            .handler { event ->
-                val profile = LobbyPlayerService
-                    .find(event.player.uniqueId)
-                    ?: return@handler
-
-                if (profile.inQueue())
-                {
-                    QueueService.leaveQueue(event.player)
-                }
-            }
-            .bindWith(plugin)
     }
 
     fun get(state: PlayerState) = hotbarCache[state]!!

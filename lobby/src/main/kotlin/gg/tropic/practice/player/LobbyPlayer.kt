@@ -12,8 +12,9 @@ data class LobbyPlayer(
     val uniqueId: UUID
 )
 {
-    val stateUpdateLock = Any()
+    var leaveQueueOnLogout = true
 
+    val stateUpdateLock = Any()
     var state: PlayerState = PlayerState.None
         set(value)
         {
