@@ -6,6 +6,8 @@ import gg.scala.aware.message.AwareMessage
 import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.tropic.practice.category.eloRange
+import gg.tropic.practice.category.pingRange
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.player.LobbyPlayerService
@@ -69,6 +71,8 @@ object QueueService
                 leader = player.uniqueId,
                 leaderPing = MinecraftReflection.getPing(player),
                 leaderELO = profile.getRankedStatsFor(kit).elo,
+                defaultPingDiff = player.pingRange.sanitizedDiffsBy(),
+                defaultELODiff = player.eloRange.sanitizedDiffsBy(),
                 players = listOf(player.uniqueId)
             ),
             "kit" to kit.id,

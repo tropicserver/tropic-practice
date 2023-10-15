@@ -8,6 +8,7 @@ import gg.tropic.practice.games.GameService
 import gg.tropic.practice.resetAttributes
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Tasks
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.event.EventPriority
@@ -67,6 +68,16 @@ object ExpectationService
                 val game = GameService.byPlayer(it.player)
                     ?: return@handler
 
+                println("PRELIM: When the game ID is ${
+                    game.arenaWorldName
+                }, the waiting lobby ID is ${
+                    it.player.location.world.name
+                }. (${
+                    it.player.world.name == game.arenaWorldName
+                }) (player location now ${
+                    it.player.name
+                })")
+
                 with(game) {
                     val location = map
                         .findSpawnLocationMatchingTeam(
@@ -74,7 +85,29 @@ object ExpectationService
                         )!!
                         .toLocation(arenaWorld)
 
-                    it.player.teleport(location)
+                    Tasks.sync {
+                        println("BEFORE: When the game ID is ${
+                            game.arenaWorldName
+                        }, the map ID is ${
+                            location.world.name
+                        }. (${
+                            location.world.name == game.arenaWorldName
+                        }) (player location now ${
+                            it.player.name
+                        })")
+
+                        it.player.teleport(location)
+
+                        println("AFTER: When the game ID is ${
+                            game.arenaWorldName
+                        }, the map ID is ${
+                            it.player.location.world.name
+                        }. (${
+                            it.player.location.world.name == game.arenaWorldName
+                        }) (player location now ${
+                            it.player.name
+                        })")
+                    }
                 }
             }
             .bindWith(plugin)
