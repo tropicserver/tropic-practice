@@ -9,12 +9,12 @@ import org.bukkit.entity.Player
  */
 enum class RangeRestriction(private val diffsBy: Int) : SettingValue
 {
-    None(-1),
     _10(10),
     _50(50),
     _100(100),
     _150(150),
-    _200(200);
+    _200(200),
+    None(-1);
 
     override val displayName: String
         get() = if (this == None) name else diffsBy.toString()

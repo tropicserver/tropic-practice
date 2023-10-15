@@ -55,7 +55,7 @@ object DuelsSettingCategory : SettingCategory
         },
         SettingContainer.buildEntry {
             id = "ranked-restriction-elo"
-            displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.GREEN} ELO"
+            displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ELO"
 
             clazz = RangeRestriction::class.java
             default = RangeRestriction.None
@@ -65,7 +65,6 @@ object DuelsSettingCategory : SettingCategory
             description += "ELO can differ by."
             description += ""
             description += "${CC.WHITE}Range: ${CC.GREEN}ELO ± value"
-            description += ""
 
             displayPredicate = {
                 it.hasPermission("practice.ranked.restriction.elo")
@@ -75,7 +74,7 @@ object DuelsSettingCategory : SettingCategory
         },
         SettingContainer.buildEntry {
             id = "ranked-restriction-ping"
-            displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.GREEN} Ping"
+            displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Ping"
 
             clazz = RangeRestriction::class.java
             default = RangeRestriction.None
@@ -85,7 +84,6 @@ object DuelsSettingCategory : SettingCategory
             description += "ping can differ by."
             description += ""
             description += "${CC.WHITE}Range: ${CC.GREEN}ping ± value"
-            description += ""
 
             displayPredicate = {
                 it.hasPermission("practice.ranked.restriction.ping")

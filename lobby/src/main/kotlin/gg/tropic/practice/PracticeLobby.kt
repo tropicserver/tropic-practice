@@ -1,6 +1,5 @@
 package gg.tropic.practice
 
-import gg.scala.basics.plugin.settings.SettingContainer
 import gg.scala.basics.plugin.settings.SettingMenu
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.annotations.container.ContainerEnable
