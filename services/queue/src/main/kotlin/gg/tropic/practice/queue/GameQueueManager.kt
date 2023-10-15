@@ -46,6 +46,19 @@ object GameQueueManager
 
     fun prepareGameFor(map: ImmutableMap, expectation: GameExpectation, cleanup: () -> Unit): CompletableFuture<Void>
     {
+        val distinctUsers = expectation.players.distinct()
+        if (distinctUsers.size != expectation.players.size)
+        {
+            DPSRedisShared.sendMessage(
+                expectation.players,
+                listOf(
+                    "&c&lError: &cAn issue occurred when creating your game! (duplicate players on teams)"
+                )
+            )
+
+            return CompletableFuture.completedFuture(null)
+        }
+
         if (map.locked)
         {
             DPSRedisShared.sendMessage(
