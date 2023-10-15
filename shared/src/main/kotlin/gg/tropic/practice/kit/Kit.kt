@@ -28,32 +28,51 @@ data class Kit(
     val features: MutableMap<FeatureFlag, MutableMap<String, String>> = mutableMapOf()
 )
 {
-    val allowedBlockTypeMappings by lazy {
-        featureConfigNullable(
-            FeatureFlag.BreakSpecificBlockTypes,
-            "types"
-        )
-            ?.split(",")
-            ?.map { pair ->
-                val components = pair.split(":")
-                Material.valueOf(components[0]) to (components.getOrNull(1)?.toInt() ?: 0)
-            }
-    }
+    @Transient
+    private var backingAllowedBlockTypeMappings: List<Pair<Material, Int>>? = null
 
-    val queueSizes by lazy {
-        featureConfig(
-            FeatureFlag.QueueSizes,
-            key = "sizes"
-        )
-            .split(",")
-            .map { sizeModel ->
-                val split = sizeModel.split(":")
-                split[0].toInt() to (split.getOrNull(1)
-                    ?.split("+")
-                    ?.map(QueueType::valueOf)
-                    ?: listOf(QueueType.Casual))
+    val allowedBlockTypeMappings: List<Pair<Material, Int>>
+        get()
+        {
+            if (backingAllowedBlockTypeMappings == null)
+            {
+                backingAllowedBlockTypeMappings = featureConfigNullable(
+                    FeatureFlag.BreakSpecificBlockTypes,
+                    "types"
+                )?.split(",")
+                    ?.map { pair ->
+                        val components = pair.split(":")
+                        Material.valueOf(components[0]) to (components.getOrNull(1)?.toInt() ?: 0)
+                    }
             }
-    }
+
+            return backingAllowedBlockTypeMappings!!
+        }
+
+    @Transient
+    private var backingQueueSizes: List<Pair<Int, List<QueueType>>>? = null
+
+    val queueSizes: List<Pair<Int, List<QueueType>>>
+        get()
+        {
+            if (backingQueueSizes == null)
+            {
+                backingQueueSizes = featureConfig(
+                    FeatureFlag.QueueSizes,
+                    key = "sizes"
+                )
+                    .split(",")
+                    .map { sizeModel ->
+                        val split = sizeModel.split(":")
+                        split[0].toInt() to (split.getOrNull(1)
+                            ?.split("+")
+                            ?.map(QueueType::valueOf)
+                            ?: listOf(QueueType.Casual))
+                    }
+            }
+
+            return backingQueueSizes!!
+        }
 
     fun features(flag: FeatureFlag) = features.containsKey(flag)
     fun featureConfig(flag: FeatureFlag, key: String) =

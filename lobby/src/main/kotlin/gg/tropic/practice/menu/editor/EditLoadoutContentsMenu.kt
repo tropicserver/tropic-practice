@@ -153,7 +153,7 @@ class EditLoadoutContentsMenu(
 
                         practiceProfile.save().thenRun {
                             player.sendMessage(
-                                "${CC.GREEN}You have just deleted your ${CC.YELLOW}${loadout.name} ${CC.GREEN}loadout for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
+                                "${CC.GREEN}You have deleted your ${CC.YELLOW}${loadout.name} ${CC.GREEN}loadout for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
                             )
 
                             val newLoadouts = practiceProfile.getLoadoutsFromKit(kit)
