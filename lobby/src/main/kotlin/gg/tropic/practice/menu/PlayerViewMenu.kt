@@ -25,7 +25,7 @@ class PlayerViewMenu(
         if (manualClose)
         {
             Tasks.delayed(1L) {
-                SelectPlayerMenu(gameReport).openMenu(player)
+                SelectPlayerMenu(gameReport, this).openMenu(player)
             }
         }
     }

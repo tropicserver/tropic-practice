@@ -1,4 +1,4 @@
-package gg.tropic.practice.replications
+package gg.tropic.practice.api.replications
 
 import gg.scala.aware.AwareBuilder
 import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
@@ -39,7 +39,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
     }
 
     private fun createMessage(packet: String, vararg pairs: Pair<String, Any?>): AwareMessage =
-        AwareMessage.of(packet, this.aware, *pairs)
+        AwareMessage.of(packet, aware, *pairs)
 
     fun bindToStatusService(statusService: () -> ReplicationStatus)
     {

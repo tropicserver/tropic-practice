@@ -9,7 +9,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.tropic.practice.PracticeGame
-import gg.tropic.practice.games.api.GameManagerService
+import gg.tropic.practice.api.games.GameManagerService
 import gg.tropic.practice.games.models.GameReference
 import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.kit.feature.FeatureFlag

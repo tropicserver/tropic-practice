@@ -4,6 +4,7 @@ import gg.tropic.practice.commands.DuelGamesCommand
 import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
 import net.evilblock.cubed.menu.Button
+import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
@@ -17,15 +18,16 @@ import org.bukkit.entity.Player
  * @since 9/16/2022
  */
 class SelectPlayerMenu(
-    private val game: GameReport
+    private val game: GameReport,
+    private val gamesMenu: Menu
 ) : PaginatedMenu()
 {
     override fun onClose(player: Player, manualClose: Boolean)
     {
         if (manualClose)
         {
-            Tasks.delayed(1L) {
-                DuelGamesCommand.onDefault(player)
+            Tasks.sync {
+                gamesMenu.openMenu(player)
             }
         }
     }

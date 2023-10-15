@@ -14,7 +14,6 @@ include(
     "shared", "game", "lobby", "devtools",
     "services:application", "services:queue", "services:statistics",
     "services:statistics:leaderboards",
-    "services:api",
     "services:application:api",
     "services:replications:replication-manager",
     "services:replications:replication-models",

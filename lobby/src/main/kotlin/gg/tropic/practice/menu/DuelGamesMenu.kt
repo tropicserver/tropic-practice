@@ -97,7 +97,7 @@ class DuelGamesMenu(
                     "${CC.GREEN}Click to view inventories!"
                 )
                 .toButton { _, _ ->
-                    SelectPlayerMenu(report).openMenu(player)
+                    SelectPlayerMenu(report, this).openMenu(player)
                 }
         }
 

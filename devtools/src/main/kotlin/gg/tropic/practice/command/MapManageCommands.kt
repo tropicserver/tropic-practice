@@ -7,7 +7,7 @@ import gg.scala.commons.acf.annotation.*
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
-import gg.tropic.practice.games.api.GameManagerService
+import gg.tropic.practice.api.games.GameManagerService
 import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapManageServices
