@@ -7,6 +7,7 @@ import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.tropic.practice.games.api.GameManagerService
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.kit.feature.FeatureFlag
@@ -18,6 +19,7 @@ import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Material
 import org.bukkit.potion.PotionEffectType
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -35,15 +37,36 @@ object KitCommands : ScalaCommand()
         help.showHelp()
     }
 
-    /*@AssignPermission
+    @AssignPermission
     @Subcommand("delete")
     @CommandCompletion("@kits")
     @Description("Delete an existing kit.")
-    fun onDelete(player: ScalaPlayer, kit: Kit)
+    fun onDelete(player: ScalaPlayer, kit: Kit): CompletableFuture<Void>
     {
-        // TODO: ensure no matches are ongoing with this kit
+        return GameManagerService.allGames()
+            .thenApply {
+                it.filter { ref ->
+                    ref.kitID == kit.id
+                }
+            }
+            .thenAccept {
+                if (it.isNotEmpty())
+                {
+                    throw ConditionFailedException(
+                        "You cannot delete this map as there are games ongoing bound to this kit ID. Lock this kit from being used in any new games by using ${CC.BOLD}/kit toggle ${kit.id}${CC.RED}."
+                    )
+                }
 
-    }*/
+                with(KitService.cached()) {
+                    kits.remove(kit.id)
+                    KitService.sync(this)
+                }
+
+                player.sendMessage(
+                    "${CC.GREEN}You deleted the kit with the ID ${CC.YELLOW}${kit.id}${CC.GREEN}."
+                )
+            }
+    }
 
     @AssignPermission
     @Subcommand("info")
