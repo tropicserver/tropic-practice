@@ -25,8 +25,8 @@ import org.bukkit.event.player.PlayerJoinEvent
 @PluginDependencyComposite(
     PluginDependency("scala-commons"),
     PluginDependency("Lemon"),
-    PluginDependency("CoreGameExtensions", soft = true),
-    PluginDependency("ScBasics", soft = true)
+    PluginDependency("ScBasics"),
+    PluginDependency("CoreGameExtensions", soft = true)
 )
 class PracticeLobby : ExtendedScalaPlugin()
 {

@@ -87,6 +87,13 @@ object LobbyPlayerService
             .handler { event ->
                 playerCache[event.player.uniqueId] =
                     LobbyPlayer(event.player.uniqueId)
+
+                with(LobbyConfigurationService.cached()) {
+                    if (loginMOTD.isNotEmpty())
+                    {
+                        loginMOTD.forEach(event.player::sendMessage)
+                    }
+                }
             }
             .bindWith(plugin)
 

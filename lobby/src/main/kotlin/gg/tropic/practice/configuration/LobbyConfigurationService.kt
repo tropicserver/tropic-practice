@@ -15,7 +15,7 @@ object LobbyConfigurationService : DataSyncService<LobbyConfiguration>()
     object LobbyConfigurationKeys : DataSyncKeys
     {
         override fun store() = Key.key("tropicpractice", "lobbyconf")
-        override fun sync(): Key =  Key.key("tropicpractice", "lcsync")
+        override fun sync() = Key.key("tropicpractice", "lcsync")
     }
 
     override fun keys() = LobbyConfigurationKeys

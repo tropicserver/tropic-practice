@@ -6,7 +6,7 @@ import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.annotations.plugin.SoftDependency
 import gg.scala.flavor.service.Service
 import gg.scala.flavor.service.ignore.IgnoreAutoScan
-import net.evilblock.cubed.util.CC
+import gg.tropic.practice.category.scoreboard.LobbyScoreboardView
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -32,6 +32,23 @@ object DuelsSettingCategory : SettingCategory
             description += "incoming duel requests."
 
             item = ItemBuilder.of(Material.DIODE)
+        },
+        SettingContainer.buildEntry {
+            id = "lobby-scoreboard-view"
+            displayName = "Lobby Scoreboard View"
+
+            clazz = LobbyScoreboardView::class.java
+            default = LobbyScoreboardView.None
+
+            description += "Select an extra-info"
+            description += "category for your lobby"
+            description += "scoreboard"
+
+            displayPredicate = {
+                it.hasPermission("practice.lobby.scoreboard.views")
+            }
+
+            item = ItemBuilder.of(Material.BOOK)
         }
     )
 

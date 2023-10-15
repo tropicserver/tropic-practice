@@ -1,6 +1,8 @@
 package gg.tropic.practice.scoreboard
 
+import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.lemon.LemonConstants
+import gg.tropic.practice.category.scoreboard.LobbyScoreboardView
 import gg.tropic.practice.player.LobbyPlayerService
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
@@ -39,25 +41,54 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             }"
         }
 
-        if (player.hasPermission("practice.devinfo"))
-        {
-            board += ""
-            board += "${CC.GOLD}Dev:"
-            board += "${CC.WHITE}Game servers: ${CC.PRI}${
-                ScoreboardInfoService.scoreboardInfo.gameServers
-            }"
-            board += "${CC.WHITE}  Mean TPS: ${CC.GREEN}${
-                "%.2f".format(ScoreboardInfoService.scoreboardInfo.meanTPS)
-            }"
-            board += "${CC.WHITE}Available Rpls.: ${CC.PRI}${
-                ScoreboardInfoService.scoreboardInfo.availableReplications
-            }"
-        }
+        BasicsProfileService.find(player)
+            ?.apply {
+                val scoreboardView = setting(
+                    "lobby-scoreboard-view",
+                    LobbyScoreboardView.None
+                )
+
+                if (scoreboardView != LobbyScoreboardView.None)
+                {
+                    board += ""
+                    board += "${CC.GOLD}${scoreboardView.displayName}:"
+                }
+
+                when (scoreboardView)
+                {
+                    LobbyScoreboardView.Dev ->
+                    {
+                        board += "${CC.WHITE}Game servers: ${CC.PRI}${
+                            ScoreboardInfoService.scoreboardInfo.gameServers
+                        }"
+                        board += "${CC.GRAY}  Mean TPS: ${CC.GREEN}${
+                            "%.2f".format(ScoreboardInfoService.scoreboardInfo.meanTPS)
+                        }"
+                        board += "${CC.WHITE}Available Rpls.: ${CC.PRI}${
+                            ScoreboardInfoService.scoreboardInfo.availableReplications
+                        }"
+                    }
+
+                    LobbyScoreboardView.Staff ->
+                    {
+                        fun metadataDisplay(metadata: String) = if (player.hasMetadata(metadata))
+                            "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
+
+                        board += "${CC.WHITE}Vanish: ${metadataDisplay("vanished")}"
+                        board += "${CC.WHITE}Mod Mode: ${metadataDisplay("mod-mode")}"
+                    }
+
+                    LobbyScoreboardView.None ->
+                    {
+
+                    }
+                }
+            }
 
         board += ""
         board += "${CC.GRAY}${LemonConstants.WEB_LINK}  ${CC.GRAY}  ${CC.GRAY}  ${CC.GRAY}  ${CC.GRAY}  ${CC.GRAY}"
     }
 
     override fun getTitle(player: Player) =
-        "${CC.B_PRI}Tropic Practice ${CC.GRAY}(beta)"
+        "${CC.B_PRI}Practice ${CC.GRAY}(beta)"
 }

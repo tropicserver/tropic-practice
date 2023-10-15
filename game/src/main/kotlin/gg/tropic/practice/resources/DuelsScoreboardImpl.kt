@@ -156,5 +156,5 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
     }
 
     override fun getTitle(player: Player) =
-        "${CC.B_PRI}${LemonConstants.SERVER_NAME}"
+        "${CC.B_PRI}Practice ${CC.GRAY}(beta)"
 }
