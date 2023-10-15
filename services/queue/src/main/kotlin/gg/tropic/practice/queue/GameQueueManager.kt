@@ -262,28 +262,30 @@ object GameQueueManager
     {
         KitDataSync.cached().kits.values
             .forEach { kit ->
+                val sizeModels = kit
+                    .featureConfig(
+                        FeatureFlag.QueueSizes,
+                        key = "sizes"
+                    )
+                    .split(",")
+                    .map { sizeModel ->
+                        val split = sizeModel.split(":")
+                        split[0].toInt() to (split.getOrNull(1)
+                            ?.split("+")
+                            ?.map(QueueType::valueOf)
+                            ?: listOf(QueueType.Casual))
+                    }
+
                 QueueType.entries
                     .forEach scope@{
-                        val sizeModels = kit
-                            .featureConfig(
-                                FeatureFlag.QueueSizes,
-                                key = "sizes"
-                            )
-                            .split(",")
-                            .map { sizeModel ->
-                                val split = sizeModel.split(":")
-                                split[0].toInt() to (split.getOrNull(1)
-                                    ?.split("+")
-                                    ?.map(QueueType::valueOf)
-                                    ?: listOf(QueueType.Casual))
-                            }
-
                         for (model in sizeModels)
                         {
                             if (
                                 it == QueueType.Ranked &&
-                                !kit.features(FeatureFlag.Ranked) &&
-                                QueueType.Ranked in model.second
+                                (
+                                    !kit.features(FeatureFlag.Ranked) ||
+                                        QueueType.Ranked !in model.second
+                                    )
                             )
                             {
                                 // a ranked queue exists for this kit, but the kit no longer supports ranked
