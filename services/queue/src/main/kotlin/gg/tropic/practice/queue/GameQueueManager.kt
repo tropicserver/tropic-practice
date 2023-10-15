@@ -264,29 +264,40 @@ object GameQueueManager
             .forEach { kit ->
                 QueueType.entries
                     .forEach scope@{
-                        if (it == QueueType.Ranked && !kit.features(FeatureFlag.Ranked))
+                        val sizes = kit
+                            .featureConfig(
+                                FeatureFlag.QueueSizes,
+                                key = "sizes"
+                            )
+                            .split(",")
+                            .map(String::toInt)
+
+                        for (size in sizes)
                         {
-                            // a ranked queue exists for this kit, but the kit no longer supports ranked
-                            val existingRanked = GameQueue(kit, it, 1)
-                            if (queues.containsKey(existingRanked.queueId()))
+                            if (it == QueueType.Ranked && !kit.features(FeatureFlag.Ranked))
                             {
-                                queues
-                                    .remove(existingRanked.queueId())
-                                    ?.destroy()
+                                // a ranked queue exists for this kit, but the kit no longer supports ranked
+                                val existingRanked = GameQueue(kit, it, size)
+                                if (queues.containsKey(existingRanked.queueId()))
+                                {
+                                    queues
+                                        .remove(existingRanked.queueId())
+                                        ?.destroy()
+                                }
+                                return@scope
                             }
-                            return@scope
-                        }
 
-                        val queue = GameQueue(
-                            kit = kit,
-                            queueType = it,
-                            teamSize = 1 // TODO: how do we do this?
-                        )
+                            val queue = GameQueue(
+                                kit = kit,
+                                queueType = it,
+                                teamSize = size
+                            )
 
-                        if (!queues.containsKey(queue.queueId()))
-                        {
-                            queue.start()
-                            queues[queue.queueId()] = queue
+                            if (!queues.containsKey(queue.queueId()))
+                            {
+                                queue.start()
+                                queues[queue.queueId()] = queue
+                            }
                         }
                     }
             }

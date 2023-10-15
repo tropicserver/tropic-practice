@@ -11,6 +11,9 @@ enum class FeatureFlag(
 )
 {
     Ranked,
+    QueueSizes(
+        schema = mutableMapOf("sizes" to "1")
+    ),
     HeartsBelowNameTag,
     DoNotTakeDamage(
         schema = mutableMapOf("doDamageTick" to "false")

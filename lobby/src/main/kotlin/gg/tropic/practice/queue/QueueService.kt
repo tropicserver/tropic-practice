@@ -68,7 +68,7 @@ object QueueService
             ),
             "kit" to kit.id,
             "queueType" to queueType,
-            "teamSize" to 1
+            "teamSize" to 2
         ).publish(
             context = AwareThreadContext.SYNC
         )
