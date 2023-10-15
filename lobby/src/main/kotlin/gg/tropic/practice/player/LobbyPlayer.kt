@@ -12,6 +12,8 @@ data class LobbyPlayer(
     val uniqueId: UUID
 )
 {
+    val stateUpdateLock = Any()
+
     var state: PlayerState = PlayerState.Idle
         set(value)
         {
@@ -48,12 +50,22 @@ data class LobbyPlayer(
                     .fromJson(it, QueueState::class.java)
             }
 
-        state = if (queueState != null)
+        val newState = if (queueState != null)
         {
             PlayerState.InQueue
         } else
         {
             PlayerState.Idle
+        }
+
+        if (newState != state)
+        {
+            synchronized(stateUpdateLock) {
+                if (newState != state)
+                {
+                    state = newState
+                }
+            }
         }
     }
 }

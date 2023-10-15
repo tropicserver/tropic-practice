@@ -151,7 +151,9 @@ object LobbyHotbarService
                     )
 
                     // set idle as the queue service takes a bit to sync
-                    profile.state = PlayerState.Idle
+                    synchronized(profile.stateUpdateLock) {
+                        profile.state = PlayerState.Idle
+                    }
                 }
             }
         )
