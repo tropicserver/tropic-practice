@@ -70,7 +70,7 @@ object LobbyHotbarService
         idlePreset.addSlot(
             2,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.CHEST)
+                ItemBuilder(Material.BLAZE_POWDER)
                     .name("${CC.GOLD}Cosmetics ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
@@ -92,9 +92,8 @@ object LobbyHotbarService
         idlePreset.addSlot(
             6,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.FIREBALL)
+                ItemBuilder(Material.QUARTZ)
                     .name("${CC.YELLOW}Leaderboards ${CC.GRAY}(Right Click)")
-                    .setUnbreakable(true)
             ).also {
                 it.onClick = { player -> }
             }
