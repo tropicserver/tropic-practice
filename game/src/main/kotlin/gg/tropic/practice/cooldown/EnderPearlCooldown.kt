@@ -86,7 +86,16 @@ object EnderPearlCooldown : PlayerStaticCooldown(
             .handler {
                 val player = it.player
 
-                if (!notifyAndContinueNoBypass(this.javaClass, player, "throwing an enderpearl"))
+                val game = GameService.byPlayer(player)
+                    ?: return@handler
+
+                if (!game.ensurePlaying())
+                {
+                    player.sendMessage("${CC.RED}You cannot throw pearls right now!")
+                    return@handler
+                }
+
+                if (!notifyAndContinueNoBypass(this.javaClass, player, "throwing an pearl"))
                 {
                     it.isCancelled = true
                     player.updateInventory()

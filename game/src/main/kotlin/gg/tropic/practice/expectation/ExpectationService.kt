@@ -14,6 +14,7 @@ import org.bukkit.Bukkit
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerTeleportEvent
 import org.spigotmc.event.player.PlayerSpawnLocationEvent
 
 /**
@@ -60,6 +61,22 @@ object ExpectationService
             .bindWith(plugin)
 
         Events
+            .subscribe(PlayerTeleportEvent::class.java)
+            .filter {
+                it.cause == PlayerTeleportEvent.TeleportCause.PLUGIN
+            }
+            .handler {
+                val game = GameService.byPlayer(it.player)
+                    ?: return@handler
+
+                if (it.to.world.name != game.arenaWorldName)
+                {
+                    it.isCancelled = true
+                }
+            }
+            .bindWith(plugin)
+
+        Events
             .subscribe(PlayerJoinEvent::class.java)
             .handler {
                 it.player.resetAttributes()
@@ -89,9 +106,9 @@ object ExpectationService
                         println("BEFORE: When the game ID is ${
                             game.arenaWorldName
                         }, the map ID is ${
-                            location.world.name
+                            it.player.location.world.name
                         }. (${
-                            location.world.name == game.arenaWorldName
+                            it.player.location.world.name == game.arenaWorldName
                         }) (player location now ${
                             it.player.name
                         })")
