@@ -58,12 +58,22 @@ object QueueService
         ).publish(
             context = AwareThreadContext.SYNC
         )
+
+        // set Idle and wait until the queue server syncs
+        synchronized(profile.stateUpdateLock) {
+            profile.state = PlayerState.Idle
+            profile.maintainStateTimeout = System.currentTimeMillis() + 1000L
+        }
     }
 
     fun joinQueue(kit: Kit, queueType: QueueType, teamSize: Int, player: Player)
     {
         val profile = PracticeProfileService.find(player)
             ?: return
+
+        val lobbyPlayer = LobbyPlayerService
+            .find(player)
+            ?: return@scope
 
         createMessage(
             packet = "join",
@@ -81,5 +91,11 @@ object QueueService
         ).publish(
             context = AwareThreadContext.SYNC
         )
+
+        // set InQueue and wait until the queue server syncs
+        synchronized(profile.stateUpdateLock) {
+            profile.state = PlayerState.InQueue
+            profile.maintainStateTimeout = System.currentTimeMillis() + 1000L
+        }
     }
 }

@@ -53,10 +53,6 @@ class JoinQueueMenu(
         player.closeInventory()
         QueueService.joinQueue(kit, queueType, teamSize, player)
 
-        synchronized(lobbyPlayer.stateUpdateLock) {
-            lobbyPlayer.state = PlayerState.InQueue
-        }
-
         player.playSound(player.location, Sound.NOTE_PLING, 1f, 1f)
         player.sendMessage(
             "${CC.GREEN}You have joined the ${CC.PRI}${queueType.name} ${teamSize}v$teamSize ${kit.displayName}${CC.GREEN} queue!"

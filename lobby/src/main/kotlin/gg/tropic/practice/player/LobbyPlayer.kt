@@ -13,6 +13,7 @@ data class LobbyPlayer(
 )
 {
     var leaveQueueOnLogout = true
+    var maintainStateTimeout = -1L
 
     val stateUpdateLock = Any()
     var state: PlayerState = PlayerState.None
@@ -60,6 +61,21 @@ data class LobbyPlayer(
         } else
         {
             PlayerState.Idle
+        }
+
+        // keep current state until the server processes our queue join
+        // request and actually updates the queue entry
+        if (maintainStateTimeout > System.currentTimeMillis())
+        {
+            // if we notice that the server pushed whatever state we're expecting (whether it's a queue
+            // join/leave that we set temporarily), we'll remove the timeout and continue with our day.
+            if (newState == state)
+            {
+                maintainStateTimeout = -1L
+            } else
+            {
+                return
+            }
         }
 
         // don't try to acquire lock if we don't need to

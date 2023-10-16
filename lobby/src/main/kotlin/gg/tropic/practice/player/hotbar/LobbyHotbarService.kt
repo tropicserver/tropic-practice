@@ -139,19 +139,10 @@ object LobbyHotbarService
                     .name("${CC.RED}Leave Queue ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = scope@{ player ->
-                    val profile = LobbyPlayerService
-                        .find(player)
-                        ?: return@scope
-
                     QueueService.leaveQueue(player)
                     player.sendMessage(
                         "${CC.RED}You left the queue!"
                     )
-
-                    // set idle as the queue service takes a bit to sync
-                    synchronized(profile.stateUpdateLock) {
-                        profile.state = PlayerState.Idle
-                    }
                 }
             }
         )
