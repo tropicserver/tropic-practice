@@ -15,11 +15,3 @@ val Player.pingRange: RangeRestriction
             RangeRestriction.None
         )
         ?: RangeRestriction.None
-
-val Player.eloRange: RangeRestriction
-    get() = BasicsProfileService.find(this)
-        ?.setting<RangeRestriction>(
-            "ranked-restriction-elo",
-            RangeRestriction.None
-        )
-        ?: RangeRestriction.None

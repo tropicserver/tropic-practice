@@ -35,6 +35,8 @@ data class LobbyPlayer(
         "${it.kitId}:${it.queueType.name}:${it.teamSize}v${it.teamSize}"
     }
 
+    fun queueState() = queueState!!
+
     fun inQueue() = queueState != null
     fun queuedForTime() = System.currentTimeMillis() - queueState!!.joined
     fun queuedForKit() = KitService.cached().kits[queueState!!.kitId]

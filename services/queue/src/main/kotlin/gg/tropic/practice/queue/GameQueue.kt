@@ -47,22 +47,17 @@ class GameQueue(
         {
             var requiresUpdates = false
 
-            if (entry.maxELODiff != -1)
+            if (RUN_RANGE_EXPANSION_UPDATES(entry.lastELORangeExpansion))
             {
-                if (entry.leaderRangedELO.diffsBy < entry.maxELODiff)
-                {
-                    if (RUN_RANGE_EXPANSION_UPDATES(entry.lastELORangeExpansion))
-                    {
-                        entry.leaderRangedELO.diffsBy = min(
-                            entry.maxELODiff,
-                            (entry.leaderRangedELO.diffsBy * 1.5).toInt()
-                        )
-                        entry.lastELORangeExpansion = System.currentTimeMillis()
-                        requiresUpdates = true
-                    }
-                }
+                entry.leaderRangedELO.diffsBy = min(
+                    2_000, // TODO is 2000 going to be the max ELO?
+                    (entry.leaderRangedELO.diffsBy * 1.5).toInt()
+                )
+                entry.lastELORangeExpansion = System.currentTimeMillis()
+                requiresUpdates = true
             }
 
+            val previousPingDiff = entry.leaderRangedPing.diffsBy
             if (entry.maxPingDiff != -1)
             {
                 if (entry.leaderRangedPing.diffsBy < entry.maxPingDiff)
@@ -76,14 +71,24 @@ class GameQueue(
                         )
                         entry.lastPingRangeExpansion = System.currentTimeMillis()
                         requiresUpdates = true
+
+                        val pingRange = entry.leaderRangedPing.toIntRangeInclusive()
+                        DPSRedisShared.sendMessage(
+                            entry.players,
+                            listOf("{secondary}You are matchmaking in an ping range of ${
+                                "&a[${pingRange.first} -> ${pingRange.last}]{secondary}"
+                            } &7(expanded by ±${
+                                entry.leaderRangedELO.diffsBy - previousPingDiff
+                            }). ${
+                                if (entry.leaderRangedELO.diffsBy == entry.maxPingDiff) "&lThe range will no longer be expanded as it has reached its maximum of ±${entry.maxPingDiff}!" else ""
+                            }")
+                        )
                     }
                 }
             }
 
             if (requiresUpdates)
             {
-
-
                 GameQueueManager.useCache {
                     hset(
                         "tropicpractice:queues:${queueId()}:entries",

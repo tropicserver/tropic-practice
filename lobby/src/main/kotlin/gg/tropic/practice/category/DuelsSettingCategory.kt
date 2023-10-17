@@ -54,27 +54,8 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.BOOK)
         },
         SettingContainer.buildEntry {
-            id = "ranked-restriction-elo"
-            displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ELO"
-
-            clazz = RangeRestriction::class.java
-            default = RangeRestriction.None
-
-            description += "Select the the maximum"
-            description += "value your opponent's"
-            description += "ELO can differ by."
-            description += ""
-            description += "${CC.WHITE}Range: ${CC.GREEN}ELO ± value"
-
-            displayPredicate = {
-                it.hasPermission("practice.ranked.restriction.elo")
-            }
-
-            item = ItemBuilder.of(Material.DIAMOND)
-        },
-        SettingContainer.buildEntry {
             id = "ranked-restriction-ping"
-            displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Ping"
+            displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Ping range"
 
             clazz = RangeRestriction::class.java
             default = RangeRestriction.None

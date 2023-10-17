@@ -83,7 +83,6 @@ object QueueService
                 leaderPing = MinecraftReflection.getPing(player),
                 leaderELO = profile.getRankedStatsFor(kit).elo,
                 maxPingDiff = player.pingRange.sanitizedDiffsBy(),
-                maxELODiff = player.eloRange.sanitizedDiffsBy(),
                 players = listOf(player.uniqueId)
             ),
             "kit" to kit.id,
