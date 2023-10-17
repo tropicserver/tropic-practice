@@ -11,6 +11,7 @@ import net.evilblock.cubed.serializers.Serializers
 import java.util.*
 import java.util.logging.Logger
 import kotlin.concurrent.thread
+import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -76,11 +77,11 @@ class GameQueue(
                         DPSRedisShared.sendMessage(
                             entry.players,
                             listOf("{secondary}You are matchmaking in an ping range of ${
-                                "&a[${pingRange.first} -> ${pingRange.last}]{secondary}"
+                                "&a[${max(0, pingRange.first)} -> ${pingRange.last}]{secondary}"
                             } &7(expanded by ±${
-                                entry.leaderRangedELO.diffsBy - previousPingDiff
+                                entry.leaderRangedPing.diffsBy - previousPingDiff
                             }). ${
-                                if (entry.leaderRangedELO.diffsBy == entry.maxPingDiff) "&lThe range will no longer be expanded as it has reached its maximum of ±${entry.maxPingDiff}!" else ""
+                                if (entry.leaderRangedPing.diffsBy == entry.maxPingDiff) "&lThe range will no longer be expanded as it has reached its maximum of ±${entry.maxPingDiff}!" else ""
                             }")
                         )
                     }
