@@ -11,6 +11,7 @@ import gg.tropic.practice.category.pingRange
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.player.LobbyPlayerService
+import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.profile.PracticeProfileService
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.entity.Player
@@ -60,9 +61,9 @@ object QueueService
         )
 
         // set Idle and wait until the queue server syncs
-        synchronized(profile.stateUpdateLock) {
-            profile.state = PlayerState.Idle
-            profile.maintainStateTimeout = System.currentTimeMillis() + 1000L
+        synchronized(lobbyPlayer.stateUpdateLock) {
+            lobbyPlayer.state = PlayerState.Idle
+            lobbyPlayer.maintainStateTimeout = System.currentTimeMillis() + 1000L
         }
     }
 
@@ -73,7 +74,7 @@ object QueueService
 
         val lobbyPlayer = LobbyPlayerService
             .find(player)
-            ?: return@scope
+            ?: return
 
         createMessage(
             packet = "join",
@@ -81,8 +82,8 @@ object QueueService
                 leader = player.uniqueId,
                 leaderPing = MinecraftReflection.getPing(player),
                 leaderELO = profile.getRankedStatsFor(kit).elo,
-                defaultPingDiff = player.pingRange.sanitizedDiffsBy(),
-                defaultELODiff = player.eloRange.sanitizedDiffsBy(),
+                maxPingDiff = player.pingRange.sanitizedDiffsBy(),
+                maxELODiff = player.eloRange.sanitizedDiffsBy(),
                 players = listOf(player.uniqueId)
             ),
             "kit" to kit.id,
@@ -93,9 +94,9 @@ object QueueService
         )
 
         // set InQueue and wait until the queue server syncs
-        synchronized(profile.stateUpdateLock) {
-            profile.state = PlayerState.InQueue
-            profile.maintainStateTimeout = System.currentTimeMillis() + 1000L
+        synchronized(lobbyPlayer.stateUpdateLock) {
+            lobbyPlayer.state = PlayerState.InQueue
+            lobbyPlayer.maintainStateTimeout = System.currentTimeMillis() + 1000L
         }
     }
 }

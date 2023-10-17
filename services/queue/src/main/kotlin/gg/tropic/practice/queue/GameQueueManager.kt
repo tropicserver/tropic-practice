@@ -10,6 +10,7 @@ import gg.tropic.practice.application.api.defaults.map.ImmutableMap
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.replications.manager.ReplicationManager
+import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -26,13 +27,29 @@ object GameQueueManager
 
     private val dpsRedisCache = DPSRedisShared.keyValueCache
 
+    fun useCache(
+        block: RedisCommands<String, String>.() -> Unit
+    )
+    {
+        block(dpsRedisCache.sync())
+    }
+
     fun queueSizeFromId(id: String) = dpsRedisCache
         .sync()
         .llen("tropicpractice:queues:$id:queue")
 
+    fun getQueueEntriesFromId(id: String) = dpsRedisCache.sync()
+        .hgetall("tropicpractice:queues:$id:entries")
+        .mapValues {
+            Serializers.gson.fromJson(
+                it.value,
+                QueueEntry::class.java
+            )
+        }
+
     fun popQueueEntryFromId(id: String, amount: Int) = dpsRedisCache
         .sync()
-        .rpop("tropicpractice:queues:$id:queue", amount.toLong())
+        .lpop("tropicpractice:queues:$id:queue", amount.toLong())
         .map {
             Serializers.gson.fromJson(
                 dpsRedisCache.sync()

@@ -21,7 +21,5 @@ enum class RangeRestriction(private val diffsBy: Int) : SettingValue
 
     override fun display(player: Player) = true
 
-    fun sanitizedDiffsBy() =
-        // assume no one is going to have 2 million ping/ELO
-        if (this == None) 2_000_000 else diffsBy
+    fun sanitizedDiffsBy() = diffsBy
 }

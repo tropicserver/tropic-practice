@@ -53,10 +53,18 @@ object ExpectationService
         Events
             .subscribe(PlayerSpawnLocationEvent::class.java)
             .handler {
-                // TODO: make this configurable
-                it.spawnLocation = Bukkit
-                    .getWorld("world")
-                    .spawnLocation
+                val game = GameService.byPlayer(it.player)
+                    ?: return@handler
+
+                with(game) {
+                    val location = map
+                        .findSpawnLocationMatchingTeam(
+                            getTeamOf(it.player).side
+                        )!!
+                        .toLocation(arenaWorld)
+
+                    it.spawnLocation = location
+                }
             }
             .bindWith(plugin)
 

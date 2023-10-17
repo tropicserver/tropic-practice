@@ -7,9 +7,11 @@ import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.games.QueueType
+import net.evilblock.cubed.serializers.Serializers
 import java.util.*
 import java.util.logging.Logger
 import kotlin.concurrent.thread
+import kotlin.math.min
 
 /**
  * @author GrowlyX
@@ -25,11 +27,86 @@ class GameQueue(
     {
         @JvmStatic
         val REPLICATION_LOCK_OBJECT = Any()
+
+        @JvmStatic
+        val RUN_RANGE_EXPANSION_UPDATES = { time: Long ->
+            System.currentTimeMillis() >= time + 1500L
+        }
     }
 
     private var thread: Thread? = null
+    private var adjacentRankedThread: Thread? = null
 
     fun queueId() = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
+
+    private fun expandRanges()
+    {
+        val entries = GameQueueManager.getQueueEntriesFromId(queueId())
+
+        for ((hash, entry) in entries)
+        {
+            var requiresUpdates = false
+
+            if (entry.maxELODiff != -1)
+            {
+                if (entry.leaderRangedELO.diffsBy < entry.maxELODiff)
+                {
+                    if (RUN_RANGE_EXPANSION_UPDATES(entry.lastELORangeExpansion))
+                    {
+                        entry.leaderRangedELO.diffsBy = min(
+                            entry.maxELODiff,
+                            (entry.leaderRangedELO.diffsBy * 1.5).toInt()
+                        )
+                        entry.lastELORangeExpansion = System.currentTimeMillis()
+                        requiresUpdates = true
+                    }
+                }
+            }
+
+            if (entry.maxPingDiff != -1)
+            {
+                if (entry.leaderRangedPing.diffsBy < entry.maxPingDiff)
+                {
+                    if (RUN_RANGE_EXPANSION_UPDATES(entry.lastPingRangeExpansion))
+                    {
+                        // TODO: send update message, consolidated?
+                        entry.leaderRangedPing.diffsBy = min(
+                            entry.maxPingDiff,
+                            (entry.leaderRangedPing.diffsBy * 1.5).toInt()
+                        )
+                        entry.lastPingRangeExpansion = System.currentTimeMillis()
+                        requiresUpdates = true
+                    }
+                }
+            }
+
+            if (requiresUpdates)
+            {
+
+
+                GameQueueManager.useCache {
+                    hset(
+                        "tropicpractice:queues:${queueId()}:entries",
+                        hash, Serializers.gson.toJson(entry)
+                    )
+                }
+            }
+        }
+    }
+
+    fun expandRangeBlock()
+    {
+        while (true)
+        {
+            runCatching {
+                expandRanges()
+            }.onFailure {
+                it.printStackTrace()
+            }
+
+            Thread.sleep(1000L)
+        }
+    }
 
     fun start()
     {
@@ -39,6 +116,16 @@ class GameQueue(
             name = "queues-${queueId()}",
             block = this
         )
+
+        if (queueType == QueueType.Ranked)
+        {
+            check(adjacentRankedThread == null)
+            adjacentRankedThread = thread(
+                isDaemon = true,
+                name = "queue-rangeexpander-${queueId()}",
+                block = ::expandRangeBlock
+            )
+        }
 
         Logger.getGlobal()
             .info(
@@ -51,6 +138,12 @@ class GameQueue(
         checkNotNull(thread)
         thread?.interrupt()
         thread = null
+
+        if (adjacentRankedThread != null)
+        {
+            adjacentRankedThread?.interrupt()
+            adjacentRankedThread = null
+        }
     }
 
     private fun run()

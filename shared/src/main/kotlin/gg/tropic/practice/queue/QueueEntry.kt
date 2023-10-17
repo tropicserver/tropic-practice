@@ -9,16 +9,18 @@ import java.util.UUID
 data class QueueEntry(
     val leader: UUID,
     val leaderPing: Int,
-    val defaultPingDiff: Int,
+    val maxPingDiff: Int,
     val leaderRangedPing: MinMaxRangedNumber =
         MinMaxRangedNumber(
-            med = leaderPing, diffsBy = defaultPingDiff
+            med = leaderPing, diffsBy = 10
         ),
+    var lastPingRangeExpansion: Long = System.currentTimeMillis(),
     val leaderELO: Int,
-    val defaultELODiff: Int,
+    val maxELODiff: Int,
     val leaderRangedELO: MinMaxRangedNumber =
         MinMaxRangedNumber(
-            med = leaderELO, diffsBy = defaultELODiff
+            med = leaderELO, diffsBy = 10
         ),
+    var lastELORangeExpansion: Long = System.currentTimeMillis(),
     val players: List<UUID>
 )
