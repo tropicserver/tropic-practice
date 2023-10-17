@@ -65,7 +65,6 @@ class GameQueue(
                 {
                     if (RUN_RANGE_EXPANSION_UPDATES(entry.lastPingRangeExpansion))
                     {
-                        // TODO: send update message, consolidated?
                         entry.leaderRangedPing.diffsBy = min(
                             entry.maxPingDiff,
                             (entry.leaderRangedPing.diffsBy * 1.5).toInt()
