@@ -6,7 +6,6 @@ import gg.scala.aware.message.AwareMessage
 import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.tropic.practice.category.eloRange
 import gg.tropic.practice.category.pingRange
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.Kit

@@ -13,7 +13,9 @@ import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.map.metadata.anonymous.toPosition
+import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.util.CC
+import org.bukkit.entity.Player
 
 /**
  * @author GrowlyX
@@ -30,6 +32,36 @@ object LobbyAdminCommands : ScalaCommand()
     {
         help.showHelp()
     }
+
+    @AssignPermission
+    @Subcommand("login-motd")
+    @Description("Update the login MOTD lines.")
+    fun onLoginMOTDLines(player: ScalaPlayer) = with(LobbyConfigurationService.cached()) {
+        with(
+            object : TextEditorMenu(loginMOTD)
+            {
+                override fun getPrePaginatedTitle(player: Player) =
+                    "Editing: Login MOTD"
+
+                override fun onClose(player: Player)
+                {
+
+                }
+
+                override fun onSave(player: Player, list: List<String>)
+                {
+                    loginMOTD.clear()
+                    loginMOTD.addAll(list)
+
+                    LobbyConfigurationService.sync(this@with)
+                    player.sendMessage("${CC.GREEN}Saved login MOTD text!")
+                }
+            }
+        ) {
+            openMenu(player.bukkit())
+        }
+    }
+
 
     @AssignPermission
     @Subcommand("setspawn")
