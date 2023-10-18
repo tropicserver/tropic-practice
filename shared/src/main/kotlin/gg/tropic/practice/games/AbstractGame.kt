@@ -1,5 +1,6 @@
 package gg.tropic.practice.games
 
+import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.Kit
@@ -10,9 +11,10 @@ import java.util.*
  * @since 8/5/2022
  */
 abstract class AbstractGame(
-    val expectation: UUID,
+    val expectationModel: GameExpectation,
     val teams: Map<GameTeamSide, GameTeam>,
-    val kit: Kit
+    val kit: Kit,
+    val expectation: UUID = expectationModel.identifier
 )
 {
     val identifier: UUID

@@ -94,11 +94,8 @@ object MapReplicationService
                 ?: return@handler
 
             val newGame = GameImpl(
-                expectation = expectation.identifier,
-                teams = expectation.teams,
-                kit = kit,
-                state = GameState.Waiting,
-                mapId = expectation.mapId
+                expectation = expectation,
+                kit = kit
             )
 
             val scheduledMap = findScheduledReplication(expectation.identifier)

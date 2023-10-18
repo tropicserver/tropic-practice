@@ -14,6 +14,7 @@ import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.locks.ReentrantLock
 
 /**
  * @author GrowlyX
@@ -25,6 +26,7 @@ object GameQueueManager
     private val dpsQueueRedis = DPSRedisService("queue")
         .apply(DPSRedisService::start)
 
+    private val replicationLock = ReentrantLock()
     private val dpsRedisCache = DPSRedisShared.keyValueCache
 
     fun useCache(
@@ -106,56 +108,57 @@ object GameQueueManager
          * still think they are in the queue, so we can generate the map and THEN update
          * their personal queue status. If they, for some reason, LEAVE the queue at this time, then FUCK ME!
          */
-        // We need to synchronize this to prevent multiple games being allocated to the same map replication.
-        synchronized(GameQueue.REPLICATION_LOCK_OBJECT) {
-            val serverStatuses = ReplicationManager.allServerStatuses()
+        val serverStatuses = ReplicationManager.allServerStatuses()
 
-            // We're associating the server statuses by each server instead
-            // of the map id which it is presented as.
-            val serverToReplicationMappings = serverStatuses.values
-                .flatMap {
-                    it.replications.values.flatten()
-                }
-                .associateBy {
-                    it.server
-                }
-
-            val availableReplication = serverToReplicationMappings.values
-                .firstOrNull {
-                    !it.inUse && it.associatedMapName == map.name
-                }
-
-            val serverToRequestReplication = ServerContainer
-                .getServersInGroupCasted<GameServer>("mipgame")
-                .sortedBy(GameServer::getPlayersCount)
-                .firstOrNull()
-                ?.id
-                ?: return run {
-                    DPSRedisShared.sendMessage(
-                        expectation.players,
-                        listOf(
-                            "&c&lError: &cWe found no game server available to house your game!"
-                        )
-                    )
-
-                    CompletableFuture.runAsync {
-                        cleanup()
-                    }
-                }
-
-            val replication = if (availableReplication == null)
-            {
-                ReplicationManager.requestReplication(
-                    serverToRequestReplication, map.name, expectation
-                )
-            } else
-            {
-                ReplicationManager.allocateReplication(
-                    serverToRequestReplication, map.name, expectation
-                )
+        // We're associating the server statuses by each server instead
+        // of the map id which it is presented as.
+        val serverToReplicationMappings = serverStatuses.values
+            .flatMap {
+                it.replications.values.flatten()
+            }
+            .associateBy {
+                it.server
             }
 
-            return replication.thenAcceptAsync {
+        val availableReplication = serverToReplicationMappings.values
+            .firstOrNull {
+                !it.inUse && it.associatedMapName == map.name
+            }
+
+        val serverToRequestReplication = ServerContainer
+            .getServersInGroupCasted<GameServer>("mipgame")
+            .sortedBy(GameServer::getPlayersCount)
+            .firstOrNull()
+            ?.id
+            ?: return run {
+                DPSRedisShared.sendMessage(
+                    expectation.players,
+                    listOf(
+                        "&c&lError: &cWe found no game server available to house your game!"
+                    )
+                )
+
+                CompletableFuture.runAsync {
+                    cleanup()
+                }
+            }
+
+        replicationLock.lock()
+
+        val replication = if (availableReplication == null)
+        {
+            ReplicationManager.requestReplication(
+                serverToRequestReplication, map.name, expectation
+            )
+        } else
+        {
+            ReplicationManager.allocateReplication(
+                serverToRequestReplication, map.name, expectation
+            )
+        }
+
+        return replication
+            .thenAccept {
                 if (it.status == ReplicationManager.ReplicationResultStatus.Completed)
                 {
                     Thread.sleep(100L)
@@ -175,7 +178,11 @@ object GameQueueManager
                 }
 
                 cleanup()
-            }.exceptionally {
+                replicationLock.unlock()
+            }
+            .exceptionally {
+                replicationLock.unlock()
+
                 DPSRedisShared.sendMessage(
                     expectation.players,
                     listOf(
@@ -186,7 +193,6 @@ object GameQueueManager
                 cleanup()
                 return@exceptionally null
             }
-        }
     }
 
     fun load()

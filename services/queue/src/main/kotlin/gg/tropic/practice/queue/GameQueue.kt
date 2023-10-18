@@ -27,9 +27,6 @@ class GameQueue(
     companion object
     {
         @JvmStatic
-        val REPLICATION_LOCK_OBJECT = Any()
-
-        @JvmStatic
         val RUN_RANGE_EXPANSION_UPDATES = { time: Long ->
             System.currentTimeMillis() >= time + 1500L
         }
@@ -155,8 +152,7 @@ class GameQueue(
 
     private fun run()
     {
-        val length = GameQueueManager
-            .queueSizeFromId(queueId())
+        val length = GameQueueManager.queueSizeFromId(queueId())
 
         if (length < teamSize * 2)
         {
@@ -223,7 +219,7 @@ class GameQueue(
                 return
             }
 
-            val group = groupedQueueEntries.first()
+            val group = groupedQueueEntries.random()
                 .onEach {
                     GameQueueManager.removeQueueEntryFromId(queueId(), it.leader)
                 }

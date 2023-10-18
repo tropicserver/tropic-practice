@@ -1,6 +1,7 @@
 package gg.tropic.practice.games
 
 import gg.tropic.practice.expectation.ExpectationService
+import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
 import gg.tropic.practice.games.loadout.CustomLoadout
 import gg.tropic.practice.games.loadout.DefaultLoadout
@@ -41,11 +42,11 @@ import java.util.logging.Logger
  * @since 8/4/2022
  */
 class GameImpl(
-    expectation: UUID,
-    teams: Map<GameTeamSide, GameTeam>,
+    expectation: GameExpectation,
+    teams: Map<GameTeamSide, GameTeam> = expectation.teams,
     kit: Kit,
-    var state: GameState,
-    private val mapId: String
+    var state: GameState = GameState.Waiting,
+    private val mapId: String = expectation.mapId
 ) : AbstractGame(expectation, teams, kit), CompositeTerminable by CompositeTerminable.create()
 {
     @Transient

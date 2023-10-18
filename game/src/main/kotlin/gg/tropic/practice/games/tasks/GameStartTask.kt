@@ -66,9 +66,14 @@ class GameStartTask(
                 .map { it.players.size }
                 .joinToString("v")
 
+            // lol?
+            val maybePossiblyADuel = game.expectationModel.queueType == null
+
             this.game.sendMessage(
                 "",
-                "${CC.PRI}Starting ${CC.B_PRI}$teamVersus${CC.PRI} game between:",
+                "${CC.B_SEC}${
+                    if (maybePossiblyADuel) "Private" else game.expectationModel.queueType!!.name
+                } $teamVersus${CC.PRI} ${game.kit.displayName}:",
                 "${CC.WHITE}${
                     this.game.teams[GameTeamSide.A]!!.players
                         .joinToString(", ") { 
