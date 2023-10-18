@@ -75,13 +75,15 @@ class GameQueue(
                         val pingRange = entry.leaderRangedPing.toIntRangeInclusive()
                         DPSRedisShared.sendMessage(
                             entry.players,
-                            listOf("{secondary}You are matchmaking in an ping range of ${
-                                "&a[${max(0, pingRange.first)} -> ${pingRange.last}]{secondary}"
-                            } &7(expanded by ±${
-                                entry.leaderRangedPing.diffsBy - previousPingDiff
-                            }). ${
-                                if (entry.leaderRangedPing.diffsBy == entry.maxPingDiff) "&lThe range will no longer be expanded as it has reached its maximum of ±${entry.maxPingDiff}!" else ""
-                            }")
+                            listOf(
+                                "{secondary}You are matchmaking in an ping range of ${
+                                    "&a[${max(0, pingRange.first)} -> ${pingRange.last}]{secondary}"
+                                } &7(expanded by ±${
+                                    entry.leaderRangedPing.diffsBy - previousPingDiff
+                                }). ${
+                                    if (entry.leaderRangedPing.diffsBy == entry.maxPingDiff) "&lThe range will no longer be expanded as it has reached its maximum of ±${entry.maxPingDiff}!" else ""
+                                }"
+                            )
                         )
                     }
                 }
@@ -162,8 +164,81 @@ class GameQueue(
             return
         }
 
-        val first = GameQueueManager.popQueueEntryFromId(queueId(), teamSize)
-        val second = GameQueueManager.popQueueEntryFromId(queueId(), teamSize)
+        // don't unnecessarily load in and map to data class if not needed
+        val first: List<QueueEntry>
+        val second: List<QueueEntry>
+
+        if (queueType == QueueType.Ranked)
+        {
+            // Faster than doing a list intersect which compares all items
+            fun IntRange.quickIntersect(other: IntRange): Boolean
+            {
+                return this.first <= other.last && this.last >= other.first
+            }
+
+            val queueEntries = GameQueueManager.getQueueEntriesFromId(queueId())
+            val groupedQueueEntries = queueEntries.values
+                .map { entry ->
+                    val otherEntriesMatchingEntry = queueEntries.values
+                        .filter { otherEntry ->
+                            val doesELOIntersect = entry.leaderRangedELO.toIntRangeInclusive()
+                                .quickIntersect(
+                                    otherEntry.leaderRangedELO
+                                        .toIntRangeInclusive()
+                                )
+
+                            // we can ignore ping intersections if they have no ping restriction
+                            val doesPingIntersect = entry.maxPingDiff == -1 ||
+                                entry.leaderRangedPing.toIntRangeInclusive()
+                                    .quickIntersect(
+                                        otherEntry.leaderRangedPing
+                                            .toIntRangeInclusive()
+                                    )
+
+                            entry != otherEntry && doesELOIntersect && doesPingIntersect
+                        }
+
+                    println("filtering result: ${otherEntriesMatchingEntry.size}")
+                    otherEntriesMatchingEntry + entry
+                }
+                .filter {
+                    it.size >= teamSize * 2
+                }
+
+            // TODO: need to pop if matches bitch
+            for ((index, groupedQueueEntry) in groupedQueueEntries.withIndex())
+            {
+                println("[debug] [$index] New group with ${groupedQueueEntry.size}")
+                for (queueEntry in groupedQueueEntry)
+                {
+                    val pingRange = queueEntry.leaderRangedPing.toIntRangeInclusive()
+                    val eloRange = queueEntry.leaderRangedELO.toIntRangeInclusive()
+                    println("[debug]     - ${queueEntry.leader}")
+                    println("[debug]       | ping range: [${pingRange.first} -> ${pingRange.last}]")
+                    println("[debug]       | ELO range: [${eloRange.first} -> ${eloRange.last}]")
+                }
+            }
+
+            if (groupedQueueEntries.isEmpty())
+            {
+                Thread.sleep(200)
+                return
+            }
+
+            val group = groupedQueueEntries.first()
+            first = group.take(teamSize)
+            second = group.take(teamSize)
+        } else
+        {
+            first = GameQueueManager.popQueueEntryFromId(queueId(), teamSize)
+            second = GameQueueManager.popQueueEntryFromId(queueId(), teamSize)
+        }
+
+        if (first.size != teamSize || second.size != teamSize)
+        {
+            Thread.sleep(200)
+            return
+        }
 
         val firstPlayers = first.flatMap { it.players }
         val secondPlayers = second.flatMap { it.players }
