@@ -198,14 +198,12 @@ class GameQueue(
                             entry != otherEntry && doesELOIntersect && doesPingIntersect
                         }
 
-                    println("filtering result: ${otherEntriesMatchingEntry.size}")
                     otherEntriesMatchingEntry + entry
                 }
                 .filter {
                     it.size >= teamSize * 2
                 }
 
-            // TODO: need to pop if matches bitch
             for ((index, groupedQueueEntry) in groupedQueueEntries.withIndex())
             {
                 println("[debug] [$index] New group with ${groupedQueueEntry.size}")
@@ -230,8 +228,9 @@ class GameQueue(
                     GameQueueManager.removeQueueEntryFromId(queueId(), it.leader)
                 }
 
+            // Expecting a symmetric list here, lets hope it doesn't break?
             first = group.take(teamSize)
-            second = group.take(teamSize)
+            second = group.takeLast(teamSize)
         } else
         {
             first = GameQueueManager.popQueueEntryFromId(queueId(), teamSize)
