@@ -226,6 +226,10 @@ class GameQueue(
             }
 
             val group = groupedQueueEntries.first()
+                .onEach {
+                    GameQueueManager.removeQueueEntryFromId(queueId(), it.leader)
+                }
+
             first = group.take(teamSize)
             second = group.take(teamSize)
         } else

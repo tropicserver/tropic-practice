@@ -47,6 +47,10 @@ object GameQueueManager
             )
         }
 
+    fun removeQueueEntryFromId(id: String, entry: UUID) = dpsRedisCache
+        .sync()
+        .lrem("tropicpractice:queues:$id:queue", 1, entry.toString())
+
     fun popQueueEntryFromId(id: String, amount: Int) = dpsRedisCache
         .sync()
         .lpop("tropicpractice:queues:$id:queue", amount.toLong())
