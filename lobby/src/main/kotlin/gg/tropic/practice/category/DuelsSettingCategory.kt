@@ -41,6 +41,19 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.DIAMOND_SWORD)
         },
         SettingContainer.buildEntry {
+            id = "$DUEL_SETTING_PREFIX:allow-spectators"
+            displayName = "Allow spectators"
+
+            clazz = StateSettingValue::class.java
+            default = StateSettingValue.ENABLED
+
+            description += "Allows you to prevent"
+            description += "players from spectating"
+            description += "any of your matches."
+
+            item = ItemBuilder.of(Material.GLASS_BOTTLE)
+        },
+        SettingContainer.buildEntry {
             id = "$DUEL_SETTING_PREFIX:lobby-scoreboard-view"
             displayName = "Lobby scoreboard view"
 
