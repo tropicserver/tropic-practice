@@ -346,8 +346,8 @@ object GameQueueManager
                             {
                                 runCatching {
                                     queue.cleanup()
-                                }.onFailure {
-                                    it.printStackTrace()
+                                }.onFailure { failure ->
+                                    failure.printStackTrace()
                                 }
 
                                 queue.start()

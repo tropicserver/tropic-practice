@@ -142,8 +142,11 @@ class GameQueue(
 
     fun cleanup()
     {
-        GameQueueManager.getQueueEntriesFromId(queueId())
+        GameQueueManager
+            .getQueueEntriesFromId(queueId())
             .forEach { (_, value) ->
+                GameQueueManager.removeQueueEntryFromId(queueId(), value.leader)
+
                 GameQueueManager.destroyQueueStates(
                     queueID = queueId(),
                     entry = value
