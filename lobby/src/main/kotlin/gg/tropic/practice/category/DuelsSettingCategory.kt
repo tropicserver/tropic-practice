@@ -1,5 +1,6 @@
 package gg.tropic.practice.category
 
+import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.SettingCategory
 import gg.scala.basics.plugin.settings.SettingContainer
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
@@ -8,7 +9,6 @@ import gg.scala.flavor.service.Service
 import gg.scala.flavor.service.ignore.IgnoreAutoScan
 import gg.tropic.practice.category.restriction.RangeRestriction
 import gg.tropic.practice.category.scoreboard.LobbyScoreboardView
-import gg.tropic.practice.category.visibility.SpawnPlayerVisibility
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -64,8 +64,22 @@ object DuelsSettingCategory : SettingCategory
             clazz = StateSettingValue::class.java
             default = StateSettingValue.DISABLED
 
-            description += "Allows you to fly around"
-            description += "spawn."
+            description += "Allows you to fly"
+            description += "around spawn."
+
+            postChange = {
+                val flightEnabled = BasicsProfileService.find(it)
+                    ?.setting(
+                        "duels:spawn-flight",
+                        StateSettingValue.DISABLED
+                    )
+
+                val flightSetting =
+                    flightEnabled == StateSettingValue.ENABLED
+
+                it.allowFlight = flightSetting
+                it.isFlying = flightSetting
+            }
 
             item = ItemBuilder.of(Material.FEATHER)
         },
@@ -76,8 +90,8 @@ object DuelsSettingCategory : SettingCategory
             clazz = StateSettingValue::class.java
             default = StateSettingValue.DISABLED
 
-            description += "Allows you to view or hide"
-            description += "players at spawn."
+            description += "Allows you to view or"
+            description += "hide players at spawn."
 
             postChange = {
                 VisibilityHandler.update(it)
