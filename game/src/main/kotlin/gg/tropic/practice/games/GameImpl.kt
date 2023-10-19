@@ -142,16 +142,22 @@ class GameImpl(
                 val loserRankedStats = loserProfile.getRankedStatsFor(kit)
                 val loserCurrentELO = loserRankedStats.elo
 
+                // winner elo calculations
                 val winnerNewELO = DefaultEloCalculator.getNewRating(
                     winnerCurrentELO, loserCurrentELO, EloChange.WIN
                 )
                 val winnerELODiff = winnerNewELO - winnerCurrentELO
+                winnerRankedStats.eloUpdates().apply(winnerNewELO)
+
                 newELOMappings[winnerProfile.identifier] = winnerNewELO to winnerELODiff
 
+                // loser elo calculations
                 val loserNewELO = DefaultEloCalculator.getNewRating(
                     loserCurrentELO, winnerCurrentELO, EloChange.LOSS
                 )
                 val loserELODiff = winnerNewELO - winnerCurrentELO
+                loserRankedStats.eloUpdates().apply(loserNewELO)
+
                 newELOMappings[loserProfile.identifier] = loserNewELO to loserELODiff
             }
 
