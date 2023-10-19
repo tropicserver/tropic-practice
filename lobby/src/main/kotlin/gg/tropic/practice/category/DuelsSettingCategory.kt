@@ -8,9 +8,11 @@ import gg.scala.flavor.service.Service
 import gg.scala.flavor.service.ignore.IgnoreAutoScan
 import gg.tropic.practice.category.restriction.RangeRestriction
 import gg.tropic.practice.category.scoreboard.LobbyScoreboardView
+import gg.tropic.practice.category.visibility.SpawnPlayerVisibility
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
+import net.evilblock.cubed.visibility.VisibilityHandler
 import org.bukkit.Material
 import org.bukkit.entity.Player
 
@@ -73,6 +75,34 @@ object DuelsSettingCategory : SettingCategory
             }
 
             item = ItemBuilder.of(Material.EXP_BOTTLE)
+        },
+        SettingContainer.buildEntry {
+            id = "$DUEL_SETTING_PREFIX:spawn-flight"
+            displayName = "Spawn flight"
+
+            clazz = StateSettingValue::class.java
+            default = StateSettingValue.DISABLED
+
+            description += "Allows you to"
+            description += "fly at spawn."
+
+            item = ItemBuilder.of(Material.FEATHER)
+        },
+        SettingContainer.buildEntry {
+            id = "$DUEL_SETTING_PREFIX:player-visibility"
+            displayName = "Player visibility"
+
+            clazz = StateSettingValue::class.java
+            default = StateSettingValue.DISABLED
+
+            description += "Allows you to see"
+            description += "other players at spawn."
+
+            postChange = {
+                VisibilityHandler.update(it)
+            }
+
+            item = ItemBuilder.of(Material.EYE_OF_ENDER)
         }
     )
 

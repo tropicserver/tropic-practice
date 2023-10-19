@@ -3,6 +3,8 @@ package gg.tropic.practice.player
 import gg.scala.aware.AwareBuilder
 import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
 import gg.scala.aware.message.AwareMessage
+import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -10,7 +12,6 @@ import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.games.QueueType
-import gg.tropic.practice.player.hotbar.LobbyHotbarService
 import gg.tropic.practice.queue.QueueService
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -22,8 +23,6 @@ import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import org.bukkit.event.EventPriority
-import org.bukkit.event.player.PlayerInitialSpawnEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.spigotmc.event.player.PlayerSpawnLocationEvent
@@ -105,6 +104,20 @@ object LobbyPlayerService
             .handler { event ->
                 val player = LobbyPlayer(event.player.uniqueId)
                 playerCache[event.player.uniqueId] = player
+
+                BasicsProfileService.find(player.uniqueId)
+                    ?.apply {
+                        val flightEnabled = setting(
+                            "duels:spawn-flight",
+                            StateSettingValue.DISABLED
+                        )
+
+                        if (flightEnabled == StateSettingValue.ENABLED)
+                        {
+                            player.player.allowFlight = true
+                            player.player.isFlying = true
+                        }
+                    }
 
                 CompletableFuture.runAsync(player::syncQueueState)
 
