@@ -20,10 +20,7 @@ object SpawnPlayerVisibility : VisibilityAdapter
         toRefresh: Player, refreshFor: Player
     ): VisibilityAction
     {
-        val profile = BasicsProfileService.find(refreshFor)
-            ?: throw ConditionFailedException(
-                "Sorry, your profile did not load properly."
-            )
+        val profile = BasicsProfileService.find(refreshFor)?: return VisibilityAction.NEUTRAL
 
         val messagesRef = profile.settings["duels:spawn-visibility"]!!
         val visible = messagesRef.map<StateSettingValue>()
