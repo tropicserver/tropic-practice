@@ -137,6 +137,29 @@ class GameQueue(
             )
     }
 
+    fun cleanup()
+    {
+        GameQueueManager.getQueueEntriesFromId(queueId())
+            .forEach { (_, value) ->
+                GameQueueManager.destroyQueueStates(
+                    queueID = queueId(),
+                    entry = value
+                )
+
+                DPSRedisShared.sendMessage(
+                    value.players,
+                    listOf(
+                        "&c&lDue to a reboot of one of our systems, you have been removed from the queue you were in."
+                    )
+                )
+            }
+
+        Logger.getGlobal()
+            .info(
+                "Cleanup procedure for queue ${queueId()} completed."
+            )
+    }
+
     fun destroy()
     {
         checkNotNull(thread)

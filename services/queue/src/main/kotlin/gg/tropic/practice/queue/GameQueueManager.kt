@@ -344,6 +344,12 @@ object GameQueueManager
 
                             if (!queues.containsKey(queue.queueId()))
                             {
+                                runCatching {
+                                    queue.cleanup()
+                                }.onFailure {
+                                    it.printStackTrace()
+                                }
+
                                 queue.start()
                                 queues[queue.queueId()] = queue
                             }
