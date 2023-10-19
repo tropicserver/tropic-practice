@@ -6,6 +6,7 @@ import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.resetAttributes
+import gg.tropic.spa.SPABindings
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Tasks
@@ -34,6 +35,15 @@ object ExpectationService
     @Configure
     fun configure()
     {
+        SPABindings.filterPlayerMoveIntoWorld { player, location ->
+            val game = GameService
+                .byPlayer(player.uniqueId)
+                ?: return@filterPlayerMoveIntoWorld location.world.name == "world"
+
+            location.world.name == "world" ||
+                location.world.name == game.arenaWorldName
+        }
+
         Events
             .subscribe(
                 AsyncPlayerPreLoginEvent::class.java,
@@ -61,23 +71,6 @@ object ExpectationService
             .bindWith(plugin)
 
         Events
-            .subscribe(PlayerChangedWorldEvent::class.java)
-            .handler {
-                val game = GameService.byPlayer(it.player)
-                    ?: return@handler
-
-                if (it.player.location.world.name != game.arenaWorldName)
-                {
-                    println("Moved to some random world ${
-                        it.player.location.world.name
-                    } when supposed to be on ${
-                        game.arenaWorldName
-                    }")
-                }
-            }
-            .bindWith(plugin)
-
-        Events
             .subscribe(PlayerJoinEvent::class.java)
             .handler {
                 it.player.resetAttributes()
@@ -85,16 +78,6 @@ object ExpectationService
 
                 val game = GameService.byPlayer(it.player)
                     ?: return@handler
-
-                println("PRELIM: When the game ID is ${
-                    game.arenaWorldName
-                }, the waiting lobby ID is ${
-                    it.player.location.world.name
-                }. (${
-                    it.player.world.name == game.arenaWorldName
-                }) (player location now ${
-                    it.player.name
-                })")
 
                 with(game) {
                     val location = map
@@ -104,27 +87,7 @@ object ExpectationService
                         .toLocation(arenaWorld)
 
                     Tasks.sync {
-                        println("BEFORE: When the game ID is ${
-                            game.arenaWorldName
-                        }, the map ID is ${
-                            it.player.location.world.name
-                        }. (${
-                            it.player.location.world.name == game.arenaWorldName
-                        }) (player location now ${
-                            it.player.name
-                        })")
-
                         it.player.teleport(location)
-
-                        println("AFTER: When the game ID is ${
-                            game.arenaWorldName
-                        }, the map ID is ${
-                            it.player.location.world.name
-                        }. (${
-                            it.player.location.world.name == game.arenaWorldName
-                        }) (player location now ${
-                            it.player.name
-                        })")
                     }
                 }
             }

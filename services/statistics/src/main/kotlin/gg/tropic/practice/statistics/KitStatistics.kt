@@ -18,7 +18,7 @@ open class KitStatistics
         private set
     var dailyStreak = SingleDayLifetime(defaultValue = 0)
 
-    fun strakUpdates() = ApplyUpdates<Int>(listOf({
+    fun streakUpdates() = ApplyUpdates<Int>(listOf({
         dailyStreak /= it
     }, {
         if (it > longestStreak)

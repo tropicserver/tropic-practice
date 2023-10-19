@@ -21,6 +21,7 @@ import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHand
     PluginDependency("scala-commons"),
     PluginDependency("Lemon"),
     PluginDependency("SlimeWorldManager"),
+    PluginDependency("SPA"),
     PluginDependency("cloudsync", soft = true)
 )
 class PracticeGame : ExtendedScalaPlugin()

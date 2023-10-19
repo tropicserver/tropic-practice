@@ -26,7 +26,7 @@ abstract class Volatile<T : Any>(
 
     operator fun invoke(): T
     {
-        return value
+        return get()
     }
 
     fun get(): T
