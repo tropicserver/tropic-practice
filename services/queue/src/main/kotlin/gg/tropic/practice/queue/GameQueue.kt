@@ -67,6 +67,9 @@ class GameQueue(
                             (entry.leaderRangedPing.diffsBy * 1.5).toInt()
                         )
                         entry.lastPingRangeExpansion = System.currentTimeMillis()
+                        val differential = entry.leaderRangedPing.diffsBy - previousPingDiff
+                        entry.lastRecordedDifferential = differential
+
                         requiresUpdates = true
 
                         val pingRange = entry.leaderRangedPing.toIntRangeInclusive()
@@ -76,7 +79,7 @@ class GameQueue(
                                 "{secondary}You are matchmaking in an ping range of ${
                                     "&a[${max(0, pingRange.first)} -> ${pingRange.last}]{secondary}"
                                 } &7(expanded by ±${
-                                    entry.leaderRangedPing.diffsBy - previousPingDiff
+                                    differential
                                 }). ${
                                     if (entry.leaderRangedPing.diffsBy == entry.maxPingDiff) "&lThe range will no longer be expanded as it has reached its maximum of ±${entry.maxPingDiff}!" else ""
                                 }"

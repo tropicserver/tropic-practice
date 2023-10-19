@@ -39,8 +39,10 @@ data class LobbyPlayer(
     }
 
     fun queueState() = queueState!!
+    fun queueEntry() = queueEntry!!
 
     fun inQueue() = queueState != null
+    fun validateQueueEntry() = queueEntry != null
     fun queuedForTime() = System.currentTimeMillis() - queueState!!.joined
     fun queuedForKit() = KitService.cached().kits[queueState!!.kitId]
     fun queuedForType() = queueState!!.queueType

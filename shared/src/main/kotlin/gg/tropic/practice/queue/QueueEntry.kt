@@ -15,6 +15,7 @@ data class QueueEntry(
             med = leaderPing, diffsBy = 10
         ),
     var lastPingRangeExpansion: Long = System.currentTimeMillis(),
+    var lastRecordedDifferential: Int = 0,
     val leaderELO: Int,
     val leaderRangedELO: MinMaxRangedNumber =
         MinMaxRangedNumber(

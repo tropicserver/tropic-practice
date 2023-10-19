@@ -9,6 +9,7 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.LobbyConfigurationService
+import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.player.hotbar.LobbyHotbarService
 import gg.tropic.practice.queue.QueueService
 import me.lucko.helper.Events
@@ -16,6 +17,7 @@ import me.lucko.helper.Schedulers
 import me.lucko.helper.utils.Players
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Color
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
@@ -28,6 +30,7 @@ import org.spigotmc.event.player.PlayerSpawnLocationEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
+import kotlin.math.max
 
 @Service
 object LobbyPlayerService
@@ -65,7 +68,7 @@ object LobbyPlayerService
                         val audience = audiences.player(it.player)
 
                         audience.sendActionBar(
-                            "${CC.GREEN}You are queued for ${CC.PRI}${
+                            "${CC.GOLD}${
                                 it.queuedForType().name
                             } ${
                                 it.queuedForTeamSize()
@@ -73,9 +76,15 @@ object LobbyPlayerService
                                 it.queuedForTeamSize()
                             } ${
                                 it.queuedForKit()?.displayName ?: "???"
-                            } ${CC.GRAY}(${
+                            } ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
                                 TimeUtil.formatIntoMMSS((it.queuedForTime() / 1000).toInt())
-                            })".component
+                            } ${if (it.validateQueueEntry() && it.queueState().queueType == QueueType.Ranked && it.queueEntry().maxPingDiff != -1) 
+                                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}ELO: ${CC.BOLD}[${max(
+                                    0, it.queueEntry().leaderRangedPing.toIntRangeInclusive().first
+                                )} -> ${it.queueEntry().leaderRangedPing.toIntRangeInclusive().last}]" 
+                            else 
+                                ""
+                            }".component
                         )
                     }
             }, 0L, 5L)
