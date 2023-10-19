@@ -71,9 +71,9 @@ class GameStartTask(
 
             this.game.sendMessage(
                 "",
-                "${CC.B_SEC}${
+                "${CC.B_GREEN}${
                     if (maybePossiblyADuel) "Private" else game.expectationModel.queueType!!.name
-                } $teamVersus${CC.PRI} ${game.kit.displayName}:",
+                } $teamVersus ${game.kit.displayName}:",
                 "${CC.WHITE}${
                     this.game.teams[GameTeamSide.A]!!.players
                         .joinToString(", ") { 

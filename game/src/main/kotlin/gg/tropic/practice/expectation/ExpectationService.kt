@@ -13,6 +13,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
+import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerTeleportEvent
 import org.spigotmc.event.player.PlayerSpawnLocationEvent
@@ -53,33 +54,25 @@ object ExpectationService
         Events
             .subscribe(PlayerSpawnLocationEvent::class.java)
             .handler {
-                val game = GameService.byPlayer(it.player)
-                    ?: return@handler
-
-                with(game) {
-                    val location = map
-                        .findSpawnLocationMatchingTeam(
-                            getTeamOf(it.player).side
-                        )!!
-                        .toLocation(arenaWorld)
-
-                    it.spawnLocation = location
-                }
+                it.spawnLocation = Bukkit
+                    .getWorld("world")
+                    .spawnLocation
             }
             .bindWith(plugin)
 
         Events
-            .subscribe(PlayerTeleportEvent::class.java)
-            .filter {
-                it.cause == PlayerTeleportEvent.TeleportCause.PLUGIN
-            }
+            .subscribe(PlayerChangedWorldEvent::class.java)
             .handler {
                 val game = GameService.byPlayer(it.player)
                     ?: return@handler
 
-                if (it.to.world.name != game.arenaWorldName)
+                if (it.player.location.world.name != game.arenaWorldName)
                 {
-                    it.isCancelled = true
+                    println("Moved to some random world ${
+                        it.player.location.world.name
+                    } when supposed to be on ${
+                        game.arenaWorldName
+                    }")
                 }
             }
             .bindWith(plugin)

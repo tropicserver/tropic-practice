@@ -297,7 +297,8 @@ class GameQueue(
                 GameTeamSide.B to GameTeam(side = GameTeamSide.B, players = secondPlayers),
             ),
             kitId = kit.id,
-            mapId = map.name
+            mapId = map.name,
+            queueType = queueType
         )
 
         GameQueueManager.prepareGameFor(
