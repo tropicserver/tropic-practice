@@ -14,6 +14,7 @@ import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent
+import java.util.*
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -30,6 +31,31 @@ object MapCommands : ScalaCommand()
     fun onDefault(help: CommandHelp)
     {
         help.showHelp()
+    }
+
+    @Subcommand("info")
+    @Description("View information about a map")
+    fun onInfo(player: ScalaPlayer, map: Map)
+    {
+        player.sendMessage("${CC.GREEN}Information for the map ${CC.B_WHITE}${map.displayName}")
+        player.sendMessage(" ")
+        player.sendMessage("${CC.GRAY}ID: ${CC.WHITE}${map.name}")
+        player.sendMessage("${CC.GRAY}Icon: ${CC.WHITE}${map.displayIcon.type.name.lowercase().replaceFirstChar { it.uppercase() }}")
+        player.sendMessage("${CC.GRAY}Locked: ${if (map.locked) "${CC.GREEN}True" else "${CC.RED}False"}")
+        player.sendMessage("${CC.GRAY}Associated Template: ${CC.WHITE}${map.associatedSlimeTemplate}")
+        player.sendMessage(" ")
+        player.sendMessage("${CC.GRAY}Associated Kit Groups ${CC.WHITE}(${map.associatedKitGroups.size})${CC.GRAY}:")
+        if (map.associatedKitGroups.isNotEmpty())
+        {
+            for (group in map.associatedKitGroups)
+            {
+                player.sendMessage(" &7▪ &f$group")
+            }
+        } else
+        {
+            player.sendMessage("&cNone Given")
+        }
+        player.sendMessage(" ")
     }
 
     @Subcommand("delete")
