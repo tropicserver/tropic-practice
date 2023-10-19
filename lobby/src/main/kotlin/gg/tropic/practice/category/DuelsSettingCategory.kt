@@ -83,20 +83,20 @@ object DuelsSettingCategory : SettingCategory
             clazz = StateSettingValue::class.java
             default = StateSettingValue.DISABLED
 
-            description += "Allows you to"
-            description += "fly at spawn."
+            description += "Allows you to fly around"
+            description += "spawn."
 
             item = ItemBuilder.of(Material.FEATHER)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:player-visibility"
+            id = "$DUEL_SETTING_PREFIX:spawn-visibility"
             displayName = "Player visibility"
 
             clazz = StateSettingValue::class.java
             default = StateSettingValue.DISABLED
 
-            description += "Allows you to see"
-            description += "other players at spawn."
+            description += "Allows you to toggle player"
+            description += "visibility at spawn."
 
             postChange = {
                 VisibilityHandler.update(it)

@@ -29,8 +29,6 @@ object BasicsSettingProvider : SettingProvider
     fun configure()
     {
         plugin.settingProvider = this
-        plugin.commandManager.registerCommand(SpawnFlightCommand)
-        plugin.commandManager.registerCommand(DuelRequestsCommand)
     }
 
     override fun provideSetting(player: Player, setting: String): Boolean

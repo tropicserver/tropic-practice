@@ -4,6 +4,7 @@ import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.CommandAlias
+import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import net.evilblock.cubed.util.CC
@@ -12,6 +13,7 @@ import net.evilblock.cubed.util.CC
  * @author Elb1to
  * @since 10/18/2023
  */
+@AutoRegister
 object SpawnFlightCommand : ScalaCommand()
 {
     @CommandAlias(
@@ -34,7 +36,7 @@ object SpawnFlightCommand : ScalaCommand()
             player.bukkit().allowFlight = false
             player.bukkit().isFlying = false
             player.sendMessage(
-                "${CC.RED}You can no longer fly on spawn."
+                "${CC.RED}You can no longer fly around spawn."
             )
         } else
         {
@@ -43,7 +45,7 @@ object SpawnFlightCommand : ScalaCommand()
             player.bukkit().allowFlight = true
             player.bukkit().isFlying = true
             player.sendMessage(
-                "${CC.GREEN}You can now fly on spawn."
+                "${CC.GREEN}You can now fly around spawn."
             )
         }
 
