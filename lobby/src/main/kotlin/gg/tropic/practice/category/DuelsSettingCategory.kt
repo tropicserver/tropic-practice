@@ -38,7 +38,7 @@ object DuelsSettingCategory : SettingCategory
             description += "Allows you to disable"
             description += "incoming duel requests."
 
-            item = ItemBuilder.of(Material.DIODE)
+            item = ItemBuilder.of(Material.DIAMOND_SWORD)
         },
         SettingContainer.buildEntry {
             id = "$DUEL_SETTING_PREFIX:lobby-scoreboard-view"
