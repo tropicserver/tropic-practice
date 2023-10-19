@@ -11,5 +11,4 @@ data class QueueState(
     val queueType: QueueType,
     val teamSize: Int,
     val joined: Long
-    // TODO: current ping/elo range or shit?
 )

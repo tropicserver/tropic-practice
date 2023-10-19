@@ -2,6 +2,7 @@ package gg.tropic.practice.player
 
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.player.hotbar.LobbyHotbarService
+import gg.tropic.practice.queue.QueueEntry
 import gg.tropic.practice.queue.QueueState
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
@@ -31,6 +32,8 @@ data class LobbyPlayer(
         }
 
     private var queueState: QueueState? = null
+    private var queueEntry: QueueEntry? = null
+
     fun buildQueueID() = queueState?.let {
         "${it.kitId}:${it.queueType.name}:${it.teamSize}v${it.teamSize}"
     }
@@ -57,12 +60,24 @@ data class LobbyPlayer(
                     .fromJson(it, QueueState::class.java)
             }
 
+
         val newState = if (queueState != null)
         {
             PlayerState.InQueue
         } else
         {
             PlayerState.Idle
+        }
+
+        // newState is just a wrapped null check
+        // for queueState. If it passes, sync the entry
+        if (newState == PlayerState.InQueue)
+        {
+            syncQueueEntry()
+        } else
+        {
+            // determined that player is idle, so we remove their queue entry
+            queueEntry = null
         }
 
         // keep current state until the server processes our queue join
@@ -91,5 +106,27 @@ data class LobbyPlayer(
                 }
             }
         }
+    }
+
+    fun syncQueueEntry()
+    {
+        // we depend on their queue state
+        // to be fulfilled in order to continue
+        val queueState = queueState
+            ?: return
+
+        val queueId = "${queueState.kitId}:${queueState.queueType.name}:${queueState.teamSize}v${queueState.teamSize}"
+
+        queueEntry = ScalaCommonsSpigot.instance.kvConnection
+            .sync()
+            .hget(
+                "tropicpractice:queues:$queueId:entries",
+                uniqueId.toString()
+            )
+            ?.let {
+                Serializers
+                    .gson
+                    .fromJson(it, QueueEntry::class.java)
+            }
     }
 }
