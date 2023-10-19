@@ -62,27 +62,26 @@ object MapCommands : ScalaCommand()
 
     @Subcommand("seticon")
     @Description("Enter the icon that you want a map to have.")
-    fun onSetIcon(player: ScalaPlayer, map: Map, icon: String)
+    fun onSetIcon(player: ScalaPlayer, map: Map)
     {
-        val type: Material?
+        val itemStack = player.bukkit().itemInHand
 
-        try
-        {
-            type = Material.valueOf(icon.uppercase())
-        } catch (e: IllegalArgumentException)
+        if (itemStack == null || itemStack.type == Material.AIR)
         {
             throw ConditionFailedException(
-                "Unable to parse material ${CC.YELLOW}$icon${CC.RED}."
+                "You must be holding an item to set it as an icon!"
             )
         }
 
         with(MapService.cached()) {
-            map.displayIcon = ItemStack(type)
+            map.displayIcon = itemStack
             MapService.sync(this)
         }
 
         player.sendMessage(
-            "${CC.GREEN}You have updated ${map.displayName}'s icon to ${CC.YELLOW}$icon${CC.GREEN}."
+            "${CC.GREEN}You have updated ${map.displayName}'s icon to ${CC.YELLOW}${
+                itemStack.type.name.lowercase().replaceFirstChar { it.uppercase() }
+            }${CC.GREEN}."
         )
     }
 
