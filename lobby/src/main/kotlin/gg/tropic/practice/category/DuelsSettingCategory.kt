@@ -23,9 +23,11 @@ import org.bukkit.entity.Player
 @SoftDependency("ScBasics")
 object DuelsSettingCategory : SettingCategory
 {
+    private const val DUEL_SETTING_PREFIX = "duels"
+
     override val items = listOf(
         SettingContainer.buildEntry {
-            id = "duel-requests"
+            id = "$DUEL_SETTING_PREFIX:duel-requests"
             displayName = "Duel requests"
 
             clazz = StateSettingValue::class.java
@@ -37,7 +39,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.DIODE)
         },
         SettingContainer.buildEntry {
-            id = "lobby-scoreboard-view"
+            id = "$DUEL_SETTING_PREFIX:lobby-scoreboard-view"
             displayName = "Lobby scoreboard view"
 
             clazz = LobbyScoreboardView::class.java
@@ -54,7 +56,7 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.BOOK)
         },
         SettingContainer.buildEntry {
-            id = "ranked-restriction-ping"
+            id = "$DUEL_SETTING_PREFIX:ranked-restriction-ping"
             displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Ping range"
 
             clazz = RangeRestriction::class.java
