@@ -48,7 +48,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         BasicsProfileService.find(player)
             ?.apply {
                 val scoreboardView = setting(
-                    "lobby-scoreboard-view",
+                    "duels:lobby-scoreboard-view",
                     LobbyScoreboardView.None
                 )
 

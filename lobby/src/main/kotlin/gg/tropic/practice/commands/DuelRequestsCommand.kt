@@ -24,7 +24,7 @@ object DuelRequestsCommand : ScalaCommand()
                 "Sorry, your profile did not load properly."
             )
 
-        val messagesRef = profile.settings["duel-requests"]!!
+        val messagesRef = profile.settings["duels:duel-requests"]!!
         val mapped = messagesRef.map<StateSettingValue>()
 
         if (mapped == StateSettingValue.ENABLED)

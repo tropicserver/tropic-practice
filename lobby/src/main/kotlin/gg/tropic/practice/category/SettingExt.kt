@@ -11,7 +11,7 @@ import org.bukkit.entity.Player
 val Player.pingRange: RangeRestriction
     get() = BasicsProfileService.find(this)
         ?.setting<RangeRestriction>(
-            "ranked-restriction-ping",
+            "duels:ranked-restriction-ping",
             RangeRestriction.None
         )
         ?: RangeRestriction.None
