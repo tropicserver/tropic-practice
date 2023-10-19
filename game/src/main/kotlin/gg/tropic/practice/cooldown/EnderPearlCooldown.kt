@@ -91,6 +91,9 @@ object EnderPearlCooldown : PlayerStaticCooldown(
 
                 if (!game.ensurePlaying())
                 {
+                    it.isCancelled = true
+                    player.updateInventory()
+
                     player.sendMessage("${CC.RED}You cannot throw pearls right now!")
                     return@handler
                 }
