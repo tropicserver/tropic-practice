@@ -1,3 +1,5 @@
+package gg.tropic.practice.commands
+
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.acf.ConditionFailedException
