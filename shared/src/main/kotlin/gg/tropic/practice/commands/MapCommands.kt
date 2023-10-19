@@ -14,6 +14,8 @@ import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent
+import org.bukkit.Material
+import org.bukkit.inventory.ItemStack
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -56,6 +58,48 @@ object MapCommands : ScalaCommand()
             player.sendMessage("&cNone Given")
         }
         player.sendMessage(" ")
+    }
+
+    @Subcommand("seticon")
+    @Description("Enter the icon that you want a map to have.")
+    fun onSetIcon(player: ScalaPlayer, map: Map, icon: String)
+    {
+        val type: Material?
+
+        try
+        {
+            type = Material.valueOf(icon.uppercase())
+        } catch (e: IllegalArgumentException)
+        {
+            throw ConditionFailedException(
+                "Unable to parse material ${CC.YELLOW}$icon${CC.RED}."
+            )
+        }
+
+        with(MapService.cached()) {
+            map.displayIcon = ItemStack(type)
+            MapService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have updated ${map.displayName}'s icon to ${CC.YELLOW}$icon${CC.GREEN}."
+        )
+    }
+
+    @Subcommand("setdisplayname")
+    @Description("Update a map's display name.")
+    fun onDisplayNameChange(player: ScalaPlayer, map: Map, name: String)
+    {
+        val oldDisplayName = map.displayName
+
+        with(MapService.cached()) {
+            map.displayName = name
+            MapService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have changed $oldDisplayName's display name to ${CC.YELLOW}$name${CC.GREEN}."
+        )
     }
 
     @Subcommand("delete")
