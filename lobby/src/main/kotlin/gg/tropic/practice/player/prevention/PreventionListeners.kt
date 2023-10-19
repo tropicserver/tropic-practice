@@ -5,13 +5,16 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeLobby
 import me.lucko.helper.Events
+import org.bukkit.event.Event
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByBlockEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
+import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
+import org.bukkit.event.player.PlayerInteractEvent
 
 @Service
 object PreventionListeners
@@ -22,6 +25,23 @@ object PreventionListeners
     @Configure
     fun configure()
     {
+        Events
+            .subscribe(PlayerInteractEvent::class.java)
+            .handler {
+                it.setUseInteractedBlock(Event.Result.DENY)
+            }
+            .bindWith(plugin)
+
+        Events
+            .subscribe(InventoryClickEvent::class.java)
+            .filter {
+                it.clickedInventory == it.whoClicked.inventory
+            }
+            .handler {
+                it.isCancelled = true
+            }
+            .bindWith(plugin)
+
         listOf(
             BlockPlaceEvent::class,
             BlockBreakEvent::class,
@@ -31,10 +51,12 @@ object PreventionListeners
             PlayerDropItemEvent::class,
             FoodLevelChangeEvent::class
         ).forEach { event ->
-            Events.subscribe(event.java)
+            Events
+                .subscribe(event.java)
                 .handler {
                     it.isCancelled = true
-                }.bindWith(plugin)
+                }
+                .bindWith(plugin)
         }
     }
 }

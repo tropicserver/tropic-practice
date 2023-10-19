@@ -28,7 +28,7 @@ data class Map(
     val bounds: Bounds,
     val metadata: MapMetadata,
     var displayName: String,
-    val displayIcon: ItemStack = ItemBuilder
+    var displayIcon: ItemStack = ItemBuilder
         .of(Material.MAP)
         .build(),
     val associatedSlimeTemplate: String,
