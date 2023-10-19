@@ -95,8 +95,8 @@ object DuelsSettingCategory : SettingCategory
             clazz = StateSettingValue::class.java
             default = StateSettingValue.DISABLED
 
-            description += "Allows you to toggle player"
-            description += "visibility at spawn."
+            description += "Allows you to view or hide"
+            description += "players at spawn."
 
             postChange = {
                 VisibilityHandler.update(it)
