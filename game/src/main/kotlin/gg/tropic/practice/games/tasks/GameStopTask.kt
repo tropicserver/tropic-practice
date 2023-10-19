@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.TitlePart
+import java.util.UUID
 
 /**
  * @author GrowlyX
@@ -16,7 +17,8 @@ import net.kyori.adventure.title.TitlePart
  */
 class GameStopTask(
     private val game: GameImpl,
-    private val report: GameReport
+    private val report: GameReport,
+    private val eloMappings: Map<UUID, Pair<Int, Int>>
 ) : Runnable
 {
     lateinit var task: Task
@@ -48,6 +50,11 @@ class GameStopTask(
                 }",
                 ""
             )
+
+            if (eloMappings.isNotEmpty())
+            {
+                // TODO: send a message w/ elo updates
+            }
 
             this.game.audiencesIndexed { audience, player ->
                 audience.sendTitlePart(
