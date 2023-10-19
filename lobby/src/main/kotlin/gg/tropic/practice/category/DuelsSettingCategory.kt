@@ -58,25 +58,6 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.BOOK)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:ranked-restriction-ping"
-            displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Ping range"
-
-            clazz = RangeRestriction::class.java
-            default = RangeRestriction.None
-
-            description += "Select the the maximum"
-            description += "value your opponent's"
-            description += "ping can differ by."
-            description += ""
-            description += "${CC.WHITE}Range: ${CC.GREEN}ping ± value"
-
-            displayPredicate = {
-                it.hasPermission("practice.ranked.restriction.ping")
-            }
-
-            item = ItemBuilder.of(Material.EXP_BOTTLE)
-        },
-        SettingContainer.buildEntry {
             id = "$DUEL_SETTING_PREFIX:spawn-flight"
             displayName = "Spawn flight"
 
@@ -103,6 +84,25 @@ object DuelsSettingCategory : SettingCategory
             }
 
             item = ItemBuilder.of(Material.EYE_OF_ENDER)
+        },
+        SettingContainer.buildEntry {
+            id = "$DUEL_SETTING_PREFIX:ranked-restriction-ping"
+            displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Ping range"
+
+            clazz = RangeRestriction::class.java
+            default = RangeRestriction.None
+
+            description += "Select the maximum value"
+            description += "your opponent's ping can"
+            description += "differ by."
+            description += ""
+            description += "${CC.WHITE}Range: ${CC.GREEN}ping ± value"
+
+            displayPredicate = {
+                it.hasPermission("practice.ranked.restriction.ping")
+            }
+
+            item = ItemBuilder.of(Material.EXP_BOTTLE)
         }
     )
 
