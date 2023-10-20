@@ -7,6 +7,7 @@ import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.statistics.KitStatistics
 import gg.tropic.practice.statistics.ranked.RankedKitStatistics
 import net.evilblock.cubed.menu.Button
+import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -108,6 +109,8 @@ class StatisticsMenu(
                 " ",
                 "${CC.YELLOW}Click to view"
             ).toButton { _, _ ->
+                Button.playNeutral(player)
+
                 StatisticsMenu(
                     profile,
                     StatisticMenuState.Unranked
@@ -121,6 +124,8 @@ class StatisticsMenu(
                 " ",
                 "${CC.YELLOW}Click to view"
             ).toButton { _, _ ->
+                Button.playNeutral(player)
+
                 StatisticsMenu(
                     profile,
                     StatisticMenuState.Ranked
