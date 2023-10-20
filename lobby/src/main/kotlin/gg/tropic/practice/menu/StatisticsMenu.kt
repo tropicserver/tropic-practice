@@ -30,7 +30,7 @@ class StatisticsMenu(
             val casualStats = profile.getCasualStatsFor(kit)
             val rankedStats = profile.getRankedStatsFor(kit)
 
-            val description = mutableListOf<String>()
+            var description = listOf<String>()
             val unrankedLore = listOf(
                 "${CC.GREEN}Unranked:",
                 "${CC.WHITE}Wins: ${CC.GREEN}${casualStats.wins}",
@@ -58,20 +58,18 @@ class StatisticsMenu(
                 "${CC.WHITE}Deaths: ${CC.AQUA}${rankedStats.deaths}",
             )
 
-            when (state)
+            description =  when (state)
             {
                 StatisticMenuState.Unranked ->
                 {
-                    description.addAll(
-                        unrankedLore
-                    )
+
+                    unrankedLore
                 }
 
                 StatisticMenuState.Ranked ->
                 {
-                    description.addAll(
-                        rankedLore
-                    )
+
+                    rankedLore
                 }
             }
 
@@ -106,11 +104,9 @@ class StatisticsMenu(
         buttons[39] = ItemBuilder.of(Material.CARPET)
             .name("${CC.B_GREEN}Casual Statistics")
             .data(5)
-            .setLore(
-                listOf(
-                    " ",
-                    "${CC.YELLOW}Click to view"
-                )
+            .addToLore(
+                " ",
+                "${CC.YELLOW}Click to view"
             ).toButton { _, _ ->
                 StatisticsMenu(
                     profile,
@@ -121,11 +117,9 @@ class StatisticsMenu(
         buttons[41] = ItemBuilder.of(Material.CARPET)
             .name("${CC.B_AQUA}Ranked Statistics")
             .data(3)
-            .setLore(
-                listOf(
-                    " ",
-                    "${CC.YELLOW}Click to view"
-                )
+            .addToLore(
+                " ",
+                "${CC.YELLOW}Click to view"
             ).toButton { _, _ ->
                 StatisticsMenu(
                     profile,
