@@ -41,7 +41,7 @@ object StatisticsCommand : ScalaCommand()
                         "${CC.YELLOW}${it.name}${CC.RED} has not logged onto our duels server."
                     )
 
-                StatisticsMenu(profile, StatisticsMenu.StatisticMenuState.Global).openMenu(player.bukkit())
+                StatisticsMenu(profile, StatisticsMenu.StatisticMenuState.Unranked).openMenu(player.bukkit())
             }
         }
 
@@ -50,7 +50,7 @@ object StatisticsCommand : ScalaCommand()
                 "Your profile has not loaded in properly, log out and try again."
             )
 
-        StatisticsMenu(profile, StatisticsMenu.StatisticMenuState.Global).openMenu(player.bukkit())
+        StatisticsMenu(profile, StatisticsMenu.StatisticMenuState.Unranked).openMenu(player.bukkit())
         return CompletableFuture.completedFuture(null)
     }
 }

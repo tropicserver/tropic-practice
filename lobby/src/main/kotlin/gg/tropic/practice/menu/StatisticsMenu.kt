@@ -29,7 +29,6 @@ class StatisticsMenu(
         with(this) {
             val casualStats = profile.getCasualStatsFor(kit)
             val rankedStats = profile.getRankedStatsFor(kit)
-            val globalStats = profile.globalStatistics
 
             val description = mutableListOf<String>()
             val unrankedLore = listOf(
@@ -58,15 +57,6 @@ class StatisticsMenu(
                 "${CC.WHITE}Kills: ${CC.AQUA}${rankedStats.kills}",
                 "${CC.WHITE}Deaths: ${CC.AQUA}${rankedStats.deaths}",
             )
-            val globalLore = listOf(
-                "${CC.GOLD}Global:",
-                "${CC.WHITE}Total Wins: ${CC.GOLD}${globalStats.totalWins}",
-                "${CC.WHITE}Total Losses: ${CC.GOLD}${globalStats.totalLosses}",
-                "${CC.WHITE}Total Played: ${CC.GOLD}${globalStats.totalPlays}",
-                "",
-                "${CC.WHITE}Total Kills: ${CC.GOLD}${globalStats.totalKills}",
-                "${CC.WHITE}Total Deaths: ${CC.GOLD}${globalStats.totalDeaths}",
-            )
 
             when (state)
             {
@@ -83,13 +73,6 @@ class StatisticsMenu(
                         rankedLore
                     )
                 }
-
-                StatisticMenuState.Global ->
-                {
-                    description.addAll(
-                        globalLore
-                    )
-                }
             }
 
             description
@@ -104,18 +87,21 @@ class StatisticsMenu(
     {
         val buttons = mutableMapOf<Int, Button>()
 
+        val globalStats = profile.globalStatistics
         buttons[40] = ItemBuilder.of(Material.PAPER)
             .name("${CC.B_YELLOW}Global Stats")
             .setLore(
                 listOf(
-                    " ",
-                    "${CC.YELLOW}Click to view"
+                    "${CC.GOLD}Global:",
+                    "${CC.WHITE}Total Wins: ${CC.GOLD}${globalStats.totalWins}",
+                    "${CC.WHITE}Total Losses: ${CC.GOLD}${globalStats.totalLosses}",
+                    "${CC.WHITE}Total Played: ${CC.GOLD}${globalStats.totalPlays}",
+                    "",
+                    "${CC.WHITE}Total Kills: ${CC.GOLD}${globalStats.totalKills}",
+                    "${CC.WHITE}Total Deaths: ${CC.GOLD}${globalStats.totalDeaths}",
                 )
             ).toButton { _, _ ->
-                StatisticsMenu(
-                    profile,
-                    StatisticMenuState.Global
-                ).openMenu(player)
+
             }
 
         buttons[39] = ItemBuilder.of(Material.CARPET)
@@ -155,6 +141,6 @@ class StatisticsMenu(
 
     enum class StatisticMenuState
     {
-        Global, Ranked, Unranked,
+        Ranked, Unranked
     }
 }
