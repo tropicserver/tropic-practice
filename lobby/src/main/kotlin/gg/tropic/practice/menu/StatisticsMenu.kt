@@ -88,11 +88,10 @@ class StatisticsMenu(
         val buttons = mutableMapOf<Int, Button>()
 
         val globalStats = profile.globalStatistics
-        buttons[40] = ItemBuilder.of(Material.PAPER)
-            .name("${CC.B_YELLOW}Global Stats")
+        buttons[40] = ItemBuilder.of(Material.NETHER_STAR)
+            .name("${CC.B_GOLD}Global Stats")
             .setLore(
                 listOf(
-                    "${CC.GOLD}Global:",
                     "${CC.WHITE}Total Wins: ${CC.GOLD}${globalStats.totalWins}",
                     "${CC.WHITE}Total Losses: ${CC.GOLD}${globalStats.totalLosses}",
                     "${CC.WHITE}Total Played: ${CC.GOLD}${globalStats.totalPlays}",
