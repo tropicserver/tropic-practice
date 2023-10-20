@@ -93,11 +93,11 @@ class StatisticsMenu(
             .toButton()
 
         buttons[39] = ItemBuilder.of(Material.CARPET)
-            .name("${CC.BD_GREEN}Casual Statistics")
+            .name("${CC.B_GREEN}Casual Statistics")
             .data(5)
             .addToLore(
                 " ",
-                "${CC.D_GREEN}Click to view!"
+                "${CC.GREEN}Click to view!"
             )
             .toButton { _, _ ->
                 StatisticsMenu(

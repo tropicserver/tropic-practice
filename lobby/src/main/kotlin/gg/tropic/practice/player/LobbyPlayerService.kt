@@ -80,7 +80,7 @@ object LobbyPlayerService
                                 it.queuedForKit()?.displayName ?: "???"
                             }${CC.WHITE}${
                                 if (shouldIncludeELORange && shouldIncludePingRange)
-                                    "" else " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${TimeUtil.formatIntoMMSS((it.queuedForTime() / 1000).toInt())}"
+                                    "" else " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Queued for ${TimeUtil.formatIntoMMSS((it.queuedForTime() / 1000).toInt())}"
                             }${
                                 if (shouldIncludePingRange)
                                 {
