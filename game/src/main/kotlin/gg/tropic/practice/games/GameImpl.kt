@@ -6,6 +6,8 @@ import gg.tropic.practice.feature.GameReportFeature
 import gg.tropic.practice.games.loadout.CustomLoadout
 import gg.tropic.practice.games.loadout.DefaultLoadout
 import gg.tropic.practice.games.loadout.SelectedLoadout
+import gg.tropic.practice.games.ranked.DefaultEloCalculator
+import gg.tropic.practice.games.ranked.EloChange
 import gg.tropic.practice.games.tasks.GameStartTask
 import gg.tropic.practice.games.tasks.GameStopTask
 import gg.tropic.practice.games.team.GameTeam
@@ -14,6 +16,7 @@ import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
+import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -96,6 +99,8 @@ class GameImpl(
                 takeSnapshotIfNotAlreadyExists(it)
             }
 
+        val newELOMappings = mutableMapOf<UUID, Pair<Int, Int>>()
+
         if (winner == null)
         {
             this.report = GameReport(
@@ -111,21 +116,52 @@ class GameImpl(
             val opponent = this.getOpponent(winner)
                 ?: return
 
-            opponent.toBukkitPlayers()
+            val opponents = opponent.toBukkitPlayers()
                 .filterNotNull()
                 .mapNotNull(PracticeProfileService::find)
-                .forEach {
+                .onEach {
                     it.globalStatistics.userPlayedGameAndLost().apply()
-                    it.save()
                 }
 
-            winner.toBukkitPlayers()
+            val winners = winner.toBukkitPlayers()
                 .filterNotNull()
                 .mapNotNull(PracticeProfileService::find)
-                .forEach {
+                .onEach {
                     it.globalStatistics.userPlayedGameAndWon().apply()
-                    it.save()
                 }
+
+            if (expectationModel.queueType == QueueType.Ranked && opponent.players.size == 1)
+            {
+                // worst code in this entire project?
+                val winnerProfile = winners.first()
+                val loserProfile = opponents.first()
+
+                val winnerRankedStats = winnerProfile.getRankedStatsFor(kit)
+                val winnerCurrentELO = winnerRankedStats.elo
+
+                val loserRankedStats = loserProfile.getRankedStatsFor(kit)
+                val loserCurrentELO = loserRankedStats.elo
+
+                // winner elo calculations
+                val winnerNewELO = DefaultEloCalculator.getNewRating(
+                    winnerCurrentELO, loserCurrentELO, EloChange.WIN
+                )
+                val winnerELODiff = winnerNewELO - winnerCurrentELO
+                winnerRankedStats.eloUpdates().apply(winnerNewELO)
+
+                newELOMappings[winnerProfile.identifier] = winnerNewELO to winnerELODiff
+
+                // loser elo calculations
+                val loserNewELO = DefaultEloCalculator.getNewRating(
+                    loserCurrentELO, winnerCurrentELO, EloChange.LOSS
+                )
+                val loserELODiff = winnerNewELO - winnerCurrentELO
+                loserRankedStats.eloUpdates().apply(loserNewELO)
+
+                newELOMappings[loserProfile.identifier] = loserNewELO to loserELODiff
+            }
+
+            (winners + opponents).forEach(PracticeProfile::save)
 
             this.report = GameReport(
                 identifier = UUID.randomUUID(),
@@ -143,7 +179,7 @@ class GameImpl(
 
         val stopTask =
             GameStopTask(
-                this, this.report!!
+                this, this.report!!, newELOMappings
             )
 
         this.activeCountdown = 5
@@ -154,6 +190,7 @@ class GameImpl(
                 0L, TimeUnit.SECONDS,
                 1L, TimeUnit.SECONDS
             )
+
         stopTask.task.bindWith(this)
     }
 

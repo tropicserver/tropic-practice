@@ -1,6 +1,7 @@
 package gg.tropic.practice.commands
 
 import gg.scala.commons.acf.annotation.CommandAlias
+import gg.scala.commons.acf.annotation.Conditions
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
@@ -15,7 +16,10 @@ import org.bukkit.Bukkit
 object SpawnCommand : ScalaCommand()
 {
     @CommandAlias("spawn")
-    fun onSpawn(player: ScalaPlayer)
+    fun onSpawn(
+        @Conditions("cooldown:duration=2,unit=SECONDS")
+        player: ScalaPlayer
+    )
     {
         with(LobbyConfigurationService.cached()) {
             player.teleport(
