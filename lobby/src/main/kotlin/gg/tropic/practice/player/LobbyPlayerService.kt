@@ -53,6 +53,8 @@ object LobbyPlayerService
     private fun createMessage(packet: String, vararg pairs: Pair<String, Any?>): AwareMessage =
         AwareMessage.of(packet, this.aware, *pairs)
 
+    fun IntRange.formattedDomain() = "[${max(0, first)} -> $last]"
+
     @Configure
     fun configure()
     {
@@ -66,23 +68,43 @@ object LobbyPlayerService
                     .onEach {
                         val audience = audiences.player(it.player)
 
+                        val shouldIncludePingRange = it.validateQueueEntry() &&
+                            it.queueState().queueType == QueueType.Ranked &&
+                            it.queueEntry().maxPingDiff != -1
+
+                        val shouldIncludeELORange = it.validateQueueEntry() &&
+                            it.queuedForType() == QueueType.Ranked
+
                         audience.sendActionBar(
-                            "${CC.GOLD}${
-                                it.queuedForType().name
-                            } ${
-                                it.queuedForTeamSize()
-                            }v${
-                                it.queuedForTeamSize()
-                            } ${
+                            "${CC.GOLD}${it.queuedForType().name} ${it.queuedForTeamSize()}v${it.queuedForTeamSize()} ${
                                 it.queuedForKit()?.displayName ?: "???"
-                            } ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${
-                                TimeUtil.formatIntoMMSS((it.queuedForTime() / 1000).toInt())
-                            } ${if (it.validateQueueEntry() && it.queueState().queueType == QueueType.Ranked && it.queueEntry().maxPingDiff != -1) 
-                                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}ELO: ${CC.BOLD}[${max(
-                                    0, it.queueEntry().leaderRangedPing.toIntRangeInclusive().first
-                                )} -> ${it.queueEntry().leaderRangedPing.toIntRangeInclusive().last}]" 
-                            else 
-                                ""
+                            }${CC.WHITE}${
+                                if (shouldIncludeELORange && shouldIncludePingRange)
+                                    "" else " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}${TimeUtil.formatIntoMMSS((it.queuedForTime() / 1000).toInt())}"
+                            }${
+                                if (shouldIncludePingRange)
+                                {
+                                    "${CC.GRAY} ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Ping: ${CC.BOLD}${
+                                        it.queueEntry().leaderRangedPing
+                                            .toIntRangeInclusive()
+                                            .formattedDomain()
+                                    }"
+                                } else
+                                {
+                                    ""
+                                }
+                            }${
+                                if (shouldIncludeELORange)
+                                {
+                                    "${CC.GRAY} ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}ELO: ${CC.BOLD}${
+                                        it.queueEntry().leaderRangedELO
+                                            .toIntRangeInclusive()
+                                            .formattedDomain()
+                                    }"
+                                } else
+                                {
+                                    ""
+                                }
                             }".component
                         )
                     }

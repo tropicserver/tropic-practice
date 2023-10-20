@@ -204,6 +204,10 @@ object GameQueueManager
         buildAndValidateQueueIndexes()
 
         dpsQueueRedis.configure {
+            listen("spectate") {
+
+            }
+
             listen("join") {
                 val entry = retrieve<QueueEntry>("entry")
 

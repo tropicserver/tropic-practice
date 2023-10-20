@@ -4,8 +4,6 @@ import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.profile.PracticeProfile
-import gg.tropic.practice.statistics.KitStatistics
-import gg.tropic.practice.statistics.ranked.RankedKitStatistics
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
@@ -32,50 +30,41 @@ class StatisticsMenu(
 
             val description = mutableListOf<String>()
             val unrankedLore = listOf(
-                "${CC.GREEN}Unranked:",
                 "${CC.WHITE}Wins: ${CC.GREEN}${casualStats.wins}",
                 "${CC.WHITE}Played: ${CC.GREEN}${casualStats.plays}",
                 "",
                 "${CC.WHITE}Kills: ${CC.GREEN}${casualStats.kills}",
                 "${CC.WHITE}Deaths: ${CC.GREEN}${casualStats.deaths}",
                 "",
-                "${CC.WHITE}Daily Streak: ${CC.GREEN}${casualStats.dailyStreak()}",
-                "${CC.WHITE}Current Streak: ${CC.GREEN}${casualStats.streak}",
-                "${CC.WHITE}Longest Streak: ${CC.GREEN}${casualStats.longestStreak}",
-                "",
+                "${CC.GREEN}Streaks:",
+                "${CC.WHITE}Daily: ${CC.GREEN}${casualStats.dailyStreak()}",
+                "${CC.WHITE}Current: ${CC.GREEN}${casualStats.streak}",
+                "${CC.WHITE}Peak: ${CC.GREEN}${casualStats.longestStreak}"
             )
+
             val rankedLore = listOf(
-                "${CC.AQUA}Ranked:",
                 "${CC.WHITE}Wins: ${CC.AQUA}${rankedStats.wins}",
                 "${CC.WHITE}Played: ${CC.AQUA}${rankedStats.wins}",
                 "",
-                "${CC.WHITE}ELO: ${CC.PRI}${rankedStats.elo}",
-                "${CC.WHITE} ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Peak: ${CC.PRI}${
+                "${CC.WHITE}Kills: ${CC.AQUA}${rankedStats.kills}",
+                "${CC.WHITE}Deaths: ${CC.AQUA}${rankedStats.deaths}",
+                "",
+                "${CC.WHITE}ELO: ${CC.AQUA}${rankedStats.elo}",
+                "${CC.WHITE} ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Highest ELO: ${CC.AQUA}${
                     rankedStats.highestElo
                 }",
                 "",
-                "${CC.WHITE}Kills: ${CC.AQUA}${rankedStats.kills}",
-                "${CC.WHITE}Deaths: ${CC.AQUA}${rankedStats.deaths}",
+                "${CC.AQUA}Streaks:",
+                "${CC.WHITE}Daily: ${CC.AQUA}${rankedStats.dailyStreak()}",
+                "${CC.WHITE}Current: ${CC.AQUA}${rankedStats.streak}",
+                "${CC.WHITE}Peak: ${CC.AQUA}${rankedStats.longestStreak}"
             )
 
-            when (state)
+            description + when (state)
             {
-                StatisticMenuState.Unranked ->
-                {
-                    description.addAll(
-                        unrankedLore
-                    )
-                }
-
-                StatisticMenuState.Ranked ->
-                {
-                    description.addAll(
-                        rankedLore
-                    )
-                }
+                StatisticMenuState.Unranked -> unrankedLore
+                StatisticMenuState.Ranked -> rankedLore
             }
-
-            description
         }
 
     override fun itemClicked(player: Player, kit: Kit, type: ClickType)
@@ -86,32 +75,31 @@ class StatisticsMenu(
     override fun getGlobalButtons(player: Player): Map<Int, Button>
     {
         val buttons = mutableMapOf<Int, Button>()
-
         val globalStats = profile.globalStatistics
-        buttons[40] = ItemBuilder.of(Material.NETHER_STAR)
-            .name("${CC.B_GOLD}Global Stats")
+
+        buttons[40] = ItemBuilder
+            .of(Material.NETHER_STAR)
+            .name("${CC.D_AQUA}Global")
             .setLore(
                 listOf(
-                    "${CC.WHITE}Total Wins: ${CC.GOLD}${globalStats.totalWins}",
-                    "${CC.WHITE}Total Losses: ${CC.GOLD}${globalStats.totalLosses}",
-                    "${CC.WHITE}Total Played: ${CC.GOLD}${globalStats.totalPlays}",
+                    "${CC.WHITE}Wins: ${CC.AQUA}${globalStats.totalWins}",
+                    "${CC.WHITE}Losses: ${CC.AQUA}${globalStats.totalLosses}",
+                    "${CC.WHITE}Played: ${CC.AQUA}${globalStats.totalPlays}",
                     "",
-                    "${CC.WHITE}Total Kills: ${CC.GOLD}${globalStats.totalKills}",
-                    "${CC.WHITE}Total Deaths: ${CC.GOLD}${globalStats.totalDeaths}",
+                    "${CC.WHITE}Kills: ${CC.AQUA}${globalStats.totalKills}",
+                    "${CC.WHITE}Deaths: ${CC.AQUA}${globalStats.totalDeaths}"
                 )
-            ).toButton { _, _ ->
-
-            }
+            )
+            .toButton()
 
         buttons[39] = ItemBuilder.of(Material.CARPET)
-            .name("${CC.B_GREEN}Casual Statistics")
+            .name("${CC.BD_GREEN}Casual Statistics")
             .data(5)
-            .setLore(
-                listOf(
-                    " ",
-                    "${CC.YELLOW}Click to view"
-                )
-            ).toButton { _, _ ->
+            .addToLore(
+                " ",
+                "${CC.D_GREEN}Click to view!"
+            )
+            .toButton { _, _ ->
                 StatisticsMenu(
                     profile,
                     StatisticMenuState.Unranked
@@ -121,12 +109,11 @@ class StatisticsMenu(
         buttons[41] = ItemBuilder.of(Material.CARPET)
             .name("${CC.B_AQUA}Ranked Statistics")
             .data(3)
-            .setLore(
-                listOf(
-                    " ",
-                    "${CC.YELLOW}Click to view"
-                )
-            ).toButton { _, _ ->
+            .addToLore(
+                " ",
+                "${CC.AQUA}Click to view!"
+            )
+            .toButton { _, _ ->
                 StatisticsMenu(
                     profile,
                     StatisticMenuState.Ranked
@@ -136,7 +123,7 @@ class StatisticsMenu(
         return buttons
     }
 
-    override fun getPrePaginatedTitle(player: Player) = "${profile.identifier.username()}'s statistics"
+    override fun getPrePaginatedTitle(player: Player) = "${profile.identifier.username()}'s ${state.name.lowercase()} statistics"
 
     enum class StatisticMenuState
     {

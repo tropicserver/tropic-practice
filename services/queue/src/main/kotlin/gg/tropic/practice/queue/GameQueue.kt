@@ -250,7 +250,11 @@ class GameQueue(
 
             val group = groupedQueueEntries.random()
                 .onEach {
-                    GameQueueManager.removeQueueEntryFromId(queueId(), it.leader)
+                    runCatching {
+                        GameQueueManager.removeQueueEntryFromId(queueId(), it.leader)
+                    }.onFailure {
+                        it.printStackTrace()
+                    }
                 }
 
             // Expecting a symmetric list here, lets hope it doesn't break?
