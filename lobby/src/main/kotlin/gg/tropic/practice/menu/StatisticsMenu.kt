@@ -29,6 +29,8 @@ class StatisticsMenu(
         with(this) {
             val casualStats = profile.getCasualStatsFor(kit)
             val rankedStats = profile.getRankedStatsFor(kit)
+            val globalStats = profile.globalStatistics
+
             val description = mutableListOf<String>()
             val unrankedLore = listOf(
                 "${CC.GREEN}Unranked:",
@@ -56,6 +58,15 @@ class StatisticsMenu(
                 "${CC.WHITE}Kills: ${CC.AQUA}${rankedStats.kills}",
                 "${CC.WHITE}Deaths: ${CC.AQUA}${rankedStats.deaths}",
             )
+            val globalLore = listOf(
+                "${CC.GOLD}Global:",
+                "${CC.WHITE}Total Wins: ${CC.AQUA}${globalStats.totalWins}",
+                "${CC.WHITE}Total Losses: ${CC.AQUA}${globalStats.totalLosses}",
+                "${CC.WHITE}Total Played: ${CC.AQUA}${globalStats.totalPlays}",
+                "",
+                "${CC.WHITE}Total Kills: ${CC.AQUA}${globalStats.totalKills}",
+                "${CC.WHITE}Total Deaths: ${CC.AQUA}${globalStats.totalDeaths}",
+            )
 
             when (state)
             {
@@ -76,13 +87,7 @@ class StatisticsMenu(
                 StatisticMenuState.Global ->
                 {
                     description.addAll(
-                        unrankedLore
-                    )
-
-                    description.add("")
-
-                    description.addAll(
-                        rankedLore
+                        globalLore
                     )
                 }
             }
