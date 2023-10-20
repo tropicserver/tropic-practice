@@ -60,12 +60,12 @@ class StatisticsMenu(
             )
             val globalLore = listOf(
                 "${CC.GOLD}Global:",
-                "${CC.WHITE}Total Wins: ${CC.AQUA}${globalStats.totalWins}",
-                "${CC.WHITE}Total Losses: ${CC.AQUA}${globalStats.totalLosses}",
-                "${CC.WHITE}Total Played: ${CC.AQUA}${globalStats.totalPlays}",
+                "${CC.WHITE}Total Wins: ${CC.GOLD}${globalStats.totalWins}",
+                "${CC.WHITE}Total Losses: ${CC.GOLD}${globalStats.totalLosses}",
+                "${CC.WHITE}Total Played: ${CC.GOLD}${globalStats.totalPlays}",
                 "",
-                "${CC.WHITE}Total Kills: ${CC.AQUA}${globalStats.totalKills}",
-                "${CC.WHITE}Total Deaths: ${CC.AQUA}${globalStats.totalDeaths}",
+                "${CC.WHITE}Total Kills: ${CC.GOLD}${globalStats.totalKills}",
+                "${CC.WHITE}Total Deaths: ${CC.GOLD}${globalStats.totalDeaths}",
             )
 
             when (state)
