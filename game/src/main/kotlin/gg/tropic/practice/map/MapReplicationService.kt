@@ -20,6 +20,7 @@ import gg.tropic.practice.replications.models.ReplicationStatus
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
+import org.bukkit.Difficulty
 import org.bukkit.World
 import org.bukkit.event.world.WorldLoadEvent
 import java.util.*
@@ -270,6 +271,8 @@ object MapReplicationService
                 it.setGameRuleValue("sendCommandFeedback", "false")
                 it.setGameRuleValue("logAdminCommands", "false")
                 it.setGameRuleValue("pvp", "true")
+
+                it.difficulty = Difficulty.NORMAL
                 return@thenApply BuiltMapReplication(arena, it)
             }
     }

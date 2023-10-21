@@ -32,7 +32,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
 
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:replicationmanager")
+            .of<AwareMessage>("practice:replicationmanager-inhabitants")
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()
@@ -52,7 +52,8 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                     "status" to Serializers.gson
                         .toJson(statusService())
                 ).publish(
-                    context = AwareThreadContext.SYNC
+                    context = AwareThreadContext.SYNC,
+                    channel = "practice:replicationmanager-inhibitor"
                 )
             }, 0L, 10L)
             .bindWith(this)
@@ -97,7 +98,8 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                             "message" to null
                         )
                     ).publish(
-                        AwareThreadContext.SYNC
+                        AwareThreadContext.SYNC,
+                        channel = "practice:replicationmanager-inhibitor"
                     )
                 }
                 .exceptionally {
@@ -109,7 +111,8 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                             "message" to it.message
                         )
                     ).publish(
-                        AwareThreadContext.SYNC
+                        AwareThreadContext.SYNC,
+                        channel = "practice:replicationmanager-inhibitor"
                     )
                     return@exceptionally null
                 }

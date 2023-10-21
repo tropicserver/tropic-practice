@@ -81,12 +81,9 @@ class GameStopTask(
             }
         }
 
-        when (this.game.activeCountdown)
+        if (this.game.activeCountdown == 5)
         {
-            5, 4, 3, 2, 1 ->
-            {
-                this.game.sendMessage("${CC.RED}You will be sent to a hub in ${this.game.activeCountdown}...")
-            }
+            this.game.sendMessage("${CC.GRAY}You will be sent to a lobby in 5 seconds.")
         }
 
         if (this.game.activeCountdown <= 0)

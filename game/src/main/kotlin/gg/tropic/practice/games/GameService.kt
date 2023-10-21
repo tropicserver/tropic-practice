@@ -63,6 +63,7 @@ object GameService
         DamageCause.BLOCK_EXPLOSION,
         DamageCause.ENTITY_EXPLOSION,
         DamageCause.FIRE,
+        DamageCause.LAVA,
         DamageCause.POISON,
         DamageCause.STARVATION,
         DamageCause.LIGHTNING,
@@ -101,7 +102,8 @@ object GameService
                             kitID = it.kit.id,
                             replicationID = it.arenaWorldName!!,
                             server = ServerSync.local.id,
-                            majorityAllowsSpectators = (majoritySpectatorsEnabled / players.size) >= 50.0
+                            majorityAllowsSpectators = players.isEmpty() ||
+                                (majoritySpectatorsEnabled / players.size) >= 0.50
                         )
                     }
             )
@@ -258,12 +260,6 @@ object GameService
                         game.complete(
                             game.getOpponent(it.player)
                         )
-                    }
-
-                    if (/*TODO: use height metadata -> game.kit == DuelLadder.Sumo*/ false && it.player.location.y <= 50.0)
-                    {
-                        completeGameArbitraryKiller()
-                        return@handler
                     }
 
                     if (
@@ -440,7 +436,17 @@ object GameService
             }
             .bindWith(plugin)
 
-        Events.subscribe(PlayerQuitEvent::class.java)
+        Events
+            .subscribe(PlayerQuitEvent::class.java)
+            .handler {
+                val spectator = bySpectator(it.player.uniqueId)
+                    ?: return@handler
+
+                spectator.expectedSpectators -= it.player.uniqueId
+            }
+
+        Events
+            .subscribe(PlayerQuitEvent::class.java)
             .handler {
                 val game = byPlayer(it.player)
                     ?: return@handler
@@ -493,6 +499,7 @@ object GameService
             .handler {
                 if (it.entity.hasMetadata("spectator"))
                 {
+                    println("???")
                     it.isCancelled = true
                     return@handler
                 }
@@ -822,5 +829,17 @@ object GameService
         games.values
             .find {
                 player in it.toPlayers()
+            }
+
+    fun bySpectator(player: UUID) =
+        games.values
+            .find {
+                player in it.expectedSpectators
+            }
+
+    fun byPlayerOrSpectator(player: UUID) =
+        games.values
+            .find {
+                player in it.toPlayers() || player in it.expectedSpectators
             }
 }

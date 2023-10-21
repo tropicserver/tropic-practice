@@ -5,7 +5,9 @@ import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.games.models.GameStatusIndexes
+import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.serializers.Serializers
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ForkJoinPool
 import java.util.concurrent.TimeUnit
 
@@ -25,15 +27,24 @@ object GameManager
 
     private val dpsCache = DPSRedisShared.keyValueCache
 
-    fun allGameStatuses() = gameListingCache
-        .asMap().mapValues { (_, value) ->
-            dpsCache
-                .sync()
-                .get(value)
-                .let {
-                    Serializers.gson.fromJson(
-                        it, GameStatus::class.java
-                    )
+    fun allGames() = allGameStatuses()
+        .thenApply {
+            it.values
+                .flatMap(GameStatus::games)
+        }
+
+    fun allGameStatuses() = CompletableFuture
+        .supplyAsync {
+            gameListingCache
+                .asMap().mapValues { (_, value) ->
+                    dpsCache
+                        .sync()
+                        .get(value)
+                        .let {
+                            Serializers.gson.fromJson(
+                                it, GameStatus::class.java
+                            )
+                        }
                 }
         }
 

@@ -52,6 +52,8 @@ class GameImpl(
     private val mapId: String = expectation.mapId
 ) : AbstractGame(expectation, teams, kit), CompositeTerminable by CompositeTerminable.create()
 {
+    val expectedSpectators = mutableSetOf<UUID>()
+
     @Transient
     var activeCountdown = 5
 
@@ -241,6 +243,12 @@ class GameImpl(
     {
         this.toBukkitPlayers()
             .filterNotNull()
+            .forEach {
+                it.sendMessage(message)
+            }
+
+        this.expectedSpectators
+            .mapNotNull(Bukkit::getPlayer)
             .forEach {
                 it.sendMessage(message)
             }

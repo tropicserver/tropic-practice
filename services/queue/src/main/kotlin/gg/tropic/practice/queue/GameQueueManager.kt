@@ -1,5 +1,8 @@
 package gg.tropic.practice.queue
 
+import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.RemovalCause
+import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.tropic.practice.application.api.DPSRedisService
@@ -8,12 +11,16 @@ import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.ImmutableMap
 import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.games.SpectateRequest
+import gg.tropic.practice.games.manager.GameManager
+import gg.tropic.practice.games.models.GameReference
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.replications.manager.ReplicationManager
 import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 
 /**
@@ -195,6 +202,51 @@ object GameQueueManager
             }
     }
 
+    data class SpectateResponse(val status: SpectateResult, val message: String)
+
+    enum class SpectateResult
+    {
+        Complete, Unavailable
+    }
+
+    private val spectateCallbacks = Caffeine
+        .newBuilder()
+        .removalListener<UUID, CompletableFuture<SpectateResponse>> { _, value, cause ->
+            if (cause == RemovalCause.EXPIRED)
+            {
+                value?.complete(
+                    SpectateResponse(
+                        status = SpectateResult.Unavailable,
+                        message = "We weren't able to put you as a spectator in the game!"
+                    )
+                )
+            }
+        }
+        .expireAfterWrite(5L, TimeUnit.SECONDS)
+        .build<UUID, CompletableFuture<SpectateResponse>>()
+
+    fun requestSpectate(
+        server: String,
+        request: SpectateRequest,
+        game: GameReference
+    ): CompletableFuture<SpectateResponse>
+    {
+        val future = CompletableFuture<SpectateResponse>()
+        val requestID = UUID.randomUUID()
+        dpsQueueRedis.createMessage(
+            "request-spectate",
+            "requestID" to requestID,
+            "request" to request,
+            "server" to server,
+            "game" to game.uniqueId
+        ).publish(
+            AwareThreadContext.SYNC,
+            channel = "practice:queue-inhabitants"
+        )
+
+        spectateCallbacks.put(requestID, future)
+        return future
+    }
     fun load()
     {
         KitDataSync.onReload {
@@ -204,8 +256,63 @@ object GameQueueManager
         buildAndValidateQueueIndexes()
 
         dpsQueueRedis.configure {
-            listen("spectate") {
+            listen("spectate-ready") {
+                val requestID = retrieve<UUID>("requestID")
 
+                spectateCallbacks.getIfPresent(requestID)
+                    ?.complete(
+                        SpectateResponse(SpectateResult.Complete, "")
+                    )
+            }
+
+            listen("spectate") {
+                val request = retrieve<SpectateRequest>("request")
+
+                GameManager.allGames()
+                    .thenApply {
+                        it.firstOrNull { ref -> request.target in ref.players }
+                    }
+                    .thenCompose {
+                        if (it == null)
+                        {
+                            DPSRedisShared.sendMessage(
+                                listOf(request.player),
+                                listOf("&cThe player you tried to spectate is not in a game!")
+                            )
+                            return@thenCompose CompletableFuture
+                                .completedFuture(null)
+                        }
+
+                        if (!it.majorityAllowsSpectators && !request.bypassesSpectatorAllowanceChecks)
+                        {
+                            DPSRedisShared.sendMessage(
+                                listOf(request.player),
+                                listOf("&cThe game you tried to spectate has spectators disabled!")
+                            )
+                            return@thenCompose CompletableFuture
+                                .completedFuture(null)
+                        }
+
+                        requestSpectate(it.server, request, it)
+                            .thenApply { resp ->
+                                resp to it.server
+                            }
+                    }
+                    .thenApply {
+                        if (it?.first?.status == SpectateResult.Complete)
+                        {
+                            DPSRedisShared.redirect(
+                                listOf(request.player),
+                                it.second
+                            )
+                        } else
+                        {
+                            DPSRedisShared.sendMessage(
+                                listOf(request.player),
+                                listOf("&c${it?.second ?: "The game you tried to join is unavailable for spectators!"}")
+                            )
+                        }
+                    }
             }
 
             listen("join") {

@@ -23,127 +23,135 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
         board: LinkedList<String>, player: Player
     )
     {
-        val game = GameService.byPlayer(player)
+        val game = GameService
+            .byPlayerOrSpectator(player.uniqueId)
             ?: return
 
         board += ""
 
-        when (game.state)
+        if (player.uniqueId in game.expectedSpectators)
         {
-            GameState.Waiting ->
+            board += "Spectator scoreboard is"
+            board += "coming soon!"
+        } else
+        {
+            when (game.state)
             {
-                board += "${CC.WHITE}Waiting for players..."
-            }
-            GameState.Starting ->
-            {
-                val opponent = game.getOpponent(player)
-                    ?: return
-
-                board += "${CC.WHITE}The game is starting!"
-                board += ""
-
-                if (opponent.players.size == 1)
+                GameState.Waiting ->
                 {
-                    board += "${CC.WHITE}Opponent: ${CC.GOLD}${
-                        opponent.players.first().username()
-                    }"
-                } else
-                {
-                    board += "${CC.GOLD}Opponents:"
-
-                    for (other in opponent.players.take(3))
-                    {
-                        board += " - ${other.username()}"
-                    }
-
-                    if (opponent.players.size > 3)
-                    {
-                        board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
-                    }
-
-                    board += ""
+                    board += "${CC.WHITE}Waiting for players..."
                 }
-
-                board += "${CC.WHITE}Map: ${CC.GOLD}${game.map.displayName}"
-            }
-            GameState.Playing ->
-            {
-                val opponent = game.getOpponent(player)
-                    ?: return
-
-                board += "${CC.WHITE}Duration: ${CC.GOLD}${game.getDuration()}"
-
-                if (opponent.players.size == 1)
+                GameState.Starting ->
                 {
-                    val opponentPlayer = opponent.players.first()
+                    val opponent = game.getOpponent(player)
+                        ?: return
 
-                    board += "${CC.WHITE}Opponent: ${CC.GOLD}${opponentPlayer.username()}"
+                    board += "${CC.WHITE}The game is starting!"
                     board += ""
-                    board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
-                    board += "${CC.WHITE}Their ping: ${CC.RED}${
-                        if (Bukkit.getPlayer(opponentPlayer) != null)
-                            MinecraftReflection.getPing(
-                                Bukkit.getPlayer(opponentPlayer)
-                            ) else "0"
-                    }ms"
-                } else
-                {
+
+                    if (opponent.players.size == 1)
+                    {
+                        board += "${CC.WHITE}Opponent: ${CC.GOLD}${
+                            opponent.players.first().username()
+                        }"
+                    } else
+                    {
+                        board += "${CC.GOLD}Opponents:"
+
+                        for (other in opponent.players.take(3))
+                        {
+                            board += " - ${other.username()}"
+                        }
+
+                        if (opponent.players.size > 3)
+                        {
+                            board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
+                        }
+
+                        board += ""
+                    }
+
                     board += "${CC.WHITE}Map: ${CC.GOLD}${game.map.displayName}"
-                    board += ""
-                    board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
-                    board += "${CC.RED}Opponent pings:"
+                }
+                GameState.Playing ->
+                {
+                    val opponent = game.getOpponent(player)
+                        ?: return
 
-                    for (other in opponent.players.take(3))
+                    board += "${CC.WHITE}Duration: ${CC.GOLD}${game.getDuration()}"
+
+                    if (opponent.players.size == 1)
                     {
-                        val bukkitPlayer = Bukkit.getPlayer(other)
-                            ?: continue
+                        val opponentPlayer = opponent.players.first()
 
-                        board += " - ${
-                            if (bukkitPlayer.hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
-                        }${other.username()} ${CC.D_GRAY}(${
-                            MinecraftReflection.getPing(bukkitPlayer)
-                        }ms)"
-                    }
-
-                    if (opponent.players.size > 3)
+                        board += "${CC.WHITE}Opponent: ${CC.GOLD}${opponentPlayer.username()}"
+                        board += ""
+                        board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
+                        board += "${CC.WHITE}Their ping: ${CC.RED}${
+                            if (Bukkit.getPlayer(opponentPlayer) != null)
+                                MinecraftReflection.getPing(
+                                    Bukkit.getPlayer(opponentPlayer)
+                                ) else "0"
+                        }ms"
+                    } else
                     {
-                        board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
+                        board += "${CC.WHITE}Map: ${CC.GOLD}${game.map.displayName}"
+                        board += ""
+                        board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
+                        board += "${CC.RED}Opponent pings:"
+
+                        for (other in opponent.players.take(3))
+                        {
+                            val bukkitPlayer = Bukkit.getPlayer(other)
+                                ?: continue
+
+                            board += " - ${
+                                if (bukkitPlayer.hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
+                            }${other.username()} ${CC.D_GRAY}(${
+                                MinecraftReflection.getPing(bukkitPlayer)
+                            }ms)"
+                        }
+
+                        if (opponent.players.size > 3)
+                        {
+                            board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
+                        }
                     }
                 }
-            }
-            GameState.Completed ->
-            {
-                val report = game.report
+                GameState.Completed ->
+                {
+                    val report = game.report
 
-                if (report != null)
-                {
-                    board += "${CC.WHITE}Winner: ${CC.GREEN}${
-                        when (report.winners.size)
-                        {
-                            0 -> "N/A"
-                            1 -> report.winners.first().username()
-                            else ->
+                    if (report != null)
+                    {
+                        board += "${CC.WHITE}Winner: ${CC.GREEN}${
+                            when (report.winners.size)
                             {
-                                "${report.winners.first().username()}'s Team" 
+                                0 -> "N/A"
+                                1 -> report.winners.first().username()
+                                else ->
+                                {
+                                    "${report.winners.first().username()}'s Team"
+                                }
                             }
-                        }
-                    }"
-                    board += "${CC.WHITE}Loser: ${CC.RED}${
-                        when (report.losers.size)
-                        {
-                            0 -> "N/A"
-                            1 -> report.losers.first().username()
-                            else ->
+                        }"
+                        board += "${CC.WHITE}Loser: ${CC.RED}${
+                            when (report.losers.size)
                             {
-                                "${report.losers.first().username()}'s Team"
+                                0 -> "N/A"
+                                1 -> report.losers.first().username()
+                                else ->
+                                {
+                                    "${report.losers.first().username()}'s Team"
+                                }
                             }
-                        }
-                    }"
-                    board += ""
-                    board += "${CC.WHITE}Thanks for playing!"
-                } else
-                {
-                    board += "${CC.D_GRAY}Loading game report..."
+                        }"
+                        board += ""
+                        board += "${CC.WHITE}Thanks for playing!"
+                    } else
+                    {
+                        board += "${CC.D_GRAY}Loading game report..."
+                    }
                 }
             }
         }

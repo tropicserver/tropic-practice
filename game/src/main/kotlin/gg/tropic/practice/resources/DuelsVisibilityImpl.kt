@@ -18,11 +18,11 @@ object DuelsVisibilityImpl : VisibilityAdapter
     ): VisibilityAction
     {
         val playerGame = GameService
-            .byPlayer(refreshFor)
+            .byPlayerOrSpectator(refreshFor.uniqueId)
             ?: return VisibilityAction.HIDE
 
         val targetGame = GameService
-            .byPlayer(toRefresh)
+            .byPlayerOrSpectator(toRefresh.uniqueId)
             ?: return VisibilityAction.HIDE
 
         if (targetGame.expectation == playerGame.expectation)

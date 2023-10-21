@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit
  */
 object ReplicationManager
 {
-    private val redis = DPSRedisService("replicationmanager")
+    private val redis = DPSRedisService("replicationmanager-inhibitor")
         .apply(DPSRedisService::start)
 
     private val gameInstanceCache = Caffeine.newBuilder()
@@ -126,7 +126,8 @@ object ReplicationManager
             "map" to map,
             "server" to server
         ).publish(
-            AwareThreadContext.SYNC
+            AwareThreadContext.SYNC,
+            channel = "practice:replicationmanager-inhabitants"
         )
 
         replicationCallbacks.put(requestID, future)
@@ -148,7 +149,8 @@ object ReplicationManager
             "map" to map,
             "server" to server
         ).publish(
-            AwareThreadContext.SYNC
+            AwareThreadContext.SYNC,
+            channel = "practice:replicationmanager-inhabitants"
         )
 
         replicationCallbacks.put(requestID, future)

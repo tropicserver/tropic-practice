@@ -12,39 +12,41 @@ import org.bukkit.entity.Player
  * @since 8/9/2022
  */
 @NametagProviderRegister
-object DuelsNametagImpl : NametagProvider("practice", 3000000)
+object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
 {
     override fun fetchNametag(
         toRefresh: Player, refreshFor: Player
     ): NametagInfo?
     {
         val playerGame = GameService
-            .byPlayer(refreshFor)
+            .byPlayerOrSpectator(toRefresh.uniqueId)
             ?: return null
 
         val targetGame = GameService
-            .byPlayer(toRefresh)
+            .byPlayerOrSpectator(refreshFor.uniqueId)
             ?: return null
 
         if (targetGame.expectation == playerGame.expectation)
         {
-            if (
-                toRefresh.hasMetadata("spectator")
-            )
+            if (refreshFor.hasMetadata("spectator"))
             {
-                return createNametag(CC.GRAY, "")
+                return createNametag(CC.GRAY, "", "z")
             }
 
-            return if (
-                playerGame.getTeamOf(refreshFor).side ==
-                playerGame.getTeamOf(toRefresh).side
+            return runCatching {
+                if (
+                    playerGame.getTeamOf(refreshFor).side ==
+                    playerGame.getTeamOf(toRefresh).side
+                )
+                {
+                    createNametag(CC.GREEN, "")
+                } else
+                {
+                    createNametag(CC.RED, "")
+                }
+            }.getOrNull() ?: createNametag(
+                CC.GREEN, ""
             )
-            {
-                createNametag(CC.GREEN, "")
-            } else
-            {
-                createNametag(CC.RED, "")
-            }
         }
 
         return null

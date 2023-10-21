@@ -8,6 +8,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.category.pingRange
 import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.games.SpectateRequest
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
@@ -56,7 +57,7 @@ object QueueService
             "leader" to player.uniqueId,
             "queueID" to queueID
         ).publish(
-            context = AwareThreadContext.SYNC
+            context = AwareThreadContext.ASYNC
         )
 
         // set Idle and wait until the queue server syncs
@@ -64,6 +65,16 @@ object QueueService
             lobbyPlayer.state = PlayerState.Idle
             lobbyPlayer.maintainStateTimeout = System.currentTimeMillis() + 1000L
         }
+    }
+
+    fun spectate(request: SpectateRequest)
+    {
+        createMessage(
+            packet = "spectate",
+            "request" to request
+        ).publish(
+            context = AwareThreadContext.SYNC
+        )
     }
 
     fun joinQueue(kit: Kit, queueType: QueueType, teamSize: Int, player: Player)
@@ -88,7 +99,7 @@ object QueueService
             "queueType" to queueType,
             "teamSize" to teamSize
         ).publish(
-            context = AwareThreadContext.SYNC
+            context = AwareThreadContext.ASYNC
         )
 
         // set InQueue and wait until the queue server syncs

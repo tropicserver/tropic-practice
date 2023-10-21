@@ -8,8 +8,10 @@ import gg.tropic.practice.games.GameService
 import gg.tropic.practice.resetAttributes
 import gg.tropic.spa.SPABindings
 import me.lucko.helper.Events
+import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Tasks
+import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.event.EventPriority
@@ -17,6 +19,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerTeleportEvent
+import org.bukkit.metadata.FixedMetadataValue
 import org.spigotmc.event.player.PlayerSpawnLocationEvent
 
 /**
@@ -47,48 +50,87 @@ object ExpectationService
         Events
             .subscribe(
                 AsyncPlayerPreLoginEvent::class.java,
-                EventPriority.HIGHEST
+                EventPriority.MONITOR
             )
             .handler { event ->
-                // TODO: spectator pipeline
-                GameService.byPlayer(event.uniqueId)
-                    ?: return@handler run {
-                        event.disallow(
-                            AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
-                            "${CC.RED}You have no game scheduled for you!"
-                        )
-                    }
+                val game = GameService
+                    .byPlayerOrSpectator(event.uniqueId)
+
+                if (game == null)
+                {
+                    event.disallow(
+                        AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
+                        "${CC.RED}You do not have a game to join!"
+                    )
+                }
             }
             .bindWith(plugin)
 
         Events
             .subscribe(PlayerSpawnLocationEvent::class.java)
             .handler {
-                it.spawnLocation = Bukkit
-                    .getWorld("world")
-                    .spawnLocation
+                with(GameService.byPlayer(it.player)) {
+                    if (this != null)
+                    {
+                        it.spawnLocation = map
+                            .findSpawnLocationMatchingTeam(
+                                getTeamOf(it.player).side
+                            )!!
+                            .toLocation(arenaWorld)
+                    } else
+                    {
+                        val spectatorGame = GameService
+                            .bySpectator(it.player.uniqueId)
+
+                        if (spectatorGame != null)
+                        {
+                            it.spawnLocation = spectatorGame
+                                .toBukkitPlayers()
+                                .filterNotNull()
+                                .first().location
+                        }
+                    }
+                }
+
             }
             .bindWith(plugin)
 
-        Events
-            .subscribe(PlayerJoinEvent::class.java)
-            .handler {
-                it.player.resetAttributes()
-                it.player.removeMetadata("spectator", plugin)
 
-                val game = GameService.byPlayer(it.player)
+        Events
+            .subscribe(
+                PlayerJoinEvent::class.java,
+                EventPriority.MONITOR
+            )
+            .handler {
+                val game = GameService
+                    .byPlayerOrSpectator(it.player.uniqueId)
                     ?: return@handler
 
-                with(game) {
-                    val location = map
-                        .findSpawnLocationMatchingTeam(
-                            getTeamOf(it.player).side
-                        )!!
-                        .toLocation(arenaWorld)
+                it.player.resetAttributes()
 
-                    Tasks.sync {
-                        it.player.teleport(location)
-                    }
+                if (it.player.uniqueId in game.expectedSpectators)
+                {
+                    it.player.setMetadata(
+                        "spectator",
+                        FixedMetadataValue(plugin, true)
+                    )
+
+                    NametagHandler.reloadPlayer(it.player)
+                    VisibilityHandler.update(it.player)
+
+                    it.player.allowFlight = true
+                    it.player.isFlying = true
+
+                    game.sendMessage(
+                        "${CC.GREEN}${it.player.name}${CC.YELLOW} is now spectating the game."
+                    )
+
+                    it.player.sendMessage(
+                        "${CC.B_YELLOW}You are now spectating the game."
+                    )
+                } else
+                {
+                    it.player.removeMetadata("spectator", plugin)
                 }
             }
             .bindWith(plugin)
