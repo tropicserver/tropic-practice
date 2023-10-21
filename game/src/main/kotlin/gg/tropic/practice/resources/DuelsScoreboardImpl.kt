@@ -4,6 +4,7 @@ import gg.scala.lemon.LemonConstants
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.games.team.GameTeamSide
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
@@ -31,8 +32,41 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
 
         if (player.uniqueId in game.expectedSpectators)
         {
-            board += "Spectator scoreboard is"
-            board += "coming soon!"
+            for (team in game.teams.values)
+            {
+                fun Player.format() = "${CC.WHITE}${
+                    if (hasMetadata("spectator")) CC.STRIKE_THROUGH else ""
+                }$name ${CC.GRAY}(${
+                    MinecraftReflection.getPing(this)
+                }ms)"
+
+                val bukkitPlayers = team.toBukkitPlayers()
+                    .filterNotNull()
+                val sidePrefix = if (team.side == GameTeamSide.A)
+                    "${CC.GREEN}[A]:" else "${CC.RED}[B]:"
+
+                board += "$sidePrefix ${
+                    if (bukkitPlayers.size == 1) bukkitPlayers.first().format() else ""
+                }"
+
+                if (bukkitPlayers.size > 1)
+                {
+                    bukkitPlayers
+                        .take(3)
+                        .forEach {
+                            board += "- ${it.format()}"
+                        }
+
+                    board += ""
+                }
+            }
+
+            if (board.last() != "")
+            {
+                board += ""
+            }
+
+            board += "Map: ${CC.GOLD}${game.map.displayName}"
         } else
         {
             when (game.state)
