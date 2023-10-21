@@ -271,6 +271,18 @@ object GameService
                         return@handler
                     }
 
+                    val yAxis = game
+                        .flagMetaData(
+                            FeatureFlag.DeathBelowYAxis, "level"
+                        )
+                        ?.toIntOrNull()
+
+                    if (yAxis != null && it.to.y < yAxis)
+                    {
+                        completeGameArbitraryKiller()
+                        return@handler
+                    }
+
                     return@handler
                 }
 
@@ -499,7 +511,6 @@ object GameService
             .handler {
                 if (it.entity.hasMetadata("spectator"))
                 {
-                    println("???")
                     it.isCancelled = true
                     return@handler
                 }

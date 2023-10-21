@@ -22,6 +22,11 @@ enum class FeatureFlag(
     DoNotTakeHunger,
     DoNotRemoveArmor,
     RequiresBuildMap,
+    DeathBelowYAxis(
+        schema = mutableMapOf(
+            "level" to "95"
+        )
+    ),
     PlaceBlocks,
     BreakAllBlocks(
         incompatibleWith = { setOf(BreakPlacedBlocks, BreakSpecificBlockTypes) },
