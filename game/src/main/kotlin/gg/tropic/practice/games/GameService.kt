@@ -3,6 +3,8 @@ package gg.tropic.practice.games
 import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.PacketContainer
+import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
@@ -74,6 +76,18 @@ object GameService
             GameStatus(
                 games = games.values
                     .map {
+                        val players = it.toBukkitPlayers()
+                            .filterNotNull()
+
+                        val majoritySpectatorsEnabled = players
+                            .mapNotNull(BasicsProfileService::find)
+                            .count { profile ->
+                                profile.setting(
+                                    "duels:allow-spectators",
+                                    StateSettingValue.ENABLED
+                                ) == StateSettingValue.ENABLED
+                            }
+
                         GameReference(
                             uniqueId = it.identifier,
                             mapID = it.map.name,
@@ -86,7 +100,8 @@ object GameService
                                 .map(Player::getUniqueId),
                             kitID = it.kit.id,
                             replicationID = it.arenaWorldName!!,
-                            server = ServerSync.local.id
+                            server = ServerSync.local.id,
+                            majorityAllowsSpectators = (majoritySpectatorsEnabled / players.size) >= 50.0
                         )
                     }
             )
@@ -688,7 +703,7 @@ object GameService
                 if (game.kit.allowedBlockTypeMappings != null)
                 {
                     if (
-                        game.kit.allowedBlockTypeMappings!!
+                        game.kit.allowedBlockTypeMappings
                             .any { (type, data) ->
                                 it.block.type == type && it.block.data == data.toByte()
                             }

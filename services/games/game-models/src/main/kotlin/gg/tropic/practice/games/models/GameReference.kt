@@ -14,5 +14,6 @@ data class GameReference(
     val replicationID: String,
     val server: String,
     val players: List<UUID>,
-    val spectators: List<UUID>
+    val spectators: List<UUID>,
+    val majorityAllowsSpectators: Boolean
 )
