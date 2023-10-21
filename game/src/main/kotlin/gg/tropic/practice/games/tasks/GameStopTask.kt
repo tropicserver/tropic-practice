@@ -52,6 +52,26 @@ class GameStopTask(
                 ""
             )
 
+            if (game.expectedSpectators.isNotEmpty())
+            {
+                // TODO: exclude those who don't want to be shown
+                game.sendMessage(
+                    "${CC.YELLOW}Spectators ${CC.GRAY}(${
+                        game.expectedSpectators.size
+                    })${CC.YELLOW}: ${CC.WHITE}${
+                        game.expectedSpectators.take(3)
+                            .joinToString(", ") {
+                                it.username()
+                            }
+                    }${
+                        if (game.expectedSpectators.size > 3) " ${CC.GRAY}(and ${
+                            game.expectedSpectators.size - 3
+                        } more...)" else ""
+                    }",
+                    ""
+                )
+            }
+
             if (eloMappings.isNotEmpty())
             {
                 val winner = eloMappings.keys.first()
