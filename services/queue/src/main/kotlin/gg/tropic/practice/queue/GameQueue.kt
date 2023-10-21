@@ -213,7 +213,7 @@ class GameQueue(
                                 )
 
                             // we can ignore ping intersections if they have no ping restriction
-                            val doesPingIntersect = entry.maxPingDiff == -1 ||
+                            val doesPingIntersect = (entry.maxPingDiff == -1 || otherEntry.maxPingDiff == -1) ||
                                 entry.leaderRangedPing.toIntRangeInclusive()
                                     .quickIntersect(
                                         otherEntry.leaderRangedPing
