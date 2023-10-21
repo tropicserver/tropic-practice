@@ -27,8 +27,6 @@ class StatisticsMenu(
         with(this) {
             val casualStats = profile.getCasualStatsFor(kit)
             val rankedStats = profile.getRankedStatsFor(kit)
-
-            val description = mutableListOf<String>()
             val unrankedLore = listOf(
                 "${CC.WHITE}Wins: ${CC.GREEN}${casualStats.wins}",
                 "${CC.WHITE}Played: ${CC.GREEN}${casualStats.plays}",
@@ -60,7 +58,8 @@ class StatisticsMenu(
                 "${CC.WHITE}Peak: ${CC.AQUA}${rankedStats.longestStreak}"
             )
 
-            description + when (state)
+
+            when (state)
             {
                 StatisticMenuState.Unranked -> unrankedLore
                 StatisticMenuState.Ranked -> rankedLore
@@ -100,6 +99,8 @@ class StatisticsMenu(
                 "${CC.GREEN}Click to view!"
             )
             .toButton { _, _ ->
+                Button.playNeutral(player)
+
                 StatisticsMenu(
                     profile,
                     StatisticMenuState.Unranked
@@ -114,6 +115,8 @@ class StatisticsMenu(
                 "${CC.AQUA}Click to view!"
             )
             .toButton { _, _ ->
+                Button.playNeutral(player)
+
                 StatisticsMenu(
                     profile,
                     StatisticMenuState.Ranked
