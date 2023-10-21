@@ -265,11 +265,11 @@ class GameImpl(
         )
 
     fun getOpponent(team: GameTeam) = this.teams[
-            when (team.side)
-            {
-                GameTeamSide.A -> GameTeamSide.B
-                GameTeamSide.B -> GameTeamSide.A
-            }
+        when (team.side)
+        {
+            GameTeamSide.A -> GameTeamSide.B
+            GameTeamSide.B -> GameTeamSide.A
+        }
     ]
 
     fun getDuration(): String
@@ -383,13 +383,23 @@ class GameImpl(
     fun enterLoadoutSelection(player: Player)
     {
         val defaultLoadout = DefaultLoadout(kit)
-        val defaultLoadoutID = UUID.randomUUID()
 
         val profile = PracticeProfileService
             .find(player)
             ?: return run {
                 defaultLoadout.apply(player)
             }
+
+        val loadouts = profile.customLoadouts
+            .getOrDefault(kit.id, listOf())
+
+        if (loadouts.isEmpty())
+        {
+            defaultLoadout.apply(player)
+            return
+        }
+
+        val defaultLoadoutID = UUID.randomUUID()
 
         val terminable = CompositeTerminable.create()
         terminable.with {
@@ -400,8 +410,7 @@ class GameImpl(
             }
         }
 
-        val applicableLoadouts = profile.customLoadouts
-            .getOrDefault(kit.id, listOf())
+        val applicableLoadouts = loadouts
             .map {
                 @Suppress("USELESS_CAST")
                 CustomLoadout(it, kit) as SelectedLoadout
