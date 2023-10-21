@@ -95,6 +95,7 @@ class DuelGamesMenu(
                     "${CC.GREEN}Click to view inventories!"
                 )
                 .toButton { _, _ ->
+                    Button.playNeutral(player)
                     SelectPlayerMenu(report, this).openMenu(player)
                 }
         }

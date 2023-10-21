@@ -27,9 +27,12 @@ abstract class TemplateKitMenu : PaginatedMenu()
     abstract fun itemDescriptionOf(player: Player, kit: Kit): List<String>
     abstract fun itemClicked(player: Player, kit: Kit, type: ClickType)
 
-    open fun itemTitleExtensionOf(player: Player, kit: Kit): String
+    open fun itemTitleFor(player: Player, kit: Kit): String
     {
-        return ""
+        return "${CC.GREEN}${kit.displayName}${
+            if (kit.features(FeatureFlag.NewlyCreated))
+                " ${CC.B_YELLOW}NEW!" else ""
+        }"
     }
 
     override fun size(buttons: Map<Int, Button>) = 45
@@ -59,12 +62,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
                 buttons[buttons.size] = ItemBuilder
                     .copyOf(it.displayIcon)
                     .name(
-                        "${CC.GREEN}${it.displayName}${
-                            if (it.features(FeatureFlag.NewlyCreated))
-                                " ${CC.B_YELLOW}NEW!" else ""
-                        }${
-                            itemTitleExtensionOf(player, it)
-                        }"
+                        itemTitleFor(player, it)
                     )
                     .apply {
                         if (it.description.isNotBlank())

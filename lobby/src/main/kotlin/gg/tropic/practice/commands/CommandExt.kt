@@ -1,5 +1,6 @@
 package gg.tropic.practice.commands
 
+import gg.scala.basics.plugin.profile.BasicsProfile
 import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.lemon.util.QuickAccess.username
 import gg.scala.store.controller.DataStoreObjectControllerCache
@@ -19,4 +20,13 @@ val UUID.offlineProfile: PracticeProfile
         .join()
         ?: throw ConditionFailedException(
             "${CC.YELLOW}${username()}${CC.RED} has not logged onto our duels server."
+        )
+
+val UUID.basicsProfile: BasicsProfile
+    get() = DataStoreObjectControllerCache
+        .findNotNull<BasicsProfile>()
+        .load(this, DataStoreStorageType.MONGO)
+        .join()
+        ?: throw ConditionFailedException(
+            "${CC.YELLOW}${username()}${CC.RED} has not logged onto our network."
         )

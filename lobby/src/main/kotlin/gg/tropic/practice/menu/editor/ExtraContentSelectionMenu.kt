@@ -31,7 +31,7 @@ class ExtraContentSelectionMenu(
             buttons[index] = ItemBuilder
                 .copyOf(content)
                 .toButton { _, _ ->
-                    player.playSound(player.location, Sound.CLICK, 1f, 1f)
+                    Button.playNeutral(player)
                     player.inventory.addItem(content)
                 }
         }

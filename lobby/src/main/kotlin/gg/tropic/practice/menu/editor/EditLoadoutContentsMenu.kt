@@ -47,6 +47,7 @@ class EditLoadoutContentsMenu(
             )
             .toButton { _, _ ->
                 handleLoadoutSave(player).thenRun {
+                    Button.playNeutral(player)
                     handleBackwardsMenuNavigation(player)
                 }
             }
@@ -76,6 +77,7 @@ class EditLoadoutContentsMenu(
 
                 loadout.timestamp = System.currentTimeMillis()
 
+                Button.playNeutral(player)
                 practiceProfile.save().thenRun {
                     player.sendMessage("${CC.GREEN}You have reset this loadout's content.")
                 }
@@ -93,6 +95,7 @@ class EditLoadoutContentsMenu(
                 "${CC.RED}Click to cancel!"
             )
             .toButton { _, _ ->
+                Button.playNeutral(player)
                 handleBackwardsMenuNavigation(player)
             }
 
@@ -104,6 +107,7 @@ class EditLoadoutContentsMenu(
                 "${CC.GREEN}Click to edit name!"
             )
             .toButton { _, _ ->
+                Button.playNeutral(player)
                 player.closeInventory()
                 player.sendMessage("${CC.GREEN}Type the new name of the loadout in chat.")
                 player.sendMessage("${CC.GREEN}Type ${CC.RED}cancel ${CC.GREEN}to cancel.")
@@ -142,6 +146,7 @@ class EditLoadoutContentsMenu(
                 "${CC.RED}Click to delete!"
             )
             .toButton { _, _ ->
+                Button.playNeutral(player)
                 ConfirmMenu(
                     title = "Deleting loadout: ${loadout.name}",
                     confirm = true
@@ -192,6 +197,7 @@ class EditLoadoutContentsMenu(
                     movingToExtendedContentMenu = true
 
                     handleLoadoutSave(player).thenRun {
+                        Button.playNeutral(player)
                         ExtraContentSelectionMenu(kit, this).openMenu(player)
                     }
                 }

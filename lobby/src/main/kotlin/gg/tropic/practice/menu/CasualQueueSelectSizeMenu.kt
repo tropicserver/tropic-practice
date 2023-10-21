@@ -35,6 +35,7 @@ class CasualQueueSelectSizeMenu : Menu("Casual Queue")
                 "${CC.GREEN}Click to open!"
             )
             .toButton { _, _ ->
+                Button.playNeutral(player)
                 JoinQueueMenu(QueueType.Casual, 1).openMenu(player)
             },
         14 to ItemBuilder
@@ -50,6 +51,7 @@ class CasualQueueSelectSizeMenu : Menu("Casual Queue")
                 "${CC.GREEN}Click to open!"
             )
             .toButton { _, _ ->
+                Button.playNeutral(player)
                 JoinQueueMenu(QueueType.Casual, 2).openMenu(player)
             }
     )

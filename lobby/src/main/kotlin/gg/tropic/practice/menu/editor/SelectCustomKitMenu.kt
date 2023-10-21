@@ -50,6 +50,7 @@ class SelectCustomKitMenu(
                     "${CC.GREEN}Click to edit!"
                 )
                 .toButton { _, _ ->
+                    Button.playNeutral(player)
                     EditLoadoutContentsMenu(kit, loadoutAt, practiceProfile).openMenu(player)
                 }
         }

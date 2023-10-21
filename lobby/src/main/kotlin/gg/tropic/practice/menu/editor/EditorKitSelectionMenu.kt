@@ -4,6 +4,7 @@ import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.loadout.Loadout
+import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
@@ -52,11 +53,13 @@ class EditorKitSelectionMenu(
 
             practiceProfile.customLoadouts[kit.id]?.add(loadout)
 
+            Button.playNeutral(player)
             EditLoadoutContentsMenu(kit, loadout, practiceProfile).openMenu(player)
         } else if (type == ClickType.SHIFT_LEFT)
         {
             if (loadouts.size != 0)
             {
+                Button.playNeutral(player)
                 SelectCustomKitMenu(
                     practiceProfile,
                     loadouts,

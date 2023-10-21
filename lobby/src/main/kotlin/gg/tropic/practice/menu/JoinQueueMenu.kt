@@ -6,6 +6,7 @@ import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
+import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import org.bukkit.Sound
@@ -53,7 +54,7 @@ class JoinQueueMenu(
         player.closeInventory()
         QueueService.joinQueue(kit, queueType, teamSize, player)
 
-        player.playSound(player.location, Sound.NOTE_PLING, 1f, 1f)
+        Button.playNeutral(player)
         player.sendMessage(
             "${CC.GREEN}You have joined the ${CC.PRI}${queueType.name} ${teamSize}v$teamSize ${kit.displayName}${CC.GREEN} queue!"
         )
