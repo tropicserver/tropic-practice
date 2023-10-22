@@ -310,17 +310,8 @@ class GameImpl(
         }
 
         kotlin.runCatching {
-            Logger.getGlobal().info(
-                "[Practice] cleaning up $expectation for $reason."
-            )
-
             if (kickPlayers)
             {
-                this.sendMessage(
-                    "${CC.RED}The game has ended:",
-                    "${CC.WHITE}$reason"
-                )
-
                 val online = Players.all()
                     .filter {
                         it.location.world.name == arenaWorld.name

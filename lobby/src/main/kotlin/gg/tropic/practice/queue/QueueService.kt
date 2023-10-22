@@ -32,7 +32,7 @@ object QueueService
             .build()
     }
 
-    private fun createMessage(packet: String, vararg pairs: Pair<String, Any?>): AwareMessage =
+    fun createMessage(packet: String, vararg pairs: Pair<String, Any?>): AwareMessage =
         AwareMessage.of(packet, this.aware, *pairs)
 
     @Configure

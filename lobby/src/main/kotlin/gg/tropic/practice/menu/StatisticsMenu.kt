@@ -29,6 +29,7 @@ class StatisticsMenu(
             val rankedStats = profile.getRankedStatsFor(kit)
             val unrankedLore = listOf(
                 "${CC.WHITE}Wins: ${CC.GREEN}${casualStats.wins}",
+                "${CC.WHITE}Losses: ${CC.AQUA}${casualStats.plays - casualStats.wins}",
                 "${CC.WHITE}Played: ${CC.GREEN}${casualStats.plays}",
                 "",
                 "${CC.WHITE}Kills: ${CC.GREEN}${casualStats.kills}",
@@ -42,12 +43,13 @@ class StatisticsMenu(
 
             val rankedLore = listOf(
                 "${CC.WHITE}Wins: ${CC.AQUA}${rankedStats.wins}",
-                "${CC.WHITE}Played: ${CC.AQUA}${rankedStats.wins}",
+                "${CC.WHITE}Losses: ${CC.AQUA}${rankedStats.plays - rankedStats.wins}",
+                "${CC.WHITE}Played: ${CC.AQUA}${rankedStats.plays}",
                 "",
                 "${CC.WHITE}Kills: ${CC.AQUA}${rankedStats.kills}",
                 "${CC.WHITE}Deaths: ${CC.AQUA}${rankedStats.deaths}",
                 "",
-                "${CC.WHITE}ELO: ${CC.AQUA}${rankedStats.elo}",
+                "${CC.WHITE}ELO: ${CC.AQUA}${rankedStats.elo} ${CC.GRAY}(#1)",
                 "${CC.WHITE} ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Highest ELO: ${CC.AQUA}${
                     rankedStats.highestElo
                 }",
@@ -61,7 +63,7 @@ class StatisticsMenu(
 
             when (state)
             {
-                StatisticMenuState.Unranked -> unrankedLore
+                StatisticMenuState.Casual -> unrankedLore
                 StatisticMenuState.Ranked -> rankedLore
             }
         }
@@ -91,7 +93,15 @@ class StatisticsMenu(
             )
             .toButton()
 
-        buttons[39] = ItemBuilder.of(Material.CARPET)
+        buttons[39] = ItemBuilder
+            .of(
+                if (state == StatisticMenuState.Casual)
+                    Material.WOOL else Material.CARPET
+            )
+            .apply {
+                if (state == StatisticMenuState.Casual)
+                    glow()
+            }
             .name("${CC.B_GREEN}Casual Statistics")
             .data(5)
             .addToLore(
@@ -103,13 +113,21 @@ class StatisticsMenu(
 
                 StatisticsMenu(
                     profile,
-                    StatisticMenuState.Unranked
+                    StatisticMenuState.Casual
                 ).openMenu(player)
             }
 
-        buttons[41] = ItemBuilder.of(Material.CARPET)
+        buttons[41] = ItemBuilder
+            .of(
+                if (state == StatisticMenuState.Ranked)
+                    Material.WOOL else Material.CARPET
+            )
             .name("${CC.B_AQUA}Ranked Statistics")
             .data(3)
+            .apply {
+                if (state == StatisticMenuState.Ranked)
+                    glow()
+            }
             .addToLore(
                 " ",
                 "${CC.AQUA}Click to view!"
@@ -126,10 +144,11 @@ class StatisticsMenu(
         return buttons
     }
 
-    override fun getPrePaginatedTitle(player: Player) = "${profile.identifier.username()}'s ${state.name.lowercase()} statistics"
+    override fun getPrePaginatedTitle(player: Player) =
+        "${profile.identifier.username()}'s ${state.name.lowercase()} statistics"
 
     enum class StatisticMenuState
     {
-        Ranked, Unranked
+        Ranked, Casual
     }
 }

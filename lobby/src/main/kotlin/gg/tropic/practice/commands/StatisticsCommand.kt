@@ -31,7 +31,7 @@ object StatisticsCommand : ScalaCommand()
             return target.validatePlayers(player.bukkit(), false) {
                 StatisticsMenu(
                     it.identifier.offlineProfile,
-                    StatisticsMenu.StatisticMenuState.Unranked
+                    StatisticsMenu.StatisticMenuState.Casual
                 ).openMenu(player.bukkit())
             }
         }
@@ -41,7 +41,7 @@ object StatisticsCommand : ScalaCommand()
                 "Your profile has not loaded in properly, log out and try again."
             )
 
-        StatisticsMenu(profile, StatisticsMenu.StatisticMenuState.Unranked).openMenu(player.bukkit())
+        StatisticsMenu(profile, StatisticsMenu.StatisticMenuState.Casual).openMenu(player.bukkit())
         return CompletableFuture.completedFuture(null)
     }
 }

@@ -3,13 +3,18 @@ package gg.tropic.practice.queue
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.github.benmanes.caffeine.cache.RemovalCause
 import gg.scala.aware.thread.AwareThreadContext
+import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.GameExpectation
+import gg.tropic.practice.application.api.defaults.game.GameTeam
+import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.ImmutableMap
+import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.games.DuelRequest
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.games.SpectateRequest
 import gg.tropic.practice.games.manager.GameManager
@@ -20,6 +25,8 @@ import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
 
@@ -247,6 +254,13 @@ object GameQueueManager
         spectateCallbacks.put(requestID, future)
         return future
     }
+
+    fun playerIsOnline(uniqueId: UUID) = dpsRedisCache.sync()
+        .hexists("player:$uniqueId", "server")
+
+    fun playerIsQueued(uniqueId: UUID) = dpsRedisCache.sync()
+        .hexists("tropicpractice:queue-states", uniqueId.toString())
+
     fun load()
     {
         KitDataSync.onReload {
@@ -254,6 +268,8 @@ object GameQueueManager
         }
 
         buildAndValidateQueueIndexes()
+
+        val executor = Executors.newSingleThreadScheduledExecutor()
 
         dpsQueueRedis.configure {
             listen("spectate-ready") {
@@ -263,6 +279,131 @@ object GameQueueManager
                     ?.complete(
                         SpectateResponse(SpectateResult.Complete, "")
                     )
+            }
+
+            val futureMappings = mutableMapOf<String, ScheduledFuture<*>>()
+            listen("accept-duel") {
+                val request = retrieve<DuelRequest>("request")
+                val key = "tropicpractice:duelrequests:${request.requester}:${request.kitID}"
+                futureMappings[key]?.cancel(true)
+                dpsRedisCache.sync().hdel(key, request.requestee.toString())
+
+                // TODO: ensure player is still on lobby
+                if (!playerIsOnline(request.requester))
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(request.requestee),
+                        listOf("&cThe player that sent you the duel request is no longer online!")
+                    )
+                    return@listen
+                }
+
+                if (playerIsQueued(request.requester))
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(request.requestee),
+                        listOf("&cThe player that sent you the duel request is currently queued for a game!")
+                    )
+                    return@listen
+                }
+
+                GameManager.allGames()
+                    .thenApply {
+                        it.firstOrNull { ref -> request.requester in ref.players }
+                    }
+                    .thenAccept {
+                        if (it != null)
+                        {
+                            DPSRedisShared.sendMessage(
+                                listOf(request.requestee),
+                                listOf("&cThe player that sent you the duel request is currently in a game!")
+                            )
+                            return@thenAccept
+                        }
+
+                        val kit = KitDataSync.cached().kits[request.kitID]
+                            ?: return@thenAccept run {
+                                DPSRedisShared.sendMessage(
+                                    listOf(request.requestee),
+                                    listOf(
+                                        "&cThe kit you received a duel request for no longer exists!"
+                                    )
+                                )
+                            }
+
+                        // we need to do the check again, so why not
+                        val map = if (request.mapID == null)
+                        {
+                            MapDataSync
+                                .selectRandomMapCompatibleWith(kit)
+                        } else
+                        {
+                            MapDataSync.cached().maps[request.mapID]
+                        } ?: return@thenAccept run {
+                            DPSRedisShared.sendMessage(
+                                listOf(request.requestee),
+                                listOf(
+                                    "&cWe found no map compatible with the kit you received a duel request for!"
+                                )
+                            )
+                        }
+
+                        prepareGameFor(map, GameExpectation(
+                            players = listOf(request.requester, request.requestee),
+                            identifier = UUID.randomUUID(),
+                            teams = mapOf(
+                                GameTeamSide.A to GameTeam(GameTeamSide.A, listOf(request.requester)),
+                                GameTeamSide.B to GameTeam(GameTeamSide.B, listOf(request.requestee))
+                            ),
+                            kitId = request.kitID,
+                            mapId = map.name
+                        )) {
+                            println("[debug] prepared duel game for ${request.requester}")
+                        }
+                    }
+            }
+
+            listen("request-duel") {
+                val request = retrieve<DuelRequest>("request")
+                val key = "tropicpractice:duelrequests:${request.requester}:${request.kitID}"
+                dpsRedisCache.sync().hset(
+                    key,
+                    request.requestee.toString(),
+                    Serializers.gson.toJson(request)
+                )
+
+                val requesterName = ScalaStoreUuidCache.username(request.requester)
+                DPSRedisShared.sendMessage(
+                    listOf(request.requestee),
+                    listOf(
+                        """
+                            &7&m${"-".repeat(35)}
+                            &a${requesterName} &esent you a duel request with kit &6${
+                                request.kitID
+                            }&e ${
+                                if (request.mapID == null) "and a random map" else "on &a${request.mapID}&e"
+                            }.
+                            &7&m${"-".repeat(35)}
+                        """.trimIndent()
+                    )
+                )
+
+                futureMappings[key] = executor.schedule({
+                    DPSRedisShared.sendMessage(
+                        listOf(request.requestee),
+                        listOf(
+                            """
+                                &7&m${"-".repeat(35)}
+                                &cYour duel request from &e${requesterName}&c with kit &e${
+                                request.kitID // TODO: use proper display name 
+                            }&c has expired!
+                                &7&m${"-".repeat(35)}
+                            """.trimIndent()
+                        )
+                    )
+
+                    dpsRedisCache.sync().hdel(key, request.requestee.toString())
+                }, 1L, TimeUnit.MINUTES)
             }
 
             listen("spectate") {

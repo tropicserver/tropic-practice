@@ -1,6 +1,7 @@
-package gg.tropic.practice.menu.pipes
+package gg.tropic.practice.menu.pipeline
 
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.duel.DuelRequestUtilities
 import gg.tropic.practice.games.DuelRequest
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.group.KitGroup
@@ -8,6 +9,7 @@ import gg.tropic.practice.kit.group.KitGroupService
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.menu.template.TemplateMapMenu
+import gg.tropic.practice.queue.QueueService
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
@@ -22,7 +24,7 @@ import java.util.UUID
  * @author GrowlyX
  * @since 10/21/2023
  */
-object DuelRequestPipe
+object DuelRequestPipeline
 {
     private fun stage2ASendDuelRequestRandomMap(
         player: Player,
@@ -40,6 +42,8 @@ object DuelRequestPipe
         player.sendMessage(
             "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and a random map."
         )
+
+        stage4PublishDuelRequest(request)
     }
 
     private fun stage3SendDuelRequest(
@@ -61,6 +65,18 @@ object DuelRequestPipe
             "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and map ${CC.GREEN}${
                 map.displayName
             }${CC.SEC}."
+        )
+
+        stage4PublishDuelRequest(request)
+    }
+
+    private fun stage4PublishDuelRequest(request: DuelRequest)
+    {
+        QueueService.createMessage(
+            "request-duel",
+            "request" to request
+        ).publish(
+            channel = "practice:queue"
         )
     }
 
@@ -117,6 +133,7 @@ object DuelRequestPipe
 
     fun build(target: UUID) = object : TemplateKitMenu()
     {
+        private var kitSelectionLock = false
         override fun filterDisplayOfKit(player: Player, kit: Kit) = true
 
         override fun itemTitleFor(player: Player, kit: Kit) = "${CC.B_GREEN}${kit.displayName}"
@@ -127,24 +144,56 @@ object DuelRequestPipe
 
         override fun itemClicked(player: Player, kit: Kit, type: ClickType)
         {
-            if (player.hasPermission("practice.duel.select-custom-map"))
+            if (kitSelectionLock)
             {
-                val stage2B = stage2BSendDuelRequestCustomMap(target, kit, this)
-
-                if (!stage2B.ensureMapsAvailable())
-                {
-                    Button.playFail(player)
-                    player.sendMessage("${CC.RED}There are no maps associated with the kit ${CC.YELLOW}${kit.displayName}${CC.RED}!")
-                    return
-                }
-
-                Button.playNeutral(player)
-                stage2B.openMenu(player)
                 return
             }
 
-            Button.playNeutral(player)
-            stage2ASendDuelRequestRandomMap(player, target, kit)
+            kitSelectionLock = true
+
+            DuelRequestUtilities
+                .duelRequestExists(player.uniqueId, target, kit)
+                .thenAccept {
+                    if (it)
+                    {
+                        kitSelectionLock = false
+                        player.sendMessage(
+                            "${CC.RED}You already have an outgoing duel request to ${target.username()} with kit ${kit.displayName}!"
+                        )
+                        return@thenAccept
+                    }
+
+                    if (player.hasPermission("practice.duel.select-custom-map"))
+                    {
+                        val stage2B = stage2BSendDuelRequestCustomMap(target, kit, this)
+
+                        if (!stage2B.ensureMapsAvailable())
+                        {
+                            kitSelectionLock = false
+
+                            Button.playFail(player)
+                            player.sendMessage("${CC.RED}There are no maps associated with the kit ${CC.YELLOW}${kit.displayName}${CC.RED}!")
+                            return@thenAccept
+                        }
+
+                        kitSelectionLock = false
+
+                        Button.playNeutral(player)
+                        stage2B.openMenu(player)
+                        return@thenAccept
+                    }
+
+                    kitSelectionLock = false
+
+                    Button.playNeutral(player)
+                    stage2ASendDuelRequestRandomMap(player, target, kit)
+                }
+                .exceptionally {
+                    kitSelectionLock = false
+
+                    it.printStackTrace()
+                    return@exceptionally null
+                }
         }
 
         override fun getPrePaginatedTitle(player: Player) = "Select a kit..."

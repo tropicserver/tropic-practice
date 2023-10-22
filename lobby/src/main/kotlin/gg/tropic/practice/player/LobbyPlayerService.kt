@@ -183,13 +183,18 @@ object LobbyPlayerService
         aware.listen("send-message") {
             usePlayer {
                 val message = retrieve<String>("message")
-                sendMessage(
-                    Color.translate(
-                        message
-                            .replace("{primary}", CC.PRI)
-                            .replace("{secondary}", CC.SEC)
+                    .split("\n")
+
+                for (component in message)
+                {
+                    sendMessage(
+                        Color.translate(
+                            component
+                                .replace("{primary}", CC.PRI)
+                                .replace("{secondary}", CC.SEC)
+                        )
                     )
-                )
+                }
             }
         }
 
