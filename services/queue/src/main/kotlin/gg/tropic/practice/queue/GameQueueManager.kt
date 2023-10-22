@@ -6,6 +6,7 @@ import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
+import gg.scala.lemon.util.QuickAccess
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.GameExpectation
@@ -384,15 +385,12 @@ object GameQueueManager
                 DPSRedisShared.sendMessage(
                     listOf(request.requestee),
                     listOf(
-                        """
-                            &7&m${"-".repeat(35)}
-                            &a${requesterName} &esent you a duel request with kit &6${
-                                request.kitID
-                            }&e ${
-                                if (request.mapID == null) "and a random map" else "on &a${request.mapID}&e"
-                            }.
-                            &7&m${"-".repeat(35)}
-                        """.trimIndent()
+                        " ",
+                        "${QuickAccess.coloredName(requesterName)} &ehas sent you a duel request!",
+                        "&7- &eKit: &f${request.kitID}",
+                        "&7- &eMap: &a${request.mapID}",
+                        "&a[Click to Accept]",
+                        " "
                     )
                 )
 
