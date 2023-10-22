@@ -274,6 +274,11 @@ object GameQueueManager
         Logger.getGlobal().info("Invalidated existing duel requests")
 
         val executor = Executors.newSingleThreadScheduledExecutor()
+        Runtime.getRuntime().addShutdownHook(Thread {
+            println("Terminating all duel request invalidators before shutdown, please wait.")
+            executor.awaitTermination(5L, TimeUnit.SECONDS)
+        })
+
         dpsQueueRedis.configure {
             listen("spectate-ready") {
                 val requestID = retrieve<UUID>("requestID")
