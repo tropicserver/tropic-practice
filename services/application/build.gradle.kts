@@ -15,6 +15,9 @@ dependencies {
     implementation(project(":services:application:api"))
     implementation(project(":services:statistics:leaderboards"))
 
+    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+
     implementation("gg.scala.commons:store:3.2.2")
     implementation("gg.scala.commons:serversync:3.2.2")
     implementation("gg.scala.commons:serializers:3.2.2")

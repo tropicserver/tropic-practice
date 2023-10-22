@@ -3,6 +3,7 @@ package gg.tropic.practice.application
 import com.mongodb.MongoClient
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
+import com.xenomachina.argparser.mainBody
 import gg.scala.aware.AwareHub
 import gg.scala.aware.uri.WrappedAwareUri
 import gg.scala.cache.uuid.ScalaStoreUuidCache
@@ -71,8 +72,7 @@ class ApplicationServerArgs(parser: ArgParser)
  * @author GrowlyX
  * @since 9/23/2023
  */
-fun main(args: Array<String>)
-{
+fun main(args: Array<String>) = mainBody {
     val parsedArgs = ArgParser(args)
         .parseInto {
             ApplicationServerArgs(it)
