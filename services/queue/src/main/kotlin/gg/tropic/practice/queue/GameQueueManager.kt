@@ -275,8 +275,8 @@ object GameQueueManager
 
         val executor = Executors.newSingleThreadScheduledExecutor()
         Runtime.getRuntime().addShutdownHook(Thread {
-            println("Terminating all duel request invalidators before shutdown, please wait.")
-            executor.awaitTermination(5L, TimeUnit.SECONDS)
+            println("Terminating all duel request invalidators before shutdown")
+            executor.shutdownNow()
         })
 
         dpsQueueRedis.configure {
