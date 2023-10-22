@@ -29,6 +29,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.ReentrantLock
+import java.util.logging.Logger
 
 /**
  * @author GrowlyX
@@ -268,9 +269,11 @@ object GameQueueManager
         }
 
         buildAndValidateQueueIndexes()
+        dpsRedisCache.sync().hdel("tropicpractice:duelrequests")
+
+        Logger.getGlobal().info("Invalidated existing duel requests")
 
         val executor = Executors.newSingleThreadScheduledExecutor()
-
         dpsQueueRedis.configure {
             listen("spectate-ready") {
                 val requestID = retrieve<UUID>("requestID")
