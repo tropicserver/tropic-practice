@@ -269,7 +269,7 @@ object GameQueueManager
         }
 
         buildAndValidateQueueIndexes()
-        dpsRedisCache.sync().hdel("tropicpractice:duelrequests")
+        dpsRedisCache.sync().del("tropicpractice:duelrequests:*")
 
         Logger.getGlobal().info("Invalidated existing duel requests")
 

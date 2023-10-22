@@ -118,12 +118,23 @@ class GameQueue(
     fun start()
     {
         check(thread == null)
+        Logger.getGlobal()
+            .info(
+                "[queue] Building a queue with id: ${queueId()}"
+            )
+
         thread = thread(
             isDaemon = true,
             name = "queues-${queueId()}",
             block = this
         )
 
+        Logger.getGlobal()
+            .info(
+                "[queue] Started queue iterator"
+            )
+
+        // TODO: leaderboard zset
         if (queueType == QueueType.Ranked)
         {
             check(adjacentRankedThread == null)
@@ -132,11 +143,16 @@ class GameQueue(
                 name = "queue-rangeexpander-${queueId()}",
                 block = ::expandRangeBlock
             )
+
+            Logger.getGlobal()
+                .info(
+                    "[queue] Started range expander"
+                )
         }
 
         Logger.getGlobal()
             .info(
-                "Building a queue with id: ${queueId()}"
+                "[queue] Built queue with ID: ${queueId()}"
             )
     }
 
@@ -162,7 +178,7 @@ class GameQueue(
 
         Logger.getGlobal()
             .info(
-                "Cleanup procedure for queue ${queueId()} completed."
+                "[queue] Cleanup procedure for queue ${queueId()} completed."
             )
     }
 
