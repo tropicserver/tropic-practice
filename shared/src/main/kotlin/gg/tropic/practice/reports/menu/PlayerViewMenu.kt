@@ -1,15 +1,18 @@
-package gg.tropic.practice.menu
+package gg.tropic.practice.reports.menu
 
+import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameReportSnapshot
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import java.util.UUID
 
 /**
  * @author GrowlyX
@@ -17,9 +20,10 @@ import org.bukkit.entity.Player
  */
 class PlayerViewMenu(
     private val gameReport: GameReport,
+    private val reportOf: UUID,
     private val snapshot: GameReportSnapshot,
-    private val originalMenu: Menu
-) : Menu("Viewing player...")
+    private val originalMenu: Menu? = null
+) : Menu("Viewing player ${reportOf.username()}...")
 {
     override fun onClose(player: Player, manualClose: Boolean)
     {
@@ -40,8 +44,8 @@ class PlayerViewMenu(
             buttons[i] = PaginatedMenu.PLACEHOLDER
         }
 
-        buttons[46] = ItemBuilder.of(Material.GOLDEN_APPLE)
-            .name("${CC.WHITE}Health: ${CC.RED}${snapshot.health}")
+        buttons[47] = ItemBuilder.of(Material.GOLDEN_APPLE)
+            .name("${CC.SEC}Health: ${CC.GREEN}${"%.1f".format(snapshot.health)} ${Constants.HEART_SYMBOL}")
             .toButton()
 
         buttons[47] = ItemBuilder.of(Material.GOLDEN_CARROT)
