@@ -8,6 +8,7 @@ import gg.tropic.practice.kit.feature.FeatureFlag
  */
 data class ImmutableKit(
     val id: String,
+    val displayName: String,
     val features: Map<FeatureFlag, MutableMap<String, String>> = mutableMapOf()
 )
 {

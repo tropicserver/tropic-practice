@@ -13,12 +13,15 @@ import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.queue.QueueService
+import gg.tropic.practice.serializable.Message
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.utils.Players
+import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Color
 import net.evilblock.cubed.util.bukkit.Constants
+import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
@@ -181,10 +184,9 @@ object LobbyPlayerService
         }
 
         aware.listen("send-message") {
-            usePlayer {
-                val message = retrieve<String>("message")
-                    .split("\n")
+            val message = retrieve<String>("message").split("\n")
 
+            usePlayer {
                 for (component in message)
                 {
                     sendMessage(
@@ -195,6 +197,17 @@ object LobbyPlayerService
                         )
                     )
                 }
+            }
+        }
+
+        aware.listen("send-action-message") {
+            val message = Serializers.gson.fromJson(
+                retrieve<String>("message"),
+                Message::class.java
+            )
+
+            usePlayer {
+                message.sendToPlayer(player)
             }
         }
 

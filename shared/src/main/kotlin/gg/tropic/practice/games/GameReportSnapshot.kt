@@ -1,5 +1,6 @@
 package gg.tropic.practice.games
 
+import org.bukkit.Material
 import org.bukkit.entity.Player
 
 /**
@@ -12,11 +13,20 @@ class GameReportSnapshot(player: Player)
         .map { it to (it?.amount ?: 1) }
 
     val armorContents = player.inventory.armorContents
+    val potionEffects = player.activePotionEffects
 
-    val gameMode = player.gameMode
+    val healthPotions = player.inventory.contents
+        .filterNotNull()
+        .count {
+            it.type == Material.POTION
+        }
+
+    val mushroomStews = player.inventory.contents
+        .filterNotNull()
+        .count {
+            it.type == Material.MUSHROOM_SOUP
+        }
+
     val health = player.health
     val foodLevel = player.foodLevel
-
-    val flying = player.isFlying
-    val allowFly = player.allowFlight
 }

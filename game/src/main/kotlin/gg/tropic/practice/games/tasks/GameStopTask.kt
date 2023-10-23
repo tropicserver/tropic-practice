@@ -6,10 +6,12 @@ import gg.scala.lemon.util.QuickAccess.username
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
+import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.TitlePart
+import net.md_5.bungee.api.chat.ClickEvent
 import java.util.UUID
 
 /**
@@ -32,25 +34,78 @@ class GameStopTask(
                 "",
                 "${CC.PRI}Match Overview:",
                 "${CC.I_GRAY}(Click to view inventories)",
-                "",
-                "${CC.GREEN}Winner${
-                    if (this.report.winners.size == 1) "" else "s"
-                }: ${CC.WHITE}${
-                    if (this.report.winners.isEmpty()) "N/A" else this
-                        .report.winners.joinToString(", ") {
-                            it.username()
-                        }
-                }",
-                "${CC.RED}Loser${
-                    if (this.report.losers.size == 1) "" else "s"
-                }: ${CC.WHITE}${
-                    if (this.report.losers.isEmpty()) "N/A" else this
-                        .report.losers.joinToString(", ") {
-                            it.username()
-                        }
-                }",
                 ""
             )
+
+            val winnerComponent = FancyMessage()
+                .withMessage(
+                    "${CC.GREEN}Winner${
+                        if (this.report.winners.size == 1) "" else "s"
+                    }: ${CC.WHITE}"
+                )
+
+            if (this.report.winners.isEmpty())
+            {
+                winnerComponent.withMessage("${CC.RED}N/A")
+            } else
+            {
+                for ((index, winner) in this.report.winners.withIndex())
+                {
+                    winnerComponent
+                        .withMessage(winner.username())
+                        .andHoverOf(
+                            "${CC.GREEN}Click to view inventory!"
+                        )
+                        .andCommandOf(
+                            ClickEvent.Action.RUN_COMMAND,
+                            "/matchinventory ${this.report.identifier} $winner"
+                        )
+
+                    if (index < this.report.winners.size - 1)
+                    {
+                        winnerComponent.withMessage(", ")
+                    }
+                }
+            }
+
+            // this is redundant, but it's 1am. 1am growly is not a DRY growly.
+            val loserComponent = FancyMessage()
+                .withMessage(
+                    "${CC.RED}Loser${
+                        if (this.report.losers.size == 1) "" else "s"
+                    }: ${CC.WHITE}"
+                )
+
+            if (this.report.losers.isEmpty())
+            {
+                loserComponent.withMessage("${CC.RED}N/A")
+            } else
+            {
+                for ((index, loser) in this.report.losers.withIndex())
+                {
+                    loserComponent
+                        .withMessage(loser.username())
+                        .andHoverOf(
+                            "${CC.GREEN}Click to view inventory!"
+                        )
+                        .andCommandOf(
+                            ClickEvent.Action.RUN_COMMAND,
+                            "/matchinventory ${this.report.identifier} $loser"
+                        )
+
+                    if (index < this.report.losers.size - 1)
+                    {
+                        loserComponent.withMessage(", ")
+                    }
+                }
+            }
+
+            this.game.sendMessage(
+                winnerComponent,
+                loserComponent
+            )
+
+            this.game.sendMessage("")
 
             if (game.expectedSpectators.isNotEmpty())
             {

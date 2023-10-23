@@ -3,6 +3,7 @@ package gg.tropic.practice.menu
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameReportStatus
+import gg.tropic.practice.reports.menu.SelectPlayerMenu
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
@@ -54,7 +55,7 @@ class DuelGamesMenu(
             buttons[buttons.size] = ItemBuilder
                 .of(Material.PAPER)
                 .name(
-                    "${CC.B_GREEN}${
+                    "${CC.PRI}${
                         TimeUtil.formatIntoFullCalendarString(report.matchDate)
                     }"
                 )
@@ -84,13 +85,13 @@ class DuelGamesMenu(
                             }
                     }",
                     "",
-                    "${CC.WHITE}Duration: ${CC.D_AQUA}${
+                    "${CC.WHITE}Duration: ${CC.PRI}${
                         DurationFormatUtils
                             .formatDuration(
                                 report.duration, "mm:ss"
                             )
                     }",
-                    "${CC.WHITE}Map: ${CC.D_AQUA}${report.map}",
+                    "${CC.WHITE}Map: ${CC.PRI}${report.map}",
                     "",
                     "${CC.GREEN}Click to view inventories!"
                 )

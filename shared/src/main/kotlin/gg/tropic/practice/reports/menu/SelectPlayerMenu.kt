@@ -1,4 +1,4 @@
-package gg.tropic.practice.menu
+package gg.tropic.practice.reports.menu
 
 import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
@@ -17,13 +17,18 @@ import org.bukkit.entity.Player
  */
 class SelectPlayerMenu(
     private val game: GameReport,
-    private val gamesMenu: Menu
+    private val gamesMenu: Menu? = null
 ) : PaginatedMenu()
 {
     override fun onClose(player: Player, manualClose: Boolean)
     {
         if (manualClose)
         {
+            if (gamesMenu == null)
+            {
+                return
+            }
+
             Tasks.sync {
                 gamesMenu.openMenu(player)
             }
@@ -51,7 +56,7 @@ class SelectPlayerMenu(
                     )
                     .toButton { _, _ ->
                         Button.playNeutral(player)
-                        PlayerViewMenu(game, it.value, gamesMenu).openMenu(player)
+                        PlayerViewMenu(game, it.key, it.value, gamesMenu).openMenu(player)
                     }
             }
 

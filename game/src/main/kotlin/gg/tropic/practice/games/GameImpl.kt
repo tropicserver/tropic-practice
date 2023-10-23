@@ -23,6 +23,7 @@ import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import me.lucko.helper.utils.Players
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.ItemUtils
 import net.evilblock.cubed.util.bukkit.Tasks
@@ -230,6 +231,14 @@ class GameImpl(
         }
     }
 
+    fun sendMessage(vararg message: FancyMessage)
+    {
+        for (line in message)
+        {
+            this.sendMessage(line)
+        }
+    }
+
     fun playSound(sound: Sound)
     {
         this.toBukkitPlayers()
@@ -251,6 +260,21 @@ class GameImpl(
             .mapNotNull(Bukkit::getPlayer)
             .forEach {
                 it.sendMessage(message)
+            }
+    }
+
+    fun sendMessage(message: FancyMessage)
+    {
+        this.toBukkitPlayers()
+            .filterNotNull()
+            .forEach {
+                message.sendToPlayer(it)
+            }
+
+        this.expectedSpectators
+            .mapNotNull(Bukkit::getPlayer)
+            .forEach {
+                message.sendToPlayer(it)
             }
     }
 

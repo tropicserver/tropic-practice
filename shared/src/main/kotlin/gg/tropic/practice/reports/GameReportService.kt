@@ -12,6 +12,18 @@ import java.util.concurrent.CompletableFuture
  */
 object GameReportService
 {
+    fun loadSnapshot(matchId: UUID): CompletableFuture<GameReport?>
+    {
+        return CompletableFuture
+            .supplyAsync {
+                ScalaCommonsSpigot.instance.kvConnection.sync()
+                    .get("tropicpractice:snapshots:matches:$matchId")
+            }
+            .thenApply {
+                Serializers.gson.fromJson(it, GameReport::class.java)
+            }
+    }
+
     fun loadSnapshotsForParticipant(uniqueId: UUID): CompletableFuture<List<GameReport>>
     {
         return CompletableFuture

@@ -6,7 +6,6 @@ import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
-import gg.scala.lemon.util.QuickAccess
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.GameExpectation
@@ -22,8 +21,10 @@ import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.games.models.GameReference
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.replications.manager.ReplicationManager
+import gg.tropic.practice.serializable.Message
 import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
+import net.md_5.bungee.api.chat.ClickEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -377,31 +378,40 @@ object GameQueueManager
                     Serializers.gson.toJson(request)
                 )
 
+                val kit = KitDataSync.cached().kits[request.kitID]!!
+                val map = if (request.mapID != null)
+                {
+                    MapDataSync.cached().maps[request.mapID]
+                } else null
+
                 val requesterName = ScalaStoreUuidCache.username(request.requester)
                 DPSRedisShared.sendMessage(
                     listOf(request.requestee),
-                    listOf(
-                        " ",
-                        "${QuickAccess.coloredName(requesterName)} &ehas sent you a duel request!",
-                        "&7- &eKit: &f${request.kitID}",
-                        "&7- &eMap: &a${request.mapID}",
-                        "&a[Click to Accept]",
-                        " "
-                    )
+                    Message()
+                        .withMessage(
+                            " ",
+                            "&6Duel request:",
+                            "&7From: &f$requesterName",
+                            "&7Kit: &f${kit.displayName}",
+                            "&7Map: &f${map?.displayName ?: "Random"}",
+                            "",
+                            ""
+                        )
+                        .withMessage(
+                            "&a(Click to accept)"
+                        )
+                        .andCommandOf(
+                            ClickEvent.Action.RUN_COMMAND,
+                            "/accept $requesterName ${kit.id}"
+                        )
+                        .andHoverOf("Click to accept!")
+                        .withMessage("")
                 )
 
                 futureMappings[key] = executor.schedule({
                     DPSRedisShared.sendMessage(
                         listOf(request.requestee),
-                        listOf(
-                            """
-                                &7&m${"-".repeat(35)}
-                                &cYour duel request from &e${requesterName}&c with kit &e${
-                                request.kitID // TODO: use proper display name 
-                            }&c has expired!
-                                &7&m${"-".repeat(35)}
-                            """.trimIndent()
-                        )
+                        listOf("&cYour duel request from &f${requesterName}&c with kit &f${kit.displayName}&c has expired!")
                     )
 
                     dpsRedisCache.sync().hdel(key, request.requestee.toString())

@@ -1,18 +1,22 @@
 package gg.tropic.practice.reports.menu
 
+import com.cryptomorin.xseries.XMaterial
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.GameReport
 import gg.tropic.practice.games.GameReportSnapshot
+import gg.tropic.practice.reports.menu.utility.RomanNumerals
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
+import net.evilblock.cubed.menu.buttons.TexturedHeadButton
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
+import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import java.util.UUID
+import java.util.*
 
 /**
  * @author GrowlyX
@@ -29,7 +33,12 @@ class PlayerViewMenu(
     {
         if (manualClose)
         {
-            Tasks.delayed(1L) {
+            if (originalMenu == null)
+            {
+                return
+            }
+
+            Tasks.sync {
                 SelectPlayerMenu(gameReport, originalMenu).openMenu(player)
             }
         }
@@ -44,13 +53,114 @@ class PlayerViewMenu(
             buttons[i] = PaginatedMenu.PLACEHOLDER
         }
 
-        buttons[47] = ItemBuilder.of(Material.GOLDEN_APPLE)
-            .name("${CC.SEC}Health: ${CC.GREEN}${"%.1f".format(snapshot.health)} ${Constants.HEART_SYMBOL}")
+        buttons[47] = ItemBuilder.of(XMaterial.ENCHANTED_GOLDEN_APPLE)
+            .name("${CC.SEC}Health: ${CC.GREEN}${"%.1f".format(snapshot.health.toFloat())} ${Constants.HEART_SYMBOL}")
             .toButton()
 
-        buttons[47] = ItemBuilder.of(Material.GOLDEN_CARROT)
-            .name("${CC.WHITE}Food Level: ${CC.RED}${snapshot.foodLevel}")
+        buttons[48] = ItemBuilder.of(Material.COOKED_BEEF)
+            .name("${CC.SEC}Food Level: ${CC.GREEN}${"%.1f".format(snapshot.foodLevel.toFloat())}")
             .toButton()
+
+        buttons[49] = if (snapshot.healthPotions > 0)
+        {
+            ItemBuilder.of(XMaterial.POTION)
+                .data(16421)
+                .name("${CC.SEC}Health Potions: ${CC.GREEN}${snapshot.healthPotions}")
+                .toButton()
+        } else if (snapshot.mushroomStews > 0)
+        {
+            ItemBuilder.of(XMaterial.MUSHROOM_STEW)
+                .name("${CC.SEC}Stews: ${CC.GREEN}${snapshot.mushroomStews}")
+                .toButton()
+        } else
+        {
+            PaginatedMenu.PLACEHOLDER
+        }
+
+        buttons[50] = ItemBuilder.of(XMaterial.BREWING_STAND)
+            .name("${CC.B_SEC}Potion Effects")
+            .apply {
+                if (snapshot.potionEffects.isEmpty())
+                {
+                    addToLore("${CC.RED}No potion effects!")
+                    return@apply
+                }
+
+                for (potionEffect in snapshot.potionEffects)
+                {
+                    addToLore("${CC.SEC}${
+                        potionEffect.type.name
+                            .replace("_", " ")
+                            .split(" ")
+                            .joinToString(" ") {
+                                it.lowercase().capitalize()
+                            }
+                    } ${
+                        RomanNumerals.toRoman(potionEffect.amplifier)
+                    } ${CC.PRI}(${
+                        TimeUtil.formatIntoMMSS(potionEffect.duration)
+                    })")
+                }
+            }
+            .toButton()
+
+        buttons[51] = ItemBuilder
+            .of(Material.PAPER)
+            .name(
+                "${CC.B_SEC}Extra Information"
+            )
+            .addToLore(
+                "${CC.SEC}Town: ${CC.PRI}${listOf("Hors City", "Wolf Lake City").random()}",
+                "${CC.SEC}Stret: ${CC.PRI}${listOf("Donkey Ave.", "William St.").random()}"
+            )
+            .toButton()
+
+        val indexes = gameReport.winners + gameReport.losers
+        val index = indexes.indexOf(reportOf)
+
+        if (index + 1 < indexes.size)
+        {
+            val nextPlayer = indexes[index + 1]
+            val snapshot = gameReport.snapshots[nextPlayer]!!
+
+            buttons[53] = ItemBuilder
+                .copyOf(
+                    object : TexturedHeadButton(Constants.WOOD_ARROW_RIGHT_TEXTURE){}.getButtonItem(player)
+                )
+                .name(
+                    "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
+                )
+                .addToLore(
+                    "",
+                    "${CC.SEC}Click to switch inventories!"
+                )
+                .toButton { _, _ ->
+                    Button.playNeutral(player)
+                    PlayerViewMenu(gameReport, nextPlayer, snapshot, originalMenu).openMenu(player)
+                }
+        }
+
+        if (index > 0)
+        {
+            val nextPlayer = indexes[index - 1]
+            val snapshot = gameReport.snapshots[nextPlayer]!!
+
+            buttons[45] = ItemBuilder
+                .copyOf(
+                    object : TexturedHeadButton(Constants.WOOD_ARROW_LEFT_TEXTURE){}.getButtonItem(player)
+                )
+                .name(
+                    "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
+                )
+                .addToLore(
+                    "",
+                    "${CC.SEC}Click to switch inventories!"
+                )
+                .toButton { _, _ ->
+                    Button.playNeutral(player)
+                    PlayerViewMenu(gameReport, nextPlayer, snapshot, originalMenu).openMenu(player)
+                }
+        }
 
         snapshot.inventoryContents.withIndex()
             .forEach {
@@ -63,10 +173,9 @@ class PlayerViewMenu(
                 }
             }
 
-        for (i in 49..52)
+        for (i in 36..39)
         {
-            val armor = snapshot.armorContents
-                .getOrNull(i - 49)
+            val armor = snapshot.armorContents.getOrNull(i - 36)
 
             if (armor == null)
             {
