@@ -302,7 +302,7 @@ class GameQueue(
                 DPSRedisShared.sendMessage(
                     users,
                     listOf(
-                        "&c&lError: &cWe found no map compatible with the kit you are queueing for!"
+                        "&c&lWe found no map compatible with the kit you are queueing for!"
                     )
                 )
             }
@@ -326,15 +326,19 @@ class GameQueue(
 
         GameQueueManager.prepareGameFor(
             map = map,
-            expectation = expectation
-        ) {
-            for (queueEntry in first + second)
-            {
-                GameQueueManager
-                    .destroyQueueStates(
-                        queueId(), queueEntry
-                    )
+            expectation = expectation,
+            cleanup = {
+                for (queueEntry in first + second)
+                {
+                    GameQueueManager
+                        .destroyQueueStates(
+                            queueId(), queueEntry
+                        )
+                }
             }
+        ).exceptionally {
+            it.printStackTrace()
+            return@exceptionally null
         }
     }
 

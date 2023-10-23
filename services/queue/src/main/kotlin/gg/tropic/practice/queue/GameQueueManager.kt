@@ -28,7 +28,6 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.ReentrantLock
 import java.util.logging.Logger
 
 /**
@@ -41,7 +40,13 @@ object GameQueueManager
     private val dpsQueueRedis = DPSRedisService("queue")
         .apply(DPSRedisService::start)
 
-    private val replicationLock = ReentrantLock()
+    private val replicationAllocator = Executors.newSingleThreadScheduledExecutor()
+        .apply {
+            Runtime.getRuntime().addShutdownHook(Thread {
+                println("Waiting for terminating of replication allocator")
+                awaitTermination(5L, TimeUnit.SECONDS)
+            })
+        }
     private val dpsRedisCache = DPSRedisShared.keyValueCache
 
     fun useCache(
@@ -90,13 +95,11 @@ object GameQueueManager
             DPSRedisShared.sendMessage(
                 expectation.players,
                 listOf(
-                    "&c&lError: &cAn issue occurred when creating your game! (duplicate players on teams)"
+                    "&cAn issue occurred when creating your game! (duplicate players on teams)"
                 )
             )
 
-            return CompletableFuture.runAsync {
-                cleanup()
-            }
+            return CompletableFuture.runAsync({ cleanup() }, replicationAllocator)
         }
 
         /**
@@ -108,13 +111,11 @@ object GameQueueManager
             DPSRedisShared.sendMessage(
                 expectation.players,
                 listOf(
-                    "&c&lError: &cThe map you were allocated to play a game on is locked!"
+                    "&cThe map you were allocated to play a game on is locked!"
                 )
             )
 
-            return CompletableFuture.runAsync {
-                cleanup()
-            }
+            return CompletableFuture.runAsync({ cleanup() }, replicationAllocator)
         }
 
         /**
@@ -149,7 +150,7 @@ object GameQueueManager
                 DPSRedisShared.sendMessage(
                     expectation.players,
                     listOf(
-                        "&c&lError: &cWe found no game server available to house your game!"
+                        "&cWe found no game server available to house your game!"
                     )
                 )
 
@@ -157,8 +158,6 @@ object GameQueueManager
                     cleanup()
                 }
             }
-
-        replicationLock.lock()
 
         val replication = if (availableReplication == null)
         {
@@ -173,7 +172,7 @@ object GameQueueManager
         }
 
         return replication
-            .thenAccept {
+            .thenAcceptAsync({
                 if (it.status == ReplicationManager.ReplicationResultStatus.Completed)
                 {
                     Thread.sleep(100L)
@@ -187,21 +186,18 @@ object GameQueueManager
                     DPSRedisShared.sendMessage(
                         expectation.players,
                         listOf(
-                            "&c&lError: &cWe weren't able to allocate a map for you! (${it.message ?: "???"})",
+                            "&cWe weren't able to allocate a map for you! (${it.message ?: "???"})",
                         )
                     )
                 }
 
                 cleanup()
-                replicationLock.unlock()
-            }
+            }, replicationAllocator)
             .exceptionally {
-                replicationLock.unlock()
-
                 DPSRedisShared.sendMessage(
                     expectation.players,
                     listOf(
-                        "&c&lError: &cWe weren't able to allocate a map for you! (${it.message ?: "???"})"
+                        "&cWe weren't able to allocate a map for you! (${it.message ?: "???"})"
                     )
                 )
 
