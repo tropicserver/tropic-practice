@@ -28,4 +28,10 @@ object MapService : DataSyncService<MapContainer>()
         .firstOrNull {
             it.name.equals(id, true)
         }
+
+    var onPostReload = {}
+    override fun postReload()
+    {
+        onPostReload()
+    }
 }

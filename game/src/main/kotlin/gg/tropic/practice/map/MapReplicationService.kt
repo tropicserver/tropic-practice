@@ -41,8 +41,6 @@ object MapReplicationService
     private lateinit var slimePlugin: SlimePlugin
     private lateinit var loader: SlimeLoader
 
-    // TODO: New map changes don't propagate properly, might
-    //  require restart for all game servers.
     private val readyMaps = mutableMapOf<String, ReadyMapTemplate>()
     private val mapReplications = CopyOnWriteArrayList<BuiltMapReplication>()
 
@@ -175,6 +173,8 @@ object MapReplicationService
 
             ReplicationStatus(replicationStatuses)
         }
+
+        MapService.onPostReload = ::populateSlimeCache
     }
 
     fun findScheduledReplication(expectation: UUID) = mapReplications
