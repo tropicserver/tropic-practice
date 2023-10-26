@@ -73,7 +73,7 @@ class GameStartTask(
                 "${CC.PRI}${
                     if (maybePossiblyADuel) "Private" else game.expectationModel.queueType!!.name
                 } $teamVersus ${game.kit.displayName}:",
-                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} Players: ${CC.PRI}${
+                "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} Players: ${CC.PRI}${
                     this.game.teams[GameTeamSide.A]!!.players
                         .joinToString(", ") { 
                             it.username() 
