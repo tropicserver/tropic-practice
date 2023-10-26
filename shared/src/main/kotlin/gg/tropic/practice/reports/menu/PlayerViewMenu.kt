@@ -95,8 +95,8 @@ class PlayerViewMenu(
                             .joinToString(" ") {
                                 it.lowercase().capitalize()
                             }
-                    } ${
-                        if (potionEffect.amplifier > 0) RomanNumerals.toRoman(potionEffect.amplifier) else ""
+                    }${
+                        if (potionEffect.amplifier > 0) " ${RomanNumerals.toRoman(potionEffect.amplifier)}" else ""
                     } ${CC.GRAY}(${
                         TimeUtil.formatIntoMMSS(potionEffect.duration)
                     })")
@@ -107,13 +107,13 @@ class PlayerViewMenu(
         buttons[51] = ItemBuilder
             .of(Material.PAPER)
             .name(
-                "${CC.B_SEC}Extra Information"
+                "${CC.PRI}Extra Information"
             )
             .addToLore(
-                "${CC.SEC}Duration: ${CC.PRI}${
+                "${CC.WHITE}Duration: ${CC.PRI}${
                     TimeUtil.formatIntoMMSS((gameReport.duration / 1000).toInt())
                 }",
-                "${CC.SEC}Street: ${CC.PRI}${listOf("Donkey Ave.", "William St.").random()}"
+                "${CC.WHITE}Street: ${CC.PRI}${listOf("Donkey Ave.", "William St.").random()}"
             )
             .toButton()
 

@@ -66,7 +66,6 @@ class GameStartTask(
                 .map { it.players.size }
                 .joinToString("v")
 
-            // lol?
             val maybePossiblyADuel = game.expectationModel.queueType == null
 
             this.game.sendMessage(
@@ -85,8 +84,8 @@ class GameStartTask(
                             it.username()
                         }
                 }",
-                "${CC.GRAY} ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}",
-                "${CC.GRAY} ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Horse: ${CC.GREEN}Anticheat 4.0 Activation ${Constants.CHECK_SYMBOL}",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}",
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Horse: ${CC.GREEN}Anticheat 4.0 Activation ${Constants.CHECK_SYMBOL}",
                 ""
             )
         }
