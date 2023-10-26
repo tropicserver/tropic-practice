@@ -15,7 +15,9 @@ import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.games.models.GameReference
 import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
+import gg.tropic.practice.statistics.KitStatistics
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.cooldown.Cooldown
@@ -427,6 +429,10 @@ object GameService
                     with(PracticeProfileService.find(killerPlayer)) {
                         if (this != null)
                         {
+                            useKitStatistics(game) {
+                                kills += 1
+                            }
+
                             globalStatistics.userKilledOpponent().apply()
                             save()
                         }
@@ -436,6 +442,10 @@ object GameService
                 with(PracticeProfileService.find(it.entity)) {
                     if (this != null)
                     {
+                        useKitStatistics(game) {
+                            deaths += 1
+                        }
+
                         globalStatistics.userWasKilled().apply()
                         save()
                     }

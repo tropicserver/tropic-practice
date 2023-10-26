@@ -37,7 +37,7 @@ class GlobalStatistics
         listOf({
             totalLosses++
         }, {
-            totalKills++
+            totalDeaths++
         }),
         sharedGamePlays()
     )

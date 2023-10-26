@@ -123,6 +123,9 @@ class GameImpl(
                 .filterNotNull()
                 .mapNotNull(PracticeProfileService::find)
                 .onEach {
+                    it.useKitStatistics(this) {
+                        streakUpdates().apply(false)
+                    }
                     it.globalStatistics.userPlayedGameAndLost().apply()
                 }
 
@@ -130,6 +133,9 @@ class GameImpl(
                 .filterNotNull()
                 .mapNotNull(PracticeProfileService::find)
                 .onEach {
+                    it.useKitStatistics(this) {
+                        streakUpdates().apply(true)
+                    }
                     it.globalStatistics.userPlayedGameAndWon().apply()
                 }
 

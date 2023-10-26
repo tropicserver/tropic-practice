@@ -23,13 +23,21 @@ class StatisticsMenu(
 {
     override fun filterDisplayOfKit(player: Player, kit: Kit) = true
 
+    override fun itemTitleFor(player: Player, kit: Kit) = if (state == StatisticMenuState.Casual)
+    {
+        "${CC.B_GREEN}${kit.displayName}"
+    } else
+    {
+        "${CC.B_AQUA}${kit.displayName}"
+    }
+
     override fun itemDescriptionOf(player: Player, kit: Kit) =
         with(this) {
             val casualStats = profile.getCasualStatsFor(kit)
             val rankedStats = profile.getRankedStatsFor(kit)
             val unrankedLore = listOf(
                 "${CC.WHITE}Wins: ${CC.GREEN}${casualStats.wins}",
-                "${CC.WHITE}Losses: ${CC.AQUA}${casualStats.plays - casualStats.wins}",
+                "${CC.WHITE}Losses: ${CC.GREEN}${casualStats.plays - casualStats.wins}",
                 "${CC.WHITE}Played: ${CC.GREEN}${casualStats.plays}",
                 "",
                 "${CC.WHITE}Kills: ${CC.GREEN}${casualStats.kills}",
@@ -50,7 +58,7 @@ class StatisticsMenu(
                 "${CC.WHITE}Deaths: ${CC.AQUA}${rankedStats.deaths}",
                 "",
                 "${CC.WHITE}ELO: ${CC.AQUA}${rankedStats.elo} ${CC.GRAY}(#1)",
-                "${CC.WHITE} ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Highest ELO: ${CC.AQUA}${
+                "${CC.WHITE} ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Highest: ${CC.AQUA}${
                     rankedStats.highestElo
                 }",
                 "",
@@ -109,6 +117,9 @@ class StatisticsMenu(
                 "${CC.GREEN}Click to view!"
             )
             .toButton { _, _ ->
+                if (state == StatisticMenuState.Casual)
+                    return@toButton
+
                 Button.playNeutral(player)
 
                 StatisticsMenu(
@@ -133,6 +144,9 @@ class StatisticsMenu(
                 "${CC.AQUA}Click to view!"
             )
             .toButton { _, _ ->
+                if (state == StatisticMenuState.Ranked)
+                    return@toButton
+
                 Button.playNeutral(player)
 
                 StatisticsMenu(
@@ -145,7 +159,7 @@ class StatisticsMenu(
     }
 
     override fun getPrePaginatedTitle(player: Player) =
-        "${profile.identifier.username()}'s ${state.name.lowercase()} statistics"
+        "${profile.identifier.username()}'s ${state.name} Statistics"
 
     enum class StatisticMenuState
     {
