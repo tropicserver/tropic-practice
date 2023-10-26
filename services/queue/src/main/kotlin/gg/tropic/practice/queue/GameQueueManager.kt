@@ -24,6 +24,7 @@ import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.serializable.Message
 import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
+import net.evilblock.cubed.util.bukkit.Constants
 import net.md_5.bungee.api.chat.ClickEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -391,14 +392,12 @@ object GameQueueManager
                         .withMessage(
                             " ",
                             "&6Duel request:",
-                            "&7From: &f$requesterName",
-                            "&7Kit: &f${kit.displayName}",
-                            "&7Map: &f${map?.displayName ?: "Random"}",
-                            "",
-                            ""
+                            "&7┃ &fFrom: &6$requesterName",
+                            "&7┃ &fKit: &6${kit.displayName}",
+                            "&7┃ &fMap: &6${map?.displayName ?: "Random"}"
                         )
                         .withMessage(
-                            "&a(Click to accept)"
+                            "\n&a(Click to accept)"
                         )
                         .andCommandOf(
                             ClickEvent.Action.RUN_COMMAND,

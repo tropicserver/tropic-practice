@@ -78,7 +78,7 @@ class PlayerViewMenu(
         }
 
         buttons[50] = ItemBuilder.of(XMaterial.BREWING_STAND)
-            .name("${CC.B_SEC}Potion Effects")
+            .name("${CC.PRI}Potion Effects")
             .apply {
                 if (snapshot.potionEffects.isEmpty())
                 {
@@ -88,7 +88,7 @@ class PlayerViewMenu(
 
                 for (potionEffect in snapshot.potionEffects)
                 {
-                    addToLore("${CC.SEC}${
+                    addToLore("${CC.WHITE}${
                         potionEffect.type.name
                             .replace("_", " ")
                             .split(" ")
@@ -96,8 +96,8 @@ class PlayerViewMenu(
                                 it.lowercase().capitalize()
                             }
                     } ${
-                        RomanNumerals.toRoman(potionEffect.amplifier)
-                    } ${CC.PRI}(${
+                        if (potionEffect.amplifier > 0) RomanNumerals.toRoman(potionEffect.amplifier) else ""
+                    } ${CC.GRAY}(${
                         TimeUtil.formatIntoMMSS(potionEffect.duration)
                     })")
                 }
