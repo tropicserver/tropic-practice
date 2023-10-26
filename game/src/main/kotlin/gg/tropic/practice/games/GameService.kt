@@ -141,27 +141,12 @@ object GameService
             }
             .bindWith(plugin)
 
-        val goldenHeadCoolDown = CooldownMap
-            .create<UUID>(
-                Cooldown.ofTicks(20L)
-            )
-
-        Events.subscribe(PlayerInteractEvent::class.java)
+        Events.subscribe(PlayerItemConsumeEvent::class.java)
             .filter {
-                it.hasItem() && it.item.type.name.contains("SKULL")
+                it.item.hasItemMeta() && it.item.itemMeta.displayName.contains("Golden Head")
             }
             .handler {
-                val allowed = goldenHeadCoolDown
-                    .test(it.player.uniqueId)
-
                 it.isCancelled = true
-
-                if (!allowed)
-                {
-                    it.player.sendMessage("${CC.RED}You cannot do this right now!")
-                    return@handler
-                }
-
                 it.player.playSound(
                     it.player.location, Sound.EAT, 10f, 1f
                 )
@@ -195,7 +180,7 @@ object GameService
                     it.player.itemInHand = ItemStack(Material.AIR)
                 } else
                 {
-                    it.item.amount = it.item.amount - 1
+                    it.item.amount -= 1
                 }
             }
             .bindWith(plugin)
@@ -472,11 +457,6 @@ object GameService
             .handler {
                 val game = byPlayer(it.player)
                     ?: return@handler
-
-                goldenHeadCoolDown
-                    .reset(
-                        it.player.uniqueId
-                    )
 
                 if (game.ensurePlaying())
                 {

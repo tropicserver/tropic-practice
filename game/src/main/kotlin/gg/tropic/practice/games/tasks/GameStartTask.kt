@@ -71,7 +71,7 @@ class GameStartTask(
 
             this.game.sendMessage(
                 "",
-                "${CC.B_GREEN}${
+                "${CC.PRI}${
                     if (maybePossiblyADuel) "Private" else game.expectationModel.queueType!!.name
                 } $teamVersus ${game.kit.displayName}:",
                 "${CC.WHITE}${
@@ -85,6 +85,8 @@ class GameStartTask(
                             it.username()
                         }
                 }",
+                "${CC.GRAY} ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}",
+                "${CC.GRAY} ${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Horse: ${CC.GREEN}Anticheat 4.0 Activation ${Constants.CHECK_SYMBOL}",
                 ""
             )
         }

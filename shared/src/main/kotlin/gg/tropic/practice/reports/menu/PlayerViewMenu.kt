@@ -53,7 +53,7 @@ class PlayerViewMenu(
             buttons[i] = PaginatedMenu.PLACEHOLDER
         }
 
-        buttons[47] = ItemBuilder.of(XMaterial.ENCHANTED_GOLDEN_APPLE)
+        buttons[47] = ItemBuilder.of(XMaterial.GLISTERING_MELON_SLICE)
             .name("${CC.SEC}Health: ${CC.GREEN}${"%.1f".format(snapshot.health.toFloat())} ${Constants.HEART_SYMBOL}")
             .toButton()
 
@@ -110,8 +110,10 @@ class PlayerViewMenu(
                 "${CC.B_SEC}Extra Information"
             )
             .addToLore(
-                "${CC.SEC}Town: ${CC.PRI}${listOf("Hors City", "Wolf Lake City").random()}",
-                "${CC.SEC}Stret: ${CC.PRI}${listOf("Donkey Ave.", "William St.").random()}"
+                "${CC.SEC}Duration: ${CC.PRI}${
+                    TimeUtil.formatIntoMMSS((gameReport.duration / 1000).toInt())
+                }",
+                "${CC.SEC}Street: ${CC.PRI}${listOf("Donkey Ave.", "William St.").random()}"
             )
             .toButton()
 
