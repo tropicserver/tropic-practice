@@ -8,6 +8,7 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
+import gg.scala.lemon.util.QuickAccess
 import gg.tropic.practice.duel.DuelRequestUtilities
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.menu.pipeline.DuelRequestPipeline
@@ -74,6 +75,19 @@ object DuelCommands : ScalaCommand()
         {
             throw ConditionFailedException(
                 "${CC.YELLOW}${it.name}${CC.RED} has their duel requests disabled!"
+            )
+        }
+
+        val server = QuickAccess.server(it.uniqueId)
+            .join()
+            ?: throw ConditionFailedException(
+                "${CC.YELLOW}${it.name}${CC.RED} is not logged onto the network!"
+            )
+
+        if ("miplobby" !in server.groups)
+        {
+            throw ConditionFailedException(
+                "${CC.YELLOW}${it.name}${CC.RED} is not on a practice lobby!"
             )
         }
 
