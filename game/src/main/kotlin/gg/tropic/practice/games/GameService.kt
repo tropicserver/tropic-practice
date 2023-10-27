@@ -10,6 +10,10 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
+import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
+import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
+import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
+import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.games.models.GameReference
@@ -394,7 +398,6 @@ object GameService
                 }
 
                 val killerPlayer = killer(it)
-
                 val killer = if (killerPlayer !is Player)
                 {
                     game.getOpponent(it.entity)
@@ -403,9 +406,23 @@ object GameService
                     game.getTeamOf(killerPlayer)
                 }
 
+                fun getMessageBundlePhrase(): String
+                {
+                    val bundle = CosmeticRegistry
+                        .findRelatedTo(KillMessageBundleCosmeticCategory)
+                        .firstOrNull { like ->
+                            like.equipped(killerPlayer as Player)
+                        } as MessageBundle?
+                        ?: return "slain"
+
+                    return "${CC.B_WHITE}${bundle.phrases.random()}${CC.GRAY}"
+                }
+
                 game.sendMessage(
                     "${CC.RED}${it.entity.name}${CC.GRAY} was ${
-                        if (killerPlayer == null) "killed" else "slain by ${CC.GREEN}${killerPlayer.name}${CC.GRAY}"
+                        if (killerPlayer == null) "killed" else "${
+                            getMessageBundlePhrase()
+                        } by ${CC.GREEN}${killerPlayer.name}${CC.GRAY}"
                     }!"
                 )
 
