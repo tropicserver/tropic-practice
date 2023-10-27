@@ -2,14 +2,14 @@ package gg.tropic.practice.menu
 
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
+import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Constants
-import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 
@@ -27,17 +27,22 @@ class JoinQueueMenu(
             it.first == teamSize && queueType in it.second
         }
 
-    override fun itemDescriptionOf(player: Player, kit: Kit) = listOf(
-        "${CC.WHITE}Playing: ${CC.PRI}0",
-        "${CC.WHITE}Queued: ${CC.PRI}0",
-        "",
-        "${CC.B_GREEN}Daily Win Streaks:",
-        "${CC.GREEN}#1 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}0",
-        "${CC.GREEN}#2 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}0",
-        "${CC.GREEN}#3 ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}GrowlyX ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}0",
-        "",
-        "${CC.GREEN}Click to join!"
-    )
+    override fun itemTitleFor(player: Player, kit: Kit) = "${CC.B_PRI}${kit.displayName}${
+        if (kit.features(FeatureFlag.NewlyCreated)) " ${CC.B_YELLOW}NEW!" else ""
+    }"
+
+    override fun itemDescriptionOf(player: Player, kit: Kit): List<String>
+    {
+        val queueId = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
+        val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
+
+        return listOf(
+            "${CC.WHITE}Playing: ${CC.PRI}${metadata.inGame}",
+            "${CC.WHITE}Queueing: ${CC.PRI}${metadata.inQueue}",
+            "",
+            "${CC.GREEN}Click to queue!"
+        )
+    }
 
     override fun itemClicked(player: Player, kit: Kit, type: ClickType)
     {

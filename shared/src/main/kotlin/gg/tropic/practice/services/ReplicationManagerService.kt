@@ -16,6 +16,7 @@ import gg.tropic.practice.replications.models.ReplicationStatus
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.serializers.Serializers
+import java.util.Base64
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
@@ -87,7 +88,15 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                 ?: return
 
             val requestID = retrieve<UUID>("requestID")
-            val expectation = retrieve<GameExpectation>("expectation")
+            val expectation = Serializers.gson.fromJson(
+                String(
+                    Base64.getDecoder().decode(
+                        retrieve<String>("expectation")
+                    )
+                ).apply(::println),
+                GameExpectation::class.java
+            )
+
             future(map, expectation)
                 .thenRun {
                     createMessage(

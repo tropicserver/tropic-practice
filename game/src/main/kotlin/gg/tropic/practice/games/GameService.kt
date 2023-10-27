@@ -108,6 +108,7 @@ object GameService
                             kitID = it.kit.id,
                             replicationID = it.arenaWorldName!!,
                             server = ServerSync.local.id,
+                            queueId = it.expectationModel.queueId,
                             majorityAllowsSpectators = players.isEmpty() ||
                                 (majoritySpectatorsEnabled / players.size) >= 0.50
                         )

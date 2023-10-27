@@ -60,7 +60,23 @@ object LobbyHotbarService
                     .name("${CC.AQUA}Play Ranked ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
-                it.onClick = { player ->
+                it.onClick = context@{ player ->
+                    val profile = PracticeProfileService.find(player)
+                        ?: return@context
+
+                    if (
+                        !player.hasPermission("practice.bypass-ranked-queue-requirements")
+                        && profile.globalStatistics.totalWins < 10
+                    )
+                    {
+                        player.sendMessage(
+                            "${CC.RED}You must have at least ${
+                                profile.globalStatistics.totalWins
+                            } wins to queue for a Ranked kit!"
+                        )
+                        return@context
+                    }
+
                     JoinQueueMenu(QueueType.Ranked, 1).openMenu(player)
                 }
             }
@@ -84,7 +100,9 @@ object LobbyHotbarService
                 ItemBuilder(Material.NETHER_STAR)
                     .name("${CC.PINK}Create a Party ${CC.GRAY}(Right Click)")
             ).also {
-                it.onClick = { player -> }
+                it.onClick = { player ->
+                    player.sendMessage("${CC.RED}Party integration is coming soon!")
+                }
             }
         )
 
@@ -94,7 +112,9 @@ object LobbyHotbarService
                 ItemBuilder(Material.QUARTZ)
                     .name("${CC.YELLOW}Leaderboards ${CC.GRAY}(Right Click)")
             ).also {
-                it.onClick = { player -> }
+                it.onClick = { player ->
+                    player.sendMessage("${CC.RED}Leaderboards are coming soon!")
+                }
             }
         )
 

@@ -5,7 +5,6 @@ import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.games.models.GameStatusIndexes
-import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.serializers.Serializers
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ForkJoinPool

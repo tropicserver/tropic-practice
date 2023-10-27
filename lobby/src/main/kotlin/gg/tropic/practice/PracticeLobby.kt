@@ -7,6 +7,7 @@ import gg.scala.commons.core.plugin.*
 import gg.tropic.practice.reports.GameReportService
 import gg.tropic.practice.provider.SettingProvider
 import gg.tropic.practice.provider.impl.LemonSettingProvider
+import gg.tropic.practice.services.GameManagerService
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
@@ -42,6 +43,7 @@ class PracticeLobby : ExtendedScalaPlugin()
     fun containerEnable()
     {
         SettingMenu.defaultCategory = "Practice"
+        GameManagerService.bindToMetadataService()
 
         Events
             .subscribe(PlayerJoinEvent::class.java)

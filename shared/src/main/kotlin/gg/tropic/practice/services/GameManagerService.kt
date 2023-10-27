@@ -9,12 +9,16 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.tropic.practice.PracticeShared
 import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.games.models.GameStatusIndexes
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 
 /**
@@ -35,8 +39,59 @@ object GameManagerService
             .build()
     }
 
+    private val metadataTrackers = mutableMapOf<String, MetadataTracker>()
+
+    data class MetadataTracker(
+        val queueId: String,
+        var inQueue: Int = 0,
+        var inGame: Int = 0,
+    )
+    {
+        fun integerValueOf(key: String) = ScalaCommonsSpigot
+            .instance
+            .kvConnection
+            .sync()
+            .get(
+                "${PracticeShared.KEY}:metadata:$key:$queueId"
+            )
+            ?.toIntOrNull()
+            ?: 0
+
+        fun update() = CompletableFuture
+            .runAsync {
+                inGame = integerValueOf("users-playing")
+                inQueue = integerValueOf("users-queued")
+            }
+    }
+
+    fun buildQueueIdMetadataTracker(queueId: String): MetadataTracker
+    {
+        if (metadataTrackers.containsKey(queueId))
+        {
+            return metadataTrackers[queueId]!!
+        }
+
+        metadataTrackers[queueId] = MetadataTracker(queueId)
+        return metadataTrackers[queueId]!!
+    }
+
     private fun createMessage(packet: String, vararg pairs: Pair<String, Any?>): AwareMessage =
         AwareMessage.of(packet, aware, *pairs)
+
+    fun bindToMetadataService(): ScheduledExecutorService
+    {
+        val service = Executors.newSingleThreadScheduledExecutor()
+        service.scheduleAtFixedRate({
+            CompletableFuture
+                .allOf(
+                    *metadataTrackers.values
+                        .map(MetadataTracker::update)
+                        .toTypedArray()
+                )
+                .join()
+        }, 0L, 100L, TimeUnit.MILLISECONDS)
+        return service
+    }
 
     fun bindToStatusService(statusService: () -> GameStatus)
     {

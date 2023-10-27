@@ -1,5 +1,6 @@
 package gg.tropic.practice.queue
 
+import gg.tropic.practice.PracticeShared
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import gg.tropic.practice.application.api.defaults.game.GameTeam
@@ -7,8 +8,11 @@ import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.games.manager.GameManager
 import net.evilblock.cubed.serializers.Serializers
 import java.util.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 import kotlin.concurrent.thread
 import kotlin.math.max
@@ -34,6 +38,8 @@ class GameQueue(
 
     private var thread: Thread? = null
     private var adjacentRankedThread: Thread? = null
+    private val metadataUpdateThread = Executors
+        .newSingleThreadScheduledExecutor()
 
     fun queueId() = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
 
@@ -150,6 +156,26 @@ class GameQueue(
                 )
         }
 
+        metadataUpdateThread.scheduleAtFixedRate({
+            with(DPSRedisShared.keyValueCache.sync()) {
+                val queueSize = GameQueueManager.queueSizeFromId(queueId())
+                psetex("${PracticeShared.KEY}:metadata:users-queued:${
+                    queueId()
+                }", 1000L, queueSize.toString())
+
+                val gamesMatchingQueueID = GameManager.allGames()
+                    .thenApply { refs ->
+                        refs.filter { it.queueId == queueId() }
+                    }
+                    .join()
+                val playersInGame = gamesMatchingQueueID.sumOf { it.players.size }
+
+                psetex("${PracticeShared.KEY}:metadata:users-playing:${
+                    queueId()
+                }", 1000L, playersInGame.toString())
+            }
+        }, 0L, 50L, TimeUnit.MILLISECONDS)
+
         Logger.getGlobal()
             .info(
                 "[queue] Built queue with ID: ${queueId()}"
@@ -193,6 +219,8 @@ class GameQueue(
             adjacentRankedThread?.interrupt()
             adjacentRankedThread = null
         }
+
+        metadataUpdateThread.shutdownNow()
     }
 
     private fun run()
@@ -321,7 +349,8 @@ class GameQueue(
             ),
             kitId = kit.id,
             mapId = map.name,
-            queueType = queueType
+            queueType = queueType,
+            queueId = queueId()
         )
 
         GameQueueManager.prepareGameFor(

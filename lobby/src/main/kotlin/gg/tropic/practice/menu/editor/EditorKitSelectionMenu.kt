@@ -14,6 +14,7 @@ class EditorKitSelectionMenu(
 ) : TemplateKitMenu()
 {
     override fun filterDisplayOfKit(player: Player, kit: Kit): Boolean = true
+    override fun itemTitleFor(player: Player, kit: Kit) = "${CC.B_PRI}${kit.displayName}"
 
     override fun itemDescriptionOf(player: Player, kit: Kit): List<String>
     {

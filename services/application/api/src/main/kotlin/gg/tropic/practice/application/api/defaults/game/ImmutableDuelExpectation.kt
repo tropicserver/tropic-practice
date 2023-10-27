@@ -16,5 +16,6 @@ data class GameExpectation(
     /**
      * Null queue types mean it is a private duel.
      */
-    val queueType: QueueType? = null
+    val queueType: QueueType? = null,
+    val queueId: String? = null
 )

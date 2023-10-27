@@ -122,7 +122,13 @@ object ReplicationManager
         redis.createMessage(
             "allocate-replication",
             "requestID" to requestID,
-            "expectation" to expectation,
+            // TODO: jesus christ
+            "expectation" to String(
+                Base64.getEncoder().encode(
+                    Serializers.gson.toJson(expectation)
+                        .encodeToByteArray()
+                )
+            ),
             "map" to map,
             "server" to server
         ).publish(
@@ -145,7 +151,11 @@ object ReplicationManager
         redis.createMessage(
             "request-replication",
             "requestID" to requestID,
-            "expectation" to expectation,
+            // TODO: jesus christ
+            "expectation" to Base64.getEncoder().encode(
+                Serializers.gson.toJson(expectation)
+                    .encodeToByteArray()
+            ),
             "map" to map,
             "server" to server
         ).publish(
