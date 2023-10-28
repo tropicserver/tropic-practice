@@ -14,6 +14,5 @@ class GameReport(
     val duration: Long,
     val map: String,
     val status: GameReportStatus,
-    val matchDate: Date = Date(),
-    var viewed: Boolean = false
+    val matchDate: Date = Date()
 )

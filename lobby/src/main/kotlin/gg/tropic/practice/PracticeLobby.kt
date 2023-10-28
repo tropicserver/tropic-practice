@@ -44,35 +44,5 @@ class PracticeLobby : ExtendedScalaPlugin()
     {
         SettingMenu.defaultCategory = "Practice"
         GameManagerService.bindToMetadataService()
-
-        Events
-            .subscribe(PlayerJoinEvent::class.java)
-            .handler { event ->
-                GameReportService
-                    .loadSnapshotsForParticipant(event.player.uniqueId)
-                    .thenAcceptAsync {
-                        val filtered = it
-                            .filter { report ->
-                                event.player.uniqueId in report.winners ||
-                                        event.player.uniqueId in report.losers
-                            }
-                            .filter { report -> !report.viewed }
-
-                        if (filtered.isNotEmpty())
-                        {
-                            FancyMessage()
-                                .withMessage(
-                                    "${CC.GREEN}Click this message to view your game overview!"
-                                )
-                                .andHoverOf("${CC.GREEN}Click to view!")
-                                .andCommandOf(
-                                    ClickEvent.Action.RUN_COMMAND,
-                                    "/games"
-                                )
-                                .sendToPlayer(event.player)
-                        }
-                    }
-            }
-            .bindWith(this)
     }
 }

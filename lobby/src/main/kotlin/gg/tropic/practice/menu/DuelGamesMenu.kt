@@ -40,20 +40,6 @@ class DuelGamesMenu(
 
         for (report in this.reports.sortedByDescending { it.matchDate.time })
         {
-            if (!report.viewed)
-            {
-                report.viewed = true
-
-                ForkJoinPool.commonPool().submit {
-                    ScalaCommonsSpigot.instance.kvConnection
-                        .sync()
-                        .set(
-                            "tropicpractice:snapshots:matches:${report.identifier}",
-                            Serializers.gson.toJson(report)
-                        )
-                }
-            }
-
             buttons[buttons.size] = ItemBuilder
                 .of(Material.PAPER)
                 .name(
