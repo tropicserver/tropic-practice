@@ -29,8 +29,10 @@ class DuelGamesMenu(
         placeholdBorders = true
     }
 
-    override fun size(buttons: Map<Int, Button>) = 36
-    override fun getAllPagesButtonSlots() = (10..16) + (19..25)
+    override fun size(buttons: Map<Int, Button>) = 54
+    override fun getAllPagesButtonSlots() = (10..16) + (19..25) + (28..34) + (37..43)
+    override fun getMaxItemsPerPage(player: Player) =
+        ((10..16) + (19..25) + (28..34) + (37..43)).toList().size
 
     override fun getAllPagesButtons(player: Player): Map<Int, Button>
     {
@@ -104,5 +106,5 @@ class DuelGamesMenu(
         return buttons
     }
 
-    override fun getPrePaginatedTitle(player: Player) = "Your previous games (last 3d)"
+    override fun getPrePaginatedTitle(player: Player) = "Your previous games"
 }
