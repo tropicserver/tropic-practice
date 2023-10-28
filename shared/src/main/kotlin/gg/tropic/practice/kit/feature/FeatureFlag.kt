@@ -56,11 +56,10 @@ enum class FeatureFlag(
         schema = mutableMapOf("time" to "10"),
         requires = setOf(PlaceBlocks)
     ),
-    PlayersDoNotTakeDamage,
-    PlayersDoNotLoseHealthOnDamage(
-        incompatibleWith = { setOf(PlayersDoNotTakeDamage) }
-    ),
     DeathOnLiquidInteraction,
+    WinWhenNHitsReached(
+        schema = mutableMapOf("hits" to "100")
+    ),
     // multi-round
     MultiRound,
     ImmediateRespawnOnDeath(

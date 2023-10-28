@@ -93,7 +93,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                     Base64.getDecoder().decode(
                         retrieve<String>("expectation")
                     )
-                ).apply(::println),
+                ),
                 GameExpectation::class.java
             )
 

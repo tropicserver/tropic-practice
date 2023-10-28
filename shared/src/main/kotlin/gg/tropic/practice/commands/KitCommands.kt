@@ -438,7 +438,7 @@ object KitCommands : ScalaCommand()
     @Description("Add effects to this kit.")
     fun onKitAddEffect(player: ScalaPlayer, kit: Kit, potionEffectType: PotionEffectType, amplifier: Int)
     {
-        kit.potionEffects[potionEffectType] = amplifier
+        kit.potionEffects[potionEffectType.name] = amplifier
 
         with(KitService.cached()) {
             KitService.cached().kits[kit.id] = kit
@@ -472,10 +472,12 @@ object KitCommands : ScalaCommand()
                 val listComponents = FancyMessage()
                     .withMessage(
                         "${CC.GRAY}${
-                            entry.key.name.lowercase().replaceFirstChar { 
+                            entry.key.lowercase().replaceFirstChar { 
                                 it.titlecase(Locale.getDefault()) 
                             }
-                        } (Amplifier ${entry.value})${if (index != effects.size - 1) ", " else ""}"
+                        } (Amplifier ${entry.value})${
+                            if (index != effects.size - 1) ", " else ""
+                        }"
                     )
 
                 fancyMessage.components.addAll(listComponents.components)
@@ -496,7 +498,7 @@ object KitCommands : ScalaCommand()
     @Description("Removes the given effect from the kit.")
     fun onKitRemoveEffect(player: ScalaPlayer, kit: Kit, potionEffectType: PotionEffectType)
     {
-        if (!kit.potionEffects.containsKey(potionEffectType))
+        if (!kit.potionEffects.containsKey(potionEffectType.name))
         {
             throw ConditionFailedException(
                 "The kit ${CC.YELLOW}${kit.displayName} ${CC.RED}does contain the effect${
@@ -508,7 +510,7 @@ object KitCommands : ScalaCommand()
             )
         }
 
-        kit.potionEffects.remove(potionEffectType)
+        kit.potionEffects.remove(potionEffectType.name)
 
         with (KitService.cached()) {
             KitService.cached().kits[kit.id] = kit

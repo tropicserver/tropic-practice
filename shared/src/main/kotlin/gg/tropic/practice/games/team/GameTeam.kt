@@ -12,6 +12,35 @@ class GameTeam(
     val players: List<UUID>
 )
 {
+    @Volatile
+    var combinedHits = 0
+
+    private var backingPlayerCombos: MutableMap<UUID, Int>? = null
+        get()
+        {
+            if (field == null)
+            {
+                field = mutableMapOf()
+            }
+            return field
+        }
+
+    private var backingHighestPlayerCombos: MutableMap<UUID, Int>? = null
+        get()
+        {
+            if (field == null)
+            {
+                field = mutableMapOf()
+            }
+            return field
+        }
+
+    val playerCombos: MutableMap<UUID, Int>
+        get() = backingPlayerCombos!!
+
+    val highestPlayerCombos: MutableMap<UUID, Int>
+        get() = backingHighestPlayerCombos!!
+
     fun nonSpectators() = this.toBukkitPlayers()
         .filterNotNull()
         .filter {

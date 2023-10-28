@@ -98,7 +98,7 @@ class PlayerViewMenu(
                     }${
                         if (potionEffect.amplifier > 0) " ${RomanNumerals.toRoman(potionEffect.amplifier)}" else ""
                     } ${CC.GRAY}(${
-                        TimeUtil.formatIntoMMSS(potionEffect.duration)
+                        if (potionEffect.duration > 10000) "**:**" else TimeUtil.formatIntoMMSS(potionEffect.duration)
                     })")
                 }
             }

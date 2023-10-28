@@ -337,6 +337,41 @@ object GameService
             }
             .bindWith(plugin)
 
+        fun getMessageBundlePhrase(player: Player): String
+        {
+            val bundle = CosmeticRegistry
+                .findRelatedTo(KillMessageBundleCosmeticCategory)
+                .filter { like ->
+                    like.equipped(player)
+                }
+                .filterIsInstance<MessageBundle>()
+                .flatMap { bundle -> bundle.phrases }
+
+            if (bundle.isEmpty())
+            {
+                return "slain"
+            }
+
+            return "${CC.B_WHITE}${bundle.random()}${CC.GRAY}"
+        }
+
+        fun runDeathEffectsFor(player: Player, target: Player, game: GameImpl)
+        {
+            val killerCosmetic = CosmeticRegistry
+                .getSingleEquipped(
+                    KillEffectCosmeticCategory,
+                    player
+                )
+
+            if (killerCosmetic != null)
+            {
+                (killerCosmetic as KillEffect).applyTo(
+                    game.toBukkitPlayers().filterNotNull(),
+                    target
+                )
+            }
+        }
+
         Events.subscribe(PlayerDeathEvent::class.java)
             .handler {
                 val game = byPlayer(it.entity)
@@ -380,48 +415,15 @@ object GameService
                     game.getTeamOf(killerPlayer)
                 }
 
-                val killerCosmetic = if (killerPlayer is Player)
+                if (killerPlayer is Player)
                 {
-                    CosmeticRegistry
-                        .getSingleEquipped(
-                            KillEffectCosmeticCategory,
-                            killerPlayer
-                        )
-                } else
-                {
-                    null
-                }
-
-                if (killerCosmetic != null)
-                {
-                    (killerCosmetic as KillEffect).applyTo(
-                        game.toBukkitPlayers().filterNotNull(),
-                        it.entity
-                    )
-                }
-
-                fun getMessageBundlePhrase(): String
-                {
-                    val bundle = CosmeticRegistry
-                        .findRelatedTo(KillMessageBundleCosmeticCategory)
-                        .filter { like ->
-                            like.equipped(killerPlayer as Player)
-                        }
-                        .filterIsInstance<MessageBundle>()
-                        .flatMap { bundle -> bundle.phrases }
-
-                    if (bundle.isEmpty())
-                    {
-                        return "slain"
-                    }
-
-                    return "${CC.B_WHITE}${bundle.random()}${CC.GRAY}"
+                    runDeathEffectsFor(killerPlayer, it.entity, game)
                 }
 
                 game.sendMessage(
                     "${CC.RED}${it.entity.name}${CC.GRAY} was ${
                         if (killerPlayer == null) "killed" else "${
-                            getMessageBundlePhrase()
+                            getMessageBundlePhrase(killerPlayer as Player)
                         } by ${CC.GREEN}${killerPlayer.name}${CC.GRAY}"
                     }!"
                 )
@@ -657,14 +659,11 @@ object GameService
                 )
                     ?: return@handler
 
+                val damagerTeam = game.getTeamOf(it.damager as Player)
+                val team = game.getTeamOf(it.entity as Player)
+
                 if (damagerGame.expectation == game.expectation)
                 {
-                    val damagerTeam = game
-                        .getTeamOf(it.damager as Player)
-
-                    val team = game
-                        .getTeamOf(it.entity as Player)
-
                     if (damagerTeam.side == team.side)
                     {
                         it.isCancelled = true
@@ -680,6 +679,43 @@ object GameService
                         FeatureFlag.DoNotTakeDamage, "doDamageTick"
                     )
                     ?.toBooleanStrictOrNull()
+
+                damagerTeam.combinedHits += 1
+                damagerTeam.playerCombos.compute(
+                    it.damager!!.uniqueId
+                ) { _, previous ->
+                    val computed = (previous ?: 0) + 1
+                    val highestCombo = damagerTeam
+                        .highestPlayerCombos[it.damager.uniqueId]
+
+                    if (highestCombo == null || highestCombo < computed)
+                    {
+                        damagerTeam.highestPlayerCombos[it.damager.uniqueId] = computed
+                    }
+
+                    computed
+                }
+
+                team.playerCombos.remove(it.entity.uniqueId)
+
+                val winWhenHitsReached = game
+                    .flagMetaData(
+                        FeatureFlag.WinWhenNHitsReached, "hits"
+                    )
+                    ?.toIntOrNull()
+
+                if (
+                    winWhenHitsReached != null &&
+                    damagerTeam.combinedHits >= winWhenHitsReached
+                )
+                {
+                    runDeathEffectsFor(
+                        it.damager as Player,
+                        it.entity as Player,
+                        game
+                    )
+                    game.complete(damagerTeam)
+                }
 
                 if (doNotTakeDamage != null)
                 {

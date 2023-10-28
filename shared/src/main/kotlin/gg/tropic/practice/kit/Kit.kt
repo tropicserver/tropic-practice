@@ -24,7 +24,7 @@ data class Kit(
     var armorContents: Array<ItemStack?> = arrayOfNulls(4),
     var contents: Array<ItemStack?> = arrayOfNulls(36),
     var additionalContents: Array<ItemStack?> = arrayOfNulls(27),
-    var potionEffects: MutableMap<PotionEffectType, Int> = mutableMapOf(),
+    var potionEffects: MutableMap<String, Int> = mutableMapOf(),
     val features: MutableMap<FeatureFlag, MutableMap<String, String>> = mutableMapOf()
 )
 {
@@ -97,8 +97,9 @@ data class Kit(
         if (potionEffects.isNotEmpty())
         {
             potionEffects.forEach { (t, u) ->
-                // TODO: timed potion effects?
-                player.addPotionEffect(PotionEffect(t, Int.MAX_VALUE, u))
+                player.addPotionEffect(PotionEffect(
+                    PotionEffectType.getByName(t), Int.MAX_VALUE, u
+                ))
             }
         }
     }
