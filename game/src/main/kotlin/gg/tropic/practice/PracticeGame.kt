@@ -1,11 +1,14 @@
 package gg.tropic.practice
 
+import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.annotations.container.ContainerEnable
 import gg.scala.commons.core.plugin.*
 import gg.scala.lemon.channel.ChatChannelService
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
+import gg.tropic.practice.settings.ChatVisibility
+import org.bukkit.Bukkit
 
 /**
  * @author GrowlyX
@@ -37,7 +40,19 @@ class PracticeGame : ExtendedScalaPlugin()
     {
         ChatChannelService.default
             .displayToPlayer { player, other ->
-                player.world.name == other.world.name
+                val chatVisibility = BasicsProfileService.find(other)
+                    ?.setting(
+                        "duels:chat-visibility",
+                        ChatVisibility.Global
+                    )
+                    ?: ChatVisibility.Global
+
+                val bukkitPlayer = Bukkit.getPlayer(player)
+                when (chatVisibility)
+                {
+                    ChatVisibility.Global -> true
+                    ChatVisibility.Match -> bukkitPlayer != null && bukkitPlayer.world.name == other.world.name
+                }
             }
 
         val lobbyRedirector = LeastTrafficServerAggregateHandler("miplobby")

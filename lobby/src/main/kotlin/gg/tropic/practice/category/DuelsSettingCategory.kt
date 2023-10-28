@@ -9,6 +9,7 @@ import gg.scala.flavor.service.Service
 import gg.scala.flavor.service.ignore.IgnoreAutoScan
 import gg.tropic.practice.category.restriction.RangeRestriction
 import gg.tropic.practice.category.scoreboard.LobbyScoreboardView
+import gg.tropic.practice.settings.ChatVisibility
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -111,6 +112,18 @@ object DuelsSettingCategory : SettingCategory
             }
 
             item = ItemBuilder.of(Material.EYE_OF_ENDER)
+        },
+        SettingContainer.buildEntry {
+            id = "$DUEL_SETTING_PREFIX:chat-visibility"
+            displayName = "Chat visibility"
+
+            clazz = ChatVisibility::class.java
+            default = ChatVisibility.Global
+
+            description += "Filter chat messages you"
+            description += "see in game."
+
+            item = ItemBuilder.of(Material.PAPER)
         },
         SettingContainer.buildEntry {
             id = "$DUEL_SETTING_PREFIX:ranked-restriction-ping"
