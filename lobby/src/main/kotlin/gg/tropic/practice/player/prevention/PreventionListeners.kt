@@ -41,7 +41,7 @@ object PreventionListeners
             .filter {
                 it.clickedInventory == it.whoClicked.inventory &&
                     (it.slotType == InventoryType.SlotType.ARMOR ||
-                        ItemUtils.itemTagHasKey(it.currentItem, "invokerc"))
+                        (it.currentItem == null || ItemUtils.itemTagHasKey(it.currentItem, "invokerc")))
             }
             .handler {
                 it.isCancelled = true
