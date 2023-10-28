@@ -4,8 +4,11 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeLobby
+import gg.tropic.practice.menu.editor.AllowRemoveItemsWithinInventory
+import gg.tropic.practice.menu.editor.ExtraContentSelectionMenu
 import gg.tropic.practice.player.LobbyPlayerService
 import me.lucko.helper.Events
+import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.bukkit.ItemUtils
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
@@ -37,11 +40,27 @@ object PreventionListeners
             .bindWith(plugin)
 
         Events
+            .subscribe(PlayerDropItemEvent::class.java)
+            .handler {
+                val notContentEditor = Menu
+                    .currentlyOpenedMenus[it.player.uniqueId] !is AllowRemoveItemsWithinInventory
+
+                if (notContentEditor)
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+
+                it.itemDrop.remove()
+            }
+            .bindWith(plugin)
+
+        Events
             .subscribe(InventoryClickEvent::class.java)
             .filter {
                 it.clickedInventory == it.whoClicked.inventory &&
                     (it.slotType == InventoryType.SlotType.ARMOR ||
-                        (it.currentItem == null || ItemUtils.itemTagHasKey(it.currentItem, "invokerc")))
+                        (runCatching { ItemUtils.itemTagHasKey(it.currentItem, "invokerc") }.getOrDefault(false)))
             }
             .handler {
                 it.isCancelled = true
@@ -55,7 +74,6 @@ object PreventionListeners
             EntityDamageByBlockEvent::class,
             EntityDamageByEntityEvent::class,
             EntityDamageEvent::class,
-            PlayerDropItemEvent::class,
             FoodLevelChangeEvent::class
         ).forEach { event ->
             Events

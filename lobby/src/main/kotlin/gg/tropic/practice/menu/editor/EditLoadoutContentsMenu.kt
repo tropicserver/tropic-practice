@@ -22,7 +22,7 @@ class EditLoadoutContentsMenu(
     private val kit: Kit,
     val loadout: Loadout,
     val practiceProfile: PracticeProfile
-) : Menu()
+) : Menu(), AllowRemoveItemsWithinInventory
 {
     init
     {

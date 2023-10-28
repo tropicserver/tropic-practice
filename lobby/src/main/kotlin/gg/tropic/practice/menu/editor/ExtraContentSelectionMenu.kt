@@ -5,7 +5,6 @@ import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
-import org.bukkit.Sound
 import org.bukkit.entity.Player
 
 class ExtraContentSelectionMenu(
@@ -14,7 +13,7 @@ class ExtraContentSelectionMenu(
     private val contentsMenu: EditLoadoutContentsMenu = EditLoadoutContentsMenu(kit, _contentsMenu.loadout, _contentsMenu.practiceProfile)
 ) : Menu(
     "Selecting extra contents..."
-)
+), AllowRemoveItemsWithinInventory
 {
     override fun size(buttons: Map<Int, Button>) = 27
 
