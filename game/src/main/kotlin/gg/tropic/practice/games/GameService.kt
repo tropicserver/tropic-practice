@@ -411,12 +411,18 @@ object GameService
                 {
                     val bundle = CosmeticRegistry
                         .findRelatedTo(KillMessageBundleCosmeticCategory)
-                        .firstOrNull { like ->
+                        .filter { like ->
                             like.equipped(killerPlayer as Player)
-                        } as MessageBundle?
-                        ?: return "slain"
+                        }
+                        .filterIsInstance<MessageBundle>()
+                        .flatMap { bundle -> bundle.phrases }
 
-                    return "${CC.B_WHITE}${bundle.phrases.random()}${CC.GRAY}"
+                    if (bundle.isEmpty())
+                    {
+                        return "slain"
+                    }
+
+                    return "${CC.B_WHITE}${bundle.random()}${CC.GRAY}"
                 }
 
                 game.sendMessage(
