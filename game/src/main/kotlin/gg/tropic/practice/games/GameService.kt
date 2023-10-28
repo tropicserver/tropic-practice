@@ -11,6 +11,8 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
+import gg.tropic.game.extensions.cosmetics.killeffects.KillEffectCosmeticCategory
+import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.KillEffect
 import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
@@ -335,26 +337,6 @@ object GameService
             }
             .bindWith(plugin)
 
-        fun spawnLightning(player: Player, location: Location)
-        {
-            val lightningPacket = PacketContainer(PacketType.Play.Server.SPAWN_ENTITY_WEATHER)
-
-            lightningPacket.modifier.writeDefaults()
-            lightningPacket.integers.write(0, 128)
-            lightningPacket.integers.write(4, 1)
-            lightningPacket.integers.write(1, (location.x * 32.0).toInt())
-            lightningPacket.integers.write(2, (location.y * 32.0).toInt())
-            lightningPacket.integers.write(3, (location.z * 32.0).toInt())
-
-            ProtocolLibrary.getProtocolManager().sendServerPacket(player, lightningPacket)
-
-            val thunderSoundPitch = 0.8f + ThreadLocalRandom.current().nextFloat() * 0.2f
-            val explodeSoundPitch = 0.5f + ThreadLocalRandom.current().nextFloat() * 0.2f
-
-            player.playSound(location, Sound.AMBIENCE_THUNDER, 10000.0f, thunderSoundPitch)
-            player.playSound(location, Sound.EXPLODE, 2.0f, explodeSoundPitch)
-        }
-
         Events.subscribe(PlayerDeathEvent::class.java)
             .handler {
                 val game = byPlayer(it.entity)
@@ -376,15 +358,6 @@ object GameService
                     "spectator", FixedMetadataValue(plugin, true)
                 )
 
-                game.toBukkitPlayers()
-                    .filterNotNull()
-                    .forEach { other ->
-                        spawnLightning(other, it.entity.location)
-                    }
-
-                it.entity.allowFlight = true
-                it.entity.isFlying = true
-
                 val noAlive = if (team.players.size > 1)
                     team.nonSpectators().isEmpty() else true
 
@@ -405,6 +378,26 @@ object GameService
                 } else
                 {
                     game.getTeamOf(killerPlayer)
+                }
+
+                val killerCosmetic = if (killerPlayer is Player)
+                {
+                    CosmeticRegistry
+                        .getSingleEquipped(
+                            KillEffectCosmeticCategory,
+                            killerPlayer
+                        )
+                } else
+                {
+                    null
+                }
+
+                if (killerCosmetic != null)
+                {
+                    (killerCosmetic as KillEffect).applyTo(
+                        game.toBukkitPlayers().filterNotNull(),
+                        it.entity
+                    )
                 }
 
                 fun getMessageBundlePhrase(): String
