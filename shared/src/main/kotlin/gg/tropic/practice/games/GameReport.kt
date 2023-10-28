@@ -14,5 +14,6 @@ class GameReport(
     val duration: Long,
     val map: String,
     val status: GameReportStatus,
-    val matchDate: Date = Date()
+    val matchDate: Date = Date(),
+    val extraInformation: Map<UUID, Map<String, Map<String, String>>> = mutableMapOf()
 )

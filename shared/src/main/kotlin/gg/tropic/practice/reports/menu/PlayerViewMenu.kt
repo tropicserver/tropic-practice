@@ -78,7 +78,7 @@ class PlayerViewMenu(
         }
 
         buttons[50] = ItemBuilder.of(XMaterial.BREWING_STAND)
-            .name("${CC.PRI}Potion Effects")
+            .name("${CC.B_PRI}Potion Effects")
             .apply {
                 if (snapshot.potionEffects.isEmpty())
                 {
@@ -107,14 +107,32 @@ class PlayerViewMenu(
         buttons[51] = ItemBuilder
             .of(Material.PAPER)
             .name(
-                "${CC.PRI}Extra Information"
+                "${CC.B_PRI}Extra Information"
             )
             .addToLore(
                 "${CC.WHITE}Duration: ${CC.PRI}${
                     TimeUtil.formatIntoMMSS((gameReport.duration / 1000).toInt())
-                }",
-                "${CC.WHITE}Street: ${CC.PRI}${listOf("Donkey Ave.", "William St.").random()}"
+                }"
             )
+            .apply {
+                val extraInformation = gameReport.extraInformation[reportOf]
+                    ?: return@apply
+
+                for (information in extraInformation)
+                {
+                    if (information.value.size == 1)
+                    {
+                        addToLore("${CC.WHITE}${information.key}: ${CC.PRI}${information.value.values.first()}")
+                        continue
+                    }
+
+                    addToLore("", "${CC.PRI}${information.key}")
+                    for (entry in information.value)
+                    {
+                        addToLore(" ${CC.WHITE}${entry.key}: ${CC.PRI}${entry.value}")
+                    }
+                }
+            }
             .toButton()
 
         val indexes = gameReport.winners + gameReport.losers
