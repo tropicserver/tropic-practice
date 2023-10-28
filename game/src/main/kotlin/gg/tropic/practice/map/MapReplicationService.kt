@@ -253,15 +253,6 @@ object MapReplicationService
             }
             .bindWith(terminable)
 
-        Schedulers
-            .async()
-            .runLater({
-                future.completeExceptionally(
-                    IllegalStateException("The world did not load on time")
-                )
-            }, 20L * 5L)
-            .bindWith(terminable)
-
         return future
             .thenCompose { world ->
                 arena.metadata.clearSignLocations(world)

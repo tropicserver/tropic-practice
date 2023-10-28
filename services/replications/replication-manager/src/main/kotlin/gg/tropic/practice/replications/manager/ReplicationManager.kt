@@ -152,9 +152,11 @@ object ReplicationManager
             "request-replication",
             "requestID" to requestID,
             // TODO: jesus christ
-            "expectation" to Base64.getEncoder().encode(
-                Serializers.gson.toJson(expectation)
-                    .encodeToByteArray()
+            "expectation" to String(
+                Base64.getEncoder().encode(
+                    Serializers.gson.toJson(expectation)
+                        .encodeToByteArray()
+                )
             ),
             "map" to map,
             "server" to server
