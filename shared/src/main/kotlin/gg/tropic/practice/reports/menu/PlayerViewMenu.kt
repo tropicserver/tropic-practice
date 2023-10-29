@@ -55,6 +55,8 @@ class PlayerViewMenu(
             buttons[i] = PaginatedMenu.PLACEHOLDER
         }
 
+        val viewerVersionIs17 = MinecraftProtocol.getPlayerVersion(player) == 5
+
         buttons[47] = ItemBuilder.of(XMaterial.GLISTERING_MELON_SLICE)
             .name("${CC.SEC}Health: ${CC.GREEN}${"%.1f".format(snapshot.health.toFloat())} ${Constants.HEART_SYMBOL}")
             .toButton()
@@ -140,7 +142,6 @@ class PlayerViewMenu(
 
         val indexes = gameReport.winners + gameReport.losers
         val index = indexes.indexOf(reportOf)
-        val viewerVersionIs17 = MinecraftProtocol.getPlayerVersion(player) == 5
 
         if (index + 1 < indexes.size)
         {
@@ -219,6 +220,11 @@ class PlayerViewMenu(
 
             if (armor == null)
             {
+                if (viewerVersionIs17)
+                {
+                    continue
+                }
+
                 buttons[i] = ItemBuilder
                     .of(Material.BARRIER)
                     .name("${CC.BD_RED}No item")
