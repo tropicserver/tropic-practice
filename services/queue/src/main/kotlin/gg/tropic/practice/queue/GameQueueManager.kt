@@ -398,7 +398,7 @@ object GameQueueManager
                             ""
                         )
                         .withMessage(
-                            "\n&a(Click to accept)"
+                            "&a(Click to accept)"
                         )
                         .andCommandOf(
                             ClickEvent.Action.RUN_COMMAND,
@@ -406,6 +406,10 @@ object GameQueueManager
                         )
                         .andHoverOf("Click to accept!")
                         .withMessage("")
+                )
+
+                DPSRedisShared.sendNotificationSound(
+                    listOf(request.requestee), "duel-sounds"
                 )
 
                 futureMappings[key] = executor.schedule({

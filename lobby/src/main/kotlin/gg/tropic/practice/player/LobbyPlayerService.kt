@@ -25,6 +25,7 @@ import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -208,6 +209,25 @@ object LobbyPlayerService
 
             usePlayer {
                 message.sendToPlayer(player)
+            }
+        }
+
+        aware.listen("send-notification-sound") {
+            val setting = retrieve<String>("setting")
+
+            usePlayer {
+                val profile = BasicsProfileService.find(this)
+                    ?: return@usePlayer
+
+                if (profile.setting(setting, StateSettingValue.DISABLED) == StateSettingValue.ENABLED)
+                {
+                    playSound(
+                        location,
+                        Sound.NOTE_PLING,
+                        1.0f,
+                        1.0f
+                    )
+                }
             }
         }
 

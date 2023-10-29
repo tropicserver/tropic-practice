@@ -50,4 +50,15 @@ object DPSRedisShared
             AwareThreadContext.SYNC
         )
     }
+
+    fun sendNotificationSound(players: List<UUID>, setting: String)
+    {
+        lobbyBridge.createMessage(
+            packet = "send-notification-sound",
+            "playerIDs" to players,
+            "setting" to setting
+        ).publish(
+            AwareThreadContext.SYNC
+        )
+    }
 }

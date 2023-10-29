@@ -42,6 +42,19 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.DIAMOND_SWORD)
         },
         SettingContainer.buildEntry {
+            id = "$DUEL_SETTING_PREFIX:duel-sounds"
+            displayName = "Duel sounds"
+
+            clazz = StateSettingValue::class.java
+            default = StateSettingValue.ENABLED
+
+            description += "Allows you to be played a"
+            description += "notification sound when"
+            description += "you receive a duel request."
+
+            item = ItemBuilder.of(Material.NOTE_BLOCK)
+        },
+        SettingContainer.buildEntry {
             id = "$DUEL_SETTING_PREFIX:allow-spectators"
             displayName = "Allow spectators"
 
