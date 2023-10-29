@@ -73,7 +73,7 @@ class GameStartTask(
                 "${CC.PRI}${
                     if (maybePossiblyADuel) "Private" else game.expectationModel.queueType!!.name
                 } $teamVersus ${game.kit.displayName}:",
-                "${CC.WHITE}${Constants.THIN_VERTICAL_LINE} Players: ${CC.PRI}${
+                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Players: ${CC.PRI}${
                     this.game.teams[GameTeamSide.A]!!.players
                         .joinToString(", ") { 
                             it.username() 
@@ -85,7 +85,6 @@ class GameStartTask(
                         }
                 }",
                 "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}",
-                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Horse: ${CC.GREEN}Anticheat 4.0 Activation ${Constants.CHECK_SYMBOL}",
                 ""
             )
         }

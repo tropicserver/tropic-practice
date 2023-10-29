@@ -13,6 +13,8 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
+import net.evilblock.cubed.util.nms.MinecraftProtocol
+import net.evilblock.cubed.util.nms.MinecraftReflection
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -93,7 +95,8 @@ class PlayerViewMenu(
                             .replace("_", " ")
                             .split(" ")
                             .joinToString(" ") {
-                                it.lowercase().capitalize()
+                                it.lowercase()
+                                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
                             }
                     }${
                         if (potionEffect.amplifier > 0) " ${RomanNumerals.toRoman(potionEffect.amplifier)}" else ""
@@ -137,6 +140,7 @@ class PlayerViewMenu(
 
         val indexes = gameReport.winners + gameReport.losers
         val index = indexes.indexOf(reportOf)
+        val viewerVersionIs17 = MinecraftProtocol.getPlayerVersion(player) == 5
 
         if (index + 1 < indexes.size)
         {
@@ -144,9 +148,17 @@ class PlayerViewMenu(
             val snapshot = gameReport.snapshots[nextPlayer]!!
 
             buttons[53] = ItemBuilder
-                .copyOf(
-                    object : TexturedHeadButton(Constants.WOOD_ARROW_RIGHT_TEXTURE){}.getButtonItem(player)
-                )
+                .let {
+                    if (viewerVersionIs17)
+                    {
+                        return@let it.of(Material.PAPER)
+                    }
+
+                    return@let it.copyOf(
+                        object : TexturedHeadButton(Constants.WOOD_ARROW_RIGHT_TEXTURE)
+                        {}.getButtonItem(player)
+                    )
+                }
                 .name(
                     "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
                 )
@@ -166,9 +178,17 @@ class PlayerViewMenu(
             val snapshot = gameReport.snapshots[nextPlayer]!!
 
             buttons[45] = ItemBuilder
-                .copyOf(
-                    object : TexturedHeadButton(Constants.WOOD_ARROW_LEFT_TEXTURE){}.getButtonItem(player)
-                )
+                .let {
+                    if (viewerVersionIs17)
+                    {
+                        return@let it.of(Material.PAPER)
+                    }
+
+                    return@let it.copyOf(
+                        object : TexturedHeadButton(Constants.WOOD_ARROW_LEFT_TEXTURE)
+                        {}.getButtonItem(player)
+                    )
+                }
                 .name(
                     "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
                 )

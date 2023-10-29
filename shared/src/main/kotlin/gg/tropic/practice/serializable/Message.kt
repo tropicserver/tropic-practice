@@ -14,15 +14,15 @@ import org.bukkit.entity.Player
  */
 class Message
 {
-    private val components = mutableListOf<SerializableComponent>()
+    val components = mutableListOf<SerializableComponent>()
 
     fun withMessage(vararg messages: String): Message
     {
-        components.add(
-            SerializableComponent(
-                messages.joinToString(separator = "\n") { it.replace("&", "§") }
+        messages.forEach {
+            components += SerializableComponent(
+                it.replace("&", "§")
             )
-        )
+        }
 
         return this
     }
@@ -76,9 +76,7 @@ class Message
             components.add(textComponent)
         }
 
-        player.spigot().sendMessage(
-            *components.toTypedArray()
-        )
+        components.forEach(player.spigot()::sendMessage)
     }
 
     class InvalidComponentException(message: String) : RuntimeException(message)

@@ -10,6 +10,7 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupContainer
 import gg.tropic.practice.kit.group.KitGroupService
+import gg.tropic.practice.serializable.Message
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent

@@ -103,6 +103,7 @@ class GameImpl(
             }
 
         val newELOMappings = mutableMapOf<UUID, Pair<Int, Int>>()
+        val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
 
         if (winner == null)
         {
