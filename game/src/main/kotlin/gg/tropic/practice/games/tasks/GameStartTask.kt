@@ -3,14 +3,18 @@ package gg.tropic.practice.games.tasks
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
+import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.resetAttributes
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
+import net.evilblock.cubed.util.nms.MinecraftProtocol
+import net.evilblock.cubed.util.nms.MinecraftReflection
 import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -67,25 +71,57 @@ class GameStartTask(
                 .joinToString("v")
 
             val maybePossiblyADuel = game.expectationModel.queueType == null
-
-            this.game.sendMessage(
+            val components = mutableListOf(
                 "",
                 "${CC.PRI}${
                     if (maybePossiblyADuel) "Private" else game.expectationModel.queueType!!.name
                 } $teamVersus ${game.kit.displayName}:",
                 "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Players: ${CC.PRI}${
                     this.game.teams[GameTeamSide.A]!!.players
-                        .joinToString(", ") { 
-                            it.username() 
+                        .joinToString(", ") {
+                            it.username()
                         }
                 } and ${
                     this.game.teams[GameTeamSide.B]!!.players
                         .joinToString(", ") {
                             it.username()
                         }
-                }",
+                }"
+            )
+
+            if (game.expectationModel.queueType == QueueType.Ranked)
+            {
+                components += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.B_WHITE} ELOs:"
+
+                this.game.teams.values
+                    .flatMap { it.toBukkitPlayers() }
+                    .filterNotNull()
+                    .forEach {
+                        val profile = PracticeProfileService.find(it)
+                            ?: return@forEach
+                        components += "  ${CC.GRAY}${Constants.SMALL_DOT_SYMBOL} ${CC.WHITE}${it.name}: ${CC.GREEN}${profile.getRankedStatsFor(game.kit).elo}"
+                    }
+            } else
+            {
+                components += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.B_WHITE} Pings:"
+
+                this.game.teams.values
+                    .flatMap { it.toBukkitPlayers() }
+                    .filterNotNull()
+                    .forEach {
+                        components += "  ${CC.GRAY}${Constants.SMALL_DOT_SYMBOL} ${CC.WHITE}${it.name}: ${CC.GREEN}${
+                            MinecraftReflection.getPing(it)
+                        }ms"
+                    }
+            }
+
+            components += listOf(
                 "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}",
                 ""
+            )
+
+            this.game.sendMessage(
+                *components.toTypedArray()
             )
         }
 

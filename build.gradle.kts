@@ -30,8 +30,8 @@ subprojects {
     apply(plugin = "maven-publish")
 
     dependencies {
-        kapt("gg.scala.commons:bukkit:3.2.2")
-        compileOnly("gg.scala.commons:bukkit:3.2.2")
+        kapt("gg.scala.commons:bukkit:3.4.0")
+        compileOnly("gg.scala.commons:bukkit:3.4.0")
 
         compileOnly("gg.scala.store:spigot:0.1.8")
         compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.5")

@@ -2,6 +2,7 @@ package gg.tropic.practice.map
 
 import gg.scala.commons.persist.datasync.DataSyncKeys
 import gg.scala.commons.persist.datasync.DataSyncService
+import gg.scala.commons.persist.datasync.DataSyncSource
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeShared
 import net.kyori.adventure.key.Key
@@ -15,9 +16,13 @@ object MapService : DataSyncService<MapContainer>()
 {
     object MapKeys : DataSyncKeys
     {
+        override fun newStore() = "mi-practice-maps"
+
         override fun store() = Key.key(PracticeShared.KEY, "maps")
         override fun sync() = Key.key(PracticeShared.KEY, "msync")
     }
+
+    override fun locatedIn() = DataSyncSource.Mongo
 
     override fun keys() = MapKeys
     override fun type() = MapContainer::class.java

@@ -1,8 +1,15 @@
 package gg.tropic.practice.application.api
 
+import com.mongodb.client.MongoCollection
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.UpdateOptions
 import gg.scala.aware.message.AwareMessage
 import gg.scala.aware.thread.AwareThreadContext
+import gg.scala.store.ScalaDataStoreShared
+import gg.scala.store.spigot.ScalaDataStoreSpigotImpl
 import net.evilblock.cubed.serializers.Serializers
+import org.bson.Document
+import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
 
 /**
@@ -13,6 +20,13 @@ abstract class DPSDataSync<T>
 {
     private var cached: T? = null
     private val cache = DPSRedisShared.keyValueCache
+
+    private var collection: MongoCollection<Document>? = null
+
+    open fun locatedIn(): DPSDataSyncSource
+    {
+        return DPSDataSyncSource.Redis
+    }
 
     abstract fun keys(): DPSDataSyncKeys
     abstract fun type(): Class<T>
@@ -60,6 +74,15 @@ abstract class DPSDataSync<T>
 
     fun load()
     {
+        if (locatedIn() == DPSDataSyncSource.Mongo)
+        {
+            val resource = ScalaDataStoreShared.INSTANCE
+                .getNewMongoConnection()
+                .getAppliedResource()
+
+            collection = resource.getCollection("DataSync")
+        }
+
         sync()
             .listen(
                 keys().sync().asString()
@@ -77,12 +100,53 @@ abstract class DPSDataSync<T>
         )
     }
 
+    private fun pullModelFromSource(): String?
+    {
+        if (collection != null)
+        {
+            return collection!!
+                .find(Filters.eq("uid", keys().newStore()))
+                .first()?.toJson()
+        }
+
+        return cache().sync()
+            .get(
+                keys().newStore()
+            )
+    }
+
+    private fun pushNewModelToSource(model: T)
+    {
+        if (collection != null)
+        {
+            val tree = Serializers.gson.toJsonTree(model)
+            tree.asJsonObject.addProperty(
+                "uid",
+                keys().newStore()
+            )
+
+            collection!!.updateOne(
+                Filters.eq("uid", keys().newStore()),
+                Document(
+                    "\$set",
+                    Document.parse(
+                        Serializers.gson.toJson(tree)
+                    )
+                ),
+                UpdateOptions().upsert(true)
+            )
+        }
+
+        cache().sync()
+            .set(
+                keys().newStore(),
+                Serializers.gson.toJson(cached)
+            )
+    }
+
     internal fun reload()
     {
-        val model = cache().sync()
-            .get(
-                keys().store().asString()
-            )
+        val model = pullModelFromSource()
 
         if (model == null)
         {
@@ -90,12 +154,7 @@ abstract class DPSDataSync<T>
                 .getDeclaredConstructor()
                 .newInstance()
 
-            cache().sync()
-                .set(
-                    keys().store().asString(),
-                    Serializers.gson.toJson(cached)
-                )
-
+            pushNewModelToSource(cached!!)
             pushKvUpdate()
             return
         }
@@ -121,19 +180,14 @@ abstract class DPSDataSync<T>
         }
     }
 
-    fun sync(
-        newModel: T
-    )
+    fun sync(newModel: T): CompletableFuture<Void>
     {
         cached = newModel
 
-        cache().sync()
-            .set(
-                keys().store().asString(),
-                Serializers.gson.toJson(cached)
-            )
-
-        pushKvUpdate()
+        return CompletableFuture.runAsync {
+            pushNewModelToSource(newModel)
+            pushKvUpdate()
+        }
     }
 
     private fun pushKvUpdate()
@@ -144,7 +198,7 @@ abstract class DPSDataSync<T>
                 sync()
             )
             .publish(
-                AwareThreadContext.ASYNC
+                AwareThreadContext.SYNC
             )
     }
 }
