@@ -135,6 +135,7 @@ abstract class DPSDataSync<T>
                 ),
                 UpdateOptions().upsert(true)
             )
+            return
         }
 
         cache().sync()
