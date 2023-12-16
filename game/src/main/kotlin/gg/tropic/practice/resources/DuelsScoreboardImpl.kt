@@ -67,7 +67,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                 board += ""
             }
 
-            board += "Map: ${CC.GOLD}${game.map.displayName}"
+            board += "Map: ${CC.PRI}${game.map.displayName}"
         } else
         {
             when (game.state)
@@ -87,12 +87,12 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
 
                     if (opponent.players.size == 1)
                     {
-                        board += "${CC.WHITE}Opponent: ${CC.GOLD}${
+                        board += "${CC.WHITE}Opponent: ${CC.PRI}${
                             opponent.players.first().username()
                         }"
                     } else
                     {
-                        board += "${CC.GOLD}Opponents:"
+                        board += "${CC.PRI}Opponents:"
 
                         for (other in opponent.players.take(3))
                         {
@@ -107,7 +107,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                         board += ""
                     }
 
-                    board += "${CC.WHITE}Map: ${CC.GOLD}${game.map.displayName}"
+                    board += "${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}"
                 }
 
                 GameState.Playing ->
@@ -115,7 +115,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                     val opponent = game.getOpponent(player)
                         ?: return
 
-                    board += "${CC.WHITE}Duration: ${CC.GOLD}${game.getDuration()}"
+                    board += "${CC.WHITE}Duration: ${CC.PRI}${game.getDuration()}"
 
                     val showHitScoreboard = game.flag(FeatureFlag.WinWhenNHitsReached)
 
@@ -123,7 +123,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                     {
                         val opponentPlayer = opponent.players.first()
 
-                        board += "${CC.WHITE}Opponent: ${CC.GOLD}${opponentPlayer.username()}"
+                        board += "${CC.WHITE}Opponent: ${CC.PRI}${opponentPlayer.username()}"
                         board += ""
 
                         if (!showHitScoreboard)
@@ -170,7 +170,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
                         }
                     } else
                     {
-                        board += "${CC.WHITE}Map: ${CC.GOLD}${game.map.displayName}"
+                        board += "${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}"
                         board += ""
 
                         if (!showHitScoreboard)

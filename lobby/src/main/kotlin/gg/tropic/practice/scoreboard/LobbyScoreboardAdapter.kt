@@ -34,7 +34,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         if (profile.inQueue())
         {
             board += ""
-            board += "${CC.GOLD}${profile.queuedForType().name} Queue:"
+            board += "${CC.PRI}${profile.queuedForType().name} Queue:"
             board += "${CC.GRAY}${profile.queuedForKit()?.displayName} ${
                 profile.queuedForTeamSize()
             }v${
@@ -55,7 +55,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                 if (scoreboardView != LobbyScoreboardView.None)
                 {
                     board += ""
-                    board += "${CC.GOLD}${scoreboardView.displayName}:"
+                    board += "${CC.PRI}${scoreboardView.displayName}:"
                 }
 
                 when (scoreboardView)

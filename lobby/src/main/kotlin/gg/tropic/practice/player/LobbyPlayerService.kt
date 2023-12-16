@@ -80,7 +80,7 @@ object LobbyPlayerService
                             it.queuedForType() == QueueType.Ranked
 
                         audience.sendActionBar(
-                            "${CC.GOLD}${it.queuedForType().name} ${it.queuedForTeamSize()}v${it.queuedForTeamSize()} ${
+                            "${CC.PRI}${it.queuedForType().name} ${it.queuedForTeamSize()}v${it.queuedForTeamSize()} ${
                                 it.queuedForKit()?.displayName ?: "???"
                             }${CC.WHITE}${
                                 if (shouldIncludeELORange && shouldIncludePingRange)

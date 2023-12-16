@@ -47,56 +47,58 @@ object ScoreboardInfoService
         Schedulers
             .async()
             .runRepeating(Runnable {
-                val gameServers = ServerContainer
-                    .getServersInGroupCasted<GameServer>("mipgame")
+                runCatching {
+                    val gameServers = ServerContainer
+                        .getServersInGroupCasted<GameServer>("mipgame")
 
-                val servers = ServerContainer
-                    .getServersInGroupCasted<GameServer>("mip")
+                    val servers = ServerContainer
+                        .getServersInGroupCasted<GameServer>("mip")
 
-                scoreboardInfo = ScoreboardInfo(
-                    online = servers.sumOf { it.getPlayersCount() ?: 0 },
-                    // TODO: load game impls and count from those
-                    playing = gameServers.sumOf { it.getPlayersCount() ?: 0 },
-                    gameServers = gameServers.size,
-                    meanTPS = gameServers.map { it.getTPS()!! }.average(),
-                    queued = ScalaCommonsSpigot
-                        .instance
-                        .kvConnection
-                        .sync()
-                        .hlen("tropicpractice:queue-states")
-                        .toInt(),
-                    availableReplications = ScalaCommonsSpigot
-                        .instance
-                        .kvConnection
-                        .sync()
-                        .get("tropicpractice:replicationmanager:status-indexes")
-                        .let {
-                            Serializers.gson.fromJson(
-                                it, ReplicationIndexes::class.java
-                            )
-                        }
-                        .indexes
-                        .mapValues {
-                            Serializers.gson.fromJson(
-                                ScalaCommonsSpigot
-                                    .instance
-                                    .kvConnection
-                                    .sync()
-                                    .get(it.value),
-                                ReplicationStatus::class.java
-                            )
-                        }
-                        .flatMap {
-                            kotlin
-                                .runCatching {
-                                    // replicationmanager could be null?
-                                    it.value.replications.values.flatten()
-                                }
-                                .getOrNull()
-                                ?: listOf()
-                        }
-                        .count()
-                )
+                    scoreboardInfo = ScoreboardInfo(
+                        online = servers.sumOf { it.getPlayersCount() ?: 0 },
+                        // TODO: load game impls and count from those
+                        playing = gameServers.sumOf { it.getPlayersCount() ?: 0 },
+                        gameServers = gameServers.size,
+                        meanTPS = gameServers.map { it.getTPS()!! }.average(),
+                        queued = ScalaCommonsSpigot
+                            .instance
+                            .kvConnection
+                            .sync()
+                            .hlen("tropicpractice:queue-states")
+                            .toInt(),
+                        availableReplications = ScalaCommonsSpigot
+                            .instance
+                            .kvConnection
+                            .sync()
+                            .get("tropicpractice:replicationmanager:status-indexes")
+                            .let {
+                                Serializers.gson.fromJson(
+                                    it, ReplicationIndexes::class.java
+                                )
+                            }
+                            .indexes
+                            .mapValues {
+                                Serializers.gson.fromJson(
+                                    ScalaCommonsSpigot
+                                        .instance
+                                        .kvConnection
+                                        .sync()
+                                        .get(it.value),
+                                    ReplicationStatus::class.java
+                                )
+                            }
+                            .flatMap {
+                                kotlin
+                                    .runCatching {
+                                        // replicationmanager could be null?
+                                        it.value.replications.values.flatten()
+                                    }
+                                    .getOrNull()
+                                    ?: listOf()
+                            }
+                            .count()
+                    )
+                }
             }, 5L, 5L)
     }
 }
