@@ -158,8 +158,7 @@ class GameStartTask(
 
             if (event.isCancelled)
             {
-                this.game.closeAndCleanup(event.cancelMessage)
-                this.task.closeAndReportException()
+                this.game.closeAndCleanup()
                 return
             }
 

@@ -28,6 +28,12 @@ class GameStopTask(
 
     override fun run()
     {
+        kotlin.runCatching { this.runCatching() }
+            .onFailure { it.printStackTrace() }
+    }
+
+    private fun runCatching()
+    {
         if (this.game.activeCountdown == 5)
         {
             this.game.sendMessage(
@@ -163,16 +169,7 @@ class GameStopTask(
 
         if (this.game.activeCountdown <= 0)
         {
-            this.game.closeAndCleanup(
-                "${CC.SEC}${
-                    if (this.report.winners.isEmpty()) "N/A" else this
-                        .report.winners.joinToString(", ") {
-                            it.username()
-                        }
-                }${CC.GREEN} won the game!"
-            )
-
-            this.task.closeAndReportException()
+            this.game.closeAndCleanup()
             return
         }
 

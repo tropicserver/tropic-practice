@@ -509,7 +509,7 @@ object GameService
                         game.state(GameState.Waiting)
                     )
                     {
-                        game.closeAndCleanup("A player disconnected")
+                        game.closeAndCleanup()
                     }
                 }
             }
@@ -762,10 +762,10 @@ object GameService
                     return@handler
                 }
 
-                if (game.kit.allowedBlockTypeMappings != null)
+                if (game.kit.allowedBlockTypeMappings.isPresent)
                 {
                     if (
-                        game.kit.allowedBlockTypeMappings
+                        game.kit.allowedBlockTypeMappings.get()
                             .any { (type, data) ->
                                 it.block.type == type && it.block.data == data.toByte()
                             }

@@ -335,42 +335,30 @@ class GameImpl(
             it.players
         }
 
-    fun closeAndCleanup(
-        reason: String,
-        kickPlayers: Boolean = true
-    )
+    fun closeAndCleanup(kickPlayers: Boolean = true)
     {
-        if (isClosed)
+        if (kickPlayers)
         {
-            return
+            val online = Players.all()
+                .filter {
+                    it.location.world.name == arenaWorld.name
+                }
+                .filterNotNull()
+                .toTypedArray()
+
+            if (online.isNotEmpty())
+            {
+                GameService.redirector.redirect(*online)
+            }
         }
 
-        kotlin.runCatching {
-            if (kickPlayers)
-            {
-                val online = Players.all()
-                    .filter {
-                        it.location.world.name == arenaWorld.name
-                    }
-                    .filterNotNull()
-                    .toTypedArray()
+        GameService.games.remove(this.expectation)
 
-                if (online.isNotEmpty())
-                {
-                    GameService.redirector.redirect(*online)
-                }
-            }
-
-            GameService.games.remove(this.expectation)
-
-            Tasks.delayed(20L) {
-                MapReplicationService.removeReplicationMatchingWorld(arenaWorld)
-                Bukkit.unloadWorld(
-                    arenaWorld, false
-                )
-            }
-        }.onFailure {
-            it.printStackTrace()
+        Tasks.delayed(20L) {
+            MapReplicationService.removeReplicationMatchingWorld(arenaWorld)
+            Bukkit.unloadWorld(
+                arenaWorld, false
+            )
         }
 
         closeAndReportException()

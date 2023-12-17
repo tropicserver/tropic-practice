@@ -4,6 +4,7 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeLobby
+import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.menu.editor.AllowRemoveItemsWithinInventory
 import gg.tropic.practice.menu.editor.ExtraContentSelectionMenu
 import gg.tropic.practice.player.LobbyPlayerService
@@ -68,12 +69,26 @@ object PreventionListeners
             }
             .bindWith(plugin)
 
+        Events
+            .subscribe(EntityDamageEvent::class.java)
+            .handler {
+                if (it.cause == EntityDamageEvent.DamageCause.VOID)
+                {
+                    it.entity.teleport(
+                        LobbyConfigurationService.cached().spawnLocation
+                            .toLocation(it.entity.world)
+                    )
+                }
+
+                it.isCancelled = true
+            }
+            .bindWith(plugin)
+
         listOf(
             BlockPlaceEvent::class,
             BlockBreakEvent::class,
             EntityDamageByBlockEvent::class,
             EntityDamageByEntityEvent::class,
-            EntityDamageEvent::class,
             FoodLevelChangeEvent::class
         ).forEach { event ->
             Events

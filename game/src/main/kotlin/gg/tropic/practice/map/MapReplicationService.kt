@@ -111,9 +111,7 @@ object MapReplicationService
                     { task ->
                         if (System.currentTimeMillis() >= start + 5000L)
                         {
-                            newGame.closeAndCleanup(
-                                "Opponents or teammates did not join on time!"
-                            )
+                            newGame.closeAndCleanup()
                             task.closeAndReportException()
                             return@runRepeating
                         }
@@ -207,6 +205,7 @@ object MapReplicationService
                         true,
                         SlimePropertyMap().apply {
                             setString(SlimeProperties.DIFFICULTY, "normal")
+                            setString(SlimeProperties.WORLD_TYPE, "flat")
                             setBoolean(SlimeProperties.PVP, true)
                         }
                     )
@@ -260,13 +259,7 @@ object MapReplicationService
                 arena.metadata.clearSignLocations(world)
             }
             .thenApply {
-                it.setGameRuleValue("naturalRegeneration", "false")
-                it.setGameRuleValue("sendCommandFeedback", "false")
-                it.setGameRuleValue("logAdminCommands", "false")
-                it.setGameRuleValue("pvp", "true")
-
-                it.difficulty = Difficulty.NORMAL
-                return@thenApply BuiltMapReplication(arena, it)
+                BuiltMapReplication(arena, it)
             }
     }
 }

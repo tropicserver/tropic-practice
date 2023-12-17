@@ -8,6 +8,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import java.util.*
 
 /**
  * @author GrowlyX
@@ -28,22 +29,25 @@ data class Kit(
     val features: MutableMap<FeatureFlag, MutableMap<String, String>> = mutableMapOf()
 )
 {
+    // We need the two layers of nullability
     @Transient
-    private var backingAllowedBlockTypeMappings: List<Pair<Material, Int>>? = null
+    private var backingAllowedBlockTypeMappings: Optional<List<Pair<Material, Int>>>? = null
 
-    val allowedBlockTypeMappings: List<Pair<Material, Int>>
+    val allowedBlockTypeMappings: Optional<List<Pair<Material, Int>>>
         get()
         {
             if (backingAllowedBlockTypeMappings == null)
             {
-                backingAllowedBlockTypeMappings = featureConfigNullable(
-                    FeatureFlag.BreakSpecificBlockTypes,
-                    "types"
-                )?.split(",")
-                    ?.map { pair ->
-                        val components = pair.split(":")
-                        Material.valueOf(components[0]) to (components.getOrNull(1)?.toInt() ?: 0)
-                    }
+                backingAllowedBlockTypeMappings = Optional.ofNullable(
+                    featureConfigNullable(
+                        FeatureFlag.BreakSpecificBlockTypes,
+                        "types"
+                    )?.split(",")
+                        ?.map { pair ->
+                            val components = pair.split(":")
+                            Material.valueOf(components[0]) to (components.getOrNull(1)?.toInt() ?: 0)
+                        }
+                )
             }
 
             return backingAllowedBlockTypeMappings!!
