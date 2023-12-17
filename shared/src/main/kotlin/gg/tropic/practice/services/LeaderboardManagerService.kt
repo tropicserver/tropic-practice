@@ -40,7 +40,7 @@ object LeaderboardManagerService
     fun getCachedLeaderboards(reference: Reference) = top10LeaderboardCache[reference]
         ?: listOf()
 
-    fun getUserRankIn(user: UUID, reference: Reference): CompletableFuture<Long?> =
+    fun getUserRankWithScore(user: UUID, reference: Reference): CompletableFuture<Pair<Long?, Long?>> =
         CompletableFuture.supplyAsync {
             ScalaCommonsSpigot
                 .instance.kvConnection.sync()
@@ -48,6 +48,13 @@ object LeaderboardManagerService
                     "tropicpractice:leaderboards:${reference.id()}:final",
                     user.toString()
                 )
+        }.thenApplyAsync {
+            if (it == null)
+                return@thenApplyAsync null to null
+
+            it to ScalaCommonsSpigot.instance.kvConnection.sync()
+                .zscore("tropicpractice:leaderboards:${reference.id()}:final",
+                    user.toString()).toLong()
         }
 
     fun rebuildLeaderboardCaches()

@@ -12,6 +12,7 @@ import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.menu.CasualQueueSelectSizeMenu
 import gg.tropic.practice.menu.JoinQueueMenu
+import gg.tropic.practice.menu.LeaderboardsMenu
 import gg.tropic.practice.menu.editor.EditorKitSelectionMenu
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
@@ -113,11 +114,10 @@ object LobbyHotbarService
                     .name("${CC.YELLOW}Leaderboards ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
-                    player.sendMessage("${CC.RED}Leaderboards are coming soon!")
+                    LeaderboardsMenu().openMenu(player)
                 }
             }
         )
-
 
         idlePreset.addSlot(
             7,

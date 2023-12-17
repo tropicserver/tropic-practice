@@ -6,9 +6,30 @@ import java.util.*
  * @author GrowlyX
  * @since 12/16/2023
  */
-enum class ReferenceLeaderboardType
+enum class ReferenceLeaderboardType(
+    val displayName: String,
+    val enforceRanked: Boolean = false
+)
 {
-    ELO, CasualWins, RankedWins, CasualWinStreak, RankedWinStreak
+    ELO("Ranked ELO"),
+    CasualWins("Casual Wins"),
+    RankedWins("Ranked Wins", true),
+    CasualWinStreak("Casual Daily Wins"),
+    RankedWinStreak("Ranked Daily Wins", true);
+
+    fun previous(): ReferenceLeaderboardType
+    {
+        return entries
+            .getOrNull(ordinal - 1)
+            ?: entries.last()
+    }
+
+    fun next(): ReferenceLeaderboardType
+    {
+        return entries
+            .getOrNull(ordinal + 1)
+            ?: entries.first()
+    }
 }
 
 data class Reference(

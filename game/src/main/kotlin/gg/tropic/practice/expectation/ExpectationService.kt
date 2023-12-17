@@ -17,6 +17,7 @@ import org.bukkit.Bukkit
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerChangedWorldEvent
+import org.bukkit.event.player.PlayerInitialSpawnEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerTeleportEvent
 import org.bukkit.metadata.FixedMetadataValue
@@ -67,7 +68,7 @@ object ExpectationService
             .bindWith(plugin)
 
         Events
-            .subscribe(PlayerSpawnLocationEvent::class.java)
+            .subscribe(PlayerInitialSpawnEvent::class.java)
             .handler {
                 with(GameService.byPlayer(it.player)) {
                     if (this != null)
