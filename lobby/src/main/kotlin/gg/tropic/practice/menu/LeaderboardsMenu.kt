@@ -30,37 +30,35 @@ class LeaderboardsMenu : TemplateKitMenu()
 
     init
     {
-        autoUpdate = true
+        async = true
         updateAfterClick = true
-        autoUpdateInterval = 100L
     }
 
-    private val loadFutures = mutableMapOf<Reference, CompletableFuture<Pair<Long?, Long?>>>()
     private val scoreCache = mutableMapOf<Reference, Pair<Long?, Long?>>()
+
+    override fun asyncLoadResources(player: Player, callback: (Boolean) -> Unit)
+    {
+        callback(true)
+    }
 
     override fun itemTitleFor(player: Player, kit: Kit) = "${CC.PRI}${kit.displayName}"
     override fun shouldIncludeKitDescription() = false
 
     private fun localDescriptionOf(player: Player, reference: Reference): List<String>
     {
-        val cachedScore = scoreCache[reference]
+        var cachedScore = scoreCache[reference]
 
         if (cachedScore == null)
         {
-            if (!loadFutures.containsKey(reference))
-            {
-                loadFutures[reference] = LeaderboardManagerService
-                    .getUserRankWithScore(player.uniqueId, reference)
-                    .thenApplyAsync {
-                        scoreCache[reference] = it
-                        it
-                    }
-            }
+            scoreCache[reference] = LeaderboardManagerService
+                .getUserRankWithScore(player.uniqueId, reference)
+                .join()
+            cachedScore = scoreCache[reference]!!
         }
 
         val personalScore = listOf(
-            "${CC.B_PRI}Your score: ${CC.WHITE}${cachedScore?.second?.run { Numbers.format(this) }  ?: "${CC.D_GRAY}Loading..."} ${
-                CC.GRAY + (cachedScore?.first?.run { "[#${Numbers.format(this + 1)}]" } ?: "")
+            "${CC.B_PRI}Your score: ${CC.WHITE}${cachedScore.second?.run { Numbers.format(this) }  ?: "${CC.D_GRAY}Loading..."} ${
+                CC.GRAY + (cachedScore.first?.run { "[#${Numbers.format(this + 1)}]" } ?: "")
             }"
         )
 

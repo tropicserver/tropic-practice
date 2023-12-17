@@ -12,6 +12,7 @@ import gg.tropic.practice.leaderboards.LeaderboardReferences
 import gg.tropic.practice.leaderboards.Reference
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
+import java.time.Instant
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
@@ -91,7 +92,7 @@ object LeaderboardManagerService
         }
 
         this.top10LeaderboardCache = newLeaderboardCache
-        plugin.logger.info("Rebuilt leaderboard caches")
+        plugin.logger.info("[leaderboards] Rebuilt leaderboard caches at ${Instant.now()}.")
     }
 
     @Configure
