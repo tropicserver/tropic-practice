@@ -1,9 +1,13 @@
 package gg.tropic.practice.statistics.leaderboards
 
+import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.store.ScalaDataStoreShared
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.leaderboards.LeaderboardReferences
+import gg.tropic.practice.leaderboards.Reference
+import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
 import io.lettuce.core.LettuceFutures
 import net.evilblock.cubed.serializers.Serializers
 import java.util.concurrent.TimeUnit
@@ -20,7 +24,7 @@ object LeaderboardManager : () -> Unit
     private val redis = DPSRedisService("leaderboards")
         .apply(DPSRedisService::start)
 
-    private val connection =  redis.configure { internal().connect() }
+    private val connection = redis.configure { internal().connect() }
 
     private val practiceProfileCollection = ScalaDataStoreShared.INSTANCE.getNewMongoConnection()
         .getAppliedResource()
@@ -72,6 +76,9 @@ object LeaderboardManager : () -> Unit
                         )
                     }
 
+                    redis.createMessage("rebuild-cache")
+                        .publish(AwareThreadContext.SYNC)
+
                     runCatching {
                         Thread.sleep(60 * 1000L)
                     }.onFailure(Throwable::printStackTrace)
@@ -89,6 +96,25 @@ object LeaderboardManager : () -> Unit
                     "tropicpractice:leaderboards:${it.leaderboardId()}:staging"
                 )
         }
+
+        val updatedReferences = Serializers.gson.toJson(
+            LeaderboardReferences(
+                references = leaderboards
+                    .map {
+                        Reference(
+                            queueType = it.queueType,
+                            leaderboardType = ReferenceLeaderboardType
+                                .valueOf(it.leaderboardType.name),
+                            kitID = it.kit?.id
+                        )
+                    }
+            )
+        )
+
+        connection.async().set(
+            "tropicpractice:leaderboards:references",
+            updatedReferences
+        )
 
         connection.flushCommands()
         LettuceFutures.awaitAll(

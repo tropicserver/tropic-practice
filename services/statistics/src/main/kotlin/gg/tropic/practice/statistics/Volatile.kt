@@ -29,9 +29,12 @@ abstract class Volatile<T : Any>(
         return get()
     }
 
+    fun isExpired() = lifetime()(DateTime(lastValidation)).isAfterNow
+    fun getUnchecked() = value
+
     fun get(): T
     {
-        if (lifetime()(DateTime(lastValidation)).isAfterNow)
+        if (isExpired())
         {
             value = defaultValue
             lastValidation = DateTime.now().millis
