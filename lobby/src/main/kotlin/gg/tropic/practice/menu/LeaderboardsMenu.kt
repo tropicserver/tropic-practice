@@ -32,6 +32,7 @@ class LeaderboardsMenu : TemplateKitMenu()
     {
         autoUpdate = true
         updateAfterClick = true
+        autoUpdateInterval = 100L
     }
 
     private val loadFutures = mutableMapOf<Reference, CompletableFuture<Pair<Long?, Long?>>>()
@@ -57,7 +58,7 @@ class LeaderboardsMenu : TemplateKitMenu()
         }
 
         val personalScore = listOf(
-            "${CC.SEC}Your score: ${CC.PRI}${cachedScore?.second ?: "${CC.D_GRAY}Loading..."} ${
+            "${CC.SEC}Your score: ${CC.PRI}${cachedScore?.second?.run { Numbers.format(this) }  ?: "${CC.D_GRAY}Loading..."} ${
                 CC.GRAY + (cachedScore?.first?.run { "[#${Numbers.format(this + 1)}]" } ?: "")
             }",
             ""
