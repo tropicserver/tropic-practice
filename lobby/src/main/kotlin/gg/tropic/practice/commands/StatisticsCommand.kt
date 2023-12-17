@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture
 object StatisticsCommand : ScalaCommand()
 {
     @CommandAlias("stats|statistics")
-    @CommandCompletion("@players")
+    @CommandCompletion("@mip-players")
     fun onStatistics(
         player: ScalaPlayer,
         @Optional target: AsyncLemonPlayer?

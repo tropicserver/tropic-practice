@@ -1,13 +1,11 @@
 package gg.tropic.practice.commands
 
-import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.acf.annotation.CommandCompletion
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
-import gg.scala.lemon.util.QuickAccess
 import gg.tropic.practice.games.SpectateRequest
 import gg.tropic.practice.queue.QueueService
 import net.evilblock.cubed.util.CC
@@ -20,7 +18,7 @@ import net.evilblock.cubed.util.CC
 object SpectateCommand : ScalaCommand()
 {
     @CommandAlias("spectate|spec")
-    @CommandCompletion("@players")
+    @CommandCompletion("@mip-players")
     fun onSpectate(
         player: ScalaPlayer,
         target: AsyncLemonPlayer
@@ -29,7 +27,7 @@ object SpectateCommand : ScalaCommand()
     ) {
         it.identifier.offlineProfile
         player.bukkit().sendMessage(
-            "${CC.GRAY}Joining ${CC.YELLOW}${it.name}'s${CC.GRAY} game..."
+            "${CC.GREEN}Joining ${CC.B_GREEN}${it.name}'s${CC.GREEN} game..."
         )
 
         QueueService.spectate(

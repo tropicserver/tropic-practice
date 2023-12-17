@@ -68,6 +68,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
             }
 
             board += "Map: ${CC.PRI}${game.map.displayName}"
+            board += "${CC.WHITE}Duration: ${CC.PRI}${game.getDuration()}"
         } else
         {
             when (game.state)

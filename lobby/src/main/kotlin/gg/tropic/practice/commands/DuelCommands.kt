@@ -23,7 +23,7 @@ import net.evilblock.cubed.util.CC
 @AutoRegister
 object DuelCommands : ScalaCommand()
 {
-    @CommandCompletion("@players")
+    @CommandCompletion("@mip-players")
     @CommandAlias("accept")
     fun onDuelAccept(
         player: ScalaPlayer,

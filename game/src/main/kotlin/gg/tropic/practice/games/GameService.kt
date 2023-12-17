@@ -394,6 +394,10 @@ object GameService
                     "spectator", FixedMetadataValue(plugin, true)
                 )
 
+                it.drops.removeIf {
+                    it.type == Material.POTION || it.type == Material.BOWL
+                }
+
                 val noAlive = if (team.players.size > 1)
                     team.nonSpectators().isEmpty() else true
 
