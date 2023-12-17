@@ -15,6 +15,7 @@ import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.settings.DuelsSettingCategory
+import gg.tropic.practice.settings.particles.FlightEffectSetting
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.utils.Players
@@ -22,15 +23,18 @@ import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Color
 import net.evilblock.cubed.util.bukkit.Constants
-import net.evilblock.cubed.util.bukkit.FancyMessage
+import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.spigotmc.event.player.PlayerSpawnLocationEvent
+import xyz.xenondevs.particle.ParticlePacket
+import xyz.xenondevs.particle.utils.ReflectionUtils
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
@@ -125,6 +129,61 @@ object LobbyPlayerService
                         )
                 }
             }
+
+        fun flightEffect(player: Player): FlightEffectSetting
+        {
+            return BasicsProfileService
+                .find(player)
+                ?.setting(
+                    "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:flight-effect",
+                    FlightEffectSetting.None
+                )
+                ?: FlightEffectSetting.None
+        }
+
+        val lastParticleTick = mutableMapOf<UUID, Long>()
+
+        Events
+            .subscribe(PlayerMoveEvent::class.java)
+            .filter(EventUtils::hasPlayerMoved)
+            .filter {
+                it.player.isFlying
+            }
+            .handler {
+                val flightEffect = flightEffect(it.player)
+                if (flightEffect == FlightEffectSetting.None)
+                {
+                    return@handler
+                }
+
+                if (lastParticleTick.containsKey(it.player.uniqueId))
+                {
+                    if (System.currentTimeMillis() - lastParticleTick[it.player.uniqueId]!! < 100L)
+                    {
+                        return@handler
+                    }
+                }
+
+                val packet = flightEffect.createPacket()
+                val nmsPacket = packet.createPacket(it.player.location)
+
+                Players.all()
+                    .filter { other -> other.world == it.player.world }
+                    .filter { other -> other.canSee(it.player) }
+                    .forEach { player ->
+                        if (flightEffect.multiplied)
+                        {
+                            ReflectionUtils.sendPacket(player, nmsPacket)
+                            ReflectionUtils.sendPacket(player, nmsPacket)
+                        } else
+                        {
+                            ReflectionUtils.sendPacket(player, nmsPacket)
+                        }
+                    }
+
+                lastParticleTick[it.player.uniqueId] = System.currentTimeMillis()
+            }
+            .bindWith(plugin)
 
         Events
             .subscribe(PlayerJoinEvent::class.java)

@@ -7,6 +7,7 @@ import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.annotations.plugin.SoftDependency
 import gg.scala.flavor.service.Service
 import gg.scala.flavor.service.ignore.IgnoreAutoScan
+import gg.tropic.practice.settings.particles.FlightEffectSetting
 import gg.tropic.practice.settings.restriction.RangeRestriction
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import net.evilblock.cubed.util.CC
@@ -155,7 +156,24 @@ object DuelsSettingCategory : SettingCategory
             }
 
             item = ItemBuilder.of(Material.EXP_BOTTLE)
-        }
+        },
+        SettingContainer.buildEntry {
+            id = "$DUEL_SETTING_PREFIX:flight-effect"
+            displayName = "Flight Effects"
+
+            clazz = FlightEffectSetting::class.java
+            default = FlightEffectSetting.None
+
+            description += "Have a certain particle"
+            description += "floating below your feet"
+            description += "as you move!"
+
+            displayPredicate = {
+                it.hasPermission("practice.flight-effects")
+            }
+
+            item = ItemBuilder.of(Material.SUGAR)
+        },
     )
 
     override fun display(player: Player) = true
