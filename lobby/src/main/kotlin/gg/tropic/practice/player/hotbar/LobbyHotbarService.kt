@@ -180,9 +180,9 @@ object LobbyHotbarService
                     )
                     {
                         player.sendMessage(
-                            "${CC.RED}You must have at least ${
+                            "${CC.RED}You must have at least 10 wins to queue for a Ranked kit! You currently have ${CC.BOLD}${
                                 profile.globalStatistics.totalWins
-                            } wins to queue for a Ranked kit!"
+                            }${CC.RED} wins."
                         )
                         return@context
                     }
