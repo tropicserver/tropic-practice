@@ -44,6 +44,12 @@ subprojects {
         compileOnly("gg.scala.cloudsync:spigot:1.0.1")
     }
 
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-parameters")
+        options.fork()
+        options.encoding = "UTF-8"
+    }
+
     kotlin {
         jvmToolchain(jdkVersion = 17)
     }

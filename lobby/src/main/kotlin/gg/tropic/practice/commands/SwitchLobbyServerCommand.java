@@ -62,9 +62,7 @@ public class SwitchLobbyServerCommand extends ScalaCommand {
                     .getServersInGroup("miplobby")
                     .stream()
                     .sorted(Comparator.comparing(server ->
-                            Integer.valueOf(
-                                    server.getId().replace("practice-lobby", "")
-                            )
+                            CommandExtKt.extractNumbers(server.getId())
                     ))
                     .forEach(server -> {
                         var gameServer = (GameServer) server;
@@ -106,28 +104,12 @@ public class SwitchLobbyServerCommand extends ScalaCommand {
         @NotNull
         @Override
         public String getPrePaginatedTitle(@NotNull Player player) {
-            return "Switch Pokemon Server";
+            return "Switch lobby Server";
         }
     }
 
     @CommandAlias("switchlobby|switchserver")
-    public void onSwitchLobby(ScalaPlayer player, @Optional Integer server) {
-        if (server != null) {
-            if (server < 1) {
-                throw new ConditionFailedException("Please enter a server id greater than or equal to 1!");
-            }
-
-            var gameServer = (GameServer) ServerContainer
-                    .INSTANCE.getServer("practice-lobby" + server);
-
-            if (gameServer == null) {
-                throw new ConditionFailedException("The pokemon server " + server + " is not online!");
-            }
-
-            SwitchLobbyServerMenu.redirectToServer(player.bukkit(), gameServer);
-            return;
-        }
-
+    public void onSwitchLobby(ScalaPlayer player) {
         new SwitchLobbyServerMenu().openMenu(player.bukkit());
     }
 }

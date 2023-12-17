@@ -30,3 +30,8 @@ val UUID.basicsProfile: BasicsProfile
         ?: throw ConditionFailedException(
             "${CC.YELLOW}${username()}${CC.RED} has not logged onto our network."
         )
+
+val unsignedNumberExtractor = "[0-9]\\d*".toRegex()
+fun extractNumbers(string: String) = unsignedNumberExtractor
+    .findAll(string)
+    .sumOf { it.value.toInt() }

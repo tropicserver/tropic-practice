@@ -353,7 +353,7 @@ class GameImpl(
             {
                 GameService.redirector.redirect(
                     {
-                        if (it.player.uniqueId !in expectedSpectators)
+                        if (it.player.uniqueId in expectedSpectators)
                         {
                             return@redirect mapOf()
                         }
