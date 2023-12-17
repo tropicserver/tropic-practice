@@ -10,7 +10,10 @@ import gg.tropic.practice.leaderboards.LeaderboardReferences
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
 import io.lettuce.core.LettuceFutures
+import io.lettuce.core.RedisFuture
+import io.lettuce.core.internal.netty.util.concurrent.Future
 import net.evilblock.cubed.serializers.Serializers
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -140,13 +143,21 @@ object LeaderboardManager : () -> Unit
             )
 
             leaderboards.forEach {
-                val value = if (it.kit == null)
-                {
-                    it.leaderboardType.fromGlobal(profile)
-                } else
-                {
-                    it.leaderboardType.fromKit(profile, it.kit)
-                }
+                val value = kotlin.runCatching {
+                    if (it.kit == null)
+                    {
+                        it.leaderboardType.fromGlobal(profile)
+                    } else
+                    {
+                        it.leaderboardType.fromKit(profile, it.kit)
+                    }
+                }.onFailure { throwable ->
+                    Logger.getGlobal().log(
+                        Level.SEVERE,
+                        "Couldn't update player ${profile.identifier} for ${it.leaderboardId()}",
+                        throwable
+                    )
+                }.getOrNull()
 
                 if (value != null)
                 {
@@ -169,6 +180,7 @@ object LeaderboardManager : () -> Unit
         }
 
         connection.flushCommands()
+
         LettuceFutures.awaitAll(
             30, TimeUnit.SECONDS,
             *renameFutures.toTypedArray()

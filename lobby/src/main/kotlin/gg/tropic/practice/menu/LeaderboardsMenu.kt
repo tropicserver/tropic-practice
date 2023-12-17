@@ -59,18 +59,17 @@ class LeaderboardsMenu : TemplateKitMenu()
         }
 
         val personalScore = listOf(
-            "${CC.SEC}Your score: ${CC.PRI}${cachedScore?.second?.run { Numbers.format(this) }  ?: "${CC.D_GRAY}Loading..."} ${
+            "${CC.B_PRI}Your score: ${CC.WHITE}${cachedScore?.second?.run { Numbers.format(this) }  ?: "${CC.D_GRAY}Loading..."} ${
                 CC.GRAY + (cachedScore?.first?.run { "[#${Numbers.format(this + 1)}]" } ?: "")
-            }",
-            ""
+            }"
         )
 
         return personalScore + LeaderboardManagerService
             .getCachedLeaderboards(reference)
             .mapIndexed { index, entry ->
-                "${CC.B_PRI}#${index + 1}. ${CC.WHITE}${
+                "${CC.PRI}#${index + 1}. ${CC.WHITE}${
                     ScalaStoreUuidCache.username(entry.uniqueId)
-                } ${CC.GRAY}- ${CC.GREEN}${
+                } ${CC.GRAY}- ${CC.PRI}${
                     Numbers.format(entry.value)
                 }"
             }
@@ -81,7 +80,7 @@ class LeaderboardsMenu : TemplateKitMenu()
         Reference(leaderboardType = menuState, kitID = kit.id)
     )
 
-    override fun getGlobalButtons(player: Player): Map<Int, Button>?
+    override fun getGlobalButtons(player: Player): Map<Int, Button>
     {
         val buttons = super.getGlobalButtons(player)
             ?.toMutableMap() ?: mutableMapOf()

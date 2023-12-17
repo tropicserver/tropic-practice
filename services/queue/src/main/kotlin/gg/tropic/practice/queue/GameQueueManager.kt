@@ -47,7 +47,7 @@ object GameQueueManager
         .apply {
             Runtime.getRuntime().addShutdownHook(Thread {
                 println("Waiting for terminating of replication allocator")
-                awaitTermination(5L, TimeUnit.SECONDS)
+                awaitTermination(1L, TimeUnit.SECONDS)
             })
         }
     private val dpsRedisCache = DPSRedisShared.keyValueCache

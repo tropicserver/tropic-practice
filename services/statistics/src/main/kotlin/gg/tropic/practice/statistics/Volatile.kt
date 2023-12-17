@@ -29,7 +29,7 @@ abstract class Volatile<T : Any>(
         return get()
     }
 
-    fun isExpired() = lifetime()(DateTime(lastValidation)).isAfterNow
+    fun isExpired() = lifetime()(DateTime(lastValidation)).isBeforeNow
     fun getUnchecked() = value
 
     fun get(): T
@@ -42,13 +42,4 @@ abstract class Volatile<T : Any>(
 
         return value
     }
-
-    fun timeUntilNextRefreshMillis() =
-        Period(
-            DateTime.now(),
-            lifetime()(
-                DateTime(lastValidation)
-            ),
-            PeriodType.millis()
-        ).millis
 }

@@ -55,13 +55,15 @@ enum class LeaderboardType(
             if (volatile.isExpired()) null else volatile.getUnchecked().toLong()
         },
         fromGlobal = {
-            casualStatistics.maxOf {
+            val result = casualStatistics.maxOfOrNull {
                 val volatile = casualStatistics[it.key]?.dailyStreak
-                    ?: return@maxOf -1L
+                    ?: return@maxOfOrNull -1L
 
                 if (volatile.isExpired())
                     -1L else volatile.getUnchecked().toLong()
             }
+
+            if (result == -1L) null else result
         }
     ),
     RankedWinStreak(
@@ -72,13 +74,15 @@ enum class LeaderboardType(
             if (volatile.isExpired()) null else volatile.getUnchecked().toLong()
         },
         fromGlobal = {
-            rankedStatistics.maxOf {
+            val result = rankedStatistics.maxOfOrNull {
                 val volatile = rankedStatistics[it.key]?.dailyStreak
-                    ?: return@maxOf -1L
+                    ?: return@maxOfOrNull -1L
 
                 if (volatile.isExpired())
                     -1L else volatile.getUnchecked().toLong()
             }
+
+            if (result == -1L) null else result
         },
         enforceRanked = true
     )

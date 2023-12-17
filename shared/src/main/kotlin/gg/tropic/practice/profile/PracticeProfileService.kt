@@ -6,7 +6,6 @@ import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.statistics.KitStatistics
 import gg.tropic.practice.statistics.ranked.RankedKitStatistics
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * @author GrowlyX
@@ -23,12 +22,25 @@ object PracticeProfileService : ProfileOrchestrator<PracticeProfile>()
         val profile = find(uniqueId)
             ?: return
 
+        var hasAnyUpdates = false
+
         KitService.cached().kits.values
             .forEach {
-                profile.rankedStatistics.putIfAbsent(it.id, RankedKitStatistics())
-                profile.casualStatistics.putIfAbsent(it.id, KitStatistics())
+                val requiresUpdates = listOf(
+                    profile.rankedStatistics.putIfAbsent(it.id, RankedKitStatistics()),
+                    profile.casualStatistics.putIfAbsent(it.id, KitStatistics()),
+                    profile.customLoadouts.putIfAbsent(it.id, mutableListOf())
+                ).any { update -> update == null }
 
-                profile.customLoadouts.putIfAbsent(it.id, mutableListOf())
+                if (requiresUpdates)
+                {
+                    hasAnyUpdates = true
+                }
             }
+
+        if (hasAnyUpdates)
+        {
+            profile.save()
+        }
     }
 }

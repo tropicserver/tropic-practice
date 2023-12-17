@@ -91,6 +91,7 @@ object LeaderboardManagerService
         }
 
         this.top10LeaderboardCache = newLeaderboardCache
+        plugin.logger.info("Rebuilt leaderboard caches")
     }
 
     @Configure
