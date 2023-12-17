@@ -226,7 +226,9 @@ object MapReplicationService
 
     private fun generateArenaWorld(arena: Map): CompletableFuture<BuiltMapReplication>
     {
-        val worldName = UUID.randomUUID().toString()
+        val worldName = "${arena.name}-${
+            UUID.randomUUID().toString().substring(0..5)
+        }"
         val readyMap = readyMaps[arena.name]
             ?: return CompletableFuture.failedFuture(
                 IllegalStateException("Map ${arena.name} does not have a ready SlimeWorld. Map changes have not propagated to this server?")

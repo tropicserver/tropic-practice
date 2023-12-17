@@ -34,6 +34,8 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("gg.scala.aware:aware:1.1.9")
     implementation("io.lettuce:lettuce-core:6.2.6.RELEASE")
+
+    implementation("org.litote.kmongo:kmongo:4.11.0")
 }
 
 application {

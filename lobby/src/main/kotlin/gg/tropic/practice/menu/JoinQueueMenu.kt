@@ -10,6 +10,7 @@ import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.text.TextSplitter
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 
@@ -36,9 +37,20 @@ class JoinQueueMenu(
         val queueId = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
         val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
 
-        return listOf(
+        val description = if (kit.description.isNotBlank())
+            TextSplitter.split(
+                kit.description,
+                CC.GRAY,
+                ""
+            ) + listOf(
+                ""
+            )
+        else
+            listOf()
+
+        return description + listOf(
             "${CC.WHITE}Playing: ${CC.PRI}${metadata.inGame}",
-            "${CC.WHITE}Queueing: ${CC.PRI}${metadata.inQueue}",
+            "${CC.WHITE}Queuing: ${CC.PRI}${metadata.inQueue}",
             "",
             "${CC.GREEN}Click to queue!"
         )
