@@ -1,5 +1,6 @@
 package gg.tropic.practice.games
 
+import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
@@ -337,18 +338,48 @@ class GameImpl(
 
     fun closeAndCleanup(kickPlayers: Boolean = true)
     {
+        fun getOnlinePlayers() = Players.all()
+            .filter {
+                it.location.world.name == arenaWorld.name
+            }
+            .filterNotNull()
+            .toTypedArray()
+
         if (kickPlayers)
         {
-            val online = Players.all()
-                .filter {
-                    it.location.world.name == arenaWorld.name
-                }
-                .filterNotNull()
-                .toTypedArray()
+            val onlinePlayers = getOnlinePlayers()
 
-            if (online.isNotEmpty())
+            if (onlinePlayers.isNotEmpty())
             {
-                GameService.redirector.redirect(*online)
+                GameService.redirector.redirect(
+                    {
+                        if (it.player.uniqueId !in expectedSpectators)
+                        {
+                            return@redirect mapOf()
+                        }
+
+                        if (expectationModel.players.size != 2)
+                        {
+                            return@redirect mapOf()
+                        }
+
+                        val target = expectationModel.players
+                            .firstOrNull { other ->
+                                it.uniqueId != other
+                            }
+                            ?: return@redirect mapOf()
+
+                        val queueType = expectationModel.queueType?.name
+                            ?: return@redirect mapOf()
+
+                        mapOf(
+                            "rematch-user" to target.username(),
+                            "rematch-kit-id" to expectationModel.kitId,
+                            "rematch-queue-type" to queueType
+                        )
+                    },
+                    *onlinePlayers
+                )
             }
         }
 
@@ -356,6 +387,26 @@ class GameImpl(
 
         Tasks.delayed(20L) {
             MapReplicationService.removeReplicationMatchingWorld(arenaWorld)
+
+            if (kickPlayers)
+            {
+                // final check
+                val onlinePlayers = getOnlinePlayers()
+                if (onlinePlayers.isNotEmpty())
+                {
+                    onlinePlayers.forEach {
+                        it.kickPlayer("You should not be on this server!")
+                    }
+
+                    Tasks.delayed(10L) {
+                        Bukkit.unloadWorld(
+                            arenaWorld, false
+                        )
+                    }
+                    return@delayed
+                }
+            }
+
             Bukkit.unloadWorld(
                 arenaWorld, false
             )

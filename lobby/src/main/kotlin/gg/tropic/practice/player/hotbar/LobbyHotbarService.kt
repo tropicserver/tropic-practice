@@ -7,9 +7,12 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.hotbar.HotbarPreset
 import gg.scala.lemon.hotbar.HotbarPresetHandler
+import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
+import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.menu.CasualQueueSelectSizeMenu
 import gg.tropic.practice.menu.JoinQueueMenu
 import gg.tropic.practice.menu.LeaderboardsMenu
@@ -27,6 +30,9 @@ import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.inventory.ItemStack
+import java.util.UUID
 
 @Service
 object LobbyHotbarService
@@ -40,6 +46,109 @@ object LobbyHotbarService
     fun configure()
     {
         val idlePreset = HotbarPreset()
+
+        data class RematchData(
+            val target: String,
+            val kitID: String,
+            val queueType: QueueType
+        )
+
+        val rematches = mutableMapOf<UUID, RematchData>()
+        Events
+            .subscribe(PlayerQuitEvent::class.java)
+            .handler {
+                rematches.remove(it.player.uniqueId)
+            }
+            .bindWith(plugin)
+
+        Events
+            .subscribe(PlayerJoinWithExpectationEvent::class.java)
+            .handler {
+                if (it.response.parameters.containsKey("rematch-user"))
+                {
+                    val rematchUser = it.response.parameters["rematch-user"]
+                    val rematchKitID = it.response.parameters["rematch-kit-id"]
+                    val rematchQueueType = it.response.parameters["rematch-queue-type"]
+
+                    Tasks.delayed(10L) {
+                        val player = Bukkit.getPlayer(it.uniqueId)
+                            ?: return@delayed
+
+                        rematches[it.uniqueId] = RematchData(
+                            rematchUser!!, rematchKitID!!,
+                            QueueType.valueOf(rematchQueueType!!)
+                        )
+
+                        reset(player)
+                    }
+                }
+            }
+            .bindWith(plugin)
+
+        idlePreset.addSlot(
+            3,
+            DynamicHotbarPresetEntry()
+                .apply {
+                    onBuild = build@{
+                        val rematchData = rematches[it.uniqueId]
+                            ?: return@build ItemStack(Material.AIR)
+
+                        ItemBuilder(Material.PAPER)
+                            .name("${CC.SEC}Rematch ${CC.B_PRI}${rematchData.target} ${CC.GRAY}(Right Click)")
+                            .build()
+                    }
+
+                    onClick = click@{ player ->
+                        val rematchData = rematches[player.uniqueId]
+                            ?: return@click
+
+                        rematches.remove(player.uniqueId)
+                        reset(player)
+
+                        player.performCommand("duel ${rematchData.target}")
+                    }
+                }
+        )
+
+        idlePreset.addSlot(
+            5,
+            DynamicHotbarPresetEntry()
+                .apply {
+                    onBuild = build@{
+                        val rematchData = rematches[it.uniqueId]
+                            ?: return@build ItemStack(Material.AIR)
+
+                        val kit = KitService.cached().kits[rematchData.kitID]
+                            ?: return@build ItemStack(Material.AIR)
+
+                        ItemBuilder(Material.FIREWORK_CHARGE)
+                            .name("${CC.SEC}Queue ${CC.B_PRI}${rematchData.queueType.name} ${kit.displayName} ${CC.GRAY}(Right Click)")
+                            .build()
+                    }
+
+                    onClick = click@{ player ->
+                        val rematchData = rematches[player.uniqueId]
+                            ?: return@click
+
+                        val kit = KitService.cached().kits[rematchData.kitID]
+                            ?: return@click
+
+                        rematches.remove(player.uniqueId)
+                        reset(player)
+
+                        QueueService.joinQueue(
+                            kit = kit,
+                            queueType = rematchData.queueType,
+                            teamSize = 1,
+                            player = player
+                        )
+
+                        player.sendMessage(
+                            "${CC.GREEN}You have joined the ${CC.PRI}${rematchData.queueType.name} 1v1 ${kit.displayName}${CC.GREEN} queue!"
+                        )
+                    }
+                }
+        )
 
         idlePreset.addSlot(
             0,
