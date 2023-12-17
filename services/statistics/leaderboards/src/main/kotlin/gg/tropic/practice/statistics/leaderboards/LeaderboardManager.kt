@@ -5,6 +5,7 @@ import gg.scala.store.ScalaDataStoreShared
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.LeaderboardReferences
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
@@ -31,39 +32,43 @@ object LeaderboardManager : () -> Unit
         .getCollection("PracticeProfile")
 
     private var thread: Thread? = null
-    private val leaderboards = mutableListOf<Leaderboard>()
+    private var leaderboards = mutableListOf<Leaderboard>()
+
+    private fun rebuildLeaderboardIndexes()
+    {
+        val leaderboards = mutableListOf<Leaderboard>()
+        LeaderboardType.entries.forEach {
+            for (kit in KitDataSync.cached().kits.values)
+            {
+                if (
+                    it.enforceRanked &&
+                    !kit.features(FeatureFlag.Ranked)
+                )
+                {
+                    continue
+                }
+
+                leaderboards += Leaderboard(
+                    leaderboardType = it,
+                    kit = kit
+                )
+            }
+
+            leaderboards += Leaderboard(
+                leaderboardType = it,
+                kit = null
+            )
+        }
+
+        this.leaderboards = leaderboards
+    }
 
     fun load()
     {
         check(thread == null)
         connection.setAutoFlushCommands(false)
 
-        LeaderboardType.entries.forEach {
-            QueueType.entries.forEach context@{ queueType ->
-                if (it.enforceRanked)
-                {
-                    if (queueType == QueueType.Casual)
-                    {
-                        return@context
-                    }
-                }
-
-                for (kit in KitDataSync.cached().kits.values)
-                {
-                    leaderboards += Leaderboard(
-                        queueType = queueType,
-                        leaderboardType = it,
-                        kit = kit
-                    )
-                }
-
-                leaderboards += Leaderboard(
-                    queueType = queueType,
-                    leaderboardType = it,
-                    kit = null
-                )
-            }
-        }
+        rebuildLeaderboardIndexes()
 
         thread = thread(
             name = "leaderboard-updater",
@@ -97,12 +102,13 @@ object LeaderboardManager : () -> Unit
                 )
         }
 
+        rebuildLeaderboardIndexes()
+
         val updatedReferences = Serializers.gson.toJson(
             LeaderboardReferences(
                 references = leaderboards
                     .map {
                         Reference(
-                            queueType = it.queueType,
                             leaderboardType = ReferenceLeaderboardType
                                 .valueOf(it.leaderboardType.name),
                             kitID = it.kit?.id

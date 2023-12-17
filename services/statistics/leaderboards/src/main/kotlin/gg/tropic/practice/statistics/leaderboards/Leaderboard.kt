@@ -1,7 +1,6 @@
 package gg.tropic.practice.statistics.leaderboards
 
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
-import gg.tropic.practice.games.QueueType
 import java.util.logging.Logger
 
 /**
@@ -9,7 +8,6 @@ import java.util.logging.Logger
  * @since 12/16/2023
  */
 data class Leaderboard(
-    val queueType: QueueType,
     val leaderboardType: LeaderboardType,
     val kit: ImmutableKit?
 )
@@ -21,5 +19,5 @@ data class Leaderboard(
         )
     }
 
-    fun leaderboardId() = "${queueType.name}:${leaderboardType.name}:${kit?.id ?: "global"}"
+    fun leaderboardId() = "${leaderboardType.name}:${kit?.id ?: "global"}"
 }

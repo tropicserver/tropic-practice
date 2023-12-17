@@ -1,7 +1,6 @@
 package gg.tropic.practice.leaderboards
 
-import gg.tropic.practice.games.QueueType
-import java.util.UUID
+import java.util.*
 
 /**
  * @author GrowlyX
@@ -13,12 +12,11 @@ enum class ReferenceLeaderboardType
 }
 
 data class Reference(
-    val queueType: QueueType,
     val leaderboardType: ReferenceLeaderboardType,
     val kitID: String?
 )
 {
-    fun id() = "${queueType.name}:${leaderboardType.name}:${kitID ?: "global"}"
+    fun id() = "${leaderboardType.name}:${kitID ?: "global"}"
 }
 
 data class LeaderboardReferences(
