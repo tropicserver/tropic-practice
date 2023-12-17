@@ -4,7 +4,6 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeGame
-import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.resetAttributes
 import me.lucko.helper.Events
@@ -12,8 +11,6 @@ import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
-import org.bukkit.Location
-import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent

@@ -69,26 +69,27 @@ object PreventionListeners
             }
             .bindWith(plugin)
 
-        Events
-            .subscribe(EntityDamageEvent::class.java)
-            .handler {
-                if (it.cause == EntityDamageEvent.DamageCause.VOID)
-                {
-                    it.entity.teleport(
-                        LobbyConfigurationService.cached().spawnLocation
-                            .toLocation(it.entity.world)
-                    )
-                }
+        listOf(EntityDamageEvent::class, EntityDamageByBlockEvent::class, EntityDamageByEntityEvent::class)
+            .forEach { damageEvent ->
+                Events
+                    .subscribe(damageEvent.java)
+                    .handler {
+                        if (it.cause == EntityDamageEvent.DamageCause.VOID)
+                        {
+                            it.entity.teleport(
+                                LobbyConfigurationService.cached().spawnLocation
+                                    .toLocation(it.entity.world)
+                            )
+                        }
 
-                it.isCancelled = true
+                        it.isCancelled = true
+                    }
+                    .bindWith(plugin)
             }
-            .bindWith(plugin)
 
         listOf(
             BlockPlaceEvent::class,
             BlockBreakEvent::class,
-            EntityDamageByBlockEvent::class,
-            EntityDamageByEntityEvent::class,
             FoodLevelChangeEvent::class
         ).forEach { event ->
             Events
