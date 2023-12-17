@@ -291,8 +291,10 @@ object GameQueueManager
             val futureMappings = mutableMapOf<String, ScheduledFuture<*>>()
             listen("accept-duel") {
                 val request = retrieve<DuelRequest>("request")
+
                 val key = "tropicpractice:duelrequests:${request.requester}:${request.kitID}"
                 futureMappings[key]?.cancel(true)
+
                 dpsRedisCache.sync().hdel(key, request.requestee.toString())
 
                 // TODO: ensure player is still on lobby

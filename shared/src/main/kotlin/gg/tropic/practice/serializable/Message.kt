@@ -14,7 +14,7 @@ import org.bukkit.entity.Player
  */
 class Message
 {
-    val components = mutableListOf<SerializableComponent>()
+    var components = mutableListOf<SerializableComponent>()
 
     fun withMessage(vararg messages: String): Message
     {

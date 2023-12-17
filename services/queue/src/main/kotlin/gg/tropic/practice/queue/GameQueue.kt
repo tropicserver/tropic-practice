@@ -140,7 +140,6 @@ class GameQueue(
                 "[queue] Started queue iterator"
             )
 
-        // TODO: leaderboard zset
         if (queueType == QueueType.Ranked)
         {
             check(adjacentRankedThread == null)

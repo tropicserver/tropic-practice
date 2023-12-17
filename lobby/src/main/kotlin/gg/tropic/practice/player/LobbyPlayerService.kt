@@ -208,6 +208,12 @@ object LobbyPlayerService
                 Message::class.java
             )
 
+            message.components.onEach {
+                it.value = it.value
+                    .replace("{primary}", CC.PRI)
+                    .replace("{secondary}", CC.SEC)
+            }
+
             usePlayer {
                 message.sendToPlayer(player)
             }
