@@ -1,9 +1,8 @@
 package gg.tropic.practice.category.visibility
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
-import gg.scala.basics.plugin.settings.SettingValue
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
-import gg.scala.commons.acf.ConditionFailedException
+import gg.tropic.practice.settings.DuelsSettingCategory
 import net.evilblock.cubed.visibility.VisibilityAction
 import net.evilblock.cubed.visibility.VisibilityAdapter
 import net.evilblock.cubed.visibility.VisibilityAdapterRegister
@@ -22,7 +21,7 @@ object SpawnPlayerVisibility : VisibilityAdapter
     {
         val profile = BasicsProfileService.find(refreshFor)?: return VisibilityAction.NEUTRAL
 
-        val messagesRef = profile.settings["duels:spawn-visibility"]!!
+        val messagesRef = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-visibility"]!!
         val visible = messagesRef.map<StateSettingValue>()
 
         return if (visible == StateSettingValue.DISABLED) VisibilityAction.HIDE else VisibilityAction.NEUTRAL

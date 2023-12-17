@@ -1,4 +1,4 @@
-package gg.tropic.practice.category.scoreboard
+package gg.tropic.practice.settings.scoreboard
 
 import gg.scala.basics.plugin.settings.SettingValue
 import org.bukkit.entity.Player

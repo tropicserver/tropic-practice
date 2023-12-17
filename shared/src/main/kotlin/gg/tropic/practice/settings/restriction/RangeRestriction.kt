@@ -1,4 +1,4 @@
-package gg.tropic.practice.category.restriction
+package gg.tropic.practice.settings.restriction
 
 import gg.scala.basics.plugin.settings.SettingValue
 import org.bukkit.entity.Player

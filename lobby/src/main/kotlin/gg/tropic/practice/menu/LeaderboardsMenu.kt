@@ -39,6 +39,7 @@ class LeaderboardsMenu : TemplateKitMenu()
     private val scoreCache = mutableMapOf<Reference, Pair<Long?, Long?>>()
 
     override fun itemTitleFor(player: Player, kit: Kit) = "${CC.PRI}${kit.displayName}"
+    override fun shouldIncludeKitDescription() = false
 
     private fun localDescriptionOf(player: Player, reference: Reference): List<String>
     {

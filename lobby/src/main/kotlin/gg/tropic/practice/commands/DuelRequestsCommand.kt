@@ -7,6 +7,7 @@ import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.tropic.practice.settings.DuelsSettingCategory
 import net.evilblock.cubed.util.CC
 
 /**
@@ -26,7 +27,7 @@ object DuelRequestsCommand : ScalaCommand()
                 "Sorry, your profile did not load properly."
             )
 
-        val messagesRef = profile.settings["duels:duel-requests"]!!
+        val messagesRef = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:duel-requests"]!!
         val mapped = messagesRef.map<StateSettingValue>()
 
         if (mapped == StateSettingValue.ENABLED)

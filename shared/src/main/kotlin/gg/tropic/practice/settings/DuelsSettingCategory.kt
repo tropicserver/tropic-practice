@@ -1,4 +1,4 @@
-package gg.tropic.practice.category
+package gg.tropic.practice.settings
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.SettingCategory
@@ -7,9 +7,8 @@ import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.annotations.plugin.SoftDependency
 import gg.scala.flavor.service.Service
 import gg.scala.flavor.service.ignore.IgnoreAutoScan
-import gg.tropic.practice.category.restriction.RangeRestriction
-import gg.tropic.practice.category.scoreboard.LobbyScoreboardView
-import gg.tropic.practice.settings.ChatVisibility
+import gg.tropic.practice.settings.restriction.RangeRestriction
+import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -26,7 +25,7 @@ import org.bukkit.entity.Player
 @SoftDependency("ScBasics")
 object DuelsSettingCategory : SettingCategory
 {
-    private const val DUEL_SETTING_PREFIX = "duels"
+    const val DUEL_SETTING_PREFIX = "tropicprac"
 
     override val items = listOf(
         SettingContainer.buildEntry {
@@ -97,7 +96,7 @@ object DuelsSettingCategory : SettingCategory
             postChange = {
                 val flightEnabled = BasicsProfileService.find(it)
                     ?.setting(
-                        "duels:spawn-flight",
+                        "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-flight",
                         StateSettingValue.DISABLED
                     )
 

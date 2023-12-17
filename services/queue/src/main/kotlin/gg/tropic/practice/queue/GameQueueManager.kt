@@ -391,10 +391,10 @@ object GameQueueManager
                     Message()
                         .withMessage(
                             " ",
-                            "&6Duel request:",
-                            "&7┃ &fFrom: &6$requesterName",
-                            "&7┃ &fKit: &6${kit.displayName}",
-                            "&7┃ &fMap: &6${map?.displayName ?: "Random"}",
+                            "{primary}Duel request:",
+                            "&7┃ &fFrom: {primary}$requesterName",
+                            "&7┃ &fKit: {primary}${kit.displayName}",
+                            "&7┃ &fMap: {primary}${map?.displayName ?: "Random"}",
                             ""
                         )
                         .withMessage(

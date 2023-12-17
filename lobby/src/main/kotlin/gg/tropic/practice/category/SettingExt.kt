@@ -1,7 +1,8 @@
 package gg.tropic.practice.category
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
-import gg.tropic.practice.category.restriction.RangeRestriction
+import gg.tropic.practice.settings.restriction.RangeRestriction
+import gg.tropic.practice.settings.DuelsSettingCategory
 import org.bukkit.entity.Player
 
 /**
@@ -11,7 +12,7 @@ import org.bukkit.entity.Player
 val Player.pingRange: RangeRestriction
     get() = BasicsProfileService.find(this)
         ?.setting<RangeRestriction>(
-            "duels:ranked-restriction-ping",
+            "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:ranked-restriction-ping",
             RangeRestriction.None
         )
         ?: RangeRestriction.None

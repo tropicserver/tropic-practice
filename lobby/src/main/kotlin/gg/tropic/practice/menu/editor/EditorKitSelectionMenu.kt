@@ -13,6 +13,8 @@ class EditorKitSelectionMenu(
     private val practiceProfile: PracticeProfile
 ) : TemplateKitMenu()
 {
+    override fun shouldIncludeKitDescription() = false
+
     override fun filterDisplayOfKit(player: Player, kit: Kit): Boolean = true
     override fun itemTitleFor(player: Player, kit: Kit) = "${CC.B_PRI}${kit.displayName}"
 

@@ -14,6 +14,7 @@ import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.serializable.Message
+import gg.tropic.practice.settings.DuelsSettingCategory
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.utils.Players
@@ -134,7 +135,7 @@ object LobbyPlayerService
                 BasicsProfileService.find(player.uniqueId)
                     ?.apply {
                         val flightEnabled = setting(
-                            "duels:spawn-flight",
+                            "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-flight",
                             StateSettingValue.DISABLED
                         )
 

@@ -2,7 +2,8 @@ package gg.tropic.practice.scoreboard
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.lemon.LemonConstants
-import gg.tropic.practice.category.scoreboard.LobbyScoreboardView
+import gg.tropic.practice.settings.DuelsSettingCategory
+import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import gg.tropic.practice.player.LobbyPlayerService
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
@@ -48,7 +49,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         BasicsProfileService.find(player)
             ?.apply {
                 val scoreboardView = setting(
-                    "duels:lobby-scoreboard-view",
+                    "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:lobby-scoreboard-view",
                     LobbyScoreboardView.None
                 )
 

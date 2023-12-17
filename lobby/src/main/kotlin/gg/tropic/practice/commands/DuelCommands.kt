@@ -13,6 +13,7 @@ import gg.tropic.practice.duel.DuelRequestUtilities
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.menu.pipeline.DuelRequestPipeline
 import gg.tropic.practice.queue.QueueService
+import gg.tropic.practice.settings.DuelsSettingCategory
 import net.evilblock.cubed.util.CC
 
 /**
@@ -68,7 +69,7 @@ object DuelCommands : ScalaCommand()
 
         val duelRequests = basicsProfile
             .setting<StateSettingValue>(
-                "duels:duel-requests"
+                "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:duel-requests"
             )
 
         if (duelRequests != StateSettingValue.ENABLED)

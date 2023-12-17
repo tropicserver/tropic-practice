@@ -8,6 +8,7 @@ import gg.scala.lemon.channel.ChatChannelService
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.redirection.aggregate.impl.LeastTrafficServerAggregateHandler
 import gg.tropic.practice.settings.ChatVisibility
+import gg.tropic.practice.settings.DuelsSettingCategory
 import org.bukkit.Bukkit
 
 /**
@@ -42,7 +43,7 @@ class PracticeGame : ExtendedScalaPlugin()
             .displayToPlayer { player, other ->
                 val chatVisibility = BasicsProfileService.find(other)
                     ?.setting(
-                        "duels:chat-visibility",
+                        "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:chat-visibility",
                         ChatVisibility.Global
                     )
                     ?: ChatVisibility.Global

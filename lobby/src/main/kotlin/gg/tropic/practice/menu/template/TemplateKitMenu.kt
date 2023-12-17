@@ -23,6 +23,8 @@ abstract class TemplateKitMenu : PaginatedMenu()
         placeholdBorders = true
     }
 
+    open fun shouldIncludeKitDescription(): Boolean = true
+
     abstract fun filterDisplayOfKit(player: Player, kit: Kit): Boolean
     abstract fun itemDescriptionOf(player: Player, kit: Kit): List<String>
     abstract fun itemClicked(player: Player, kit: Kit, type: ClickType)
@@ -65,7 +67,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
                         itemTitleFor(player, it)
                     )
                     .apply {
-                        if (it.description.isNotBlank())
+                        if (it.description.isNotBlank() && shouldIncludeKitDescription())
                         {
                             setLore(
                                 TextSplitter.split(

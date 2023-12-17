@@ -142,6 +142,8 @@ object DuelRequestPipeline
             "${CC.GREEN}Click to select!"
         )
 
+        override fun shouldIncludeKitDescription() = false
+
         override fun itemClicked(player: Player, kit: Kit, type: ClickType)
         {
             if (kitSelectionLock)

@@ -23,6 +23,7 @@ import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
+import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.statistics.KitStatistics
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -92,7 +93,7 @@ object GameService
                             .mapNotNull(BasicsProfileService::find)
                             .count { profile ->
                                 profile.setting(
-                                    "duels:allow-spectators",
+                                    "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:allow-spectators",
                                     StateSettingValue.ENABLED
                                 ) == StateSettingValue.ENABLED
                             }
