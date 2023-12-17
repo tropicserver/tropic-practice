@@ -31,10 +31,11 @@ class JoinQueueMenu(
 {
     init
     {
+        async = true
         autoUpdate = true
-        autoUpdateInterval = 100L
     }
 
+    override fun getAutoUpdateTicks() = 500L
     override fun filterDisplayOfKit(player: Player, kit: Kit) = kit.queueSizes
         .any {
             it.first == teamSize && queueType in it.second
@@ -63,29 +64,27 @@ class JoinQueueMenu(
         )
     }
 
-    private val loadFutures = mutableMapOf<Reference, CompletableFuture<Pair<Long?, Long?>>>()
-    private val scoreCache = mutableMapOf<Reference, Pair<Long?, Long?>>()
+    override fun asyncLoadResources(player: Player, callback: (Boolean) -> Unit)
+    {
+        callback(true)
+    }
 
+    private val scoreCache = mutableMapOf<Reference, Pair<Long?, Long?>>()
     private fun local3ScoreDescriptionOf(player: Player, reference: Reference, label: String): List<String>
     {
-        val cachedScore = scoreCache[reference]
+        var cachedScore = scoreCache[reference]
 
         if (cachedScore == null)
         {
-            if (!loadFutures.containsKey(reference))
-            {
-                loadFutures[reference] = LeaderboardManagerService
-                    .getUserRankWithScore(player.uniqueId, reference)
-                    .thenApplyAsync {
-                        scoreCache[reference] = it
-                        it
-                    }
-            }
+            scoreCache[reference] = LeaderboardManagerService
+                .getUserRankWithScore(player.uniqueId, reference)
+                .join()
+            cachedScore = scoreCache[reference]!!
         }
 
         val personalScore = listOf(
-            "${CC.B_PRI}Your $label: ${CC.WHITE}${cachedScore?.second?.run { Numbers.format(this) } ?: "${CC.D_GRAY}Loading..."} ${
-                CC.GRAY + (cachedScore?.first?.run { "[#${Numbers.format(this + 1)}]" } ?: "")
+            "${CC.B_PRI}Your $label: ${CC.WHITE}${cachedScore.second?.run { Numbers.format(this) } ?: "${CC.D_GRAY}..."} ${
+                CC.GRAY + (cachedScore.first?.run { "[#${Numbers.format(this + 1)}]" } ?: "")
             }"
         )
 

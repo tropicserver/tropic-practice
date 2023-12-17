@@ -8,8 +8,6 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.flavor.service.ignore.IgnoreAutoScan
-import gg.tropic.practice.commands.DuelRequestsCommand
-import gg.tropic.practice.commands.SpawnFlightCommand
 import gg.tropic.practice.provider.SettingProvider
 import org.bukkit.entity.Player
 
