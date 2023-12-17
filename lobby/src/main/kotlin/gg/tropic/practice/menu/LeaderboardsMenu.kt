@@ -57,7 +57,7 @@ class LeaderboardsMenu : TemplateKitMenu()
         }
 
         val personalScore = listOf(
-            "${CC.SEC}Your score: ${CC.D_GRAY}${cachedScore?.second ?: "Loading..."} ${
+            "${CC.SEC}Your score: ${CC.PRI}${cachedScore?.second ?: "${CC.D_GRAY}Loading..."} ${
                 CC.GRAY + (cachedScore?.first?.run { "[#${Numbers.format(this + 1)}]" } ?: "")
             }",
             ""
