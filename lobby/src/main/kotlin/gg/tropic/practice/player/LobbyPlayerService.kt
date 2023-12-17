@@ -191,19 +191,11 @@ object LobbyPlayerService
                 val player = LobbyPlayer(event.player.uniqueId)
                 playerCache[event.player.uniqueId] = player
 
-                BasicsProfileService.find(player.uniqueId)
-                    ?.apply {
-                        val flightEnabled = setting(
-                            "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-flight",
-                            StateSettingValue.DISABLED
-                        )
-
-                        if (flightEnabled == StateSettingValue.ENABLED)
-                        {
-                            player.player.allowFlight = true
-                            player.player.isFlying = true
-                        }
-                    }
+                if (event.player.hasPermission("practice.spawn-flight"))
+                {
+                    player.player.allowFlight = true
+                    player.player.isFlying = true
+                }
 
                 CompletableFuture.runAsync(player::syncQueueState)
 

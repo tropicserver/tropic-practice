@@ -85,32 +85,6 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.BOOK)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:spawn-flight"
-            displayName = "Spawn flight"
-
-            clazz = StateSettingValue::class.java
-            default = StateSettingValue.DISABLED
-
-            description += "Allows you to fly"
-            description += "around spawn."
-
-            postChange = {
-                val flightEnabled = BasicsProfileService.find(it)
-                    ?.setting(
-                        "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:spawn-flight",
-                        StateSettingValue.DISABLED
-                    )
-
-                val flightSetting =
-                    flightEnabled == StateSettingValue.ENABLED
-
-                it.allowFlight = flightSetting
-                it.isFlying = flightSetting
-            }
-
-            item = ItemBuilder.of(Material.FEATHER)
-        },
-        SettingContainer.buildEntry {
             id = "$DUEL_SETTING_PREFIX:spawn-visibility"
             displayName = "Player visibility"
 
