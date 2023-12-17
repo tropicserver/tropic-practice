@@ -217,6 +217,13 @@ object GameService
                 if (!game.ensurePlaying())
                 {
                     it.isCancelled = true
+                    return@handler
+                }
+
+                if (it.itemDrop.itemStack.type.name.contains("SWORD"))
+                {
+                    it.isCancelled = true
+                    it.player.sendMessage("${CC.RED}You cannot drop your sword!")
                 }
             }
             .bindWith(plugin)
