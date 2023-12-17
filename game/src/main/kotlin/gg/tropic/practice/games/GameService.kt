@@ -225,6 +225,11 @@ object GameService
                     it.isCancelled = true
                     it.player.sendMessage("${CC.RED}You cannot drop your sword!")
                 }
+
+                if (it.itemDrop.itemStack.type == Material.GLASS_BOTTLE)
+                {
+                    Schedulers.sync().runLater(it.itemDrop::remove, 1L)
+                }
             }
             .bindWith(plugin)
 
