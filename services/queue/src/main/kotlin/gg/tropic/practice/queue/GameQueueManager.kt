@@ -464,12 +464,6 @@ object GameQueueManager
                                 listOf(request.player),
                                 it.second
                             )
-                        } else
-                        {
-                            DPSRedisShared.sendMessage(
-                                listOf(request.player),
-                                listOf("&c${it?.second ?: "The game you tried to join is unavailable for spectators!"}")
-                            )
                         }
                     }
             }
