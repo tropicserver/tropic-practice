@@ -70,13 +70,10 @@ object GameService
 
     private val ensureCauseDenied = listOf(
         DamageCause.BLOCK_EXPLOSION,
-        DamageCause.ENTITY_EXPLOSION,
         DamageCause.FIRE,
         DamageCause.LAVA,
-        DamageCause.POISON,
         DamageCause.STARVATION,
-        DamageCause.LIGHTNING,
-        DamageCause.FALL
+        DamageCause.LIGHTNING
     )
 
     @Configure

@@ -10,10 +10,11 @@ class Tournament(val config: TournamentConfig) : () -> Unit
 {
     private var state = TournamentState.Populating
     private val matches = mutableSetOf<UUID>()
+    private var periodicTimestamp = System.currentTimeMillis()
 
     fun populatingPeriodics()
     {
-
+        if (periodicTimestamp)
     }
 
     fun populating()
