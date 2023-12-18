@@ -44,8 +44,7 @@ class GameStopTask(
         {
             this.game.sendMessage(
                 "",
-                "${CC.PRI}Match Overview:",
-                "${CC.I_GRAY}(Click to view inventories)",
+                "${CC.PRI}Match Overview: ${CC.I_GRAY}(Click to view inventories)",
                 ""
             )
 
