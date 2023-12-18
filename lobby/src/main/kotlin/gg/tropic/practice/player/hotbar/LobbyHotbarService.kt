@@ -16,6 +16,7 @@ import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.menu.CasualQueueSelectSizeMenu
 import gg.tropic.practice.menu.JoinQueueMenu
 import gg.tropic.practice.menu.LeaderboardsMenu
+import gg.tropic.practice.menu.PlayerMainMenu
 import gg.tropic.practice.menu.editor.EditorKitSelectionMenu
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
@@ -195,11 +196,11 @@ object LobbyHotbarService
         idlePreset.addSlot(
             2,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.BLAZE_POWDER)
-                    .name("${CC.GOLD}Cosmetics ${CC.GRAY}(Right Click)")
+                ItemBuilder(Material.COMPASS)
+                    .name("${CC.D_AQUA}Navigator ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
-                    player.performCommand("cosmetics")
+                    PlayerMainMenu().openMenu(player)
                 }
             }
         )

@@ -12,7 +12,7 @@ plugins {
 rootProject.name = "tropic-practice"
 include(
     "shared", "game", "lobby", "devtools",
-    "services:application", "services:queue", "services:statistics",
+    "services:application", "services:queue", "services:statistics", "services:tournaments",
     "services:statistics:leaderboards",
     "services:application:api",
     "services:replications:replication-manager",
