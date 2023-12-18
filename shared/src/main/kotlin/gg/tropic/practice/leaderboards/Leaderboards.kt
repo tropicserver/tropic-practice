@@ -48,3 +48,19 @@ data class LeaderboardEntry(
     val uniqueId: UUID,
     val value: Long
 )
+
+data class Position(
+    val uniqueId: UUID,
+    val score: Long,
+    val position: Long
+)
+
+data class ScoreUpdates(
+    val oldScore: Long,
+    val oldPosition: Long,
+    val newPosition: Long,
+    val nextPosition: Position?
+)
+{
+    fun requiredScore() = nextPosition!!.score - oldScore
+}

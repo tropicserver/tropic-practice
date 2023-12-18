@@ -15,10 +15,14 @@ import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.leaderboards.Reference
+import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
+import gg.tropic.practice.leaderboards.ScoreUpdates
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
+import gg.tropic.practice.services.LeaderboardManagerService
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
@@ -39,6 +43,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.PlayerInteractEvent
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import java.util.logging.Logger
 
@@ -104,6 +109,7 @@ class GameImpl(
             }
 
         val newELOMappings = mutableMapOf<UUID, Pair<Int, Int>>()
+        val positionUpdates = mutableMapOf<UUID, CompletableFuture<ScoreUpdates>>()
         val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
 
         if (winner == null)
@@ -166,6 +172,14 @@ class GameImpl(
                 winnerRankedStats.eloUpdates().apply(winnerNewELO)
 
                 newELOMappings[winnerProfile.identifier] = winnerNewELO to winnerELODiff
+                positionUpdates[winnerProfile.identifier] = LeaderboardManagerService
+                    .updateScoreAndGetDiffs(
+                        winnerProfile.identifier,
+                        Reference(
+                            ReferenceLeaderboardType.ELO, kit.id
+                        ),
+                        newScore = winnerNewELO.toLong()
+                    )
 
                 // loser elo calculations
                 val loserNewELO = DefaultEloCalculator.getNewRating(
@@ -175,6 +189,14 @@ class GameImpl(
                 loserRankedStats.eloUpdates().apply(loserNewELO)
 
                 newELOMappings[loserProfile.identifier] = loserNewELO to loserELODiff
+                positionUpdates[loserProfile.identifier] = LeaderboardManagerService
+                    .updateScoreAndGetDiffs(
+                        loserProfile.identifier,
+                        Reference(
+                            ReferenceLeaderboardType.ELO, kit.id
+                        ),
+                        newScore = loserNewELO.toLong()
+                    )
             }
 
             (winners + opponents).forEach(PracticeProfile::save)

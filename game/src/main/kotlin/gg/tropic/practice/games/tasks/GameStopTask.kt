@@ -3,16 +3,20 @@ package gg.tropic.practice.games.tasks
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.leaderboards.ScoreUpdates
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.FancyMessage
+import net.evilblock.cubed.util.math.Numbers
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.TitlePart
 import net.md_5.bungee.api.chat.ClickEvent
+import org.bukkit.Bukkit
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -21,7 +25,8 @@ import java.util.UUID
 class GameStopTask(
     private val game: GameImpl,
     private val report: GameReport,
-    private val eloMappings: Map<UUID, Pair<Int, Int>>
+    private val eloMappings: Map<UUID, Pair<Int, Int>>,
+    private val positionUpdates: Map<UUID, CompletableFuture<ScoreUpdates>>
 ) : Runnable
 {
     lateinit var task: Task
@@ -143,6 +148,45 @@ class GameStopTask(
                     "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.RED}${loser.username()}:${CC.WHITE} ${eloMappings[loser]!!.first} ${CC.GRAY}(${CC.RED}-${eloMappings[loser]!!.second}${CC.GRAY})",
                     ""
                 )
+
+                (report.winners + report.losers)
+                    .map { it to positionUpdates[it] }
+                    .filter { it.second != null }
+                    .forEach {
+                        it.second!!.thenAcceptAsync { updates ->
+                            val player = Bukkit.getPlayer(it.first)
+                                ?: return@thenAcceptAsync
+
+                            player.sendMessage("${CC.PRI}Leaderboards:")
+                            player.sendMessage("${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Update: ${
+                                if (updates.newPosition < updates.oldPosition) CC.RED else CC.GREEN
+                            }${
+                                updates.newPosition - updates.oldPosition
+                            } ${CC.GRAY}(#${
+                                Numbers.format(updates.oldPosition)
+                            } ${Constants.ARROW_RIGHT} ${
+                                Numbers.format(updates.newPosition)
+                            })")
+
+                            if (updates.nextPosition == null)
+                            {
+                                player.sendMessage("${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}You are #1 on the leaderboards!")
+                                return@thenAcceptAsync
+                            }
+
+                            player.sendMessage(
+                                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${
+                                    "${CC.SEC}You need ${CC.PRI}${
+                                        updates.requiredScore()
+                                    }${CC.SEC} ELO to reach ${CC.GREEN}#${
+                                        Numbers.format(updates.nextPosition!!.position)
+                                    } ${CC.GRAY}(${
+                                        updates.nextPosition!!.uniqueId.username()
+                                    })${CC.SEC}."
+                                }"
+                            )
+                        }
+                    }
             }
 
             this.game.audiencesIndexed { audience, player ->

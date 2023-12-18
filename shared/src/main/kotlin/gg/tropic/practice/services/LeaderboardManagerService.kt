@@ -7,15 +7,12 @@ import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.tropic.practice.leaderboards.LeaderboardEntry
-import gg.tropic.practice.leaderboards.LeaderboardReferences
-import gg.tropic.practice.leaderboards.Reference
+import gg.tropic.practice.leaderboards.*
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import java.util.logging.Logger
 
 /**
  * @author GrowlyX
@@ -40,6 +37,48 @@ object LeaderboardManagerService
 
     fun getCachedLeaderboards(reference: Reference) = top10LeaderboardCache[reference]
         ?: listOf()
+
+    fun updateScoreAndGetDiffs(user: UUID, reference: Reference, newScore: Long) =
+        getUserRankWithScore(user, reference)
+            .thenApplyAsync {
+                ScalaCommonsSpigot.instance.kvConnection
+                    .sync()
+                    .zadd(
+                        "tropicpractice:leaderboards:${reference.id()}:final",
+                        newScore.toDouble(),
+                        user.toString()
+                    )
+                it
+            }
+            .thenComposeAsync { old ->
+                getUserRankWithScore(user, reference)
+                    .thenApply { new ->
+                        old to new
+                    }
+            }
+            .thenApplyAsync {
+                val nextPosition = it.second.first ?: 0
+                val score = ScalaCommonsSpigot.instance.kvConnection.sync()
+                    .zrangeWithScores(
+                        "tropicpractice:leaderboards:${reference.id()}:final",
+                        nextPosition, nextPosition
+                    )
+                    .firstOrNull()
+
+                ScoreUpdates(
+                    oldScore = it.first.second ?: 0,
+                    oldPosition = nextPosition,
+                    newPosition = nextPosition,
+                    nextPosition = score?.run {
+                        Position(
+                            uniqueId = UUID.fromString(this.value),
+                            score = this.score.toLong(),
+                            position = nextPosition
+                        )
+                    }
+                )
+            }
+
 
     fun getUserRankWithScore(user: UUID, reference: Reference): CompletableFuture<Pair<Long?, Long?>> =
         CompletableFuture.supplyAsync {
