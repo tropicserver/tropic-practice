@@ -22,6 +22,7 @@ class StatisticsMenu(
 ) : TemplateKitMenu()
 {
     override fun filterDisplayOfKit(player: Player, kit: Kit) = true
+    override fun shouldIncludeKitDescription() = false
 
     override fun itemTitleFor(player: Player, kit: Kit) = if (state == StatisticMenuState.Casual)
     {

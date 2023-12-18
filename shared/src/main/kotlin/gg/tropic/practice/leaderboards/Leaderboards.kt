@@ -14,8 +14,8 @@ enum class ReferenceLeaderboardType(
     ELO("Ranked ELO"),
     CasualWins("Casual Wins"),
     RankedWins("Ranked Wins", true),
-    CasualWinStreak("Casual Daily Wins"),
-    RankedWinStreak("Ranked Daily Wins", true);
+    CasualWinStreak("Casual Daily Win Streak"),
+    RankedWinStreak("Ranked Daily Win Streak", true);
 
     fun previous(): ReferenceLeaderboardType
     {
