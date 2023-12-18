@@ -1,5 +1,6 @@
 package gg.tropic.practice.queue
 
+import gg.tropic.practice.region.Region
 import java.util.UUID
 
 /**
@@ -9,6 +10,7 @@ import java.util.UUID
 data class QueueEntry(
     val leader: UUID,
     val leaderPing: Int,
+    val queueRegion: Region,
     val maxPingDiff: Int,
     val leaderRangedPing: MinMaxRangedNumber =
         MinMaxRangedNumber(

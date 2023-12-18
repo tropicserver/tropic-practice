@@ -1,5 +1,6 @@
 package gg.tropic.practice.menu.pipeline
 
+import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.duel.DuelRequestUtilities
 import gg.tropic.practice.games.DuelRequest
@@ -10,6 +11,7 @@ import gg.tropic.practice.map.Map
 import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.menu.template.TemplateMapMenu
 import gg.tropic.practice.queue.QueueService
+import gg.tropic.practice.region.PlayerRegionFromRedisProxy
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
@@ -32,18 +34,33 @@ object DuelRequestPipeline
         kit: Kit
     )
     {
-        val request = DuelRequest(
-            requester = player.uniqueId,
-            requestee = target,
-            kitID = kit.id
-        )
-
         player.closeInventory()
-        player.sendMessage(
-            "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and a random map."
-        )
 
-        stage4PublishDuelRequest(request)
+        PlayerRegionFromRedisProxy.of(player)
+            .thenApplyAsync {
+                val request = DuelRequest(
+                    requester = player.uniqueId,
+                    requestee = target,
+                    region = it,
+                    kitID = kit.id
+                )
+
+                stage4PublishDuelRequest(request)
+                it
+            }
+            .whenComplete { region, throwable ->
+                if (throwable != null)
+                {
+                    player.sendMessage("${CC.RED}We were unable to send the duel request!")
+                    return@whenComplete
+                }
+
+                player.sendMessage(
+                    "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and a random map. ${CC.GRAY}(${
+                        region.name
+                    } servers)"
+                )
+            }
     }
 
     private fun stage3SendDuelRequest(
@@ -53,21 +70,36 @@ object DuelRequestPipeline
         map: Map
     )
     {
-        val request = DuelRequest(
-            requester = player.uniqueId,
-            requestee = target,
-            kitID = kit.id,
-            mapID = map.name
-        )
-
         player.closeInventory()
-        player.sendMessage(
-            "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and map ${CC.GREEN}${
-                map.displayName
-            }${CC.SEC}."
-        )
 
-        stage4PublishDuelRequest(request)
+        PlayerRegionFromRedisProxy.of(player)
+            .thenApply {
+                val request = DuelRequest(
+                    requester = player.uniqueId,
+                    requestee = target,
+                    region = it,
+                    kitID = kit.id,
+                    mapID = map.name
+                )
+
+                stage4PublishDuelRequest(request)
+                it
+            }
+            .whenComplete { region, throwable ->
+                if (throwable != null)
+                {
+                    player.sendMessage("${CC.RED}We were unable to send the duel request!")
+                    return@whenComplete
+                }
+
+                player.sendMessage(
+                    "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and map ${CC.GREEN}${
+                        map.displayName
+                    }${CC.SEC}. ${CC.GRAY}(${
+                        region.name
+                    } servers)"
+                )
+            }
     }
 
     private fun stage4PublishDuelRequest(request: DuelRequest)
@@ -76,7 +108,8 @@ object DuelRequestPipeline
             "request-duel",
             "request" to request
         ).publish(
-            channel = "practice:queue"
+            channel = "practice:queue",
+            context = AwareThreadContext.SYNC
         )
     }
 

@@ -20,6 +20,7 @@ import gg.tropic.practice.games.SpectateRequest
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.games.models.GameReference
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.region.Region
 import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.serializable.Message
 import io.lettuce.core.api.sync.RedisCommands
@@ -90,7 +91,12 @@ object GameQueueManager
             )
         }
 
-    fun prepareGameFor(map: ImmutableMap, expectation: GameExpectation, cleanup: () -> Unit): CompletableFuture<Void>
+    fun prepareGameFor(
+        map: ImmutableMap,
+        expectation: GameExpectation,
+        region: Region,
+        cleanup: () -> Unit
+    ): CompletableFuture<Void>
     {
         val distinctUsers = expectation.players.distinct()
         if (distinctUsers.size != expectation.players.size)
@@ -138,6 +144,9 @@ object GameQueueManager
             .associateBy {
                 it.server
             }
+            .filterKeys {
+                Region.extractFrom(it).withinScopeOf(region)
+            }
 
         val availableReplication = serverToReplicationMappings.values
             .firstOrNull {
@@ -157,9 +166,7 @@ object GameQueueManager
                     )
                 )
 
-                CompletableFuture.runAsync {
-                    cleanup()
-                }
+                CompletableFuture.runAsync(cleanup)
             }
 
         val replication = if (availableReplication == null)
@@ -357,16 +364,20 @@ object GameQueueManager
                             )
                         }
 
-                        prepareGameFor(map, GameExpectation(
-                            players = listOf(request.requester, request.requestee),
-                            identifier = UUID.randomUUID(),
-                            teams = mapOf(
-                                GameTeamSide.A to GameTeam(GameTeamSide.A, listOf(request.requester)),
-                                GameTeamSide.B to GameTeam(GameTeamSide.B, listOf(request.requestee))
+                        prepareGameFor(
+                            map = map,
+                            expectation = GameExpectation(
+                                players = listOf(request.requester, request.requestee),
+                                identifier = UUID.randomUUID(),
+                                teams = mapOf(
+                                    GameTeamSide.A to GameTeam(GameTeamSide.A, listOf(request.requester)),
+                                    GameTeamSide.B to GameTeam(GameTeamSide.B, listOf(request.requestee))
+                                ),
+                                kitId = request.kitID,
+                                mapId = map.name
                             ),
-                            kitId = request.kitID,
-                            mapId = map.name
-                        )) {
+                            region = request.region
+                        ) {
                             println("[debug] prepared duel game for ${request.requester}")
                         }
                     }

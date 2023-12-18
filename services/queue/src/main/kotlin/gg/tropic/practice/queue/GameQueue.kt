@@ -236,16 +236,16 @@ class GameQueue(
         val first: List<QueueEntry>
         val second: List<QueueEntry>
 
-        if (queueType == QueueType.Ranked)
+        // Faster than doing a list intersect which compares all items
+        fun IntRange.quickIntersect(other: IntRange): Boolean
         {
-            // Faster than doing a list intersect which compares all items
-            fun IntRange.quickIntersect(other: IntRange): Boolean
-            {
-                return this.first <= other.last && this.last >= other.first
-            }
+            return this.first <= other.last && this.last >= other.first
+        }
 
-            val queueEntries = GameQueueManager.getQueueEntriesFromId(queueId())
-            val groupedQueueEntries = queueEntries.values
+        val queueEntries = GameQueueManager.getQueueEntriesFromId(queueId())
+        val groupedQueueEntries = if (queueType == QueueType.Ranked)
+        {
+            queueEntries.values
                 .map { entry ->
                     val otherEntriesMatchingEntry = queueEntries.values
                         .filter { otherEntry ->
@@ -263,7 +263,10 @@ class GameQueue(
                                             .toIntRangeInclusive()
                                     )
 
-                            entry != otherEntry && doesELOIntersect && doesPingIntersect
+                            entry != otherEntry &&
+                                doesELOIntersect &&
+                                doesPingIntersect &&
+                                entry.queueRegion == otherEntry.queueRegion
                         }
 
                     otherEntriesMatchingEntry + entry
@@ -271,43 +274,64 @@ class GameQueue(
                 .filter {
                     it.size >= teamSize * 2
                 }
-
-            for ((index, groupedQueueEntry) in groupedQueueEntries.withIndex())
-            {
-                println("[debug] [$index] New group with ${groupedQueueEntry.size}")
-                for (queueEntry in groupedQueueEntry)
-                {
-                    val pingRange = queueEntry.leaderRangedPing.toIntRangeInclusive()
-                    val eloRange = queueEntry.leaderRangedELO.toIntRangeInclusive()
-                    println("[debug]     - ${queueEntry.leader}")
-                    println("[debug]       | ping range: [${pingRange.first} -> ${pingRange.last}]")
-                    println("[debug]       | ELO range: [${eloRange.first} -> ${eloRange.last}]")
-                }
-            }
-
-            if (groupedQueueEntries.isEmpty())
-            {
-                Thread.sleep(200)
-                return
-            }
-
-            val group = groupedQueueEntries.random()
-                .onEach {
-                    runCatching {
-                        GameQueueManager.removeQueueEntryFromId(queueId(), it.leader)
-                    }.onFailure {
-                        it.printStackTrace()
-                    }
-                }
-
-            // Expecting a symmetric list here, lets hope it doesn't break?
-            first = group.take(teamSize)
-            second = group.takeLast(teamSize)
         } else
         {
-            first = GameQueueManager.popQueueEntryFromId(queueId(), teamSize)
-            second = GameQueueManager.popQueueEntryFromId(queueId(), teamSize)
+           queueEntries.values
+                .map { entry ->
+                    val otherEntriesMatchingEntry = queueEntries.values
+                        .filter { otherEntry ->
+                            // we can ignore ping intersections if they have no ping restriction
+                            val doesPingIntersect = (entry.maxPingDiff == -1 || otherEntry.maxPingDiff == -1) ||
+                                entry.leaderRangedPing.toIntRangeInclusive()
+                                    .quickIntersect(
+                                        otherEntry.leaderRangedPing
+                                            .toIntRangeInclusive()
+                                    )
+
+                            entry != otherEntry &&
+                                entry.queueRegion == otherEntry.queueRegion &&
+                                doesPingIntersect
+                        }
+
+                    otherEntriesMatchingEntry + entry
+                }
+                .filter {
+                    it.size >= teamSize * 2
+                }
         }
+
+        for ((index, groupedQueueEntry) in groupedQueueEntries.withIndex())
+        {
+            println("[debug] [$index] New group with ${groupedQueueEntry.size}")
+            for (queueEntry in groupedQueueEntry)
+            {
+                val pingRange = queueEntry.leaderRangedPing.toIntRangeInclusive()
+                val eloRange = queueEntry.leaderRangedELO.toIntRangeInclusive()
+                println("[debug]     - ${queueEntry.leader}")
+                println("[debug]       | ping range: [${pingRange.first} -> ${pingRange.last}]")
+                println("[debug]       | ELO range: [${eloRange.first} -> ${eloRange.last}]")
+                println("[debug]       | region: [${groupedQueueEntry.first().queueRegion} -> ${groupedQueueEntry.last().queueRegion}]")
+            }
+        }
+
+        if (groupedQueueEntries.isEmpty())
+        {
+            Thread.sleep(200)
+            return
+        }
+
+        val group = groupedQueueEntries.random()
+            .onEach {
+                runCatching {
+                    GameQueueManager.removeQueueEntryFromId(queueId(), it.leader)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            }
+
+        // Expecting a symmetric list here, lets hope it doesn't break?
+        first = group.take(teamSize)
+        second = group.takeLast(teamSize)
 
         if (first.size != teamSize || second.size != teamSize)
         {
@@ -355,6 +379,7 @@ class GameQueue(
         GameQueueManager.prepareGameFor(
             map = map,
             expectation = expectation,
+            region = first.first().queueRegion,
             cleanup = {
                 for (queueEntry in first + second)
                 {

@@ -13,6 +13,9 @@ import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.profile.PracticeProfileService
+import gg.tropic.practice.region.PlayerRegionFromRedisProxy
+import gg.tropic.practice.region.Region
+import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.entity.Player
 import java.util.logging.Logger
@@ -86,21 +89,30 @@ object QueueService
             .find(player)
             ?: return
 
-        createMessage(
-            packet = "join",
-            "entry" to QueueEntry(
-                leader = player.uniqueId,
-                leaderPing = MinecraftReflection.getPing(player),
-                leaderELO = profile.getRankedStatsFor(kit).elo,
-                maxPingDiff = player.pingRange.sanitizedDiffsBy(),
-                players = listOf(player.uniqueId)
-            ),
-            "kit" to kit.id,
-            "queueType" to queueType,
-            "teamSize" to teamSize
-        ).publish(
-            context = AwareThreadContext.ASYNC
-        )
+        PlayerRegionFromRedisProxy.of(player)
+            .exceptionally { Region.NA }
+            .thenAcceptAsync {
+                createMessage(
+                    packet = "join",
+                    "entry" to QueueEntry(
+                        leader = player.uniqueId,
+                        leaderPing = MinecraftReflection.getPing(player),
+                        queueRegion = it,
+                        leaderELO = profile.getRankedStatsFor(kit).elo,
+                        maxPingDiff = player.pingRange.sanitizedDiffsBy(),
+                        players = listOf(player.uniqueId)
+                    ),
+                    "kit" to kit.id,
+                    "queueType" to queueType,
+                    "teamSize" to teamSize
+                ).publish(
+                    context = AwareThreadContext.SYNC
+                )
+            }
+            .exceptionally {
+                player.sendMessage("${CC.RED}We were unable to put you in the queue!")
+                return@exceptionally null
+            }
 
         // set InQueue and wait until the queue server syncs
         synchronized(lobbyPlayer.stateUpdateLock) {

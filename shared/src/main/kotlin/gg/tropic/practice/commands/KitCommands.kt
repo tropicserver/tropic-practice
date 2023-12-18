@@ -667,8 +667,6 @@ object KitCommands : ScalaCommand()
     {
         val lowercaseID = id.lowercase()
 
-        // TODO: ensure no matches are ongoing with this kit
-
         if (KitService.cached().kits[lowercaseID] != null)
         {
             throw ConditionFailedException(

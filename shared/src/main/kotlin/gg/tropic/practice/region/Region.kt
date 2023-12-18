@@ -8,10 +8,16 @@ enum class Region
 {
     NA, EU, Both;
 
-    fun extractFrom(id: String) = when (true)
+    fun withinScopeOf(region: Region) = region == this || region == Both
+
+    companion object
     {
-        id.startsWith("na") -> NA
-        id.startsWith("eu") -> EU
-        else -> Both
+        @JvmStatic
+        fun extractFrom(id: String) = when (true)
+        {
+            id.startsWith("na") -> NA
+            id.startsWith("eu") -> EU
+            else -> Both
+        }
     }
 }

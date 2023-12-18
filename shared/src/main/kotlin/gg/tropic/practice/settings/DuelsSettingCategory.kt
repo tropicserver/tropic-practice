@@ -113,8 +113,8 @@ object DuelsSettingCategory : SettingCategory
             item = ItemBuilder.of(Material.PAPER)
         },
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:ranked-restriction-ping"
-            displayName = "Ranked Queue ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Ping range"
+            id = "$DUEL_SETTING_PREFIX:restriction-ping"
+            displayName = "Ping range"
 
             clazz = RangeRestriction::class.java
             default = RangeRestriction.None
