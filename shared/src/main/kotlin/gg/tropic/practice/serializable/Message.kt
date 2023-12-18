@@ -55,6 +55,9 @@ class Message
         }
     }
 
+    private var consolidate = false
+    fun consolidate() = run { consolidate = true }
+
     fun sendToPlayer(player: Player)
     {
         val components = mutableListOf<TextComponent>()
@@ -74,6 +77,14 @@ class Message
             }
 
             components.add(textComponent)
+        }
+
+        if (consolidate)
+        {
+            player.spigot().sendMessage(
+                *components.toTypedArray()
+            )
+            return
         }
 
         components.forEach(player.spigot()::sendMessage)

@@ -4,6 +4,7 @@ import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.leaderboards.ScoreUpdates
+import gg.tropic.practice.serializable.Message
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
@@ -48,7 +49,7 @@ class GameStopTask(
                 ""
             )
 
-            val winnerComponent = FancyMessage()
+            val winnerComponent = Message()
                 .withMessage(
                     "${CC.GREEN}Winner${
                         if (this.report.winners.size == 1) "" else "s"
@@ -80,7 +81,7 @@ class GameStopTask(
             }
 
             // this is redundant, but it's 1am. 1am growly is not a DRY growly.
-            val loserComponent = FancyMessage()
+            val loserComponent = Message()
                 .withMessage(
                     "${CC.RED}Loser${
                         if (this.report.losers.size == 1) "" else "s"
@@ -111,10 +112,25 @@ class GameStopTask(
                 }
             }
 
-            this.game.sendMessage(
-                winnerComponent,
-                loserComponent
+            if (
+                report.losers.size == 1 &&
+                report.winners.size == 1
             )
+            {
+                val consolidatedMessage = Message()
+                consolidatedMessage.components += winnerComponent.components
+                consolidatedMessage.withMessage(" ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ")
+                consolidatedMessage.components += loserComponent.components
+                consolidatedMessage.consolidate()
+
+                game.sendMessage(consolidatedMessage)
+            } else
+            {
+                this.game.sendMessage(
+                    winnerComponent,
+                    loserComponent
+                )
+            }
 
             this.game.sendMessage("")
 

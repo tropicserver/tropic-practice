@@ -22,6 +22,7 @@ import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
+import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.services.LeaderboardManagerService
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -274,6 +275,14 @@ class GameImpl(
         }
     }
 
+    fun sendMessage(vararg message: Message)
+    {
+        for (line in message)
+        {
+            this.sendMessage(line)
+        }
+    }
+
     fun playSound(sound: Sound)
     {
         this.toBukkitPlayers()
@@ -295,6 +304,21 @@ class GameImpl(
             .mapNotNull(Bukkit::getPlayer)
             .forEach {
                 it.sendMessage(message)
+            }
+    }
+
+    fun sendMessage(message: Message)
+    {
+        this.toBukkitPlayers()
+            .filterNotNull()
+            .forEach {
+                message.sendToPlayer(it)
+            }
+
+        this.expectedSpectators
+            .mapNotNull(Bukkit::getPlayer)
+            .forEach {
+                message.sendToPlayer(it)
             }
     }
 
