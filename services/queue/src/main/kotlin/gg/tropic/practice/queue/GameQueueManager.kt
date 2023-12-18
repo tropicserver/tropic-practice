@@ -144,30 +144,35 @@ object GameQueueManager
             .associateBy {
                 it.server
             }
-            .filterKeys {
-                Region.extractFrom(it).withinScopeOf(region)
-            }
 
         val availableReplication = serverToReplicationMappings.values
             .firstOrNull {
-                !it.inUse && it.associatedMapName == map.name
+                !it.inUse && it.associatedMapName == map.name &&
+                    // ensure server of replication is in the same region
+                    Region.extractFrom(it.server).withinScopeOf(region)
             }
 
-        val serverToRequestReplication = ServerContainer
-            .getServersInGroupCasted<GameServer>("mipgame")
-            .sortedBy(GameServer::getPlayersCount)
-            .firstOrNull()
-            ?.id
-            ?: return run {
-                DPSRedisShared.sendMessage(
-                    expectation.players,
-                    listOf(
-                        "&cWe found no game server available to house your game!"
+        // if there's an existing replication to house the game, we can send them directly
+        // there. if not, we'll take the server with the least player count
+        val serverToRequestReplication = availableReplication?.server
+            ?: (ServerContainer
+                .getServersInGroupCasted<GameServer>("mipgame")
+                .sortedBy(GameServer::getPlayersCount)
+                .firstOrNull {
+                    // ensure server of NEW replication is in the same region
+                    Region.extractFrom(it.id).withinScopeOf(region)
+                }
+                ?.id
+                ?: return run {
+                    DPSRedisShared.sendMessage(
+                        expectation.players,
+                        listOf(
+                            "&cWe found no game server available to house your game!"
+                        )
                     )
-                )
 
-                CompletableFuture.runAsync(cleanup)
-            }
+                    CompletableFuture.runAsync(cleanup)
+                })
 
         val replication = if (availableReplication == null)
         {

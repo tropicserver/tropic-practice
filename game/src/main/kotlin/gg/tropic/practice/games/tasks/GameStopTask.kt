@@ -159,18 +159,19 @@ class GameStopTask(
 
                             player.sendMessage("${CC.PRI}Leaderboards:")
                             player.sendMessage("${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Update: ${
-                                if (updates.newPosition < updates.oldPosition) CC.RED else CC.GREEN
+                                if (updates.newPosition < updates.oldPosition) CC.GREEN else CC.RED
                             }${
-                                updates.newPosition - updates.oldPosition
+                                -(updates.newPosition - updates.oldPosition)
                             } ${CC.GRAY}(#${
                                 Numbers.format(updates.oldPosition)
-                            } ${Constants.ARROW_RIGHT} ${
+                            } ${Constants.ARROW_RIGHT}${CC.R}${CC.GRAY} #${
                                 Numbers.format(updates.newPosition)
                             })")
 
                             if (updates.nextPosition == null)
                             {
                                 player.sendMessage("${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}You are #1 on the leaderboards!")
+                                player.sendMessage("")
                                 return@thenAcceptAsync
                             }
 
@@ -185,6 +186,7 @@ class GameStopTask(
                                     })${CC.SEC}."
                                 }"
                             )
+                            player.sendMessage("")
                         }
                     }
             }
@@ -204,11 +206,6 @@ class GameStopTask(
                         .decorate(TextDecoration.BOLD)
                 )
             }
-        }
-
-        if (this.game.activeCountdown == 5)
-        {
-            this.game.sendMessage("${CC.GRAY}You will be sent to a lobby in 5 seconds.")
         }
 
         if (this.game.activeCountdown <= 0)

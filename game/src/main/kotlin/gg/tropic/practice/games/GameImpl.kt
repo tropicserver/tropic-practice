@@ -217,7 +217,7 @@ class GameImpl(
 
         val stopTask =
             GameStopTask(
-                this, this.report!!, newELOMappings
+                this, this.report!!, newELOMappings, positionUpdates
             )
 
         this.activeCountdown = 5

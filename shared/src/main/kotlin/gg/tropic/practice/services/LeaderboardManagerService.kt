@@ -13,6 +13,7 @@ import net.evilblock.cubed.serializers.Serializers
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import kotlin.math.max
 
 /**
  * @author GrowlyX
@@ -38,11 +39,12 @@ object LeaderboardManagerService
     fun getCachedLeaderboards(reference: Reference) = top10LeaderboardCache[reference]
         ?: listOf()
 
+    fun kv() = ScalaCommonsSpigot.instance.kvConnection.sync()
+
     fun updateScoreAndGetDiffs(user: UUID, reference: Reference, newScore: Long) =
         getUserRankWithScore(user, reference)
             .thenApplyAsync {
-                ScalaCommonsSpigot.instance.kvConnection
-                    .sync()
+                kv()
                     .zadd(
                         "tropicpractice:leaderboards:${reference.id()}:final",
                         newScore.toDouble(),
@@ -57,8 +59,8 @@ object LeaderboardManagerService
                     }
             }
             .thenApplyAsync {
-                val nextPosition = it.second.first ?: 0
-                val score = ScalaCommonsSpigot.instance.kvConnection.sync()
+                val nextPosition = (it.second.first ?: 0) - 1
+                val score = kv()
                     .zrangeWithScores(
                         "tropicpractice:leaderboards:${reference.id()}:final",
                         nextPosition, nextPosition
@@ -67,8 +69,8 @@ object LeaderboardManagerService
 
                 ScoreUpdates(
                     oldScore = it.first.second ?: 0,
-                    oldPosition = nextPosition,
-                    newPosition = nextPosition,
+                    oldPosition = it.first.first ?: 0,
+                    newPosition = it.second.first ?: 0,
                     nextPosition = score?.run {
                         Position(
                             uniqueId = UUID.fromString(this.value),
@@ -78,7 +80,6 @@ object LeaderboardManagerService
                     }
                 )
             }
-
 
     fun getUserRankWithScore(user: UUID, reference: Reference): CompletableFuture<Pair<Long?, Long?>> =
         CompletableFuture.supplyAsync {
