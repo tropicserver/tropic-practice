@@ -395,10 +395,12 @@ class GameQueue(
             queueId = queueId()
         )
 
+        val region = first.first().queueRegion
         GameQueueManager.prepareGameFor(
             map = map,
             expectation = expectation,
-            region = first.first().queueRegion,
+            // prefer NA servers if queuing globally
+            region = if (region == Region.Both) Region.NA else region,
             cleanup = {
                 for (queueEntry in first + second)
                 {
