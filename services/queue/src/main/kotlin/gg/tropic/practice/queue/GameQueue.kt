@@ -38,7 +38,7 @@ class GameQueue(
     }
 
     private var thread: Thread? = null
-    private var adjacentRankedThread: Thread? = null
+    private var periodicUpdateThread: Thread? = null
     private val metadataUpdateThread = Executors
         .newSingleThreadScheduledExecutor()
 
@@ -52,53 +52,56 @@ class GameQueue(
         {
             var requiresUpdates = false
 
-            if (RUN_RANGE_EXPANSION_UPDATES(entry.lastELORangeExpansion))
+            if (queueType == QueueType.Ranked)
             {
-                entry.leaderRangedELO.diffsBy = min(
-                    2_000, // TODO is 2000 going to be the max ELO?
-                    (entry.leaderRangedELO.diffsBy * 1.5).toInt()
-                )
-                entry.lastELORangeExpansion = System.currentTimeMillis()
-                requiresUpdates = true
-            }
-
-            val previousPingDiff = entry.leaderRangedPing.diffsBy
-            if (entry.maxPingDiff != -1)
-            {
-                if (entry.leaderRangedPing.diffsBy < entry.maxPingDiff)
+                if (RUN_RANGE_EXPANSION_UPDATES(entry.lastELORangeExpansion))
                 {
-                    if (RUN_RANGE_EXPANSION_UPDATES(entry.lastPingRangeExpansion))
+                    entry.leaderRangedELO.diffsBy = min(
+                        2_000, // TODO is 2000 going to be the max ELO?
+                        (entry.leaderRangedELO.diffsBy * 1.5).toInt()
+                    )
+                    entry.lastELORangeExpansion = System.currentTimeMillis()
+                    requiresUpdates = true
+                }
+
+                val previousPingDiff = entry.leaderRangedPing.diffsBy
+                if (entry.maxPingDiff != -1)
+                {
+                    if (entry.leaderRangedPing.diffsBy < entry.maxPingDiff)
                     {
-                        entry.leaderRangedPing.diffsBy = min(
-                            entry.maxPingDiff,
-                            (entry.leaderRangedPing.diffsBy * 1.5).toInt()
-                        )
-                        entry.lastPingRangeExpansion = System.currentTimeMillis()
-                        val differential = entry.leaderRangedPing.diffsBy - previousPingDiff
-                        entry.lastRecordedDifferential = differential
-
-                        requiresUpdates = true
-
-                        val pingRange = entry.leaderRangedPing.toIntRangeInclusive()
-                        DPSRedisShared.sendMessage(
-                            entry.players,
-                            listOf(
-                                "{secondary}You are matchmaking in an ping range of ${
-                                    "&a[${max(0, pingRange.first)} -> ${pingRange.last}]{secondary}"
-                                } &7(expanded by ±${
-                                    differential
-                                }). ${
-                                    if (entry.leaderRangedPing.diffsBy == entry.maxPingDiff) "&lThe range will no longer be expanded as it has reached its maximum of ±${entry.maxPingDiff}!" else ""
-                                }"
+                        if (RUN_RANGE_EXPANSION_UPDATES(entry.lastPingRangeExpansion))
+                        {
+                            entry.leaderRangedPing.diffsBy = min(
+                                entry.maxPingDiff,
+                                (entry.leaderRangedPing.diffsBy * 1.5).toInt()
                             )
-                        )
+                            entry.lastPingRangeExpansion = System.currentTimeMillis()
+                            val differential = entry.leaderRangedPing.diffsBy - previousPingDiff
+                            entry.lastRecordedDifferential = differential
+
+                            requiresUpdates = true
+
+                            val pingRange = entry.leaderRangedPing.toIntRangeInclusive()
+                            DPSRedisShared.sendMessage(
+                                entry.players,
+                                listOf(
+                                    "{secondary}You are matchmaking in an ping range of ${
+                                        "&a[${max(0, pingRange.first)} -> ${pingRange.last}]{secondary}"
+                                    } &7(expanded by ±${
+                                        differential
+                                    }). ${
+                                        if (entry.leaderRangedPing.diffsBy == entry.maxPingDiff) "&lThe range will no longer be expanded as it has reached its maximum of ±${entry.maxPingDiff}!" else ""
+                                    }"
+                                )
+                            )
+                        }
                     }
                 }
             }
 
             if (
                 entry.queueRegion != Region.Both &&
-                System.currentTimeMillis() - entry.joinQueueTimestamp >= 30_000L
+                System.currentTimeMillis() - entry.joinQueueTimestamp >= 10_000L
             )
             {
                 requiresUpdates = true
@@ -159,20 +162,17 @@ class GameQueue(
                 "[queue] Started queue iterator"
             )
 
-        if (queueType == QueueType.Ranked)
-        {
-            check(adjacentRankedThread == null)
-            adjacentRankedThread = thread(
-                isDaemon = true,
-                name = "queue-rangeexpander-${queueId()}",
-                block = ::expandRangeBlock
-            )
+        check(periodicUpdateThread == null)
+        periodicUpdateThread = thread(
+            isDaemon = true,
+            name = "queue-periodic-${queueId()}",
+            block = ::expandRangeBlock
+        )
 
-            Logger.getGlobal()
-                .info(
-                    "[queue] Started range expander"
-                )
-        }
+        Logger.getGlobal()
+            .info(
+                "[queue] Started adjacent periodic thread"
+            )
 
         metadataUpdateThread.scheduleAtFixedRate({
             with(DPSRedisShared.keyValueCache.sync()) {
@@ -232,10 +232,10 @@ class GameQueue(
         thread?.interrupt()
         thread = null
 
-        if (adjacentRankedThread != null)
+        if (periodicUpdateThread != null)
         {
-            adjacentRankedThread?.interrupt()
-            adjacentRankedThread = null
+            periodicUpdateThread?.interrupt()
+            periodicUpdateThread = null
         }
 
         metadataUpdateThread.shutdownNow()
