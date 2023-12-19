@@ -62,6 +62,29 @@ object LobbyAdminCommands : ScalaCommand()
         }
     }
 
+    @AssignPermission
+    @Subcommand("toggle-ranked-queue")
+    @Description("Enable or disable the ability to join ranked queues.")
+    fun onToggleRankedQueue(player: ScalaPlayer)
+    {
+        with(LobbyConfigurationService.cached()) {
+            rankedQueueEnabled = !rankedQueueEnabled
+            if (rankedQueueEnabled)
+            {
+                player.sendMessage(
+                    "${CC.GREEN}Players are now able to join ranked queues."
+                )
+            } else
+            {
+                player.sendMessage(
+                    "${CC.RED}Players are now unable to join ranked queues."
+                )
+            }
+
+            LobbyConfigurationService.sync(this)
+        }
+
+    }
 
     @AssignPermission
     @Subcommand("setspawn")

@@ -11,6 +11,7 @@ import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
 import gg.tropic.practice.PracticeLobby
+import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.menu.CasualQueueSelectSizeMenu
@@ -174,6 +175,12 @@ object LobbyHotbarService
                 it.onClick = context@{ player ->
                     val profile = PracticeProfileService.find(player)
                         ?: return@context
+
+                    if (!LobbyConfigurationService.cached().rankedQueueEnabled)
+                    {
+                        player.sendMessage("${CC.RED}Ranked queues are temporarily disabled. Please try again later.")
+                        return@context
+                    }
 
                     if (
                         !player.hasPermission("practice.bypass-ranked-queue-requirements")

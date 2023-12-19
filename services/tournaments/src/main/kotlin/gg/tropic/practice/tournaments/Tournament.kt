@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
  * @author GrowlyX
  * @since 12/17/2023
  */
-class Tournament(val config: TournamentConfig) : () -> Unit
+class Tournament(private val config: TournamentConfig) : () -> Unit
 {
     private var ticker: ScheduledFuture<*>? = null
     private val players = mutableSetOf<UUID>()

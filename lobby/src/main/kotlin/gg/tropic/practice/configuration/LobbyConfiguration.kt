@@ -16,5 +16,6 @@ data class LobbyConfiguration(
         "${CC.B_PRI}Welcome to Tropic Practice ${CC.GRAY}(beta)",
         "${CC.GRAY}We are currently in BETA! Report bugs in our Discord.",
         ""
-    )
+    ),
+    var rankedQueueEnabled: Boolean = true
 )
