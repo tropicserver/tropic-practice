@@ -41,7 +41,11 @@ object StatisticsCommand : ScalaCommand()
                 "Your profile has not loaded in properly, log out and try again."
             )
 
-        StatisticsMenu(profile, StatisticsMenu.StatisticMenuState.Casual).openMenu(player.bukkit())
+        StatisticsMenu(
+            profile,
+            StatisticsMenu.StatisticMenuState.Casual
+        ).openMenu(player.bukkit())
+
         return CompletableFuture.completedFuture(null)
     }
 }
