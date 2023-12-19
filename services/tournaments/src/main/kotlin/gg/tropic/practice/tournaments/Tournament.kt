@@ -45,7 +45,7 @@ class Tournament(val config: TournamentConfig) : () -> Unit
                     {
                         return@on transitionTo(
                             TournamentState.RoundStarting,
-                            SideEffect.InvokeStartOnMatchList
+                            SideEffect.DetermineNextMatchList
                         )
                     }
 
@@ -72,9 +72,13 @@ class Tournament(val config: TournamentConfig) : () -> Unit
         )
     }
 
-    override fun invoke()
+    fun join(team: TournamentTeam)
     {
 
     }
 
+    override fun invoke()
+    {
+
+    }
 }

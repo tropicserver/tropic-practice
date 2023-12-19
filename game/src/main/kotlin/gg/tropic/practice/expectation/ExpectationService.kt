@@ -8,6 +8,7 @@ import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.resetAttributes
 import me.lucko.helper.Events
+import me.lucko.helper.Schedulers
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -97,6 +98,25 @@ object ExpectationService
                 }
 
                 it.player.teleport(spawnLocation)
+
+                Schedulers
+                    .sync()
+                    .runRepeating({ task ->
+                        if (!it.player.isOnline)
+                        {
+                            task.closeAndReportException()
+                            return@runRepeating
+                        }
+
+                        if (it.player.world == spawnLocation.world)
+                        {
+                            task.closeAndReportException()
+                            return@runRepeating
+                        }
+
+                        it.player.teleport(spawnLocation)
+                    }, 1L, 5L)
+
                 it.player.resetAttributes()
 
                 if (it.player.uniqueId in game.expectedSpectators)
