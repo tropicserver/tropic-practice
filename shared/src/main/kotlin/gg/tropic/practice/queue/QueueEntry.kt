@@ -10,7 +10,7 @@ import java.util.UUID
 data class QueueEntry(
     val leader: UUID,
     val leaderPing: Int,
-    val queueRegion: Region,
+    var queueRegion: Region,
     val maxPingDiff: Int,
     val leaderRangedPing: MinMaxRangedNumber =
         MinMaxRangedNumber(
@@ -24,5 +24,6 @@ data class QueueEntry(
             med = leaderELO, diffsBy = 10
         ),
     var lastELORangeExpansion: Long = System.currentTimeMillis(),
-    val players: List<UUID>
+    val players: List<UUID>,
+    val joinQueueTimestamp: Long = System.currentTimeMillis()
 )

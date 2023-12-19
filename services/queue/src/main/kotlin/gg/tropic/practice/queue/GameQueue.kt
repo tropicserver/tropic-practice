@@ -9,6 +9,7 @@ import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.games.manager.GameManager
+import gg.tropic.practice.region.Region
 import net.evilblock.cubed.serializers.Serializers
 import java.util.*
 import java.util.concurrent.Executors
@@ -93,6 +94,24 @@ class GameQueue(
                         )
                     }
                 }
+            }
+
+            if (
+                entry.queueRegion != Region.Both &&
+                System.currentTimeMillis() - entry.joinQueueTimestamp >= 30_000L
+            )
+            {
+                requiresUpdates = true
+
+                val previousRegion = entry.queueRegion
+                entry.queueRegion = Region.Both
+
+                DPSRedisShared.sendMessage(
+                    entry.players,
+                    listOf(
+                        "{secondary}You are now matchmaking in the &aGlobal{secondary} queue as we could not find an opponent for you in the {primary}${previousRegion.name}{secondary} queue."
+                    )
+                )
             }
 
             if (requiresUpdates)
