@@ -32,7 +32,7 @@ object SwitchLobbyServerCommand : ScalaCommand()
 
         override fun getAllPagesButtons(player: Player): Map<Int, Button>
         {
-            val buttons = HashMap<Int, Button>()
+            val buttons = mutableMapOf<Int, Button>()
 
             getServersInGroup("miplobby")
                 .sortedBy {
@@ -83,13 +83,13 @@ object SwitchLobbyServerCommand : ScalaCommand()
         {
             if (gameServer.getWhitelisted()!!)
             {
-                player.sendMessage(CC.RED + "Server is whitelisted!")
+                player.sendMessage("${CC.RED}Server is whitelisted!")
                 return
             }
 
             if (gameServer.getPlayersCount()!! >= gameServer.getMaxPlayers()!!)
             {
-                player.sendMessage(CC.RED + "Server is full!")
+                player.sendMessage("${CC.RED}Server is full!")
                 return
             }
 
