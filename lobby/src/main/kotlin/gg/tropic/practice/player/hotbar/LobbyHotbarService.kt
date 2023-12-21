@@ -64,6 +64,29 @@ object LobbyHotbarService
             .bindWith(plugin)
 
         Events
+            .subscribe(PlayerJoinEvent::class.java)
+            .handler {
+                Tasks.delayed(10L) {
+                    if (rematches[it.player.uniqueId] == null)
+                    {
+                        return@delayed
+                    }
+
+                    if (!it.player.isOnline)
+                    {
+                        return@delayed
+                    }
+
+                    with(LobbyConfigurationService.cached()) {
+                        if (loginMOTD.isNotEmpty())
+                        {
+                            loginMOTD.forEach(it.player::sendMessage)
+                        }
+                    }
+                }
+            }
+
+        Events
             .subscribe(PlayerJoinWithExpectationEvent::class.java)
             .handler {
                 if (it.response.parameters.containsKey("rematch-user"))

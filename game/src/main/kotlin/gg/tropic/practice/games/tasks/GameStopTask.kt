@@ -206,7 +206,9 @@ class GameStopTask(
                                     "${CC.SEC}You need ${CC.PRI}${
                                         updates.requiredScore()
                                     }${CC.SEC} ELO to reach ${CC.GREEN}#${
-                                        Numbers.format(updates.nextPosition!!.position)
+                                        Numbers.format(
+                                            updates.nextPosition!!.position + 1
+                                        )
                                     } ${CC.GRAY}(${
                                         updates.nextPosition!!.uniqueId.username()
                                     })${CC.SEC}."

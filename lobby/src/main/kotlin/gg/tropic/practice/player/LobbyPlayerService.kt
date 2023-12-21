@@ -198,13 +198,6 @@ object LobbyPlayerService
                 }
 
                 CompletableFuture.runAsync(player::syncQueueState)
-
-                with(LobbyConfigurationService.cached()) {
-                    if (loginMOTD.isNotEmpty())
-                    {
-                        loginMOTD.forEach(event.player::sendMessage)
-                    }
-                }
             }
             .bindWith(plugin)
 

@@ -61,7 +61,7 @@ object LeaderboardManagerService
             .thenApplyAsync {
                 val nextPosition = (it.second.first ?: 0) - 1
                 val score = kv()
-                    .zrangeWithScores(
+                    .zrevrangeWithScores(
                         "tropicpractice:leaderboards:${reference.id()}:final",
                         nextPosition, nextPosition
                     )
