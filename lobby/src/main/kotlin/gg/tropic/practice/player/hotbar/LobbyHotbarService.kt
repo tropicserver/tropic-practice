@@ -67,7 +67,7 @@ object LobbyHotbarService
             .subscribe(PlayerJoinEvent::class.java)
             .handler {
                 Tasks.delayed(10L) {
-                    if (rematches[it.player.uniqueId] == null)
+                    if (rematches[it.player.uniqueId] != null)
                     {
                         return@delayed
                     }
