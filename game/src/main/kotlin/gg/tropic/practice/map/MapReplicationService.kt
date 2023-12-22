@@ -96,6 +96,7 @@ object MapReplicationService
                 expectation = expectation,
                 kit = kit
             )
+            newGame.buildResources()
 
             val scheduledMap = findScheduledReplication(expectation.identifier)
                 ?: return@handler

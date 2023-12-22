@@ -1,8 +1,5 @@
 package gg.tropic.practice.games
 
-import com.comphenix.protocol.PacketType
-import com.comphenix.protocol.ProtocolLibrary
-import com.comphenix.protocol.events.PacketContainer
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.agnostic.sync.ServerSync
@@ -15,26 +12,20 @@ import gg.tropic.game.extensions.cosmetics.killeffects.KillEffectCosmeticCategor
 import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.KillEffect
 import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
-import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.PracticeGame
-import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.games.models.GameReference
 import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.kit.feature.FeatureFlag
-import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
+import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
-import gg.tropic.practice.statistics.KitStatistics
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
-import me.lucko.helper.cooldown.Cooldown
-import me.lucko.helper.cooldown.CooldownMap
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants.HEART_SYMBOL
 import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.visibility.VisibilityHandler
-import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.block.BlockFace
@@ -50,7 +41,6 @@ import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.*
-import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.ceil
 
 /**
@@ -477,6 +467,48 @@ object GameService
             .bindWith(plugin)
 
         Events
+            .subscribe(PotionSplashEvent::class.java)
+            .handler {
+                val shooter = it.entity.shooter
+                if (shooter is Player)
+                {
+                    val game = byPlayer(shooter)
+                        ?: return@handler
+
+                    val counter = game.counter(shooter)
+                    val intensity = it.getIntensity(shooter)
+                    val effect = it.potion.effects
+                        .firstOrNull { effect -> effect.type == PotionEffectType.HEAL }
+                        ?: return@handler
+
+                    counter.increment("totalPots")
+                    counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")
+
+                    val amountHealed = (intensity * (4 shl effect.amplifier) + 0.5)
+                    if (shooter.health + amountHealed > shooter.maxHealth)
+                    {
+                        counter.increment(
+                            "wastedHeals",
+                            (shooter.health + amountHealed) - shooter.maxHealth
+                        )
+                    }
+                }
+            }
+
+        Events
+            .subscribe(EntityRegainHealthEvent::class.java)
+            .filter { it.entity is Player }
+            .handler {
+                val game = byPlayer(it.entity as Player)
+                    ?: return@handler
+
+                game.counter(it.entity as Player)
+                    .apply {
+                        increment("healthRegained", it.amount)
+                    }
+            }
+
+        Events
             .subscribe(PlayerQuitEvent::class.java)
             .handler {
                 val spectator = bySpectator(it.player.uniqueId)
@@ -633,6 +665,9 @@ object GameService
                 }
             }
 
+        configureMetadataProvidingEventHandler<PlayerBlockedHitEvent>("blockedHits")
+        configureMetadataProvidingEventHandler<PlayerCriticalHitEvent>("criticalHits")
+
         Events.subscribe(EntityDamageByEntityEvent::class.java)
             .filter {
                 it.entity is Player
@@ -709,6 +744,24 @@ object GameService
 
                     computed
                 }
+
+                game
+                    .counter(it.entity as Player)
+                    .apply {
+                        reset("combo")
+                    }
+
+                game
+                    .counter(it.damager as Player)
+                    .apply {
+                        increment("totalHits")
+                        increment("combo")
+
+                        if (valueOf("combo") > valueOf("highestCombo"))
+                        {
+                            update("highestCombo", valueOf("combo"))
+                        }
+                    }
 
                 team.playerCombos.remove(it.entity.uniqueId)
 
@@ -910,4 +963,19 @@ object GameService
             .find {
                 player in it.toPlayers() || player in it.expectedSpectators
             }
+
+    private inline fun <reified T : PlayerEvent> configureMetadataProvidingEventHandler(incrementing: String)
+    {
+        Events
+            .subscribe(T::class.java)
+            .handler {
+                val game = byPlayer(it.player)
+                    ?: return@handler
+
+                game.counter(it.player)
+                    .apply {
+                        increment(incrementing)
+                    }
+            }
+    }
 }

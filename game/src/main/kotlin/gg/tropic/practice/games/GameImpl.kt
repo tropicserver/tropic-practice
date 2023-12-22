@@ -4,6 +4,7 @@ import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
+import gg.tropic.practice.games.counter.Counter
 import gg.tropic.practice.games.loadout.CustomLoadout
 import gg.tropic.practice.games.loadout.DefaultLoadout
 import gg.tropic.practice.games.loadout.SelectedLoadout
@@ -83,11 +84,12 @@ class GameImpl(
         System.currentTimeMillis() - this.startTimestamp
 
     private val selectedKitLoadouts = mutableMapOf<UUID, SelectedLoadout>()
+    private val playerCounters = mutableMapOf<UUID, Counter>()
 
     fun takeSnapshot(player: Player)
     {
         this.snapshots[player.uniqueId] =
-            GameReportSnapshot(player)
+            GameReportSnapshot(player, counter(player))
     }
 
     fun takeSnapshotIfNotAlreadyExists(player: Player)
@@ -98,7 +100,7 @@ class GameImpl(
         }
 
         this.snapshots[player.uniqueId] =
-            GameReportSnapshot(player)
+            GameReportSnapshot(player, counter(player))
     }
 
     fun complete(winner: GameTeam?)
@@ -121,7 +123,8 @@ class GameImpl(
                 snapshots = snapshots,
                 duration = this.durationMillis(),
                 map = this.mapId,
-                status = GameReportStatus.ForcefullyClosed
+                status = GameReportStatus.ForcefullyClosed,
+                extraInformation = extraInformation
             )
         } else
         {
@@ -202,6 +205,26 @@ class GameImpl(
 
             (winners + opponents).forEach(PracticeProfile::save)
 
+            toBukkitPlayers()
+                .filterNotNull()
+                .forEach {
+                    counter(it).apply {
+                        extraInformation[it.uniqueId] = mapOf(
+                            "Hits" to mapOf(
+                                "Total" to valueOf("totalHits").toString(),
+                                "Max Combo" to valueOf("highestCombo").toString()
+                            ),
+                            "Other" to mapOf(
+                                "Criticals" to valueOf("criticalHits").toString(),
+                                "Blocked Hits" to valueOf("blockedHits").toString()
+                            ),
+                            "Player" to mapOf(
+                                "Regen" to valueOf("healthRegained").toString()
+                            )
+                        )
+                    }
+                }
+
             this.report = GameReport(
                 identifier = UUID.randomUUID(),
                 winners = winner.players,
@@ -209,7 +232,8 @@ class GameImpl(
                 snapshots = snapshots,
                 duration = this.durationMillis(),
                 map = this.mapId,
-                status = GameReportStatus.Completed
+                status = GameReportStatus.Completed,
+                extraInformation = extraInformation
             )
         }
 
@@ -582,5 +606,13 @@ class GameImpl(
         }
 
         loadoutSelection[player.uniqueId] = terminable
+    }
+
+    fun counter(player: Player) = playerCounters.getOrPut(player.uniqueId, ::Counter)
+    fun buildResources()
+    {
+        toPlayers().forEach {
+            playerCounters[it] = Counter()
+        }
     }
 }

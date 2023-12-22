@@ -58,23 +58,34 @@ class PlayerViewMenu(
         val viewerVersionIs17 = MinecraftProtocol.getPlayerVersion(player) == 5
 
         buttons[47] = ItemBuilder.of(XMaterial.GLISTERING_MELON_SLICE)
-            .name("${CC.SEC}Health: ${CC.GREEN}${"%.1f".format(snapshot.health.toFloat())} ${Constants.HEART_SYMBOL}")
+            .name("${CC.B_SEC}Health: ${CC.RED}${"%.1f".format(snapshot.health.toFloat())}${Constants.HEART_SYMBOL}")
             .toButton()
 
         buttons[48] = ItemBuilder.of(Material.COOKED_BEEF)
-            .name("${CC.SEC}Food Level: ${CC.GREEN}${"%.1f".format(snapshot.foodLevel.toFloat())}")
+            .name("${CC.B_SEC}Food Level: ${CC.GOLD}${"%.1f".format(snapshot.foodLevel.toFloat())}")
             .toButton()
 
         buttons[49] = if (snapshot.healthPotions > 0)
         {
             ItemBuilder.of(XMaterial.POTION)
                 .data(16421)
-                .name("${CC.SEC}Health Potions: ${CC.GREEN}${snapshot.healthPotions}")
+                .name("${CC.B_SEC}Health Potions: ${CC.PRI}${snapshot.healthPotions}")
+                .addToLore(
+                    "${CC.SEC}Total Used: ${CC.PRI}${snapshot.totalPotionsUsed}",
+                    "${CC.SEC}Missed: ${CC.PRI}${snapshot.missedPotions}",
+                    "${CC.SEC}Accuracy: ${CC.PRI}${
+                        "%.2f".format(
+                            if (snapshot.totalPotionsUsed == 0) 0.0 else ((snapshot.totalPotionsUsed - snapshot.missedPotions) / snapshot.missedPotions) * 100.0
+                        ) 
+                    }%",
+                    "",
+                    "${CC.SEC}Wasted Heal: ${CC.RED}${snapshot.wastedHeals}${Constants.HEART_SYMBOL}"
+                )
                 .toButton()
         } else if (snapshot.mushroomStews > 0)
         {
             ItemBuilder.of(XMaterial.MUSHROOM_STEW)
-                .name("${CC.SEC}Stews: ${CC.GREEN}${snapshot.mushroomStews}")
+                .name("${CC.B_SEC}Stews: ${CC.PRI}${snapshot.mushroomStews}")
                 .toButton()
         } else
         {
@@ -112,7 +123,7 @@ class PlayerViewMenu(
         buttons[51] = ItemBuilder
             .of(Material.PAPER)
             .name(
-                "${CC.B_PRI}Extra Information"
+                "${CC.B_PRI}Game Statistics"
             )
             .addToLore(
                 "${CC.WHITE}Duration: ${CC.PRI}${
@@ -131,10 +142,10 @@ class PlayerViewMenu(
                         continue
                     }
 
-                    addToLore("", "${CC.PRI}${information.key}")
+                    addToLore("", "${CC.PRI}${CC.UNDERLINE}${information.key}:")
                     for (entry in information.value)
                     {
-                        addToLore(" ${CC.WHITE}${entry.key}: ${CC.PRI}${entry.value}")
+                        addToLore("${CC.WHITE}${entry.key}: ${CC.PRI}${entry.value}")
                     }
                 }
             }

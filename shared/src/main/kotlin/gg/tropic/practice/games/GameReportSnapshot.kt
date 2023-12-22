@@ -1,15 +1,14 @@
 package gg.tropic.practice.games
 
-import com.cryptomorin.xseries.XMaterial
+import gg.tropic.practice.games.counter.Counter
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.bukkit.inventory.meta.PotionMeta
 
 /**
  * @author GrowlyX
  * @since 8/9/2022
  */
-class GameReportSnapshot(player: Player)
+class GameReportSnapshot(player: Player, counter: Counter)
 {
     val inventoryContents = player.inventory.contents
         .map { it to (it?.amount ?: 1) }
@@ -23,6 +22,12 @@ class GameReportSnapshot(player: Player)
             it.type == Material.POTION &&
                 it.data.data.toInt() == 16421
         }
+
+    val missedPotions = counter.valueOf("missedPots")
+    val wastedHeals = counter.valueOf("wastedHeals")
+
+    val hitPotions = counter.valueOf("hitPots").toInt()
+    val totalPotionsUsed = counter.valueOf("totalPots").toInt()
 
     val mushroomStews = player.inventory.contents
         .filterNotNull()

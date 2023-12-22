@@ -1,31 +1,48 @@
 package gg.tropic.practice.services
 
 import com.google.gson.reflect.TypeToken
+import com.mojang.authlib.GameProfile
+import gg.scala.basics.plugin.tablist.TabListService
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
 import gg.scala.commons.command.ScalaCommandManager
+import gg.scala.commons.tablist.TablistPopulator
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.Lemon
 import gg.scala.lemon.handler.PlayerHandler
 import gg.scala.lemon.util.QuickAccess
+import io.github.nosequel.tab.shared.entry.TabElement
+import io.github.nosequel.tab.shared.entry.TabEntry
+import io.github.nosequel.tab.shared.skin.SkinType
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
+import net.evilblock.cubed.util.nms.MinecraftReflection
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Bukkit
+import org.bukkit.ChatColor
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
  * @since 12/17/2023
  */
 @Service
-object MIPPlayerCache
+object MIPPlayerCache : TablistPopulator
 {
     private var playerIDs = setOf<String>()
 
-    data class Player(val username: String)
+    data class OnlinePracticePlayer(
+        val skinValue: String,
+        val skinSignature: String,
+        val ping: Int,
+        val rankWeight: Int,
+        val username: String,
+        val displayName: String
+    )
 
-    private var localModelCache = listOf<Player>()
+    private var localModelCache = listOf<OnlinePracticePlayer>()
 
     @Configure
     fun configure()
@@ -35,14 +52,17 @@ object MIPPlayerCache
         Schedulers
             .async()
             .runRepeating({ _ ->
-                val localModels = mutableListOf<Player>()
+                val localModels = mutableListOf<OnlinePracticePlayer>()
 
                 Bukkit.getOnlinePlayers()
                     .sortedByDescending {
                         QuickAccess.realRank(it).weight
                     }
                     .forEach {
-                        PlayerHandler
+                        val gameProfile = MinecraftReflection
+                            .getGameProfile(it) as GameProfile
+
+                        val lemonPlayer = PlayerHandler
                             .find(it.uniqueId)
                             ?: return@forEach
 
@@ -51,7 +71,41 @@ object MIPPlayerCache
                             return@forEach
                         }
 
-                        localModels += Player(it.name)
+                        val rank = QuickAccess.realRank(it)
+
+                        val strippedPrefix = ChatColor
+                            .stripColor(rank.prefix)
+
+                        val strippedSuffix = ChatColor
+                            .stripColor(rank.suffix)
+
+                        val prefix =
+                            (if (strippedPrefix.isNotEmpty())
+                                "${rank.prefix} " else "")
+
+                        val suffix = if (strippedSuffix.isNotEmpty())
+                            " ${rank.suffix}" else ""
+
+                        val composed = "$prefix${rank.color}${
+                            lemonPlayer.getColoredName()
+                        }$suffix"
+
+                        val textures = gameProfile.properties
+                            .get("textures").firstOrNull()
+
+                        val data = if (textures == null)
+                            SkinType.LIGHT_GRAY.skinData else arrayOf(
+                            textures.value, textures.signature
+                        )
+
+                        localModels += OnlinePracticePlayer(
+                            skinValue = data.first(),
+                            skinSignature = data[1],
+                            ping = MinecraftReflection.getPing(it),
+                            rankWeight = QuickAccess.realRank(it).weight,
+                            username = it.name,
+                            displayName = composed
+                        )
                     }
 
                 cache.sync().hset(
@@ -61,7 +115,7 @@ object MIPPlayerCache
                 )
             }, 0L, 3L)
 
-        val typeToken = object : TypeToken<List<Player>>()
+        val typeToken = object : TypeToken<List<OnlinePracticePlayer>>()
         {}.type
 
         Schedulers
@@ -74,13 +128,42 @@ object MIPPlayerCache
                             .filterKeys { k -> ServerContainer.getServer(k) != null }
                             .mapValues { v ->
                                 Serializers.gson
-                                    .fromJson<List<Player>>(v.value, typeToken)
+                                    .fromJson<List<OnlinePracticePlayer>>(v.value, typeToken)
                             }
                     }
 
                 localModelCache = mappings.values.flatten().toList()
                 playerIDs = localModelCache.map { it.username }.toSet()
             }, 0L, 5)
+    }
+
+    override fun displayPreProcessor(player: org.bukkit.entity.Player) =
+        CompletableFuture.completedFuture(true)!!
+
+    override fun populate(player: org.bukkit.entity.Player, element: TabElement)
+    {
+        element.header = LegacyComponentSerializer
+            .legacySection()
+            .serialize(TabListService.cached().header)
+        element.footer = LegacyComponentSerializer
+            .legacySection()
+            .serialize(TabListService.cached().footer)
+
+        localModelCache
+            .sortedByDescending(OnlinePracticePlayer::rankWeight)
+            .take(80)
+            .forEachIndexed { index, other ->
+                val entry = TabEntry(
+                    index / 20, index % 20,
+                    other.displayName,
+                    other.ping, arrayOf(
+                        other.skinValue,
+                        other.skinSignature
+                    )
+                )
+
+                element.add(entry)
+            }
     }
 
     @CommandManagerCustomizer
