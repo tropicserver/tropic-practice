@@ -30,10 +30,7 @@ import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import me.lucko.helper.utils.Players
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.FancyMessage
-import net.evilblock.cubed.util.bukkit.ItemBuilder
-import net.evilblock.cubed.util.bukkit.ItemUtils
-import net.evilblock.cubed.util.bukkit.Tasks
+import net.evilblock.cubed.util.bukkit.*
 import net.kyori.adventure.audience.Audience
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.apache.commons.lang3.time.DurationFormatUtils
@@ -211,15 +208,17 @@ class GameImpl(
                     counter(it).apply {
                         extraInformation[it.uniqueId] = mapOf(
                             "Hits" to mapOf(
-                                "Total" to valueOf("totalHits").toString(),
-                                "Max Combo" to valueOf("highestCombo").toString()
+                                "Total" to valueOf("totalHits").toInt().toString(),
+                                "Max Combo" to valueOf("highestCombo").toInt().toString()
                             ),
                             "Other" to mapOf(
-                                "Criticals" to valueOf("criticalHits").toString(),
-                                "Blocked Hits" to valueOf("blockedHits").toString()
+                                "Criticals" to valueOf("criticalHits").toInt().toString(),
+                                "Blocked Hits" to valueOf("blockedHits").toInt().toString()
                             ),
-                            "Player" to mapOf(
-                                "Regen" to valueOf("healthRegained").toString()
+                            "Health Regen" to mapOf(
+                                "Regen" to "%.2f${Constants.HEART_SYMBOL}".format(
+                                    valueOf("healthRegained").toFloat()
+                                )
                             )
                         )
                     }

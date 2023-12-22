@@ -502,10 +502,13 @@ object GameService
                 val game = byPlayer(it.entity as Player)
                     ?: return@handler
 
-                game.counter(it.entity as Player)
-                    .apply {
-                        increment("healthRegained", it.amount)
-                    }
+                if (it.regainReason == EntityRegainHealthEvent.RegainReason.REGEN)
+                {
+                    game.counter(it.entity as Player)
+                        .apply {
+                            increment("healthRegained", it.amount)
+                        }
+                }
             }
 
         Events

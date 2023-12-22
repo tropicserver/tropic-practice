@@ -19,11 +19,10 @@ class GameReportSnapshot(player: Player, counter: Counter)
     val healthPotions = player.inventory.contents
         .filterNotNull()
         .count {
-            it.type == Material.POTION &&
-                it.data.data.toInt() == 16421
+            it.type == Material.POTION && it.durability.toInt() == 16421
         }
 
-    val missedPotions = counter.valueOf("missedPots")
+    val missedPotions = counter.valueOf("missedPots").toInt()
     val wastedHeals = counter.valueOf("wastedHeals")
 
     val hitPotions = counter.valueOf("hitPots").toInt()

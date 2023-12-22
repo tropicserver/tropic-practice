@@ -18,6 +18,7 @@ import net.evilblock.cubed.util.nms.MinecraftReflection
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemFlag
 import java.util.*
 
 /**
@@ -58,29 +59,35 @@ class PlayerViewMenu(
         val viewerVersionIs17 = MinecraftProtocol.getPlayerVersion(player) == 5
 
         buttons[47] = ItemBuilder.of(XMaterial.GLISTERING_MELON_SLICE)
-            .name("${CC.B_SEC}Health: ${CC.RED}${"%.1f".format(snapshot.health.toFloat())}${Constants.HEART_SYMBOL}")
+            .name("${CC.B_PRI}Health: ${CC.RED}${"%.1f".format(snapshot.health.toFloat())}${Constants.HEART_SYMBOL}")
             .toButton()
 
         buttons[48] = ItemBuilder.of(Material.COOKED_BEEF)
-            .name("${CC.B_SEC}Food Level: ${CC.GOLD}${"%.1f".format(snapshot.foodLevel.toFloat())}")
+            .name("${CC.B_PRI}Food Level: ${CC.GOLD}${"%.1f".format(snapshot.foodLevel.toFloat())}")
             .toButton()
 
         buttons[49] = if (snapshot.healthPotions > 0)
         {
             ItemBuilder.of(XMaterial.POTION)
                 .data(16421)
-                .name("${CC.B_SEC}Health Potions: ${CC.PRI}${snapshot.healthPotions}")
+                .name("${CC.B_PRI}Health Potions: ${CC.SEC}${snapshot.healthPotions}")
                 .addToLore(
                     "${CC.SEC}Total Used: ${CC.PRI}${snapshot.totalPotionsUsed}",
+                    "",
+                    "${CC.PRI}${CC.UNDERLINE}Stats:",
+                    "${CC.SEC}Hit: ${CC.PRI}${snapshot.hitPotions}",
                     "${CC.SEC}Missed: ${CC.PRI}${snapshot.missedPotions}",
                     "${CC.SEC}Accuracy: ${CC.PRI}${
                         "%.2f".format(
-                            if (snapshot.totalPotionsUsed == 0) 0.0 else ((snapshot.totalPotionsUsed - snapshot.missedPotions) / snapshot.missedPotions) * 100.0
+                            if (snapshot.totalPotionsUsed == 0) 0.0 else ((snapshot.hitPotions / snapshot.totalPotionsUsed.toDouble()) * 100.0)
                         ) 
                     }%",
                     "",
-                    "${CC.SEC}Wasted Heal: ${CC.RED}${snapshot.wastedHeals}${Constants.HEART_SYMBOL}"
+                    "${CC.SEC}Wasted Heal: ${CC.RED}${
+                        "%.2f".format(snapshot.wastedHeals.toFloat())
+                    }${Constants.HEART_SYMBOL}"
                 )
+                .addFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ATTRIBUTES)
                 .toButton()
         } else if (snapshot.mushroomStews > 0)
         {
@@ -114,7 +121,7 @@ class PlayerViewMenu(
                     }${
                         if (potionEffect.amplifier > 0) " ${RomanNumerals.toRoman(potionEffect.amplifier)}" else ""
                     } ${CC.GRAY}(${
-                        if (potionEffect.duration > 10000) "**:**" else TimeUtil.formatIntoMMSS(potionEffect.duration)
+                        if (potionEffect.duration > 5000) "**:**" else TimeUtil.formatIntoMMSS(potionEffect.duration)
                     })")
                 }
             }
