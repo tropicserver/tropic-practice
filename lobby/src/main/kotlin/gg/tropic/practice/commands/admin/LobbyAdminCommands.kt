@@ -7,15 +7,23 @@ import gg.scala.commons.acf.annotation.Default
 import gg.scala.commons.acf.annotation.Description
 import gg.scala.commons.acf.annotation.HelpCommand
 import gg.scala.commons.acf.annotation.Subcommand
+import gg.scala.commons.agnostic.sync.ServerSync
+import gg.scala.commons.agnostic.sync.server.ServerContainer
+import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.scala.flavor.inject.Inject
+import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.map.metadata.anonymous.toPosition
 import net.evilblock.cubed.menu.menus.TextEditorMenu
+import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
 import org.bukkit.entity.Player
+import java.io.File
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -26,12 +34,37 @@ import org.bukkit.entity.Player
 @CommandPermission("practice.lobby.commands.admin")
 object LobbyAdminCommands : ScalaCommand()
 {
+    @Inject
+    lateinit var plugin: PracticeLobby
+
     @Default
     @HelpCommand
     fun onHelp(help: CommandHelp)
     {
         help.showHelp()
     }
+
+    @AssignPermission
+    @Subcommand("export-player-list")
+    @Description("Export a list of MIP players.")
+    fun onExportPlayerList(player: ScalaPlayer) = CompletableFuture
+        .supplyAsync {
+            ServerContainer
+                .getServersInGroupCasted<GameServer>("mip")
+                .flatMap {
+                    it.getPlayers()!!
+                }
+        }
+        .thenAccept {
+            val export = File(plugin.dataFolder, "player-list.json")
+            if (export.exists())
+            {
+                export.delete()
+            }
+
+            export.writeText(Serializers.gson.toJson(it))
+            player.sendMessage("${CC.GREEN}Exported player list!")
+        }
 
     @AssignPermission
     @Subcommand("login-motd")
