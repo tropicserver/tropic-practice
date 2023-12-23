@@ -131,7 +131,7 @@ object GameService
                 val killEffectCosmetic = killerCosmetic as KillEffect
                 killEffectCosmetic.applyTo(
                     game.toBukkitPlayers().filterNotNull(),
-                    target
+                    player, target
                 )
 
                 val configuration = killEffectCosmetic.serveConfiguration(player)
