@@ -167,65 +167,60 @@ class PlayerViewMenu(
         val indexes = gameReport.winners + gameReport.losers
         val index = indexes.indexOf(reportOf)
 
-        if (index + 1 < indexes.size)
-        {
-            val nextPlayer = indexes[index + 1]
-            val snapshot = gameReport.snapshots[nextPlayer]!!
+        var nextPlayer = indexes.getOrNull(index + 1)
+            ?: indexes.first()
+        var snapshot = gameReport.snapshots[nextPlayer]!!
 
-            buttons[53] = ItemBuilder
-                .let {
-                    if (viewerVersionIs17)
-                    {
-                        return@let it.of(Material.PAPER)
-                    }
-
-                    return@let it.copyOf(
-                        object : TexturedHeadButton(Constants.WOOD_ARROW_RIGHT_TEXTURE)
-                        {}.getButtonItem(player)
-                    )
+        buttons[53] = ItemBuilder
+            .let {
+                if (viewerVersionIs17)
+                {
+                    return@let it.of(Material.PAPER)
                 }
-                .name(
-                    "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
-                )
-                .addToLore(
-                    "",
-                    "${CC.SEC}Click to switch inventories!"
-                )
-                .toButton { _, _ ->
-                    Button.playNeutral(player)
-                    PlayerViewMenu(gameReport, nextPlayer, snapshot, originalMenu).openMenu(player)
-                }
-        }
 
-        if (index > 0)
-        {
-            val nextPlayer = indexes[index - 1]
-            val snapshot = gameReport.snapshots[nextPlayer]!!
-
-            buttons[45] = ItemBuilder
-                .let {
-                    if (viewerVersionIs17)
-                    {
-                        return@let it.of(Material.PAPER)
-                    }
-
-                    return@let it.copyOf(
-                        object : TexturedHeadButton(Constants.WOOD_ARROW_LEFT_TEXTURE)
-                        {}.getButtonItem(player)
-                    )
-                }
-                .name(
-                    "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
+                return@let it.copyOf(
+                    object : TexturedHeadButton(Constants.WOOD_ARROW_RIGHT_TEXTURE)
+                    {}.getButtonItem(player)
                 )
-                .addToLore(
-                    "",
-                    "${CC.SEC}Click to switch inventories!"
-                )
-                .toButton { _, _ ->
-                    Button.playNeutral(player)
-                    PlayerViewMenu(gameReport, nextPlayer, snapshot, originalMenu).openMenu(player)
+            }
+            .name(
+                "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
+            )
+            .addToLore(
+                "",
+                "${CC.SEC}Click to switch inventories!"
+            )
+            .toButton { _, _ ->
+                Button.playNeutral(player)
+                PlayerViewMenu(gameReport, nextPlayer, snapshot, originalMenu).openMenu(player)
+            }
+
+        nextPlayer = indexes.getOrNull(index - 1) ?: indexes.last()
+        snapshot = gameReport.snapshots[nextPlayer]!!
+
+        buttons[45] = ItemBuilder
+            .let {
+                if (viewerVersionIs17)
+                {
+                    return@let it.of(Material.PAPER)
                 }
-        }
+
+                return@let it.copyOf(
+                    object : TexturedHeadButton(Constants.WOOD_ARROW_LEFT_TEXTURE)
+                    {}.getButtonItem(player)
+                )
+            }
+            .name(
+                "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
+            )
+            .addToLore(
+                "",
+                "${CC.SEC}Click to switch inventories!"
+            )
+            .toButton { _, _ ->
+                Button.playNeutral(player)
+                PlayerViewMenu(gameReport, nextPlayer, snapshot, originalMenu).openMenu(player)
+            }
 
         snapshot.inventoryContents.withIndex()
             .forEach {
