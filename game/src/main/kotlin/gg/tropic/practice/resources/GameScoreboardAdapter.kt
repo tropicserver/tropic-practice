@@ -19,7 +19,7 @@ import java.util.*
  * @since 8/5/2022
  */
 @ScoreboardAdapterRegister
-object DuelsScoreboardImpl : ScoreboardAdapter()
+object GameScoreboardAdapter : ScoreboardAdapter()
 {
     override fun getLines(
         board: LinkedList<String>, player: Player
@@ -275,9 +275,7 @@ object DuelsScoreboardImpl : ScoreboardAdapter()
         }
 
         board += ""
-
-        // apparently this works?
-        board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY
+        board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
     }
 
     override fun getTitle(player: Player) =

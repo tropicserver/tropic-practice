@@ -91,9 +91,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             }
 
         board += ""
-
-        // apparently this works?
-        board += CC.GRAY + LemonConstants.WEB_LINK + "          "  + CC.GRAY + "      "  + CC.GRAY
+        board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
     }
 
     override fun getTitle(player: Player) =
