@@ -147,7 +147,7 @@ object KitCommands : ScalaCommand()
     @Description("Edit a kit's description.")
     fun onDescription(player: ScalaPlayer, kit: Kit, description: String)
     {
-        kit.description = description
+        kit.description = if (description == "none") "" else description
 
         with(KitService.cached()) {
             KitService.cached().kits[kit.id] = kit
@@ -156,7 +156,7 @@ object KitCommands : ScalaCommand()
 
         player.sendMessage(
             "${CC.GREEN}You have set the description for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN} to:",
-            description
+            if (description == "none") "${CC.RED}None!" else description
         )
     }
 
