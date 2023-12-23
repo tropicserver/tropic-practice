@@ -100,14 +100,14 @@ class GameQueue(
             }
 
             if (
-                entry.queueRegion != Region.Both &&
+                entry.preferredQueueRegion != Region.Both &&
                 System.currentTimeMillis() - entry.joinQueueTimestamp >= 10_000L
             )
             {
                 requiresUpdates = true
 
-                val previousRegion = entry.queueRegion
-                entry.queueRegion = Region.Both
+                val previousRegion = entry.preferredQueueRegion
+                entry.preferredQueueRegion = Region.Both
 
                 DPSRedisShared.sendMessage(
                     entry.players,
@@ -285,7 +285,8 @@ class GameQueue(
                             entry != otherEntry &&
                                 doesELOIntersect &&
                                 doesPingIntersect &&
-                                entry.queueRegion == otherEntry.queueRegion
+                                ((entry.queueRegion == otherEntry.queueRegion) ||
+                                    (entry.preferredQueueRegion == otherEntry.preferredQueueRegion))
                         }
 
                     otherEntriesMatchingEntry + entry
@@ -308,7 +309,8 @@ class GameQueue(
                                     )
 
                             entry != otherEntry &&
-                                entry.queueRegion == otherEntry.queueRegion &&
+                                ((entry.queueRegion == otherEntry.queueRegion) ||
+                                    (entry.preferredQueueRegion == otherEntry.preferredQueueRegion)) &&
                                 doesPingIntersect
                         }
 
