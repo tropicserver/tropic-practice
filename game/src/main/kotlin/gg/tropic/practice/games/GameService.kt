@@ -25,6 +25,7 @@ import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants.HEART_SYMBOL
 import net.evilblock.cubed.util.bukkit.EventUtils
+import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.visibility.VisibilityHandler
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -554,6 +555,29 @@ object GameService
 
                 spectator.expectedSpectators -= it.player.uniqueId
             }
+
+        Schedulers
+            .async()
+            .runRepeating({ _ ->
+                games.values.forEach {
+                    if (it.state != GameState.Playing)
+                    {
+                        return@runRepeating
+                    }
+
+                    if (it.toBukkitPlayers().all { player -> player == null })
+                    {
+                        Tasks.sync {
+                            kotlin.runCatching {
+                                it.complete(null)
+                            }.onFailure(Throwable::printStackTrace)
+
+                        }
+
+
+                    }
+                }
+            }, 0L, 20L)
 
         Events
             .subscribe(PlayerQuitEvent::class.java)

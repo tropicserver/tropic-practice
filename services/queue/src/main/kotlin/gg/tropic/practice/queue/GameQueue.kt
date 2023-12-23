@@ -321,20 +321,6 @@ class GameQueue(
                 }
         }
 
-        for ((index, groupedQueueEntry) in groupedQueueEntries.withIndex())
-        {
-            println("[debug] [$index] New group with ${groupedQueueEntry.size}")
-            for (queueEntry in groupedQueueEntry)
-            {
-                val pingRange = queueEntry.leaderRangedPing.toIntRangeInclusive()
-                val eloRange = queueEntry.leaderRangedELO.toIntRangeInclusive()
-                println("[debug]     - ${queueEntry.leader}")
-                println("[debug]       | ping range: [${pingRange.first} -> ${pingRange.last}]")
-                println("[debug]       | ELO range: [${eloRange.first} -> ${eloRange.last}]")
-                println("[debug]       | region: [${groupedQueueEntry.first().queueRegion} -> ${groupedQueueEntry.last().queueRegion}]")
-            }
-        }
-
         if (groupedQueueEntries.isEmpty())
         {
             Thread.sleep(200)

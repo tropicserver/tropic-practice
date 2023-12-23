@@ -23,6 +23,5 @@ data class Counter(
         mappings.compute(id) { _, value -> (value ?: 0.0) + amount }
     }
 
-
     fun valueOf(id: String) = mappings.getOrPut(id) { 0.0 }
 }
