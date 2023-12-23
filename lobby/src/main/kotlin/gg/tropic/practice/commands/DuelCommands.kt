@@ -47,6 +47,8 @@ object DuelCommands : ScalaCommand()
         ).publish(
             channel = "practice:queue"
         )
+
+        player.sendMessage("${CC.GREEN}Attempting to accept the duel...")
     }
 
     @CommandCompletion("@players")
