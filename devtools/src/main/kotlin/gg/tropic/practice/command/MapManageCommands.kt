@@ -92,7 +92,7 @@ object MapManageCommands : ScalaCommand()
                                     .buildMetadataFor(bounds, devToolsMap)
 
                                 var success = false
-                                if (metadata.metadata.filterIsInstance<MapSpawnMetadata>().isNotEmpty())
+                                if (metadata.metadata.filterIsInstance<MapSpawnMetadata>().size >= 2)
                                 {
                                     sendMessage("${CC.B_GRAY}(!)${CC.GRAY} Created a metadata copy! We're now going to build the map data model...")
 
