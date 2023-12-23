@@ -134,18 +134,12 @@ object GameQueueManager
          * their personal queue status. If they, for some reason, LEAVE the queue at this time, then FUCK ME!
          */
         val serverStatuses = ReplicationManager.allServerStatuses()
-
-        // We're associating the server statuses by each server instead
-        // of the map id which it is presented as.
         val serverToReplicationMappings = serverStatuses.values
             .flatMap {
                 it.replications.values.flatten()
             }
-            .associateBy {
-                it.server
-            }
 
-        val availableReplication = serverToReplicationMappings.values
+        val availableReplication = serverToReplicationMappings
             .firstOrNull {
                 !it.inUse && it.associatedMapName == map.name &&
                     // ensure server of replication is in the same region
