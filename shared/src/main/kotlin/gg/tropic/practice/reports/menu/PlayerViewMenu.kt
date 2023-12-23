@@ -13,6 +13,7 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
+import net.evilblock.cubed.util.math.Numbers
 import net.evilblock.cubed.util.nms.MinecraftProtocol
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import net.evilblock.cubed.util.time.TimeUtil
@@ -59,18 +60,21 @@ class PlayerViewMenu(
         val viewerVersionIs17 = MinecraftProtocol.getPlayerVersion(player) == 5
 
         buttons[47] = ItemBuilder.of(XMaterial.GLISTERING_MELON_SLICE)
-            .name("${CC.B_PRI}Health: ${CC.RED}${"%.1f".format(snapshot.health.toFloat())}${Constants.HEART_SYMBOL}")
+            .name("${CC.B_SEC}Health: ${CC.RED}${"%.1f".format(snapshot.health.toFloat())}${Constants.HEART_SYMBOL}")
+            .amount(snapshot.foodLevel)
             .toButton()
 
         buttons[48] = ItemBuilder.of(Material.COOKED_BEEF)
-            .name("${CC.B_PRI}Food Level: ${CC.GOLD}${"%.1f".format(snapshot.foodLevel.toFloat())}")
+            .name("${CC.B_SEC}Food Level: ${CC.GOLD}${"%.1f".format(snapshot.foodLevel.toFloat())}")
+            .amount(snapshot.foodLevel)
             .toButton()
 
-        buttons[49] = if (snapshot.healthPotions > 0)
+        buttons[49] = if (snapshot.containsHealthPotions)
         {
             ItemBuilder.of(XMaterial.POTION)
                 .data(16421)
-                .name("${CC.B_PRI}Health Potions: ${CC.SEC}${snapshot.healthPotions}")
+                .name("${CC.B_SEC}Health Potions: ${CC.PRI}${Numbers.format(snapshot.healthPotions)}")
+                .amount(minOf(snapshot.healthPotions, 64))
                 .addToLore(
                     "${CC.SEC}Total Used: ${CC.PRI}${snapshot.totalPotionsUsed}",
                     "",
@@ -89,10 +93,11 @@ class PlayerViewMenu(
                 )
                 .addFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_ATTRIBUTES)
                 .toButton()
-        } else if (snapshot.mushroomStews > 0)
+        } else if (snapshot.containsMushroomStews)
         {
             ItemBuilder.of(XMaterial.MUSHROOM_STEW)
                 .name("${CC.B_SEC}Stews: ${CC.PRI}${snapshot.mushroomStews}")
+                .amount(minOf(snapshot.mushroomStews, 64))
                 .toButton()
         } else
         {
@@ -100,7 +105,8 @@ class PlayerViewMenu(
         }
 
         buttons[50] = ItemBuilder.of(XMaterial.BREWING_STAND)
-            .name("${CC.B_PRI}Potion Effects")
+            .name("${CC.B_SEC}Potion Effects: ${CC.PRI}${Numbers.format(snapshot.potionEffects.size)}")
+            .amount(minOf(snapshot.potionEffects.size, 64))
             .apply {
                 if (snapshot.potionEffects.isEmpty())
                 {
@@ -130,10 +136,10 @@ class PlayerViewMenu(
         buttons[51] = ItemBuilder
             .of(Material.PAPER)
             .name(
-                "${CC.B_PRI}Game Statistics"
+                "${CC.B_SEC}Game Statistics"
             )
             .addToLore(
-                "${CC.WHITE}Duration: ${CC.PRI}${
+                "${CC.SEC}Duration: ${CC.PRI}${
                     TimeUtil.formatIntoMMSS((gameReport.duration / 1000).toInt())
                 }"
             )
@@ -145,14 +151,14 @@ class PlayerViewMenu(
                 {
                     if (information.value.size == 1)
                     {
-                        addToLore("${CC.WHITE}${information.key}: ${CC.PRI}${information.value.values.first()}")
+                        addToLore("${CC.SEC}${information.key}: ${CC.PRI}${information.value.values.first()}")
                         continue
                     }
 
                     addToLore("", "${CC.PRI}${CC.UNDERLINE}${information.key}:")
                     for (entry in information.value)
                     {
-                        addToLore("${CC.WHITE}${entry.key}: ${CC.PRI}${entry.value}")
+                        addToLore("${CC.SEC}${entry.key}: ${CC.PRI}${entry.value}")
                     }
                 }
             }

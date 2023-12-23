@@ -86,7 +86,7 @@ class GameImpl(
     fun takeSnapshot(player: Player)
     {
         this.snapshots[player.uniqueId] =
-            GameReportSnapshot(player, counter(player))
+            GameReportSnapshot(player, counter(player), kit)
     }
 
     fun takeSnapshotIfNotAlreadyExists(player: Player)
@@ -97,7 +97,7 @@ class GameImpl(
         }
 
         this.snapshots[player.uniqueId] =
-            GameReportSnapshot(player, counter(player))
+            GameReportSnapshot(player, counter(player), kit)
     }
 
     fun complete(winner: GameTeam?)
