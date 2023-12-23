@@ -135,10 +135,16 @@ object GameService
                 )
 
                 val configuration = killEffectCosmetic.serveConfiguration(player)
-                if (configuration.flightEnabled)
+                if (configuration.flight != false)
                 {
                     player.allowFlight = true
                     player.isFlying = true
+                }
+
+                if (configuration.clearInventory != false)
+                {
+                    player.inventory.clear()
+                    player.updateInventory()
                 }
             }
         }

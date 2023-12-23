@@ -12,6 +12,6 @@ dependencies {
     compileOnly("com.grinderwolf:slimeworldmanager-plugin:2.2.1")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
 
-    compileOnly("gg.tropic.game.extensions:tropic-core-game-extensions:1.2.5")
+    compileOnly("gg.tropic.game.extensions:tropic-core-game-extensions:1.2.6")
     compileOnly("gg.tropic.spa.plugin:tropic-spa-plugin:1.1.1")
 }
