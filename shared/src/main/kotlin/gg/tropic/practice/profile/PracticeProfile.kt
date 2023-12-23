@@ -18,7 +18,7 @@ data class PracticeProfile(
     override val identifier: UUID
 ) : IDataStoreObject
 {
-    val globalStatistics = GlobalStatistics()
+    var globalStatistics = GlobalStatistics()
     val casualStatistics = ConcurrentHashMap<
         String,
         KitStatistics
