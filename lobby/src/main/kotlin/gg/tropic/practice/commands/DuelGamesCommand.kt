@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture
  * @since 8/5/2022
  */
 @AutoRegister
-@CommandAlias("games|matchhistory")
+@CommandAlias("games|matchhistory|mh|matchhist")
 object DuelGamesCommand : ScalaCommand()
 {
     @Default
