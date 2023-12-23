@@ -118,6 +118,49 @@ object GameService
             player.addPotionEffect(effect)
         }
 
+        fun runDeathEffectsFor(player: Player, target: Player, game: GameImpl)
+        {
+            val killerCosmetic = CosmeticRegistry
+                .getSingleEquipped(
+                    KillEffectCosmeticCategory,
+                    player
+                )
+
+            if (killerCosmetic != null)
+            {
+                val killEffectCosmetic = killerCosmetic as KillEffect
+                killEffectCosmetic.applyTo(
+                    game.toBukkitPlayers().filterNotNull(),
+                    target
+                )
+
+                val configuration = killEffectCosmetic.serveConfiguration(player)
+                if (configuration.flightEnabled)
+                {
+                    player.allowFlight = true
+                    player.isFlying = true
+                }
+            }
+        }
+
+        fun getMessageBundlePhrase(player: Player): String
+        {
+            val bundle = CosmeticRegistry
+                .findRelatedTo(KillMessageBundleCosmeticCategory)
+                .filter { like ->
+                    like.equipped(player)
+                }
+                .filterIsInstance<MessageBundle>()
+                .flatMap { bundle -> bundle.phrases }
+
+            if (bundle.isEmpty())
+            {
+                return "slain"
+            }
+
+            return "${CC.B_WHITE}${bundle.random()}${CC.GRAY}"
+        }
+
         Events.subscribe(ProjectileLaunchEvent::class.java)
             .handler {
                 val fishingHook = it.entity
@@ -247,9 +290,30 @@ object GameService
                 {
                     fun completeGameArbitraryKiller()
                     {
-                        game.sendMessage(
-                            "${CC.RED}${it.player.name}${CC.GRAY} was killed!"
-                        )
+                        val previousDamager = it.player.lastDamageCause
+                        if (previousDamager is EntityDamageByEntityEvent)
+                        {
+                            if (previousDamager.damager is Player)
+                            {
+                                runDeathEffectsFor(
+                                    previousDamager.damager as Player,
+                                    it.player, game
+                                )
+
+                                game.sendMessage(
+                                    "${CC.RED}${it.player.name}${CC.GRAY} was ${
+                                        "${
+                                            getMessageBundlePhrase(previousDamager.damager as Player)
+                                        } by ${CC.GREEN}${previousDamager.damager.name}${CC.GRAY}"
+                                    }!"
+                                )
+                            }
+                        } else
+                        {
+                            game.sendMessage(
+                                "${CC.RED}${it.player.name}${CC.GRAY} was killed!"
+                            )
+                        }
 
                         game.complete(
                             game.getOpponent(it.player)
@@ -336,41 +400,6 @@ object GameService
                 }
             }
             .bindWith(plugin)
-
-        fun getMessageBundlePhrase(player: Player): String
-        {
-            val bundle = CosmeticRegistry
-                .findRelatedTo(KillMessageBundleCosmeticCategory)
-                .filter { like ->
-                    like.equipped(player)
-                }
-                .filterIsInstance<MessageBundle>()
-                .flatMap { bundle -> bundle.phrases }
-
-            if (bundle.isEmpty())
-            {
-                return "slain"
-            }
-
-            return "${CC.B_WHITE}${bundle.random()}${CC.GRAY}"
-        }
-
-        fun runDeathEffectsFor(player: Player, target: Player, game: GameImpl)
-        {
-            val killerCosmetic = CosmeticRegistry
-                .getSingleEquipped(
-                    KillEffectCosmeticCategory,
-                    player
-                )
-
-            if (killerCosmetic != null)
-            {
-                (killerCosmetic as KillEffect).applyTo(
-                    game.toBukkitPlayers().filterNotNull(),
-                    target
-                )
-            }
-        }
 
         Events.subscribe(PlayerDeathEvent::class.java)
             .handler {
