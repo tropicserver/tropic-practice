@@ -36,6 +36,7 @@ object MapCommands : ScalaCommand()
     }
 
     @Subcommand("info")
+    @CommandCompletion("@maps")
     @Description("View information about a map")
     fun onInfo(player: ScalaPlayer, map: Map)
     {
@@ -61,6 +62,7 @@ object MapCommands : ScalaCommand()
     }
 
     @Subcommand("seticon")
+    @CommandCompletion("@maps")
     @Description("Enter the icon that you want a map to have.")
     fun onSetIcon(player: ScalaPlayer, map: Map)
     {
@@ -86,6 +88,7 @@ object MapCommands : ScalaCommand()
     }
 
     @Subcommand("setdisplayname")
+    @CommandCompletion("@maps *")
     @Description("Update a map's display name.")
     fun onDisplayNameChange(player: ScalaPlayer, map: Map, name: String)
     {
@@ -102,6 +105,7 @@ object MapCommands : ScalaCommand()
     }
 
     @Subcommand("delete")
+    @CommandCompletion("@maps")
     @Description("Deletes a map based on the input given.")
     fun onDelete(player: ScalaPlayer, mapName: String): CompletableFuture<Void>
     {
@@ -137,6 +141,7 @@ object MapCommands : ScalaCommand()
 
     @AssignPermission
     @Subcommand("lock|unlock")
+    @CommandCompletion("@maps")
     @Description("Lock a map from being used in any new games.")
     fun onLock(player: ScalaPlayer, map: Map)
     {

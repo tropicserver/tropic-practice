@@ -49,7 +49,7 @@ object MapManageCommands : ScalaCommand()
     }
 
     @Subcommand("create")
-    @CommandCompletion("slime-templates")
+    @CommandCompletion("@slime-templates")
     @Description("Creates a new map on a new Slime world template.")
     fun onCreate(player: ScalaPlayer, @Single slimeTemplate: String, @Single mapName: String)
     {
