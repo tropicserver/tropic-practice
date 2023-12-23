@@ -2,6 +2,7 @@ package gg.tropic.practice.scoreboard
 
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
+import gg.scala.commons.agnostic.sync.server.region.Region
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import me.lucko.helper.Schedulers
@@ -16,12 +17,14 @@ import net.evilblock.cubed.serializers.Serializers
 object ScoreboardInfoService
 {
     data class ScoreboardInfo(
-        val online: Int,
-        val playing: Int,
-        val gameServers: Int,
-        val queued: Int,
-        val meanTPS: Double,
-        val availableReplications: Int
+        val online: Int = 0,
+        val playing: Int = 0,
+        val gameServers: Int = 0,
+        val queued: Int = 0,
+        val meanTPS: Double = 0.0,
+        val availableReplications: Int = 0,
+        val euServerTotalPlayers: Int = 0,
+        val naServerTotalPlayers: Int = 0
     )
 
     data class ReplicationIndexes(
@@ -39,7 +42,7 @@ object ScoreboardInfoService
         val replications: Map<String, List<Replication>>
     )
 
-    var scoreboardInfo = ScoreboardInfo(0, 0, 0, 0, 0.0, 0)
+    var scoreboardInfo = ScoreboardInfo()
 
     @Configure
     fun configure()
@@ -53,6 +56,14 @@ object ScoreboardInfoService
 
                     val servers = ServerContainer
                         .getServersInGroupCasted<GameServer>("mip")
+
+                    val naServersTotalPlayerCount = servers
+                        .filter { it.region == Region.NA }
+                        .sumOf { it.getPlayersCount()!! }
+
+                    val euServersTotalPlayerCount = servers
+                        .filter { it.region == Region.EU }
+                        .sumOf { it.getPlayersCount()!! }
 
                     scoreboardInfo = ScoreboardInfo(
                         online = servers.sumOf { it.getPlayersCount() ?: 0 },
@@ -96,7 +107,9 @@ object ScoreboardInfoService
                                     .getOrNull()
                                     ?: listOf()
                             }
-                            .count()
+                            .count(),
+                        euServerTotalPlayers = euServersTotalPlayerCount,
+                        naServerTotalPlayers = naServersTotalPlayerCount
                     )
                 }
             }, 5L, 5L)
