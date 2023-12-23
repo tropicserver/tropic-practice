@@ -161,19 +161,7 @@ class EditLoadoutContentsMenu(
                                 "${CC.GREEN}You have deleted your ${CC.YELLOW}${loadout.name} ${CC.GREEN}loadout for the kit ${CC.YELLOW}${kit.displayName}${CC.GREEN}."
                             )
 
-                            val newLoadouts = practiceProfile.getLoadoutsFromKit(kit)
-
-                            if (newLoadouts.size == 0)
-                            {
-                                EditorKitSelectionMenu(practiceProfile).openMenu(player)
-                            } else
-                            {
-                                SelectCustomKitMenu(
-                                    practiceProfile,
-                                    newLoadouts,
-                                    kit
-                                ).openMenu(player)
-                            }
+                            EditorKitSelectionMenu(practiceProfile).openMenu(player)
                         }
                     } else
                     {
@@ -260,20 +248,7 @@ class EditLoadoutContentsMenu(
 
     private fun handleBackwardsMenuNavigation(player: Player)
     {
-        val loadouts = practiceProfile.getLoadoutsFromKit(kit)
-
         resetInventory(player)
-
-        if (loadouts.size == 0)
-        {
-            EditorKitSelectionMenu(practiceProfile).openMenu(player)
-        } else
-        {
-            SelectCustomKitMenu(
-                practiceProfile,
-                loadouts,
-                kit
-            ).openMenu(player)
-        }
+        EditorKitSelectionMenu(practiceProfile).openMenu(player)
     }
 }
