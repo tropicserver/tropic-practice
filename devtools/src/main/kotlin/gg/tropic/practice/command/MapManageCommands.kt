@@ -5,7 +5,9 @@ import gg.scala.commons.acf.CommandHelp
 import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.*
 import gg.scala.commons.annotations.commands.AutoRegister
+import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
 import gg.scala.commons.command.ScalaCommand
+import gg.scala.commons.command.ScalaCommandManager
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.map.Map
@@ -38,9 +40,18 @@ object MapManageCommands : ScalaCommand()
         help.showHelp()
     }
 
+    @CommandManagerCustomizer
+    fun customize(manager: ScalaCommandManager)
+    {
+        manager.commandCompletions.registerAsyncCompletion("slime-templates") {
+            MapManageServices.loader.listWorlds()
+        }
+    }
+
     @Subcommand("create")
-    @Description("Creates a new map based off of a Slime world template.")
-    fun onCreate(player: ScalaPlayer, slimeTemplate: String, mapName: String)
+    @CommandCompletion("slime-templates")
+    @Description("Creates a new map on a new Slime world template.")
+    fun onCreate(player: ScalaPlayer, @Single slimeTemplate: String, @Single mapName: String)
     {
         if (MapService.mapWithID(mapName) != null)
         {
@@ -64,11 +75,11 @@ object MapManageCommands : ScalaCommand()
 
         with(player.bukkit()) {
             val currentLocation = location
-            allowFlight = true
-            isFlying = true
-
             val devToolsMap = Bukkit.getWorld(slimeTemplate)
             teleport(devToolsMap.spawnLocation)
+
+            allowFlight = true
+            isFlying = true
 
             InputPrompt()
                 .withText("${CC.GREEN}Move to the lowest corner of the map and type something in chat.")
@@ -120,9 +131,6 @@ object MapManageCommands : ScalaCommand()
 
                                 teleport(currentLocation)
                                 Bukkit.unloadWorld(devToolsMap, false)
-
-                                isFlying = false
-                                allowFlight = false
 
                                 if (success)
                                 {
