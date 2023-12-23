@@ -156,48 +156,51 @@ class GameImpl(
             if (expectationModel.queueType == QueueType.Ranked && opponent.players.size == 1)
             {
                 // worst code in this entire project?
-                val winnerProfile = winners.first()
-                val loserProfile = opponents.first()
+                val winnerProfile = winners.firstOrNull()
+                val loserProfile = opponents.firstOrNull()
 
-                val winnerRankedStats = winnerProfile.getRankedStatsFor(kit)
-                val winnerCurrentELO = winnerRankedStats.elo
+                if (winnerProfile != null && loserProfile != null)
+                {
+                    val winnerRankedStats = winnerProfile.getRankedStatsFor(kit)
+                    val winnerCurrentELO = winnerRankedStats.elo
 
-                val loserRankedStats = loserProfile.getRankedStatsFor(kit)
-                val loserCurrentELO = loserRankedStats.elo
+                    val loserRankedStats = loserProfile.getRankedStatsFor(kit)
+                    val loserCurrentELO = loserRankedStats.elo
 
-                // winner elo calculations
-                val winnerNewELO = DefaultEloCalculator.getNewRating(
-                    winnerCurrentELO, loserCurrentELO, EloChange.WIN
-                )
-                val winnerELODiff = winnerNewELO - winnerCurrentELO
-                winnerRankedStats.eloUpdates().apply(winnerNewELO)
-
-                newELOMappings[winnerProfile.identifier] = winnerNewELO to winnerELODiff
-                positionUpdates[winnerProfile.identifier] = LeaderboardManagerService
-                    .updateScoreAndGetDiffs(
-                        winnerProfile.identifier,
-                        Reference(
-                            ReferenceLeaderboardType.ELO, kit.id
-                        ),
-                        newScore = winnerNewELO.toLong()
+                    // winner elo calculations
+                    val winnerNewELO = DefaultEloCalculator.getNewRating(
+                        winnerCurrentELO, loserCurrentELO, EloChange.WIN
                     )
+                    val winnerELODiff = winnerNewELO - winnerCurrentELO
+                    winnerRankedStats.eloUpdates().apply(winnerNewELO)
 
-                // loser elo calculations
-                val loserNewELO = DefaultEloCalculator.getNewRating(
-                    loserCurrentELO, winnerCurrentELO, EloChange.LOSS
-                )
-                val loserELODiff = winnerNewELO - winnerCurrentELO
-                loserRankedStats.eloUpdates().apply(loserNewELO)
+                    newELOMappings[winnerProfile.identifier] = winnerNewELO to winnerELODiff
+                    positionUpdates[winnerProfile.identifier] = LeaderboardManagerService
+                        .updateScoreAndGetDiffs(
+                            winnerProfile.identifier,
+                            Reference(
+                                ReferenceLeaderboardType.ELO, kit.id
+                            ),
+                            newScore = winnerNewELO.toLong()
+                        )
 
-                newELOMappings[loserProfile.identifier] = loserNewELO to loserELODiff
-                positionUpdates[loserProfile.identifier] = LeaderboardManagerService
-                    .updateScoreAndGetDiffs(
-                        loserProfile.identifier,
-                        Reference(
-                            ReferenceLeaderboardType.ELO, kit.id
-                        ),
-                        newScore = loserNewELO.toLong()
+                    // loser elo calculations
+                    val loserNewELO = DefaultEloCalculator.getNewRating(
+                        loserCurrentELO, winnerCurrentELO, EloChange.LOSS
                     )
+                    val loserELODiff = winnerNewELO - winnerCurrentELO
+                    loserRankedStats.eloUpdates().apply(loserNewELO)
+
+                    newELOMappings[loserProfile.identifier] = loserNewELO to loserELODiff
+                    positionUpdates[loserProfile.identifier] = LeaderboardManagerService
+                        .updateScoreAndGetDiffs(
+                            loserProfile.identifier,
+                            Reference(
+                                ReferenceLeaderboardType.ELO, kit.id
+                            ),
+                            newScore = loserNewELO.toLong()
+                        )
+                }
             }
 
             (winners + opponents).forEach(PracticeProfile::save)

@@ -50,8 +50,8 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             }"
 
             val shouldIncludeELORange = profile.validateQueueEntry() &&
-                profile.queuedForType() == QueueType.Ranked/* &&
-                MinecraftProtocol.getPlayerVersion(player) == 5*/
+                profile.queuedForType() == QueueType.Ranked &&
+                MinecraftProtocol.getPlayerVersion(player) <= 5
 
             if (shouldIncludeELORange)
             {
