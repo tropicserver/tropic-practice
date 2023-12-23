@@ -94,6 +94,10 @@ object DuelsSettingCategory : SettingCategory
             description += "Allows you to view or"
             description += "hide players at spawn."
 
+            displayPredicate = {
+                it.hasPermission("practice.show-spawn-visibility")
+            }
+
             postChange = {
                 VisibilityHandler.update(it)
             }
