@@ -2,14 +2,17 @@ package gg.tropic.practice.scoreboard
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.lemon.LemonConstants
+import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import gg.tropic.practice.player.LobbyPlayerService
+import gg.tropic.practice.player.formattedDomain
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.math.Numbers
+import net.evilblock.cubed.util.nms.MinecraftProtocol
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.entity.Player
 import java.util.*
@@ -45,6 +48,19 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             board += "${CC.WHITE}Queued for ${CC.PRI}${
                 TimeUtil.formatIntoMMSS((profile.queuedForTime() / 1000).toInt())
             }"
+
+            val shouldIncludeELORange = profile.validateQueueEntry() &&
+                profile.queuedForType() == QueueType.Ranked/* &&
+                MinecraftProtocol.getPlayerVersion(player) == 5*/
+
+            if (shouldIncludeELORange)
+            {
+                val domain = profile.queueEntry().leaderRangedELO
+                    .toIntRangeInclusive()
+                    .formattedDomain()
+
+                board += "${CC.WHITE}ELO Range: ${CC.PRI}$domain"
+            }
         } else
         {
             BasicsProfileService.find(player)

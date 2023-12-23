@@ -62,8 +62,6 @@ object LobbyPlayerService
     private fun createMessage(packet: String, vararg pairs: Pair<String, Any?>): AwareMessage =
         AwareMessage.of(packet, this.aware, *pairs)
 
-    fun IntRange.formattedDomain() = "[${max(0, first)} -> $last]"
-
     @Configure
     fun configure()
     {
