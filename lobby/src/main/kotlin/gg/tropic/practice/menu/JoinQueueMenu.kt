@@ -57,7 +57,7 @@ class JoinQueueMenu(
             *local3ScoreDescriptionOf(
                 player,
                 Reference(if (queueType == QueueType.Ranked) ReferenceLeaderboardType.ELO else ReferenceLeaderboardType.CasualWinStreak, kit.id),
-                if (queueType == QueueType.Ranked) "ELO" else "Daily Wins"
+                if (queueType == QueueType.Ranked) "ELO" else "Daily Streak"
             ).toTypedArray(),
             "",
             "${CC.GREEN}Click to queue!"
