@@ -17,10 +17,13 @@ import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
+import net.evilblock.cubed.util.nms.MinecraftReflection
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
-import java.util.UUID
+import java.util.*
 
 /**
  * @author GrowlyX
@@ -40,6 +43,7 @@ object DuelRequestPipeline
             .thenApplyAsync {
                 val request = DuelRequest(
                     requester = player.uniqueId,
+                    requesterPing = MinecraftReflection.getPing(player),
                     requestee = target,
                     region = it,
                     kitID = kit.id
@@ -56,9 +60,7 @@ object DuelRequestPipeline
                 }
 
                 player.sendMessage(
-                    "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and a random map. ${CC.GRAY}(${
-                        region.name
-                    } servers)"
+                    "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and a random map. ${CC.GRAY}(${region.name} servers)"
                 )
             }
     }
@@ -76,6 +78,7 @@ object DuelRequestPipeline
             .thenApply {
                 val request = DuelRequest(
                     requester = player.uniqueId,
+                    requesterPing = MinecraftReflection.getPing(player),
                     requestee = target,
                     region = it,
                     kitID = kit.id,

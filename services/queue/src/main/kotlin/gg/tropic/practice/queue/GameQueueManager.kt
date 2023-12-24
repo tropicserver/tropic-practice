@@ -23,10 +23,15 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.region.Region
 import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.serializable.Message
+import gg.tropic.practice.utilities.PingFormatter
 import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
+import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
+import net.evilblock.cubed.util.nms.MinecraftReflection
 import net.md_5.bungee.api.chat.ClickEvent
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -398,16 +403,21 @@ object GameQueueManager
                 } else null
 
                 val requesterName = ScalaStoreUuidCache.username(request.requester)
+                val requesterRegion = request.region
+
+                val pingColor = PingFormatter.format(request.requesterPing)
+
                 DPSRedisShared.sendMessage(
                     listOf(request.requestee),
                     Message()
                         .withMessage(
                             " ",
-                            "{primary}Duel request:",
-                            "&7┃ &fFrom: {primary}$requesterName",
+                            "{primary}Duel Request:",
+                            "&7┃ &fFrom: {primary}$requesterName &7(${pingColor}${request.requesterPing}ms&7)",
                             "&7┃ &fKit: {primary}${kit.displayName}",
                             "&7┃ &fMap: {primary}${map?.displayName ?: "Random"}",
-                            ""
+                            "&7┃ &fRegion: {primary}$requesterRegion",
+                            " "
                         )
                         .withMessage(
                             "&a(Click to accept)"
