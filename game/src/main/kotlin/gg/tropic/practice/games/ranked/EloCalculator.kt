@@ -6,5 +6,5 @@ package gg.tropic.practice.games.ranked
  */
 interface EloCalculator
 {
-    fun getNewRating(player: Int, opponent: Int, change: EloChange): Int
+    fun getNewRating(winner: Int, loser: Int): CalculationResult
 }

@@ -119,7 +119,9 @@ object GameService
             player.addPotionEffect(effect)
         }
 
-        fun runDeathEffectsFor(player: Player, target: Player, game: GameImpl)
+        fun runDeathEffectsFor(
+            player: Player, target: Player, game: GameImpl, gameIsFinished: Boolean
+        )
         {
             val killerCosmetic = CosmeticRegistry
                 .getSingleEquipped(
@@ -142,8 +144,10 @@ object GameService
                     player.isFlying = true
                 }
 
-                if (configuration.clearInventory != false)
+                if (configuration.clearInventory != false && gameIsFinished)
                 {
+                    game.takeSnapshot(player)
+
                     player.inventory.clear()
                     player.updateInventory()
                 }
@@ -302,9 +306,12 @@ object GameService
                         {
                             if (previousDamager.damager is Player)
                             {
+                                val team = game.getTeamOf(it.player)
+                                val noAlive = if (team.players.size > 1)
+                                    team.nonSpectators().isEmpty() else true
                                 runDeathEffectsFor(
                                     previousDamager.damager as Player,
-                                    it.player, game
+                                    it.player, game, noAlive
                                 )
 
                                 game.sendMessage(
@@ -415,7 +422,6 @@ object GameService
                         it.drops.clear()
                     }
 
-                val team = game.getTeamOf(it.entity)
                 game.takeSnapshot(it.entity)
 
                 it.deathMessage = null
@@ -433,6 +439,7 @@ object GameService
                     it.type == Material.POTION || it.type == Material.BOWL
                 }
 
+                val team = game.getTeamOf(it.entity)
                 val noAlive = if (team.players.size > 1)
                     team.nonSpectators().isEmpty() else true
 
@@ -457,7 +464,7 @@ object GameService
 
                 if (killerPlayer is Player)
                 {
-                    runDeathEffectsFor(killerPlayer, it.entity, game)
+                    runDeathEffectsFor(killerPlayer, it.entity, game, noAlive)
                 }
 
                 game.sendMessage(
@@ -838,10 +845,11 @@ object GameService
                     damagerTeam.combinedHits >= winWhenHitsReached
                 )
                 {
+                    // TODO: multiplayer support teams
                     runDeathEffectsFor(
                         it.damager as Player,
                         it.entity as Player,
-                        game
+                        game, true
                     )
                     game.complete(damagerTeam)
                 }
