@@ -17,10 +17,13 @@ import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
+import net.evilblock.cubed.util.nms.MinecraftReflection
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
-import java.util.UUID
+import java.util.*
 
 /**
  * @author GrowlyX
@@ -92,12 +95,26 @@ object DuelRequestPipeline
                     return@whenComplete
                 }
 
-                player.sendMessage(
-                    "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and map ${CC.GREEN}${
-                        map.displayName
-                    }${CC.SEC}. ${CC.GRAY}(${
-                        region.name
-                    } servers)"
+//                player.sendMessage(
+//                    "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and map ${CC.GREEN}${
+//                        map.displayName
+//                    }${CC.SEC}. ${CC.GRAY}(${
+//                        region.name
+//                    } servers)"
+
+                val ping: Int = MinecraftReflection.getPing(Bukkit.getPlayer(target))
+                val pingColor: ChatColor = if (ping > 110)
+                {
+                    ChatColor.RED
+                } else if (ping > 69)
+                {
+                    ChatColor.YELLOW
+                } else
+                {
+                    ChatColor.GREEN
+                }
+
+                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.GRAY}(${pingColor}${MinecraftReflection.getPing(Bukkit.getPlayer(target))}ms${CC.GRAY}) ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on ${CC.GREEN}${map.displayName}${CC.SEC}. ${CC.GRAY}(${region.name} Region)"
                 )
             }
     }

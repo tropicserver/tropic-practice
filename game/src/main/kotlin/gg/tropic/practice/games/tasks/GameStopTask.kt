@@ -47,34 +47,32 @@ class GameStopTask(
             {
                 this.game.sendMessage(
                     "",
-                    "${CC.PRI}Match Overview:",
-                    "${CC.I_GRAY}(Click to view inventories)",
-                    ""
+                    " ${CC.PRI}Match Overview ${CC.I_GRAY}(Click to view inventories)",
                 )
             } else
             {
                 this.game.sendMessage(
                     "",
-                    "${CC.PRI}Match Overview: ${CC.I_GRAY}(Click to view inventories)",
+                    " ${CC.PRI}Match Overview ${CC.I_GRAY}(Click to view inventories)",
                 )
             }
 
             val winnerComponent = Message()
                 .withMessage(
-                    "${CC.GREEN}Winner${
+                    " ${CC.GREEN}Winner${
                         if (this.report.winners.size == 1) "" else "s"
                     }: ${CC.WHITE}"
                 )
 
             if (this.report.winners.isEmpty())
             {
-                winnerComponent.withMessage("${CC.RED}N/A")
+                winnerComponent.withMessage(" ${CC.RED}N/A")
             } else
             {
                 for ((index, winner) in this.report.winners.withIndex())
                 {
                     winnerComponent
-                        .withMessage(winner.username())
+                        .withMessage(CC.YELLOW + winner.username())
                         .andHoverOf(
                             "${CC.GREEN}Click to view inventory!"
                         )
@@ -106,7 +104,7 @@ class GameStopTask(
                 for ((index, loser) in this.report.losers.withIndex())
                 {
                     loserComponent
-                        .withMessage(loser.username())
+                        .withMessage(CC.YELLOW + loser.username())
                         .andHoverOf(
                             "${CC.GREEN}Click to view inventory!"
                         )
@@ -148,7 +146,7 @@ class GameStopTask(
             {
                 // TODO: exclude those who don't want to be shown
                 game.sendMessage(
-                    "${CC.YELLOW}Spectators ${CC.GRAY}(${
+                    " ${CC.YELLOW}Spectators ${CC.GRAY}(${
                         game.expectedSpectators.size
                     })${CC.YELLOW}: ${CC.WHITE}${
                         game.expectedSpectators.take(3)
@@ -169,9 +167,9 @@ class GameStopTask(
                 val winner = eloMappings.keys.first()
                 val loser = eloMappings.keys.last()
                 game.sendMessage(
-                    "${CC.PINK}ELO Updates:",
-                    "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}${winner.username()}:${CC.WHITE} ${eloMappings[winner]!!.first} ${CC.GRAY}(${CC.GREEN}+${eloMappings[winner]!!.second}${CC.GRAY})",
-                    "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.RED}${loser.username()}:${CC.WHITE} ${eloMappings[loser]!!.first} ${CC.GRAY}(${CC.RED}${eloMappings[loser]!!.second}${CC.GRAY})",
+                    " ${CC.PINK}ELO Updates:",
+                    " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}${winner.username()}:${CC.WHITE} ${eloMappings[winner]!!.first} ${CC.GRAY}(${CC.GREEN}+${eloMappings[winner]!!.second}${CC.GRAY})",
+                    " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.RED}${loser.username()}:${CC.WHITE} ${eloMappings[loser]!!.first} ${CC.GRAY}(${CC.RED}${eloMappings[loser]!!.second}${CC.GRAY})",
                     ""
                 )
 
@@ -183,8 +181,8 @@ class GameStopTask(
                             val player = Bukkit.getPlayer(it.first)
                                 ?: return@thenAcceptAsync
 
-                            player.sendMessage("${CC.PRI}Leaderboards:")
-                            player.sendMessage("${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Update: ${
+                            player.sendMessage(" ${CC.PRI}Leaderboards:")
+                            player.sendMessage(" ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Update: ${
                                 if (updates.newPosition < updates.oldPosition) CC.GREEN else CC.RED
                             }${
                                 -(updates.newPosition - updates.oldPosition)
@@ -196,13 +194,13 @@ class GameStopTask(
 
                             if (updates.nextPosition == null)
                             {
-                                player.sendMessage("${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}You are #1 on the leaderboards!")
+                                player.sendMessage(" ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}You are #1 on the leaderboards!")
                                 player.sendMessage("")
                                 return@thenAcceptAsync
                             }
 
                             player.sendMessage(
-                                "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${
+                                " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${
                                     "${CC.SEC}You need ${CC.PRI}${
                                         updates.requiredScore()
                                     }${CC.SEC} ELO to reach ${CC.GREEN}#${
