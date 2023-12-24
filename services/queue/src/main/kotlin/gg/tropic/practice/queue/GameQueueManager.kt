@@ -413,10 +413,11 @@ object GameQueueManager
                         .withMessage(
                             " ",
                             "{primary}Duel Request:",
-                            " &7┃ &fFrom: {primary}$requesterName &7(${pingColor}${request.requesterPing}ms&7)",
-                            " &7┃ &fKit: {primary}${kit.displayName}",
-                            " &7┃ &fMap: {primary}${map?.displayName ?: "Random"}",
-                            " &7┃ &fRegion: {primary}$requesterRegion",
+                            "&7┃ &fFrom: {primary}$requesterName &7(${pingColor}${request.requesterPing}ms&7)",
+                            "&7┃ &fKit: {primary}${kit.displayName}",
+                            "&7┃ &fMap: {primary}${map?.displayName ?: "Random"}",
+                            "&7┃ &fRegion: {primary}$requesterRegion",
+                            " "
                         )
                         .withMessage(
                             "&a(Click to accept)"
