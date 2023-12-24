@@ -124,10 +124,11 @@ object GameService
         )
         {
             val killerCosmetic = CosmeticRegistry
-                .getSingleEquipped(
+                .getAllEquipped(
                     KillEffectCosmeticCategory,
                     player
                 )
+                .randomOrNull()
 
             if (killerCosmetic != null)
             {
