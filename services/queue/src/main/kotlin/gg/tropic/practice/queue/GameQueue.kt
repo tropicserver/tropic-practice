@@ -18,6 +18,7 @@ import java.util.logging.Logger
 import kotlin.concurrent.thread
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.system.measureTimeMillis
 
 /**
  * @author GrowlyX
@@ -384,23 +385,30 @@ class GameQueue(
         )
 
         val region = first.first().queueRegion
-        GameQueueManager.prepareGameFor(
-            map = map,
-            expectation = expectation,
-            // prefer NA servers if queuing globally
-            region = if (region == Region.Both) Region.NA else region,
-            cleanup = {
-                for (queueEntry in first + second)
-                {
-                    GameQueueManager
-                        .destroyQueueStates(
-                            queueId(), queueEntry
-                        )
+        val millis = measureTimeMillis {
+            GameQueueManager.prepareGameFor(
+                map = map,
+                expectation = expectation,
+                // prefer NA servers if queuing globally
+                region = if (region == Region.Both) Region.NA else region,
+                cleanup = {
+                    for (queueEntry in first + second)
+                    {
+                        GameQueueManager
+                            .destroyQueueStates(
+                                queueId(), queueEntry
+                            )
+                    }
                 }
-            }
-        ).exceptionally {
-            it.printStackTrace()
-            return@exceptionally null
+            ).exceptionally {
+                it.printStackTrace()
+                return@exceptionally null
+            }.join()
+        }
+
+        if (200 - millis > 0)
+        {
+            Thread.sleep(200 - millis)
         }
     }
 

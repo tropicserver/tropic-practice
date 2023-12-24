@@ -15,6 +15,8 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
 
     fun load()
     {
+
+
         redis.configure {
             listen("join") {
 
