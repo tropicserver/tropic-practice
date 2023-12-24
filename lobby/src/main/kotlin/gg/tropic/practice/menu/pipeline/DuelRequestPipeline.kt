@@ -114,7 +114,7 @@ object DuelRequestPipeline
                     ChatColor.GREEN
                 }
 
-                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.GRAY}(${pingColor}${MinecraftReflection.getPing(Bukkit.getPlayer(target))}ms${CC.GRAY}) ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on ${CC.GREEN}${map.displayName}${CC.SEC}. ${CC.GRAY}(${region.name} Region)"
+                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.GRAY}(${pingColor}${MinecraftReflection.getPing(Bukkit.getPlayer(target))}ms${CC.GRAY}) ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC}duel request on ${CC.GREEN}${map.displayName}${CC.SEC}. ${CC.GRAY}(${region.name} Region)"
                 )
             }
     }
