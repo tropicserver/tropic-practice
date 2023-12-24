@@ -9,6 +9,7 @@ import java.util.UUID
  */
 data class DuelRequest(
     val requester: UUID,
+    val requesterPing: Int,
     val requestee: UUID,
     val region: Region,
     val kitID: String,

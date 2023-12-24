@@ -103,7 +103,7 @@ class GameStartTask(
                     }
             } else
             {
-                components += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Pings:"
+                components += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.B_WHITE} Pings:"
 
                 this.game.teams.values
                     .flatMap { it.toBukkitPlayers() }
