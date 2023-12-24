@@ -95,8 +95,7 @@ class GameImpl(
             return
         }
 
-        this.snapshots[player.uniqueId] =
-            GameReportSnapshot(player, counter(player), kit)
+        takeSnapshot(player)
     }
 
     fun complete(winner: GameTeam?)

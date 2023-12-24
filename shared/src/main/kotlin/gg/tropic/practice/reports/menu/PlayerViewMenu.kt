@@ -28,10 +28,9 @@ import java.util.*
  */
 class PlayerViewMenu(
     private val gameReport: GameReport,
-    private val reportOf: UUID,
     private val snapshot: GameReportSnapshot,
     private val originalMenu: Menu? = null
-) : Menu("Viewing player ${reportOf.username()}...")
+) : Menu("Viewing player ${snapshot.playerUniqueId.username()}...")
 {
     override fun onClose(player: Player, manualClose: Boolean)
     {
@@ -121,8 +120,7 @@ class PlayerViewMenu(
                             .replace("_", " ")
                             .split(" ")
                             .joinToString(" ") {
-                                it.lowercase()
-                                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+                                it.lowercase().capitalize()
                             }
                     }${
                         if (potionEffect.amplifier > 0) " ${RomanNumerals.toRoman(potionEffect.amplifier)}" else ""
@@ -144,7 +142,7 @@ class PlayerViewMenu(
                 }"
             )
             .apply {
-                val extraInformation = gameReport.extraInformation[reportOf]
+                val extraInformation = gameReport.extraInformation[snapshot.playerUniqueId]
                     ?: return@apply
 
                 for (information in extraInformation)
@@ -164,73 +162,16 @@ class PlayerViewMenu(
             }
             .toButton()
 
-        val indexes = gameReport.winners + gameReport.losers
-        val index = indexes.indexOf(reportOf)
-
-        var nextPlayer = indexes.getOrNull(index + 1)
-            ?: indexes.first()
-        var snapshot = gameReport.snapshots[nextPlayer]!!
-
-        buttons[53] = ItemBuilder
-            .let {
-                if (viewerVersionIs17)
-                {
-                    return@let it.of(Material.PAPER)
-                }
-
-                return@let it.copyOf(
-                    object : TexturedHeadButton(Constants.WOOD_ARROW_RIGHT_TEXTURE)
-                    {}.getButtonItem(player)
-                )
-            }
-            .name(
-                "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
-            )
-            .addToLore(
-                "",
-                "${CC.SEC}Click to switch inventories!"
-            )
-            .toButton { _, _ ->
-                Button.playNeutral(player)
-                PlayerViewMenu(gameReport, nextPlayer, snapshot, originalMenu).openMenu(player)
-            }
-
-        nextPlayer = indexes.getOrNull(index - 1) ?: indexes.last()
-        snapshot = gameReport.snapshots[nextPlayer]!!
-
-        buttons[45] = ItemBuilder
-            .let {
-                if (viewerVersionIs17)
-                {
-                    return@let it.of(Material.PAPER)
-                }
-
-                return@let it.copyOf(
-                    object : TexturedHeadButton(Constants.WOOD_ARROW_LEFT_TEXTURE)
-                    {}.getButtonItem(player)
-                )
-            }
-            .name(
-                "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
-            )
-            .addToLore(
-                "",
-                "${CC.SEC}Click to switch inventories!"
-            )
-            .toButton { _, _ ->
-                Button.playNeutral(player)
-                PlayerViewMenu(gameReport, nextPlayer, snapshot, originalMenu).openMenu(player)
-            }
-
         snapshot.inventoryContents.withIndex()
             .forEach {
-                if (it.value.first != null)
+                if (it.value == null)
                 {
-                    buttons[it.index] = ItemBuilder
-                        .copyOf(it.value.first)
-                        .amount(it.value.second)
-                        .toButton()
+                    return@forEach
                 }
+
+                buttons[it.index] = ItemBuilder
+                    .copyOf(it.value!!)
+                    .toButton()
             }
 
         for (i in 36..39)
@@ -260,6 +201,64 @@ class PlayerViewMenu(
                 .glow()
                 .toButton()
         }
+
+        val indexes = gameReport.winners + gameReport.losers
+        val index = indexes.indexOf(snapshot.playerUniqueId)
+
+        var nextPlayer = indexes.getOrNull(index + 1)
+            ?: indexes.first()
+        var snapshot = gameReport.snapshots[nextPlayer]!!
+
+        buttons[53] = ItemBuilder
+            .let {
+                if (viewerVersionIs17)
+                {
+                    return@let it.of(Material.PAPER)
+                }
+
+                return@let it.copyOf(
+                    object : TexturedHeadButton(Constants.WOOD_ARROW_RIGHT_TEXTURE)
+                    {}.getButtonItem(player)
+                )
+            }
+            .name(
+                "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
+            )
+            .addToLore(
+                "",
+                "${CC.SEC}Click to switch inventories!"
+            )
+            .toButton { _, _ ->
+                Button.playNeutral(player)
+                PlayerViewMenu(gameReport, snapshot, originalMenu).openMenu(player)
+            }
+
+        nextPlayer = indexes.getOrNull(index - 1) ?: indexes.last()
+        snapshot = gameReport.snapshots[nextPlayer]!!
+
+        buttons[45] = ItemBuilder
+            .let {
+                if (viewerVersionIs17)
+                {
+                    return@let it.of(Material.PAPER)
+                }
+
+                return@let it.copyOf(
+                    object : TexturedHeadButton(Constants.WOOD_ARROW_LEFT_TEXTURE)
+                    {}.getButtonItem(player)
+                )
+            }
+            .name(
+                "${CC.B_SEC}${nextPlayer.username()}'s Inventory"
+            )
+            .addToLore(
+                "",
+                "${CC.SEC}Click to switch inventories!"
+            )
+            .toButton { _, _ ->
+                Button.playNeutral(player)
+                PlayerViewMenu(gameReport, snapshot, originalMenu).openMenu(player)
+            }
 
         return buttons
     }

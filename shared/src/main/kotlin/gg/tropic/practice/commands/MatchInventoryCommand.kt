@@ -49,7 +49,6 @@ object MatchInventoryCommand : ScalaCommand()
 
             PlayerViewMenu(
                 gameReport = it,
-                reportOf = playerId,
                 snapshot = snapshot
             ).openMenu(
                 player.bukkit()

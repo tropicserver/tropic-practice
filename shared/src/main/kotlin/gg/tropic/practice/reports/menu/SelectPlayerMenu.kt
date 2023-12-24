@@ -56,7 +56,7 @@ class SelectPlayerMenu(
                     )
                     .toButton { _, _ ->
                         Button.playNeutral(player)
-                        PlayerViewMenu(game, it.key, it.value, gamesMenu).openMenu(player)
+                        PlayerViewMenu(game, it.value, gamesMenu).openMenu(player)
                     }
             }
 

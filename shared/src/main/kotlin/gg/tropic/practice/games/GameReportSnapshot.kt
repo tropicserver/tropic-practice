@@ -4,6 +4,7 @@ import gg.tropic.practice.games.counter.Counter
 import gg.tropic.practice.kit.Kit
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 
 /**
  * @author GrowlyX
@@ -11,8 +12,8 @@ import org.bukkit.entity.Player
  */
 class GameReportSnapshot(player: Player, counter: Counter, kit: Kit)
 {
-    val inventoryContents = player.inventory.contents
-        .map { it to (it?.amount ?: 1) }
+    val playerUniqueId = player.uniqueId
+    val inventoryContents: Array<ItemStack?> = player.inventory.contents
 
     val armorContents = player.inventory.armorContents
     val potionEffects = player.activePotionEffects
