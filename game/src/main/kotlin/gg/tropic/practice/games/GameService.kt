@@ -169,7 +169,7 @@ object GameService
                 return "slain"
             }
 
-            return "${CC.B_WHITE}${bundle.random()}${CC.GRAY}"
+            return "${CC.GOLD}${bundle.random()}${CC.GRAY}"
         }
 
         Events.subscribe(ProjectileLaunchEvent::class.java)

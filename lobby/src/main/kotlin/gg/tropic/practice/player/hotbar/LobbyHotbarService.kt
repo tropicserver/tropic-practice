@@ -95,17 +95,15 @@ object LobbyHotbarService
                     val rematchKitID = it.response.parameters["rematch-kit-id"]
                     val rematchQueueType = it.response.parameters["rematch-queue-type"]
 
-                    Tasks.delayed(10L) {
-                        val player = Bukkit.getPlayer(it.uniqueId)
-                            ?: return@delayed
+                    val player = Bukkit.getPlayer(it.uniqueId)
+                        ?: return@handler
 
-                        rematches[it.uniqueId] = RematchData(
-                            rematchUser!!, rematchKitID!!,
-                            QueueType.valueOf(rematchQueueType!!)
-                        )
+                    rematches[it.uniqueId] = RematchData(
+                        rematchUser!!, rematchKitID!!,
+                        QueueType.valueOf(rematchQueueType!!)
+                    )
 
-                        reset(player)
-                    }
+                    reset(player)
                 }
             }
             .bindWith(plugin)
