@@ -1,8 +1,8 @@
 package gg.tropic.practice.games
 
-import com.comphenix.packetwrapper.WrapperPlayServerRespawn
-import com.comphenix.packetwrapper.WrapperPlayServerUpdateHealth
-import com.comphenix.protocol.wrappers.EnumWrappers
+import gg.scala.aware.AwareBuilder
+import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
+import gg.scala.aware.message.AwareMessage
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.agnostic.sync.ServerSync
@@ -10,6 +10,7 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
+import gg.scala.lemon.util.QuickAccess
 import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
 import gg.tropic.game.extensions.cosmetics.killeffects.KillEffectCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.KillEffect
@@ -22,7 +23,6 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
-import gg.tropic.practice.utilities.PlayerRespawnUtilities
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.nametag.NametagHandler
@@ -31,12 +31,9 @@ import net.evilblock.cubed.util.bukkit.Constants.HEART_SYMBOL
 import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.visibility.VisibilityHandler
-import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.bukkit.Material
 import org.bukkit.Sound
-import org.bukkit.WorldType
 import org.bukkit.block.BlockFace
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
 import org.bukkit.entity.*
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -49,6 +46,7 @@ import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.*
+import java.util.logging.Logger
 import kotlin.math.ceil
 
 /**
@@ -64,6 +62,14 @@ object GameService
     @Inject
     lateinit var redirector: ServerAggregateHandler
 
+    private val communicationLayer by lazy {
+        AwareBuilder
+            .of<AwareMessage>("practice:communications")
+            .codec(AwareMessageCodec)
+            .logger(plugin.logger)
+            .build()
+    }
+
     val games = mutableMapOf<UUID, GameImpl>()
 
     private val ensureCauseDenied = listOf(
@@ -77,6 +83,28 @@ object GameService
     @Configure
     fun configure()
     {
+        communicationLayer.listen("terminate") {
+            val serverID = retrieve<String>("server")
+            if (ServerSync.getLocalGameServer().id != serverID)
+            {
+                return@listen
+            }
+
+            val matchID = retrieve<UUID>("matchID")
+            val game = games[matchID]
+                ?: return@listen
+
+            game.complete(null)
+
+            QuickAccess.sendGlobalBroadcast(
+                "${CC.L_PURPLE}[P] ${CC.D_PURPLE}[$serverID] ${CC.L_PURPLE}Match ${CC.WHITE}${
+                    matchID.toString().substring(0..5)
+                }${CC.L_PURPLE} was terminated by an administrator.",
+                permission = "practice.admin"
+            )
+        }
+        communicationLayer.connect()
+
         GameManagerService.bindToStatusService {
             GameStatus(
                 games = games.values
@@ -603,10 +631,7 @@ object GameService
                             kotlin.runCatching {
                                 it.complete(null)
                             }.onFailure(Throwable::printStackTrace)
-
                         }
-
-
                     }
                 }
             }, 0L, 20L)

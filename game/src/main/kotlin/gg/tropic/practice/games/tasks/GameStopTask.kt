@@ -42,20 +42,10 @@ class GameStopTask(
     {
         if (this.game.activeCountdown == 5)
         {
-            if (!(report.losers.size == 1 &&
-                    report.winners.size == 1))
-            {
-                this.game.sendMessage(
-                    "",
-                    " ${CC.PRI}Match Overview ${CC.I_GRAY}(Click to view inventories)",
-                )
-            } else
-            {
-                this.game.sendMessage(
-                    "",
-                    " ${CC.PRI}Match Overview ${CC.I_GRAY}(Click to view inventories)",
-                )
-            }
+            this.game.sendMessage(
+                "",
+                " ${CC.PRI}Match Overview ${CC.I_GRAY}(Click to view inventories)",
+            )
 
             val winnerComponent = Message()
                 .withMessage(
