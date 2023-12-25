@@ -25,6 +25,9 @@ class Tournament(val config: TournamentConfig) : () -> Unit
     val players = mutableSetOf<TournamentMember>()
     var currentMatchList = mutableListOf<GameExpectation>()
 
+    var expectedMatchList: ScheduledMatchList? = null
+    var roundNumber = 1
+
     private val stateMachine = StateMachine
         .create<TournamentState, StateEvent, SideEffect> {
             initialState(TournamentState.Populating)
