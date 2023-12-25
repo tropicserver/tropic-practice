@@ -5,6 +5,7 @@ import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.serializable.Message
 import org.apache.commons.lang3.time.DurationFormatUtils
 import java.time.Duration
+import java.util.UUID
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 
@@ -23,6 +24,52 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
     fun load()
     {
         redis.configure {
+            listen("end") {
+                val player = retrieve<UUID>("player")
+                if (activeTournament == null)
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(player),
+                        Message()
+                            .withMessage("&cThere is no active tournament!")
+                    )
+                    return@listen
+                }
+
+                activeTournament!!.stop()
+            }
+
+            listen("join") {
+                val player = retrieve<UUID>("player")
+                if (activeTournament == null)
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(player),
+                        Message()
+                            .withMessage("&cThere is no active tournament!")
+                    )
+                    return@listen
+                }
+
+                if (activeTournament!!.isInTournament(player))
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(player),
+                        Message()
+                            .withMessage("&cYou are already in the tournament!")
+                    )
+                    return@listen
+                }
+
+                activeTournament?.joinTournament(player)
+
+                DPSRedisShared.sendMessage(
+                    listOf(player),
+                    Message()
+                        .withMessage("&aYou have joined the tournament!")
+                )
+            }
+
             listen("create") {
                 val config = retrieve<TournamentConfig>("config")
                 if (activeTournament != null)

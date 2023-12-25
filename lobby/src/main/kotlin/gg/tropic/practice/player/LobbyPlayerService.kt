@@ -259,6 +259,21 @@ object LobbyPlayerService
             }
         }
 
+        aware.listen("send-action-broadcast") {
+            val message = Serializers.gson.fromJson(
+                retrieve<String>("message"),
+                Message::class.java
+            )
+
+            message.components.onEach {
+                it.value = it.value
+                    .replace("{primary}", CC.PRI)
+                    .replace("{secondary}", CC.SEC)
+            }
+
+            Players.all().forEach(message::sendToPlayer)
+        }
+
         aware.listen("send-notification-sound") {
             val setting = retrieve<String>("setting")
 

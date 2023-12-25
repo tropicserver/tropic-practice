@@ -12,6 +12,7 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.menu.tournaments.TournamentCreationPipeline
+import gg.tropic.practice.services.TournamentManagerService
 
 /**
  * @author GrowlyX
@@ -36,4 +37,22 @@ object TournamentCommand : ScalaCommand()
     {
         TournamentCreationPipeline.start().openMenu(player.bukkit())
     }
+
+    @AssignPermission
+    @Subcommand("join")
+    @Description("Join the ongoing tournament!")
+    fun onJoin(player: ScalaPlayer) = TournamentManagerService
+        .publish(
+            "join",
+            "player" to player.uniqueId
+        )
+
+    @AssignPermission
+    @Subcommand("end")
+    @Description("End the ongoing tournament!")
+    fun onEnd(player: ScalaPlayer) = TournamentManagerService
+        .publish(
+            "end",
+            "player" to player.uniqueId
+        )
 }

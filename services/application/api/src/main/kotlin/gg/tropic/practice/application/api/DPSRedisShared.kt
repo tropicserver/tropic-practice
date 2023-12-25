@@ -51,6 +51,16 @@ object DPSRedisShared
         )
     }
 
+    fun sendBroadcast(message: Message)
+    {
+        lobbyBridge.createMessage(
+            packet = "send-action-broadcast",
+            "message" to Serializers.gson.toJson(message)
+        ).publish(
+            AwareThreadContext.SYNC
+        )
+    }
+
     fun sendNotificationSound(players: List<UUID>, setting: String)
     {
         lobbyBridge.createMessage(

@@ -6,6 +6,7 @@ import gg.scala.aware.message.AwareMessage
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.agnostic.sync.ServerSync
+import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -101,24 +102,20 @@ object GameService
         }
 
         communicationLayer.listen("terminate") {
-            val serverID = retrieve<String>("server")
-            if (ServerSync.getLocalGameServer().id != serverID)
-            {
-                return@listen
-            }
-
             val matchID = retrieve<UUID>("matchID")
-            val terminator = retrieve<UUID>("terminator")
+            val terminator = retrieveNullable<UUID>("terminator")
             val game = games[matchID]
                 ?: return@listen
 
             game.complete(null, reason = "Ended by an administrator")
 
             QuickAccess.sendGlobalBroadcast(
-                "${CC.L_PURPLE}[P] ${CC.D_PURPLE}[$serverID] ${CC.L_PURPLE}Match ${CC.WHITE}${
+                "${CC.L_PURPLE}[P] ${CC.D_PURPLE}[${
+                    ServerSync.getLocalGameServer().id
+                }] ${CC.L_PURPLE}Match ${CC.WHITE}${
                     matchID.toString().substring(0..5)
                 }${CC.L_PURPLE} was terminated by ${CC.B_WHITE}${
-                    terminator.username()
+                    terminator?.username() ?: "Console"
                 }${CC.L_PURPLE}.",
                 permission = "practice.admin"
             )
