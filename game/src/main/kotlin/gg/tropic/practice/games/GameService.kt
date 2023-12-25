@@ -1,5 +1,8 @@
 package gg.tropic.practice.games
 
+import com.comphenix.packetwrapper.WrapperPlayServerRespawn
+import com.comphenix.packetwrapper.WrapperPlayServerUpdateHealth
+import com.comphenix.protocol.wrappers.EnumWrappers
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.agnostic.sync.ServerSync
@@ -19,6 +22,7 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
+import gg.tropic.practice.utilities.PlayerRespawnUtilities
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.nametag.NametagHandler
@@ -27,9 +31,12 @@ import net.evilblock.cubed.util.bukkit.Constants.HEART_SYMBOL
 import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.visibility.VisibilityHandler
+import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.bukkit.Material
 import org.bukkit.Sound
+import org.bukkit.WorldType
 import org.bukkit.block.BlockFace
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
 import org.bukkit.entity.*
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -442,7 +449,6 @@ object GameService
                     }
 
                 game.takeSnapshot(it.entity)
-
                 it.deathMessage = null
 
                 it.entity.health = it.entity.maxHealth
