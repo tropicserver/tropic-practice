@@ -173,6 +173,23 @@ object GameService
             return "${CC.GOLD}${bundle.random()}${CC.GRAY}"
         }
 
+        Events
+            .subscribe(PlayerItemConsumeEvent::class.java)
+            .filter {
+                it.item.type == Material.POTION
+            }
+            .handler {
+                Tasks.delayed(1L) {
+                    if (it.player.itemInHand.type != Material.GLASS_BOTTLE)
+                    {
+                        return@delayed
+                    }
+
+                    it.player.itemInHand.type = Material.AIR
+                }
+            }
+            .bindWith(plugin)
+
         Events.subscribe(ProjectileLaunchEvent::class.java)
             .handler {
                 val fishingHook = it.entity
