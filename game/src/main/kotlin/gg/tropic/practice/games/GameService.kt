@@ -179,13 +179,14 @@ object GameService
                 it.item.type == Material.POTION
             }
             .handler {
-                Tasks.delayed(1L) {
+                Tasks.sync {
                     if (it.player.itemInHand.type != Material.GLASS_BOTTLE)
                     {
-                        return@delayed
+                        return@sync
                     }
 
-                    it.player.itemInHand.type = Material.AIR
+                    it.player.itemInHand = ItemStack(Material.AIR)
+                    it.player.updateInventory()
                 }
             }
             .bindWith(plugin)
