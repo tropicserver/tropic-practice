@@ -12,6 +12,9 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.util.QuickAccess
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.game.extensions.anticheat.AnticheatCheck
+import gg.tropic.game.extensions.anticheat.AnticheatHook
+import gg.tropic.game.extensions.cosmetics.CosmeticLocalConfig
 import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
 import gg.tropic.game.extensions.cosmetics.killeffects.KillEffectCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.KillEffect
@@ -84,6 +87,21 @@ object GameService
     @Configure
     fun configure()
     {
+        CosmeticLocalConfig.enableCosmeticResources = false
+
+        AnticheatHook.configureAlertFilter {
+            if (it.type == AnticheatCheck.DOUBLE_CLICK)
+            {
+                return@configureAlertFilter false
+            }
+
+            val game = byPlayer(player = it.player)
+                ?: return@configureAlertFilter false
+
+            return@configureAlertFilter game.expectationModel.queueType == null ||
+                game.expectationModel.queueType == QueueType.Casual
+        }
+
         communicationLayer.listen("terminate") {
             val serverID = retrieve<String>("server")
             if (ServerSync.getLocalGameServer().id != serverID)
