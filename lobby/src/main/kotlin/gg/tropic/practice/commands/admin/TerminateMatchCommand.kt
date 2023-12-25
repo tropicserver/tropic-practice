@@ -11,6 +11,7 @@ import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
 import gg.scala.lemon.util.QuickAccess
+import gg.tropic.practice.games.GameState
 import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.util.CC
@@ -50,10 +51,10 @@ object TerminateMatchCommand : ScalaCommand()
                         )
                     }
 
-                    if (reference.state != "Playing")
+                    if (reference.state != GameState.Playing)
                     {
                         throw ConditionFailedException(
-                            "You are unable to terminate ${CC.YELLOW}${it.name}'s${CC.RED} match when it is in the ${CC.B_RED}${reference.state}${CC.RED} state."
+                            "You are unable to terminate ${CC.YELLOW}${it.name}'s${CC.RED} match when it is in the ${CC.B_RED}${reference.state.name}${CC.RED} state."
                         )
                     }
 

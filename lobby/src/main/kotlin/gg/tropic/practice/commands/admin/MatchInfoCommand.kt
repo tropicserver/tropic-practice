@@ -54,7 +54,7 @@ object MatchInfoCommand : ScalaCommand()
                     player.sendMessage(
                         "${CC.GREEN}${it.name}'s Match:",
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Server: ${CC.GREEN}${reference.server}",
-                        "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} State: ${CC.GREEN}${reference.state}",
+                        "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} State: ${CC.GREEN}${reference.state.name}",
                         "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Queue: ${CC.GREEN}${
                             if (reference.queueId == null) "${CC.RED}Private" else reference.queueId
                         }",
