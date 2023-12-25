@@ -6,7 +6,7 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
-import gg.tropic.practice.games.SpectateRequest
+import gg.tropic.practice.games.spectate.SpectateRequest
 import gg.tropic.practice.queue.QueueService
 import net.evilblock.cubed.util.CC
 

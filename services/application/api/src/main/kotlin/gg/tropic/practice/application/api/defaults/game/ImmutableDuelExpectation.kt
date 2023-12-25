@@ -1,6 +1,6 @@
 package gg.tropic.practice.application.api.defaults.game
 
-import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.queue.QueueType
 import java.util.*
 
 /**

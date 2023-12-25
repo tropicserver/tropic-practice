@@ -7,7 +7,6 @@ import gg.tropic.practice.application.api.defaults.game.GameTeam
 import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
-import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.region.Region
 import net.evilblock.cubed.serializers.Serializers

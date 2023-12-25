@@ -1,4 +1,4 @@
-package gg.tropic.practice.games
+package gg.tropic.practice.games.spectate
 
 import java.util.UUID
 

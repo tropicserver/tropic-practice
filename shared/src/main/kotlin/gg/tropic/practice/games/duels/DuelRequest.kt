@@ -1,4 +1,4 @@
-package gg.tropic.practice.games
+package gg.tropic.practice.games.duels
 
 import gg.tropic.practice.region.Region
 import java.util.UUID

@@ -11,7 +11,7 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.LobbyConfigurationService
-import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.settings.DuelsSettingCategory
@@ -33,12 +33,10 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.spigotmc.event.player.PlayerSpawnLocationEvent
-import xyz.xenondevs.particle.ParticlePacket
 import xyz.xenondevs.particle.utils.ReflectionUtils
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
-import kotlin.math.max
 
 @Service
 object LobbyPlayerService

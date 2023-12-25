@@ -1,4 +1,4 @@
-package gg.tropic.practice.games.counter
+package gg.tropic.practice.statistics
 
 import java.util.concurrent.ConcurrentHashMap
 

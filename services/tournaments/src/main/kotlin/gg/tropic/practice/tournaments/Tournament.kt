@@ -64,17 +64,12 @@ class Tournament(private val config: TournamentConfig) : () -> Unit
             }
         }
 
-    fun run()
+    fun startResources()
     {
         check(ticker == null)
         this.ticker = TournamentManager.scheduleAtFixedRate(
             this, 0L, 1L, TimeUnit.SECONDS
         )
-    }
-
-    fun join(team: TournamentMember)
-    {
-
     }
 
     override fun invoke()

@@ -4,16 +4,12 @@ import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.store.ScalaDataStoreShared
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
-import gg.tropic.practice.games.QueueType
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.LeaderboardReferences
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
 import io.lettuce.core.LettuceFutures
-import io.lettuce.core.RedisFuture
-import io.lettuce.core.internal.netty.util.concurrent.Future
 import net.evilblock.cubed.serializers.Serializers
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 import java.util.logging.Level
 import java.util.logging.Logger

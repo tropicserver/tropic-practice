@@ -25,6 +25,7 @@ import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.queue.GameQueueManager
 import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.statistics.leaderboards.LeaderboardManager
+import gg.tropic.practice.tournaments.TournamentManager
 import net.evilblock.cubed.serializers.Serializers
 
 class ApplicationServerArgs(parser: ArgParser)
@@ -136,7 +137,7 @@ fun main(args: Array<String>) = mainBody {
     GameManager.load()
     GameQueueManager.load()
     ReplicationManager.load()
-    TournamentManager
+    TournamentManager.load()
 
     LeaderboardManager.load()
 

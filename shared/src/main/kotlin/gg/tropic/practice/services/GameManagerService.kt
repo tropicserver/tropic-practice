@@ -10,8 +10,8 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeShared
-import gg.tropic.practice.games.models.GameStatus
-import gg.tropic.practice.games.models.GameStatusIndexes
+import gg.tropic.practice.games.GameStatus
+import gg.tropic.practice.games.GameStatusIndexes
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers

@@ -14,11 +14,10 @@ import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.ImmutableMap
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
-import gg.tropic.practice.games.DuelRequest
-import gg.tropic.practice.games.QueueType
-import gg.tropic.practice.games.SpectateRequest
+import gg.tropic.practice.games.duels.DuelRequest
+import gg.tropic.practice.games.spectate.SpectateRequest
 import gg.tropic.practice.games.manager.GameManager
-import gg.tropic.practice.games.models.GameReference
+import gg.tropic.practice.games.GameReference
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.region.Region
 import gg.tropic.practice.replications.manager.ReplicationManager
@@ -26,12 +25,7 @@ import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.utilities.PingFormatter
 import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
-import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Constants
-import net.evilblock.cubed.util.nms.MinecraftReflection
 import net.md_5.bungee.api.chat.ClickEvent
-import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors

@@ -1,4 +1,4 @@
-package gg.tropic.practice.games.models
+package gg.tropic.practice.games
 
 /**
  * @author GrowlyX

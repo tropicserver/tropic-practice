@@ -12,7 +12,7 @@ import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.LobbyConfigurationService
-import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.menu.CasualQueueSelectSizeMenu
 import gg.tropic.practice.menu.JoinQueueMenu

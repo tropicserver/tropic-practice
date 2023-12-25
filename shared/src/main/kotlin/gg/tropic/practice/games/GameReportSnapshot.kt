@@ -1,6 +1,6 @@
 package gg.tropic.practice.games
 
-import gg.tropic.practice.games.counter.Counter
+import gg.tropic.practice.statistics.Counter
 import gg.tropic.practice.kit.Kit
 import org.bukkit.Material
 import org.bukkit.entity.Player

@@ -3,7 +3,7 @@ package gg.tropic.practice.games.tasks
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
-import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.games.event.GameStartEvent
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag

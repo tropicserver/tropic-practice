@@ -1,6 +1,6 @@
 package gg.tropic.practice.expectation
 
-import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.games.team.GameTeam
 import gg.tropic.practice.games.team.GameTeamSide
 import java.util.*

@@ -1,6 +1,7 @@
 package gg.tropic.practice.games
 
 import gg.tropic.practice.profile.PracticeProfile
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.statistics.KitStatistics
 
 /**

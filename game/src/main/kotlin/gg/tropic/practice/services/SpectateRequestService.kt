@@ -8,7 +8,7 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.games.GameService
-import gg.tropic.practice.games.SpectateRequest
+import gg.tropic.practice.games.spectate.SpectateRequest
 import java.util.*
 import java.util.logging.Logger
 

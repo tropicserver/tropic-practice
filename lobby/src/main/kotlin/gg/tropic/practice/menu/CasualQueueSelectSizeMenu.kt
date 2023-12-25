@@ -1,7 +1,7 @@
 package gg.tropic.practice.menu
 
 import com.cryptomorin.xseries.XMaterial
-import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.queue.QueueType
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.CC

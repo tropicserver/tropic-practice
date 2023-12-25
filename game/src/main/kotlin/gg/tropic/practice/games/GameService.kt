@@ -21,10 +21,9 @@ import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.KillEffect
 import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
 import gg.tropic.practice.PracticeGame
-import gg.tropic.practice.games.models.GameReference
-import gg.tropic.practice.games.models.GameStatus
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
 import me.lucko.helper.Events

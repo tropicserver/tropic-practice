@@ -38,7 +38,9 @@ object TournamentCreationPipeline
             maxPlayers = maxSize,
             kitID = kit.id,
             region = region,
-            creator = creator.uniqueId
+            creator = creator.uniqueId,
+            creatorBypassesCreationRequirements = creator
+                .hasPermission("practice.tournament.bypass-creation-requirements")
         )
 
         creator.sendMessage("${CC.GRAY}Attempting to start the tournament...")

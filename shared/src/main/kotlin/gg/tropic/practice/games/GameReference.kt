@@ -1,7 +1,6 @@
-package gg.tropic.practice.games.models
+package gg.tropic.practice.games
 
-import gg.tropic.practice.games.GameState
-import java.util.UUID
+import java.util.*
 
 /**
  * @author GrowlyX

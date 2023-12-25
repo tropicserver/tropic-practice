@@ -3,7 +3,7 @@ package gg.tropic.practice.menu.pipeline
 import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.duel.DuelRequestUtilities
-import gg.tropic.practice.games.DuelRequest
+import gg.tropic.practice.games.duels.DuelRequest
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.kit.group.KitGroupService
@@ -18,8 +18,6 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.nms.MinecraftReflection
-import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType

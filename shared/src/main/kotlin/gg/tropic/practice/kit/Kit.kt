@@ -1,6 +1,6 @@
 package gg.tropic.practice.kit
 
-import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.kit.feature.FeatureFlag
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import org.bukkit.Material

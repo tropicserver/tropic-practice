@@ -6,7 +6,6 @@ repositories {
 dependencies {
     api(project(":shared"))
     api(project(":services:statistics"))
-    api(project(":services:games:game-models"))
     api(project(":services:replications:replication-models"))
 
     compileOnly("com.grinderwolf:slimeworldmanager-plugin:2.2.1")

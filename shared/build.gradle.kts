@@ -3,7 +3,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":services:games:game-models"))
     implementation(project(":services:replications:replication-models"))
     api(project(":services:statistics"))
 

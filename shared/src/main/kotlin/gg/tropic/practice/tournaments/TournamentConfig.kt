@@ -12,5 +12,6 @@ data class TournamentConfig(
     val teamSize: Int,
     val maxPlayers: Int,
     val kitID: String,
-    val region: Region
+    val region: Region,
+    val creatorBypassesCreationRequirements: Boolean
 )

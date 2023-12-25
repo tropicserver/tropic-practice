@@ -1,7 +1,7 @@
 package gg.tropic.practice.duel
 
 import gg.tropic.practice.PracticeShared
-import gg.tropic.practice.games.DuelRequest
+import gg.tropic.practice.games.duels.DuelRequest
 import gg.tropic.practice.kit.Kit
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers

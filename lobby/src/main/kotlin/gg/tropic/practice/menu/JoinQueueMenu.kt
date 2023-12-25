@@ -1,7 +1,7 @@
 package gg.tropic.practice.menu
 
 import gg.scala.cache.uuid.ScalaStoreUuidCache
-import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.Reference
@@ -15,10 +15,8 @@ import gg.tropic.practice.services.LeaderboardManagerService
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.math.Numbers
-import net.evilblock.cubed.util.text.TextSplitter
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
-import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX

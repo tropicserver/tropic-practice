@@ -5,7 +5,7 @@ import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
-import gg.tropic.practice.games.counter.Counter
+import gg.tropic.practice.statistics.Counter
 import gg.tropic.practice.games.loadout.CustomLoadout
 import gg.tropic.practice.games.loadout.DefaultLoadout
 import gg.tropic.practice.games.loadout.SelectedLoadout
@@ -23,6 +23,7 @@ import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.services.LeaderboardManagerService
 import me.lucko.helper.Events

@@ -2,7 +2,7 @@ package gg.tropic.practice.scoreboard
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.lemon.LemonConstants
-import gg.tropic.practice.games.QueueType
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import gg.tropic.practice.player.LobbyPlayerService
