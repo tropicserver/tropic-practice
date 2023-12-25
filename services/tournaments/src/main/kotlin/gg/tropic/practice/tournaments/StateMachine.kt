@@ -1,5 +1,9 @@
 package gg.tropic.practice.tournaments
 
+import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.queue.GameQueueManager
+import java.util.concurrent.CompletableFuture
+
 /**
  * @author GrowlyX
  * @since 12/17/2023
@@ -33,7 +37,22 @@ sealed class SideEffect : (Tournament) -> Unit
     {
         override fun invoke(tournament: Tournament)
         {
+            CompletableFuture
+                .allOf(
+                    *(tournament.currentMatchList.map {
+                        val map = MapDataSync.cached().maps[it.mapId]
+                            ?: return@map CompletableFuture
+                                .completedFuture(null)
 
+                        GameQueueManager.prepareGameFor(
+                            map = map,
+                            expectation = it,
+                            region = tournament.config.region,
+                            cleanup = { }
+                        )
+                    }.toTypedArray())
+                )
+                .join()
         }
     }
 
@@ -41,7 +60,7 @@ sealed class SideEffect : (Tournament) -> Unit
     {
         override fun invoke(tournament: Tournament)
         {
-
+            tournament.stop()
         }
     }
 }

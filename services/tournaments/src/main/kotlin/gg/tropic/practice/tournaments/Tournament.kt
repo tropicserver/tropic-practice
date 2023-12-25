@@ -6,7 +6,7 @@ import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
-import gg.tropic.practice.expectation.GameExpectation
+import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import gg.tropic.practice.serializable.Message
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.md_5.bungee.api.chat.ClickEvent
@@ -18,11 +18,12 @@ import java.util.concurrent.TimeUnit
  * @author GrowlyX
  * @since 12/17/2023
  */
-class Tournament(private val config: TournamentConfig) : () -> Unit
+class Tournament(val config: TournamentConfig) : () -> Unit
 {
     private var ticker: ScheduledFuture<*>? = null
-    private val players = mutableSetOf<TournamentMember>()
-    private var currentMatchList = mutableListOf<GameExpectation>()
+
+    val players = mutableSetOf<TournamentMember>()
+    var currentMatchList = mutableListOf<GameExpectation>()
 
     private val stateMachine = StateMachine
         .create<TournamentState, StateEvent, SideEffect> {
