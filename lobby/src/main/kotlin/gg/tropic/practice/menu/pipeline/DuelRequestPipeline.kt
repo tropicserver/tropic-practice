@@ -59,9 +59,7 @@ object DuelRequestPipeline
                     return@whenComplete
                 }
 
-                player.sendMessage(
-                    "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and a random map. ${CC.GRAY}(${region.name} servers)"
-                )
+                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on a random map. ${CC.GRAY}(${region.name} Region)")
             }
     }
 
@@ -95,13 +93,7 @@ object DuelRequestPipeline
                     return@whenComplete
                 }
 
-                player.sendMessage(
-                    "${CC.SEC}Sent a duel request to ${CC.GREEN}${target.username()}${CC.SEC} with the kit ${CC.GREEN}${kit.displayName}${CC.SEC} and map ${CC.GREEN}${
-                        map.displayName
-                    }${CC.SEC}. ${CC.GRAY}(${
-                        region.name
-                    } servers)"
-                )
+                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on ${CC.GREEN}${map.displayName}${CC.SEC}. ${CC.GRAY}(${region.name} Region)")
             }
     }
 
