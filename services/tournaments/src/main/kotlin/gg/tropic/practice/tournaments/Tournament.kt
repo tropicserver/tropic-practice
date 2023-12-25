@@ -7,7 +7,9 @@ import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.game.GameExpectation
+import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.serializable.Message
+import io.netty.util.internal.ConcurrentSet
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.md_5.bungee.api.chat.ClickEvent
 import java.util.UUID
@@ -22,13 +24,13 @@ class Tournament(val config: TournamentConfig) : () -> Unit
 {
     private var ticker: ScheduledFuture<*>? = null
 
-    val players = mutableSetOf<TournamentMember>()
+    val memberSet = ConcurrentSet<TournamentMember>()
     var currentMatchList = mutableListOf<GameExpectation>()
 
     var expectedMatchList: ScheduledMatchList? = null
     var roundNumber = 1
 
-    private val stateMachine = StateMachine
+    val stateMachine = StateMachine
         .create<TournamentState, StateEvent, SideEffect> {
             initialState(TournamentState.Populating)
 
@@ -52,7 +54,7 @@ class Tournament(val config: TournamentConfig) : () -> Unit
 
             state<TournamentState.RoundInProgress> {
                 on<StateEvent.OnRoundsEnded> {
-                    val requiresMoreBrackets = true
+                    val requiresMoreBrackets = memberSet.size > 1
                     if (requiresMoreBrackets)
                     {
                         return@on transitionTo(
@@ -73,6 +75,9 @@ class Tournament(val config: TournamentConfig) : () -> Unit
                     ?: return@onTransition
 
                 validTransition.sideEffect?.invoke(this@Tournament)
+
+                lastBroadcast = -1L
+                currentTick = 0
             }
         }
 
@@ -106,17 +111,18 @@ class Tournament(val config: TournamentConfig) : () -> Unit
     fun joinTournament(uniqueId: UUID)
     {
         // TODO: support multi player teams
-        this.players += TournamentMember(
-            leader = uniqueId, players = setOf(uniqueId)
+        this.memberSet += TournamentMember(
+            leader = uniqueId,
+            players = setOf(uniqueId)
         )
 
         DPSRedisShared.sendMessage(
-            players.flatMap(TournamentMember::players).toList(),
+            memberSet.flatMap(TournamentMember::players).toList(),
             Message()
                 .withMessage("{primary}${
                     ScalaStoreUuidCache.username(uniqueId)
                 }&e joined the tournament. &7(${
-                    players.size
+                    memberSet.size
                 }/${
                     config.maxPlayers
                 })")
@@ -124,18 +130,19 @@ class Tournament(val config: TournamentConfig) : () -> Unit
     }
 
     private var lastBroadcast = -1L
+    private var currentTick = 30
+
+    private val broadcastSeconds = listOf(1, 2, 3, 4, 5, 10, 15, 20, 25, 30)
+
     override fun invoke()
     {
         when (stateMachine.state)
         {
-            TournamentState.Ended ->
-            {
-
-            }
+            TournamentState.Ended -> {}
 
             TournamentState.Populating ->
             {
-                if (players.size >= config.maxPlayers)
+                if (memberSet.size >= config.maxPlayers)
                 {
                     stateMachine.transition(StateEvent.OnPopulated)
                     return
@@ -150,12 +157,66 @@ class Tournament(val config: TournamentConfig) : () -> Unit
 
             TournamentState.RoundInProgress ->
             {
+                val statuses = GameManager.allGames().join()
+                val associated = statuses.associateBy { it.uniqueId }
 
+                val ongoingMatches = currentMatchList
+                    .filter {
+                        associated.containsKey(it.identifier)
+                    }
+
+                if (ongoingMatches.isEmpty())
+                {
+                    DPSRedisShared.sendMessage(
+                        memberSet
+                            .flatMap(TournamentMember::players)
+                            .toList(),
+                        Message()
+                            .withMessage("&a&lRound #$roundNumber has ended! f${
+                                memberSet
+                                    .flatMap(TournamentMember::players)
+                                    .size
+                            }&a players will be moving on to the next round.")
+                    )
+
+                    stateMachine.transition(StateEvent.OnRoundsEnded)
+                    return
+                }
             }
 
             TournamentState.RoundStarting ->
             {
+                if (currentTick-- >= 0)
+                {
+                    if (currentTick in broadcastSeconds)
+                    {
+                        DPSRedisShared.sendMessage(
+                            memberSet
+                                .flatMap(TournamentMember::players)
+                                .toList(),
+                            Message()
+                                .withMessage("{secondary}Round {primary}&l#$roundNumber{secondary} starts in {primary}$currentTick seconds{secondary}.")
+                        )
+                    }
+                    return
+                }
 
+                stateMachine.transition(StateEvent.OnRoundsStarted)
+
+                DPSRedisShared.sendBroadcast(
+                    Message()
+                        .withMessage("&aRound &l#$roundNumber&a has started!")
+                        .withMessage(
+                            "&a&l(click to view info)"
+                        )
+                        .andHoverOf(
+                            "Click to view info!"
+                        )
+                        .andCommandOf(
+                            ClickEvent.Action.RUN_COMMAND,
+                            "/tournament view"
+                        )
+                )
             }
         }
     }
@@ -175,7 +236,7 @@ class Tournament(val config: TournamentConfig) : () -> Unit
                     }",
                     "&7┃ &fKit: {primary}${kit.displayName}",
                     "&7┃ &fRegion: {primary}${config.region.name}",
-                    "&7┃ &fPlayers: {primary}${players.size}/${config.maxPlayers}",
+                    "&7┃ &fPlayers: {primary}${memberSet.size}/${config.maxPlayers}",
                     " "
                 )
                 .withMessage(
@@ -190,5 +251,5 @@ class Tournament(val config: TournamentConfig) : () -> Unit
         )
     }
 
-    fun isInTournament(player: UUID) = players.any { player in it.players }
+    fun isInTournament(player: UUID) = memberSet.any { player in it.players }
 }

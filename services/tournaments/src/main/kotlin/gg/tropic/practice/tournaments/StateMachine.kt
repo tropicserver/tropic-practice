@@ -36,7 +36,7 @@ sealed class SideEffect : (Tournament) -> Unit
     {
         override fun invoke(tournament: Tournament)
         {
-            val chunked = tournament.players.shuffled()
+            val chunked = tournament.memberSet.shuffled()
                 .chunked(2)
                 .toMutableList()
             val strayComponent = chunked.last()
@@ -60,12 +60,13 @@ sealed class SideEffect : (Tournament) -> Unit
             val matchList = tournament.expectedMatchList
                 ?: return
 
+            tournament.roundNumber++
             DPSRedisShared.sendMessage(
                 matchList.stray.flatMap(TournamentMember::players),
                 Message()
                     .withMessage(
                         "&cDue to an uneven number of tournament members, you will not be participating in tournament round #${
-                            tournament.roundNumber++
+                            tournament.roundNumber
                         }."
                     )
             )
@@ -93,7 +94,8 @@ sealed class SideEffect : (Tournament) -> Unit
                         ),
                     ),
                     kitId = tournament.config.kitID,
-                    mapId = randomMap.name
+                    mapId = randomMap.name,
+                    queueId = "tournament"
                 )
 
                 tournament.currentMatchList += expectation

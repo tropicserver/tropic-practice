@@ -39,8 +39,24 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
                 activeTournament!!.stop()
             }
 
+            listen("game-completion") {
+                if (activeTournament == null)
+                {
+                    // never should happen
+                    return@listen
+                }
+
+                val losers = retrieve<List<UUID>>("losers")
+
+                activeTournament!!.memberSet.removeIf {
+                    it.players.any { player -> player in losers }
+                }
+            }
+
             listen("join") {
                 val player = retrieve<UUID>("player")
+                val ableToBypassMaxSize = retrieve<Boolean>("canBypassMax")
+
                 if (activeTournament == null)
                 {
                     DPSRedisShared.sendMessage(
@@ -57,6 +73,30 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
                         listOf(player),
                         Message()
                             .withMessage("&cYou are already in the tournament!")
+                    )
+                    return@listen
+                }
+
+                if (activeTournament!!.stateMachine.state != TournamentState.Populating)
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(player),
+                        Message()
+                            .withMessage("&cThe tournament has already been started!")
+                    )
+                    return@listen
+                }
+
+                val tournamentPlayers = activeTournament!!.memberSet
+                    .flatMap(TournamentMember::players)
+                    .size
+
+                if (!ableToBypassMaxSize && tournamentPlayers >= activeTournament!!.config.maxPlayers)
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(player),
+                        Message()
+                            .withMessage("&cThe tournament is already full!")
                     )
                     return@listen
                 }

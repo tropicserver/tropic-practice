@@ -26,6 +26,7 @@ import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.services.LeaderboardManagerService
+import gg.tropic.practice.services.TournamentManagerService
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
@@ -99,6 +100,20 @@ class GameImpl(
         takeSnapshot(player)
     }
 
+    fun sendInfoToTournamentService(losers: List<UUID>)
+    {
+        if (expectationModel.queueId != "tournament")
+        {
+            return
+        }
+
+        TournamentManagerService
+            .publish(
+                "game-completion",
+                "losers" to losers
+            )
+    }
+
     fun complete(winner: GameTeam?, reason: String = "")
     {
         val newELOMappings = mutableMapOf<UUID, Pair<Int, Int>>()
@@ -120,6 +135,8 @@ class GameImpl(
                 status = GameReportStatus.ForcefullyClosed,
                 extraInformation = extraInformation
             )
+
+            sendInfoToTournamentService(losers = toPlayers())
         } else
         {
             this.toBukkitPlayers()
@@ -140,6 +157,8 @@ class GameImpl(
 
             val opponent = this.getOpponent(winner)
                 ?: return
+
+            sendInfoToTournamentService(losers = opponent.players)
 
             val opponents = opponent.toBukkitPlayers()
                 .filterNotNull()
