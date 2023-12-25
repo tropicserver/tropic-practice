@@ -27,7 +27,8 @@ class GameStopTask(
     private val game: GameImpl,
     private val report: GameReport,
     private val eloMappings: Map<UUID, Pair<Int, Int>>,
-    private val positionUpdates: Map<UUID, CompletableFuture<ScoreUpdates>>
+    private val positionUpdates: Map<UUID, CompletableFuture<ScoreUpdates>>,
+    private val terminationReason: String
 ) : Runnable
 {
     lateinit var task: Task
@@ -47,68 +48,51 @@ class GameStopTask(
                 " ${CC.PRI}Match Overview ${CC.I_GRAY}(Click to view inventories)",
             )
 
+            fun Message.appendPlayers(players: List<UUID>)
+            {
+                if (players.isEmpty())
+                {
+                    return
+                }
+
+                for ((index, winner) in players.withIndex())
+                {
+                    withMessage(CC.YELLOW + winner.username())
+                        .andHoverOf(
+                            "${CC.GREEN}Click to view inventory!"
+                        )
+                        .andCommandOf(
+                            ClickEvent.Action.RUN_COMMAND,
+                            "/matchinventory ${report.identifier} $winner"
+                        )
+
+                    if (index < players.size - 1)
+                    {
+                        withMessage(", ")
+                    }
+                }
+            }
+
             val winnerComponent = Message()
                 .withMessage(
                     " ${CC.GREEN}Winner${
                         if (this.report.winners.size == 1) "" else "s"
-                    }: ${CC.WHITE}"
+                    }: ${CC.WHITE}${
+                        if (report.winners.isEmpty()) "${CC.RED}None!" else ""
+                    }"
                 )
 
-            if (this.report.winners.isEmpty())
-            {
-                winnerComponent.withMessage(" ${CC.RED}N/A")
-            } else
-            {
-                for ((index, winner) in this.report.winners.withIndex())
-                {
-                    winnerComponent
-                        .withMessage(CC.YELLOW + winner.username())
-                        .andHoverOf(
-                            "${CC.GREEN}Click to view inventory!"
-                        )
-                        .andCommandOf(
-                            ClickEvent.Action.RUN_COMMAND,
-                            "/matchinventory ${this.report.identifier} $winner"
-                        )
-
-                    if (index < this.report.winners.size - 1)
-                    {
-                        winnerComponent.withMessage(", ")
-                    }
-                }
-            }
-
-            // this is redundant, but it's 1am. 1am growly is not a DRY growly.
             val loserComponent = Message()
                 .withMessage(
                     "${CC.RED}Loser${
                         if (this.report.losers.size == 1) "" else "s"
-                    }: ${CC.WHITE}"
+                    }: ${CC.WHITE}${
+                        if (report.losers.isEmpty()) "${CC.RED}None!" else ""
+                    }"
                 )
 
-            if (this.report.losers.isEmpty())
-            {
-                loserComponent.withMessage("${CC.RED}N/A")
-            } else
-            {
-                for ((index, loser) in this.report.losers.withIndex())
-                {
-                    loserComponent
-                        .withMessage(CC.YELLOW + loser.username())
-                        .andHoverOf(
-                            "${CC.GREEN}Click to view inventory!"
-                        )
-                        .andCommandOf(
-                            ClickEvent.Action.RUN_COMMAND,
-                            "/matchinventory ${this.report.identifier} $loser"
-                        )
-
-                    if (index < this.report.losers.size - 1)
-                    {
-                        loserComponent.withMessage(", ")
-                    }
-                }
-            }
+            winnerComponent.appendPlayers(report.winners)
+            loserComponent.appendPlayers(report.losers)
 
             if (
                 report.losers.size == 1 &&
@@ -220,6 +204,14 @@ class GameStopTask(
                                 NamedTextColor.GREEN else NamedTextColor.RED
                         )
                         .decorate(TextDecoration.BOLD)
+                )
+            }
+
+            if (terminationReason.isNotBlank())
+            {
+                game.sendMessage(
+                    "${CC.B_RED}✗ ${CC.RED}Your match was terminated!",
+                    "${CC.RED}Reason: ${CC.WHITE}$terminationReason"
                 )
             }
         }

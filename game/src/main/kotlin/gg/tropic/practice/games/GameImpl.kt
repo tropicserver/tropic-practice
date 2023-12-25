@@ -99,29 +99,15 @@ class GameImpl(
         takeSnapshot(player)
     }
 
-    fun complete(winner: GameTeam?)
+    fun complete(winner: GameTeam?, reason: String = "")
     {
-        this.toBukkitPlayers()
-            .filterNotNull()
-            .onEach {
-                val profile = CorePlayerProfileService.find(it)
-                if (profile != null && expectationModel.queueType != null)
-                {
-                    val userIsWinner = winner?.players?.contains(it.uniqueId) == true
-                    val queueMultiplier = expectationModel.queueType!!.coinMultiplier
-                    profile.addCoins(
-                        coins = (queueMultiplier * (if (userIsWinner) 25 else 10)).toInt(),
-                        reason = if (userIsWinner) "Winning a game" else "Playing a game",
-                        feedback = it::sendMessage
-                    )
-                }
-
-                takeSnapshotIfNotAlreadyExists(it)
-            }
-
         val newELOMappings = mutableMapOf<UUID, Pair<Int, Int>>()
         val positionUpdates = mutableMapOf<UUID, CompletableFuture<ScoreUpdates>>()
         val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
+
+        toBukkitPlayers()
+            .filterNotNull()
+            .forEach(::takeSnapshotIfNotAlreadyExists)
 
         if (winner == null)
         {
@@ -136,6 +122,22 @@ class GameImpl(
             )
         } else
         {
+            this.toBukkitPlayers()
+                .filterNotNull()
+                .onEach {
+                    val profile = CorePlayerProfileService.find(it)
+                    if (profile != null && expectationModel.queueType != null)
+                    {
+                        val userIsWinner = winner.players.contains(it.uniqueId)
+                        val queueMultiplier = expectationModel.queueType!!.coinMultiplier
+                        profile.addCoins(
+                            coins = (queueMultiplier * (if (userIsWinner) 25 else 10)).toInt(),
+                            reason = if (userIsWinner) "Winning a game" else "Playing a game",
+                            feedback = it::sendMessage
+                        )
+                    }
+                }
+
             val opponent = this.getOpponent(winner)
                 ?: return
 
@@ -247,7 +249,8 @@ class GameImpl(
 
         val stopTask =
             GameStopTask(
-                this, this.report!!, newELOMappings, positionUpdates
+                this, this.report!!, newELOMappings, positionUpdates,
+                reason
             )
 
         this.activeCountdown = 5

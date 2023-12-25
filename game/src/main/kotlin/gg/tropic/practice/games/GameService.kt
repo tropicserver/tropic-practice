@@ -11,6 +11,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.util.QuickAccess
+import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
 import gg.tropic.game.extensions.cosmetics.killeffects.KillEffectCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.KillEffect
@@ -91,15 +92,18 @@ object GameService
             }
 
             val matchID = retrieve<UUID>("matchID")
+            val terminator = retrieve<UUID>("terminator")
             val game = games[matchID]
                 ?: return@listen
 
-            game.complete(null)
+            game.complete(null, reason = "Ended by an administrator")
 
             QuickAccess.sendGlobalBroadcast(
                 "${CC.L_PURPLE}[P] ${CC.D_PURPLE}[$serverID] ${CC.L_PURPLE}Match ${CC.WHITE}${
                     matchID.toString().substring(0..5)
-                }${CC.L_PURPLE} was terminated by an administrator.",
+                }${CC.L_PURPLE} was terminated by ${CC.B_WHITE}${
+                    terminator.username()
+                }${CC.L_PURPLE}.",
                 permission = "practice.admin"
             )
         }
@@ -629,7 +633,7 @@ object GameService
                     {
                         Tasks.sync {
                             kotlin.runCatching {
-                                it.complete(null)
+                                it.complete(null, reason = "Zero players alive in match")
                             }.onFailure(Throwable::printStackTrace)
                         }
                     }
