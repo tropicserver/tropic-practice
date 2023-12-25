@@ -62,7 +62,6 @@ data class LobbyPlayer(
                     .fromJson(it, QueueState::class.java)
             }
 
-
         val newState = if (queueState != null)
         {
             PlayerState.InQueue
