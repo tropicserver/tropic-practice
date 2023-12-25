@@ -13,7 +13,6 @@ import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
-import net.evilblock.cubed.util.nms.MinecraftProtocol
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.text.Component

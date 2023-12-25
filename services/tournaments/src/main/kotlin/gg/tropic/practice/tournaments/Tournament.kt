@@ -72,7 +72,7 @@ class Tournament(private val config: TournamentConfig) : () -> Unit
         )
     }
 
-    fun join(team: TournamentTeam)
+    fun join(team: TournamentMember)
     {
 
     }

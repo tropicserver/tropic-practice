@@ -50,7 +50,6 @@ import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.*
-import java.util.logging.Logger
 import kotlin.math.ceil
 
 /**
@@ -146,7 +145,7 @@ object GameService
                         GameReference(
                             uniqueId = it.identifier,
                             mapID = it.map.name,
-                            state = it.state.toString(),
+                            state = it.state,
                             players = it.toPlayers(),
                             spectators = it.arenaWorld.players
                                 .filter { player ->

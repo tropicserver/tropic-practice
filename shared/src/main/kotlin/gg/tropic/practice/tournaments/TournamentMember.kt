@@ -6,7 +6,7 @@ import java.util.UUID
  * @author GrowlyX
  * @since 12/18/2023
  */
-data class TournamentTeam(
+data class TournamentMember(
     val leader: UUID,
-    val players: List<UUID>
+    val players: Set<UUID>
 )

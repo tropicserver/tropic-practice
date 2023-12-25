@@ -11,6 +11,7 @@ dependencies {
     implementation(project(":services:replications:replication-models"))
     implementation(project(":shared"))
     implementation(project(":services:queue"))
+    implementation(project(":services:tournaments"))
     implementation(project(":services:statistics"))
     implementation(project(":services:application:api"))
     implementation(project(":services:statistics:leaderboards"))

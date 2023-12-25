@@ -1,5 +1,6 @@
 package gg.tropic.practice.games.models
 
+import gg.tropic.practice.games.GameState
 import java.util.UUID
 
 /**
@@ -10,7 +11,7 @@ data class GameReference(
     val uniqueId: UUID,
     val mapID: String,
     val kitID: String,
-    val state: String, // TODO: Enum
+    val state: GameState,
     val replicationID: String,
     val server: String,
     val players: List<UUID>,

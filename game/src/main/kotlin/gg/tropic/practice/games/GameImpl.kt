@@ -44,7 +44,6 @@ import org.bukkit.event.player.PlayerInteractEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
-import java.util.logging.Logger
 
 /**
  * @author GrowlyX

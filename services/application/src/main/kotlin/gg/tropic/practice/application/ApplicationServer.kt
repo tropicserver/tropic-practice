@@ -136,6 +136,7 @@ fun main(args: Array<String>) = mainBody {
     GameManager.load()
     GameQueueManager.load()
     ReplicationManager.load()
+    TournamentManager
 
     LeaderboardManager.load()
 
