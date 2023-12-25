@@ -1,6 +1,7 @@
 package gg.tropic.practice.games
 
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.feature.GameReportFeature
@@ -103,6 +104,18 @@ class GameImpl(
         this.toBukkitPlayers()
             .filterNotNull()
             .onEach {
+                val profile = CorePlayerProfileService.find(it)
+                if (profile != null && expectationModel.queueType != null)
+                {
+                    val userIsWinner = winner?.players?.contains(it.uniqueId) == true
+                    val queueMultiplier = expectationModel.queueType!!.coinMultiplier
+                    profile.addCoins(
+                        coins = (queueMultiplier * (if (userIsWinner) 25 else 10)).toInt(),
+                        reason = if (userIsWinner) "Winning a game" else "Playing a game",
+                        feedback = it::sendMessage
+                    )
+                }
+
                 takeSnapshotIfNotAlreadyExists(it)
             }
 
