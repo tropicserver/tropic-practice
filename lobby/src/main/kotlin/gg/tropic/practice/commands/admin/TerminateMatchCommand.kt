@@ -62,7 +62,8 @@ object TerminateMatchCommand : ScalaCommand()
                             "terminate",
                             ScalaCommonsSpigot.instance.aware,
                             "server" to reference.server,
-                            "matchID" to reference.uniqueId
+                            "matchID" to reference.uniqueId,
+                            "terminator" to player.uniqueId
                         )
                         .publish(
                             AwareThreadContext.SYNC,

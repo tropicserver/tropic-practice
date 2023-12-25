@@ -73,31 +73,31 @@ class GameStopTask(
                 }
             }
 
+            val matchIs1v1 = report.losers.size == 1 &&
+                report.winners.size == 1
+
             val winnerComponent = Message()
                 .withMessage(
                     " ${CC.GREEN}Winner${
                         if (this.report.winners.size == 1) "" else "s"
                     }: ${CC.WHITE}${
-                        if (report.winners.isEmpty()) "${CC.RED}None!" else ""
+                        if (report.winners.isEmpty()) "${CC.WHITE}None!" else ""
                     }"
                 )
 
             val loserComponent = Message()
                 .withMessage(
-                    "${CC.RED}Loser${
+                    "${if (!matchIs1v1) " " else ""}${CC.RED}Loser${
                         if (this.report.losers.size == 1) "" else "s"
                     }: ${CC.WHITE}${
-                        if (report.losers.isEmpty()) "${CC.RED}None!" else ""
+                        if (report.losers.isEmpty()) "${CC.WHITE}None!" else ""
                     }"
                 )
 
             winnerComponent.appendPlayers(report.winners)
             loserComponent.appendPlayers(report.losers)
 
-            if (
-                report.losers.size == 1 &&
-                report.winners.size == 1
-            )
+            if (matchIs1v1)
             {
                 val consolidatedMessage = Message()
                 consolidatedMessage.components += winnerComponent.components
@@ -108,10 +108,7 @@ class GameStopTask(
                 game.sendMessage(consolidatedMessage)
             } else
             {
-                this.game.sendMessage(
-                    winnerComponent,
-                    loserComponent
-                )
+                this.game.sendMessage(winnerComponent, loserComponent)
             }
 
             this.game.sendMessage("")
@@ -211,7 +208,8 @@ class GameStopTask(
             {
                 game.sendMessage(
                     "${CC.B_RED}✗ ${CC.RED}Your match was terminated!",
-                    "${CC.RED}Reason: ${CC.WHITE}$terminationReason"
+                    "${CC.RED}Reason: ${CC.WHITE}$terminationReason",
+                    ""
                 )
             }
         }
