@@ -181,7 +181,7 @@ class Tournament(private val config: TournamentConfig) : () -> Unit
                     ClickEvent.Action.RUN_COMMAND,
                     "/tournament join"
                 )
-                .andHoverOf("&aClick to join!")
+                .andHoverOf("Click to join!")
                 .withMessage("")
         )
     }
