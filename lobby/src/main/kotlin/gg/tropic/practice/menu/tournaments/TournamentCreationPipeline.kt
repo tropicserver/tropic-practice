@@ -85,7 +85,7 @@ object TournamentCreationPipeline
             }
 
             override fun size(buttons: Map<Int, Button>) = 27
-            override fun getButtons(player: Player) = Region.entries
+            override fun getButtons(player: Player) = listOf(Region.NA, Region.EU)
                 .mapIndexed { index, region ->
                     10 + index to ItemBuilder
                         .copyOf(
@@ -159,9 +159,7 @@ object TournamentCreationPipeline
 
         override fun size(buttons: Map<Int, Button>) = 27
         override fun getButtons(player: Player) = mutableMapOf(
-            10 to teamSizeOf(1),
-            11 to teamSizeOf(2),
-            12 to teamSizeOf(3)
+            10 to teamSizeOf(1)
         )
     }
 }

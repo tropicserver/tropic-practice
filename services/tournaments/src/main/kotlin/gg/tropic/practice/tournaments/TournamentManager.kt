@@ -3,9 +3,11 @@ package gg.tropic.practice.tournaments
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.serializable.Message
+import io.netty.util.internal.ConcurrentSet
 import org.apache.commons.lang3.time.DurationFormatUtils
 import java.time.Duration
-import java.util.UUID
+import java.util.*
+import java.util.concurrent.ConcurrentSkipListSet
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 
@@ -15,10 +17,10 @@ import java.util.concurrent.ScheduledExecutorService
  */
 object TournamentManager : ScheduledExecutorService by Executors.newScheduledThreadPool(3)
 {
-    private val redis = DPSRedisService("tournaments")
+    val redis = DPSRedisService("tournaments")
         .apply(DPSRedisService::start)
 
-    private var activeTournament: Tournament? = null
+    var activeTournament: Tournament? = null
     private var tournamentCreationCooldown = -1L
 
     fun load()
@@ -37,20 +39,44 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
                 }
 
                 activeTournament!!.stop()
+
+                DPSRedisShared.sendMessage(
+                    listOf(player),
+                    Message()
+                        .withMessage("&aEnded the active tournament!")
+                )
             }
 
             listen("game-completion") {
                 if (activeTournament == null)
                 {
-                    // never should happen
                     return@listen
                 }
 
-                val losers = retrieve<List<UUID>>("losers")
+                val losers = retrieve<List<String>>("losers").toSet()
+                activeTournament!!.currentRoundLosers += losers
+                    .map {
+                        UUID.fromString(it)
+                    }
+            }
 
-                activeTournament!!.memberSet.removeIf {
-                    it.players.any { player -> player in losers }
+            listen("force-start") {
+                val player = retrieve<UUID>("player")
+                if (activeTournament == null)
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(player),
+                        Message()
+                            .withMessage("&cThere is no active tournament!")
+                    )
+                    return@listen
                 }
+
+                val losers = retrieve<List<String>>("losers").toSet()
+                activeTournament!!.currentRoundLosers += losers
+                    .map {
+                        UUID.fromString(it)
+                    }
             }
 
             listen("join") {
@@ -142,6 +168,8 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
 
                 activeTournament = Tournament(config = config)
                 activeTournament!!.startResources()
+
+                tournamentCreationCooldown = System.currentTimeMillis()
 
                 DPSRedisShared.sendMessage(
                     listOf(config.creator),

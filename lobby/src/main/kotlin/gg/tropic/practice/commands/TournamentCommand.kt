@@ -44,7 +44,9 @@ object TournamentCommand : ScalaCommand()
     fun onJoin(player: ScalaPlayer) = TournamentManagerService
         .publish(
             "join",
-            "player" to player.uniqueId
+            "player" to player.uniqueId,
+            "canBypassMax" to player.bukkit()
+                .hasPermission("practice.tournament.bypass-join-restriction")
         )
 
     @AssignPermission
