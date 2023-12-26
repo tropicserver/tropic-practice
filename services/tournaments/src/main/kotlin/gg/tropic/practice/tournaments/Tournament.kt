@@ -225,7 +225,8 @@ class Tournament(val config: TournamentConfig) : () -> Unit
                 DPSRedisShared.sendBroadcast(
                     Message()
                         .withMessage("&aRound &l#$roundNumber&a has started!")
-                        .withMessage(
+                        // TODO: implement this
+                        /*.withMessage(
                             "&a&l(click to view info)"
                         )
                         .andHoverOf(
@@ -234,7 +235,7 @@ class Tournament(val config: TournamentConfig) : () -> Unit
                         .andCommandOf(
                             ClickEvent.Action.RUN_COMMAND,
                             "/tournament view"
-                        )
+                        )*/
                 )
             }
 
