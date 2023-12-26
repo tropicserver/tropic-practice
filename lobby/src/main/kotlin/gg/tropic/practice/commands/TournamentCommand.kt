@@ -57,4 +57,13 @@ object TournamentCommand : ScalaCommand()
             "end",
             "player" to player.uniqueId
         )
+
+    @AssignPermission
+    @Subcommand("force-start")
+    @Description("Force-start the ongoing tournament!")
+    fun onForceStart(player: ScalaPlayer) = TournamentManagerService
+        .publish(
+            "force-start",
+            "player" to player.uniqueId
+        )
 }

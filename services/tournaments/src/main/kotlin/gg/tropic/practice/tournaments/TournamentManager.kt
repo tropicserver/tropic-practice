@@ -72,11 +72,23 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
                     return@listen
                 }
 
-                val losers = retrieve<List<String>>("losers").toSet()
-                activeTournament!!.currentRoundLosers += losers
-                    .map {
-                        UUID.fromString(it)
-                    }
+                if (activeTournament!!.stateMachine.state != TournamentState.Populating)
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(player),
+                        Message()
+                            .withMessage("&cThe tournament has already been started!")
+                    )
+                    return@listen
+                }
+
+                activeTournament!!.stateMachine.transition(StateEvent.OnPopulated)
+
+                DPSRedisShared.sendMessage(
+                    listOf(player),
+                    Message()
+                        .withMessage("&aForce started the tournament!")
+                )
             }
 
             listen("join") {

@@ -133,17 +133,15 @@ sealed class SideEffect : (Tournament) -> Unit
                 Message()
                     .withMessage("&a&lThe tournament has ended!")
                     .withMessage(
-                        "",
-                        "&aWinners:"
-                    )
-                    .withMessage(
-                        tournament.memberSet.first().players
-                            .joinToString(
-                                separator = ", ",
-                                transform = {
-                                    ScalaStoreUuidCache.username(it) ?: "??"
-                                }
-                            )
+                        "&aWinners: &f${
+                            tournament.memberSet.first().players
+                                .joinToString(
+                                    separator = ", ",
+                                    transform = {
+                                        ScalaStoreUuidCache.username(it) ?: "??"
+                                    }
+                                )
+                        }"
                     )
             )
 
