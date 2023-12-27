@@ -12,6 +12,8 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.menu.tournaments.TournamentCreationPipeline
+import gg.tropic.practice.player.LobbyPlayerService
+import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.services.TournamentManagerService
 
 /**
@@ -48,6 +50,33 @@ object TournamentCommand : ScalaCommand()
             "canBypassMax" to player.bukkit()
                 .hasPermission("practice.tournament.bypass-join-restriction")
         )
+        .thenRun {
+            val lobbyPlayer = LobbyPlayerService.find(player.bukkit())
+                ?: return@thenRun
+
+            synchronized(lobbyPlayer.stateUpdateLock) {
+                lobbyPlayer.state = PlayerState.InTournament
+                lobbyPlayer.maintainStateTimeout = System.currentTimeMillis() + 1000L
+            }
+        }
+
+    @AssignPermission
+    @Subcommand("leave")
+    @Description("Leave the ongoing tournament!")
+    fun onLeave(player: ScalaPlayer) = TournamentManagerService
+        .publish(
+            "leave",
+            "player" to player.uniqueId
+        )
+        .thenRun {
+            val lobbyPlayer = LobbyPlayerService.find(player.bukkit())
+                ?: return@thenRun
+
+            synchronized(lobbyPlayer.stateUpdateLock) {
+                lobbyPlayer.state = PlayerState.Idle
+                lobbyPlayer.maintainStateTimeout = System.currentTimeMillis() + 1000L
+            }
+        }
 
     @AssignPermission
     @Subcommand("end")

@@ -1,7 +1,6 @@
 package gg.tropic.practice.tournaments
 
 import com.tinder.StateMachine
-import gg.scala.aware.message.AwareMessage
 import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.tropic.practice.application.api.DPSRedisShared
@@ -9,7 +8,6 @@ import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.serializable.Message
-import net.evilblock.cubed.ScalaCommonsSpigot
 import net.md_5.bungee.api.chat.ClickEvent
 import java.util.*
 import java.util.concurrent.ScheduledFuture
@@ -136,6 +134,14 @@ class Tournament(val config: TournamentConfig) : () -> Unit
         }
 
         TournamentManager.activeTournament = null
+    }
+
+    fun leaveTournament(uniqueId: UUID)
+    {
+        // TODO: support multi player teams
+        this.memberSet.removeIf {
+            it.leader == uniqueId
+        }
     }
 
     fun joinTournament(uniqueId: UUID)

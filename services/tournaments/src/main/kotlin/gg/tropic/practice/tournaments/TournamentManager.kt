@@ -4,12 +4,14 @@ import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.serializable.Message
 import io.netty.util.internal.ConcurrentSet
+import net.evilblock.cubed.serializers.Serializers
 import org.apache.commons.lang3.time.DurationFormatUtils
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.ConcurrentSkipListSet
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
 
 /**
  * @author GrowlyX
@@ -25,6 +27,23 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
 
     fun load()
     {
+        scheduleAtFixedRate({
+            if (activeTournament == null)
+            {
+                return@scheduleAtFixedRate
+            }
+
+            DPSRedisShared.keyValueCache.sync()
+                .setex(
+                    "tropicpractice:tournaments:members",
+                    5L,
+                    Serializers.gson.toJson(TournamentMemberList(
+                        activeTournament!!.memberSet
+                            .flatMap(TournamentMember::players)
+                    ))
+                )
+        }, 0L, 50L, TimeUnit.MILLISECONDS)
+
         redis.configure {
             listen("end") {
                 val player = retrieve<UUID>("player")
@@ -88,6 +107,38 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
                     listOf(player),
                     Message()
                         .withMessage("&aForce started the tournament!")
+                )
+            }
+
+            listen("leave") {
+                val player = retrieve<UUID>("player")
+
+                if (activeTournament == null)
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(player),
+                        Message()
+                            .withMessage("&cThere is no active tournament!")
+                    )
+                    return@listen
+                }
+
+                if (!activeTournament!!.isInTournament(player))
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(player),
+                        Message()
+                            .withMessage("&cYou are not in the tournament!")
+                    )
+                    return@listen
+                }
+
+                activeTournament!!.leaveTournament(player)
+
+                DPSRedisShared.sendMessage(
+                    listOf(player),
+                    Message()
+                        .withMessage("&cYou have left the tournament!")
                 )
             }
 

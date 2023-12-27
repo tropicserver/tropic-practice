@@ -2,6 +2,7 @@ package gg.tropic.practice.player.hotbar
 
 import com.cryptomorin.xseries.XMaterial
 import gg.scala.basics.plugin.settings.SettingMenu
+import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -11,6 +12,7 @@ import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
 import gg.tropic.practice.PracticeLobby
+import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.kit.KitService
@@ -27,6 +29,7 @@ import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
+import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -41,6 +44,9 @@ object LobbyHotbarService
 {
     @Inject
     lateinit var plugin: PracticeLobby
+
+    @Inject
+    lateinit var audiences: BukkitAudiences
 
     private val hotbarCache = mutableMapOf<PlayerState, HotbarPreset>()
 
@@ -305,8 +311,66 @@ object LobbyHotbarService
             }
         )
 
+        inQueuePreset.addSlot(
+            0,
+            StaticHotbarPresetEntry(
+                ItemBuilder(Material.BOOK)
+                    .name("${CC.D_AQUA}Kit Editor ${CC.GRAY}(Right Click)")
+            ).also {
+                it.onClick = { player ->
+                    val profile = PracticeProfileService.find(player)
+
+                    if (profile != null)
+                    {
+                        EditorKitSelectionMenu(profile).openMenu(player)
+                    }
+                }
+            }
+        )
+
         HotbarPresetHandler.startTrackingHotbar("inQueue", inQueuePreset)
         hotbarCache[PlayerState.InQueue] = inQueuePreset
+
+        val inTournamentPreset = HotbarPreset()
+        inTournamentPreset.addSlot(
+            8,
+            StaticHotbarPresetEntry(
+                ItemBuilder(XMaterial.RED_DYE)
+                    .name("${CC.RED}Leave Tournament ${CC.GRAY}(Right Click)")
+            ).also {
+                it.onClick = scope@{ player ->
+                    TournamentCommand
+                        .onLeave(
+                            ScalaPlayer(
+                                player = player,
+                                audiences = audiences,
+                                plugin = plugin
+                            )
+                        )
+                        .join()
+                }
+            }
+        )
+
+        inTournamentPreset.addSlot(
+            0,
+            StaticHotbarPresetEntry(
+                ItemBuilder(Material.BOOK)
+                    .name("${CC.D_AQUA}Kit Editor ${CC.GRAY}(Right Click)")
+            ).also {
+                it.onClick = { player ->
+                    val profile = PracticeProfileService.find(player)
+
+                    if (profile != null)
+                    {
+                        EditorKitSelectionMenu(profile).openMenu(player)
+                    }
+                }
+            }
+        )
+
+        HotbarPresetHandler.startTrackingHotbar("inTournament", inTournamentPreset)
+        hotbarCache[PlayerState.InTournament] = inTournamentPreset
 
         Events
             .subscribe(

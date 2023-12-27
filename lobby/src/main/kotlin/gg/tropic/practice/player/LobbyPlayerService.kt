@@ -5,11 +5,13 @@ import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
 import gg.scala.aware.message.AwareMessage
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
+import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
+import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.queue.QueueService
@@ -207,6 +209,13 @@ object LobbyPlayerService
                 if (profile.leaveQueueOnLogout && profile.inQueue())
                 {
                     QueueService.leaveQueue(event.player)
+                }
+
+                if (profile.state == PlayerState.InTournament)
+                {
+                    TournamentCommand.onLeave(
+                        ScalaPlayer(event.player, audiences, plugin)
+                    )
                 }
             }
             .bindWith(plugin)

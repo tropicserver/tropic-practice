@@ -8,6 +8,11 @@ import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.tropic.practice.tournaments.TournamentMemberList
+import me.lucko.helper.Schedulers
+import net.evilblock.cubed.ScalaCommonsSpigot
+import net.evilblock.cubed.serializers.Serializers
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.logging.Logger
 
@@ -29,10 +34,34 @@ object TournamentManagerService
             .build()
     }
 
+    private var tournamentMembers = mutableListOf<UUID>()
+
+    fun isInTournament(uniqueId: UUID) = uniqueId in tournamentMembers
+
     @Configure
     fun configure()
     {
         aware.connect()
+
+        Schedulers
+            .async()
+            .runRepeating({ _ ->
+                val members = ScalaCommonsSpigot.instance
+                    .kvConnection
+                    .sync()
+                    .get("tropicpractice:tournaments:members")
+
+                tournamentMembers = if (members != null)
+                {
+                    Serializers.gson
+                        .fromJson(members, TournamentMemberList::class.java)
+                        .members
+                        .toMutableList()
+                } else
+                {
+                    mutableListOf()
+                }
+            }, 0L, 1L)
     }
 
     fun publish(

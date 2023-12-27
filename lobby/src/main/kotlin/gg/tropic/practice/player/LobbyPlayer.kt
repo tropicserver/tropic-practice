@@ -4,6 +4,7 @@ import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.player.hotbar.LobbyHotbarService
 import gg.tropic.practice.queue.QueueEntry
 import gg.tropic.practice.queue.QueueState
+import gg.tropic.practice.services.TournamentManagerService
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
 import org.bukkit.Bukkit
@@ -62,12 +63,12 @@ data class LobbyPlayer(
                     .fromJson(it, QueueState::class.java)
             }
 
-        val newState = if (queueState != null)
+        val userInTournament = TournamentManagerService.isInTournament(uniqueId)
+        val newState = when (true)
         {
-            PlayerState.InQueue
-        } else
-        {
-            PlayerState.Idle
+            userInTournament -> PlayerState.InTournament
+            (queueState != null) -> PlayerState.InQueue
+            else -> PlayerState.Idle
         }
 
         // newState is just a wrapped null check
