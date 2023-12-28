@@ -586,13 +586,16 @@ object GameService
                 if (shooter is Player)
                 {
                     val game = byPlayer(shooter)
-                        ?: return@handler
+                        ?: return@handler run {
+                            it.isCancelled = true
+                        }
 
                     val counter = game.counter(shooter)
                     val intensity = it.getIntensity(shooter)
                     val effect = it.potion.effects
                         .firstOrNull { effect -> effect.type == PotionEffectType.HEAL }
                         ?: return@handler
+
 
                     counter.increment("totalPots")
                     counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")
@@ -809,10 +812,10 @@ object GameService
                 it.entity is Player
             }
             .handler {
-                val game = byPlayer(
-                    it.entity as Player
-                )
-                    ?: return@handler
+                val game = byPlayerOrSpectator(it.entity.uniqueId)
+                    ?: return@handler run {
+                        it.isCancelled = true
+                    }
 
                 if (!game.ensurePlaying())
                 {

@@ -635,11 +635,11 @@ class GameImpl(
         loadoutSelection[player.uniqueId] = terminable
     }
 
-    fun counter(player: Player) = playerCounters.getOrPut(player.uniqueId, ::Counter)
+    fun counter(player: Player) = playerCounters.getOrPut(player.uniqueId) { Counter(player.uniqueId) }
     fun buildResources()
     {
         toPlayers().forEach {
-            playerCounters[it] = Counter()
+            playerCounters[it] = Counter(it)
         }
     }
 }

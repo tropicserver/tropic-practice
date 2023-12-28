@@ -6,12 +6,9 @@ import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.menu.editor.AllowRemoveItemsWithinInventory
-import gg.tropic.practice.menu.editor.ExtraContentSelectionMenu
-import gg.tropic.practice.player.LobbyPlayerService
 import me.lucko.helper.Events
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.bukkit.ItemUtils
-import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
