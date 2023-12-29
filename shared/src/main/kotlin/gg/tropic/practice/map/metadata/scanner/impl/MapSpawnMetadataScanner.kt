@@ -21,8 +21,8 @@ object MapSpawnMetadataScanner : AbstractMapMetadataScanner<MapSpawnMetadata>()
         BlockFace.SOUTH to 0.0F,
         BlockFace.EAST to -90.0F,
 
+        BlockFace.SOUTH_WEST to 45.0F,
         BlockFace.SOUTH_EAST to -45.0F,
-        BlockFace.SOUTH_WEST to -45.0F,
         BlockFace.NORTH_WEST to 135.0F,
         BlockFace.NORTH_EAST to -135.0F
     )
