@@ -20,6 +20,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.metadata.FixedMetadataValue
+import org.spigotmc.event.player.PlayerSpawnLocationEvent
 
 /**
  * @author GrowlyX
@@ -73,10 +74,7 @@ object ExpectationService
             .bindWith(plugin)
 
         Events
-            .subscribe(
-                PlayerJoinEvent::class.java,
-                EventPriority.MONITOR
-            )
+            .subscribe(PlayerSpawnLocationEvent::class.java)
             .handler {
                 val game = GameService
                     .byPlayerOrSpectator(it.player.uniqueId)
@@ -97,25 +95,18 @@ object ExpectationService
                         .first().location
                 }
 
-                it.player.teleport(spawnLocation)
+                it.spawnLocation = spawnLocation
+            }
 
-                Schedulers
-                    .sync()
-                    .runRepeating({ task ->
-                        if (!it.player.isOnline)
-                        {
-                            task.closeAndReportException()
-                            return@runRepeating
-                        }
-
-                        if (it.player.world == spawnLocation.world)
-                        {
-                            task.closeAndReportException()
-                            return@runRepeating
-                        }
-
-                        it.player.teleport(spawnLocation)
-                    }, 1L, 5L)
+        Events
+            .subscribe(
+                PlayerJoinEvent::class.java,
+                EventPriority.MONITOR
+            )
+            .handler {
+                val game = GameService
+                    .byPlayerOrSpectator(it.player.uniqueId)
+                    ?: return@handler
 
                 it.player.resetAttributes()
 

@@ -1,6 +1,5 @@
 package gg.tropic.practice.statistics
 
-import org.bukkit.Bukkit
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -25,9 +24,10 @@ data class Counter(
     {
         mappings.compute(id) { _, value ->
             val old = (value ?: 0.0)
-            Bukkit.getPlayer(owner)?.apply {
+            // TODO: Debug
+            /*Bukkit.getPlayer(owner)?.apply {
                 sendMessage("$id: $old -> ${old + amount}")
-            }
+            }*/
             old + amount
         }
     }

@@ -21,6 +21,7 @@ import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import org.bukkit.World
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld
 import org.bukkit.event.world.WorldLoadEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture

@@ -86,7 +86,6 @@ class Tournament(val config: TournamentConfig) : () -> Unit
                         )
                     }
 
-                    println("Completing")
                     transitionTo(
                         TournamentState.Ended,
                         SideEffect.FinalizeTournamentAndDispose
