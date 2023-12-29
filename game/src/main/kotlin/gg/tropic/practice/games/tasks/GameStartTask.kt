@@ -165,7 +165,7 @@ class GameStartTask(
 
             this.game.completeLoadoutSelection()
             this.game.sendMessage("${CC.GREEN}The game has started!")
-            this.game.playSound(Sound.NOTE_PLING)
+            this.game.playSound(Sound.NOTE_PLING,  pitch = 1.6f)
             this.game.audiences { it.clearTitle() }
 
             this.game.state = GameState.Playing

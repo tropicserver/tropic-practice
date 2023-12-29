@@ -334,12 +334,12 @@ class GameImpl(
         }
     }
 
-    fun playSound(sound: Sound)
+    fun playSound(sound: Sound, pitch: Float = 1.0f)
     {
         this.toBukkitPlayers()
             .filterNotNull()
             .forEach {
-                it.playSound(it.location, sound, 1.0f, 1.0f)
+                it.playSound(it.location, sound, 1.0f, pitch)
             }
     }
 
