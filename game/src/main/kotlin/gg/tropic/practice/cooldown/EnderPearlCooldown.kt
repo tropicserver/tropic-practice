@@ -71,8 +71,8 @@ object EnderPearlCooldown : PlayerStaticCooldown(
                     player.level = seconds
                     player.exp = max(
                         (time.toFloat() / 15000.0f).toDouble(),
-                        0.0
-                    ).toFloat() // math max to 0 to avoid negative.
+                        1.0
+                    ).toFloat() // math max to 1 to avoid negative/clear.
                 }
             }, 0L, 1L)
 
