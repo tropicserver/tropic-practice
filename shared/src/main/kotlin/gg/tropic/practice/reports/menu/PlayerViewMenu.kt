@@ -60,7 +60,7 @@ class PlayerViewMenu(
 
         buttons[47] = ItemBuilder.of(XMaterial.GLISTERING_MELON_SLICE)
             .name("${CC.B_SEC}Health: ${CC.RED}${"%.1f".format(snapshot.health.toFloat())}${Constants.HEART_SYMBOL}")
-            .amount(snapshot.foodLevel)
+            .amount(snapshot.health.toInt())
             .toButton()
 
         buttons[48] = ItemBuilder.of(Material.COOKED_BEEF)
