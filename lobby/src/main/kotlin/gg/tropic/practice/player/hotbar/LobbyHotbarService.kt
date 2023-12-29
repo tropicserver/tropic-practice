@@ -187,7 +187,8 @@ object LobbyHotbarService
                     .setUnbreakable(true)
             ).also {
                 it.onClick = { player ->
-                    CasualQueueSelectSizeMenu().openMenu(player)
+                    JoinQueueMenu(QueueType.Casual, 1).openMenu(player)
+//                    CasualQueueSelectSizeMenu().openMenu(player)
                 }
             }
         )
