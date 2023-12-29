@@ -20,6 +20,11 @@ class RankedKitStatistics : KitStatistics()
     val dailyEloChange = SingleDayLifetime(defaultValue = 0)
     val weeklyEloChange = SingleWeekLifetime(defaultValue = 0)
 
+    fun updateELO(newElo: Int)
+    {
+        this.elo = newElo
+    }
+
     fun eloUpdates() = ApplyUpdates<Int>(listOf({
         this.elo = it
     }, {
