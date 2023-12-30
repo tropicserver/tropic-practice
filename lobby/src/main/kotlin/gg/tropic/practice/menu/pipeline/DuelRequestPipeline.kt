@@ -12,9 +12,12 @@ import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.menu.template.TemplateMapMenu
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.region.PlayerRegionFromRedisProxy
+import gg.tropic.practice.region.Region
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
+import net.evilblock.cubed.menu.buttons.TexturedHeadButton
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.nms.MinecraftReflection
@@ -32,7 +35,8 @@ object DuelRequestPipeline
     private fun stage2ASendDuelRequestRandomMap(
         player: Player,
         target: UUID,
-        kit: Kit
+        kit: Kit,
+        selectedRegion: Region?
     )
     {
         player.closeInventory()
@@ -43,7 +47,7 @@ object DuelRequestPipeline
                     requester = player.uniqueId,
                     requesterPing = MinecraftReflection.getPing(player),
                     requestee = target,
-                    region = it,
+                    region = selectedRegion ?: it,
                     kitID = kit.id
                 )
 
@@ -57,7 +61,7 @@ object DuelRequestPipeline
                     return@whenComplete
                 }
 
-                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on a random map. ${CC.GRAY}(${region.name} Region)")
+                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on a random map. ${CC.GRAY}(${(selectedRegion ?: region).name} Region)")
             }
     }
 
@@ -65,7 +69,8 @@ object DuelRequestPipeline
         player: Player,
         target: UUID,
         kit: Kit,
-        map: Map
+        map: Map,
+        selectedRegion: Region?
     )
     {
         player.closeInventory()
@@ -76,7 +81,7 @@ object DuelRequestPipeline
                     requester = player.uniqueId,
                     requesterPing = MinecraftReflection.getPing(player),
                     requestee = target,
-                    region = it,
+                    region = selectedRegion ?: it,
                     kitID = kit.id,
                     mapID = map.name
                 )
@@ -91,7 +96,7 @@ object DuelRequestPipeline
                     return@whenComplete
                 }
 
-                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on ${CC.GREEN}${map.displayName}${CC.SEC}. ${CC.GRAY}(${region.name} Region)")
+                player.sendMessage("Sent ${CC.PRI}${target.username()} ${CC.SEC}a ${CC.GREEN}${kit.displayName}${CC.SEC} duel request on ${CC.GREEN}${map.displayName}${CC.SEC}. ${CC.GRAY}(${(selectedRegion ?: region).name} Region)")
             }
     }
 
@@ -113,7 +118,8 @@ object DuelRequestPipeline
         // weird initialization issues from parent/super class requires us to pass this through
         kitGroups: Set<String> = KitGroupService.groupsOf(kit)
             .map(KitGroup::id)
-            .toSet()
+            .toSet(),
+        selectedRegion: Region?
     ) = object : TemplateMapMenu()
     {
         override fun filterDisplayOfMap(map: Map) = map.associatedKitGroups
@@ -129,7 +135,7 @@ object DuelRequestPipeline
         override fun itemClicked(player: Player, map: Map, type: ClickType)
         {
             Button.playNeutral(player)
-            stage3SendDuelRequest(player, target, kit, map)
+            stage3SendDuelRequest(player, target, kit, map, selectedRegion)
         }
 
         override fun getGlobalButtons(player: Player) = mutableMapOf(
@@ -141,8 +147,8 @@ object DuelRequestPipeline
                     "${CC.AQUA}Click to select!"
                 )
                 .toButton { _, _ ->
-                    Button.playNeutral(player)
-                    stage2ASendDuelRequestRandomMap(player, target, kit)
+                    Button.playSuccess(player)
+                    stage2ASendDuelRequestRandomMap(player, target, kit, selectedRegion)
                 }
         )
 
@@ -160,6 +166,40 @@ object DuelRequestPipeline
     fun build(target: UUID) = object : TemplateKitMenu()
     {
         private var kitSelectionLock = false
+        private var regionSelection: Region? = null
+
+        override fun getGlobalButtons(player: Player) = mapOf(
+            4 to ItemBuilder
+                .copyOf(
+                    object : TexturedHeadButton(Constants.GLOBE_ICON){}.getButtonItem(player)
+                )
+                .name("${CC.GREEN}Region")
+                .addToLore(
+                    "${
+                        if (regionSelection == null) CC.WHITE else CC.GRAY
+                    }Closest ${CC.D_GRAY}${
+                        Constants.THIN_VERTICAL_LINE
+                    } ${
+                        if (regionSelection == Region.NA) CC.WHITE else CC.GRAY
+                    }NA ${CC.D_GRAY}${
+                        Constants.THIN_VERTICAL_LINE
+                    } ${
+                        if (regionSelection == Region.EU) CC.WHITE else CC.GRAY
+                    }EU"
+                )
+                .toButton { _, _ ->
+                    regionSelection = when (regionSelection)
+                    {
+                        null -> Region.NA
+                        Region.NA -> Region.EU
+                        Region.EU -> null
+                        Region.Both -> null
+                    }
+
+                    Button.playSuccess(player)
+                }
+        )
+
         override fun filterDisplayOfKit(player: Player, kit: Kit) = true
 
         override fun itemTitleFor(player: Player, kit: Kit) = "${CC.B_GREEN}${kit.displayName}"
@@ -193,7 +233,9 @@ object DuelRequestPipeline
 
                     if (player.hasPermission("practice.duel.select-custom-map"))
                     {
-                        val stage2B = stage2BSendDuelRequestCustomMap(target, kit, this)
+                        val stage2B = stage2BSendDuelRequestCustomMap(
+                            target, kit, this, selectedRegion = regionSelection
+                        )
 
                         if (!stage2B.ensureMapsAvailable())
                         {
@@ -213,8 +255,9 @@ object DuelRequestPipeline
 
                     kitSelectionLock = false
 
-                    Button.playNeutral(player)
-                    stage2ASendDuelRequestRandomMap(player, target, kit)
+                    Button.playSuccess(player)
+                    stage2ASendDuelRequestRandomMap(player, target, kit,
+                        regionSelection)
                 }
                 .exceptionally {
                     kitSelectionLock = false
