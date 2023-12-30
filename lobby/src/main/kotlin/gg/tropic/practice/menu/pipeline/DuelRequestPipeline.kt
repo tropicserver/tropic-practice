@@ -181,15 +181,15 @@ object DuelRequestPipeline
                 .name("${CC.GREEN}Region")
                 .addToLore(
                     "${
-                        if (regionSelection == null) CC.WHITE else CC.GRAY
+                        if (regionSelection == null) CC.B_WHITE else CC.GRAY
                     }Closest ${CC.D_GRAY}${
                         Constants.THIN_VERTICAL_LINE
                     } ${
-                        if (regionSelection == Region.NA) CC.WHITE else CC.GRAY
+                        if (regionSelection == Region.NA) CC.B_WHITE else CC.GRAY
                     }NA ${CC.D_GRAY}${
                         Constants.THIN_VERTICAL_LINE
                     } ${
-                        if (regionSelection == Region.EU) CC.WHITE else CC.GRAY
+                        if (regionSelection == Region.EU) CC.B_WHITE else CC.GRAY
                     }EU"
                 )
                 .toButton { _, _ ->
