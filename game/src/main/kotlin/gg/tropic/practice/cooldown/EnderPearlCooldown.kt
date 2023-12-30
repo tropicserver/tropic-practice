@@ -45,9 +45,7 @@ object EnderPearlCooldown : PlayerStaticCooldown(
                 "duration"
             )
 
-        return TimeUnit.SECONDS.toMillis(
-            duration.toLong() + 1L
-        )
+        return TimeUnit.SECONDS.toMillis(duration.toLong())
     }
 
     @Configure

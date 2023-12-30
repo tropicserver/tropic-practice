@@ -6,6 +6,7 @@ import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.acf.annotation.CommandCompletion
 import gg.scala.commons.acf.annotation.CommandPermission
+import gg.scala.commons.acf.annotation.Optional
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
@@ -26,7 +27,7 @@ object TerminateMatchCommand : ScalaCommand()
     @CommandAlias("terminatematch")
     @CommandCompletion("@mip-players")
     @CommandPermission("practice.command.terminatematch")
-    fun onTerminateMatch(player: ScalaPlayer, target: AsyncLemonPlayer) = target
+    fun onTerminateMatch(player: ScalaPlayer, target: AsyncLemonPlayer, @Optional reason: String?) = target
         .validatePlayers(player.bukkit(), false) {
             val online = QuickAccess
                 .online(it.uniqueId)
@@ -64,7 +65,8 @@ object TerminateMatchCommand : ScalaCommand()
                             ScalaCommonsSpigot.instance.aware,
                             "server" to reference.server,
                             "matchID" to reference.uniqueId,
-                            "terminator" to player.uniqueId
+                            "terminator" to player.uniqueId,
+                            "reason" to reason
                         )
                         .publish(
                             AwareThreadContext.SYNC,

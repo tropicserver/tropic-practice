@@ -104,10 +104,12 @@ object GameService
         communicationLayer.listen("terminate") {
             val matchID = retrieve<UUID>("matchID")
             val terminator = retrieveNullable<UUID>("terminator")
+            val reason = retrieveNullable<String>("reason")
+                ?: "Ended by an administrator"
             val game = games[matchID]
                 ?: return@listen
 
-            game.complete(null, reason = "Ended by an administrator")
+            game.complete(null, reason = reason)
 
             QuickAccess.sendGlobalBroadcast(
                 "${CC.L_PURPLE}[P] ${CC.D_PURPLE}[${
@@ -116,6 +118,8 @@ object GameService
                     matchID.toString().substring(0..5)
                 }${CC.L_PURPLE} was terminated by ${CC.B_WHITE}${
                     terminator?.username() ?: "Console"
+                }${CC.L_PURPLE} for ${CC.WHITE}${
+                    reason
                 }${CC.L_PURPLE}.",
                 permission = "practice.admin"
             )
@@ -272,7 +276,7 @@ object GameService
                     it.player.location, Sound.EAT, 10f, 1f
                 )
 
-                it.player.removePotionEffect(PotionEffectType.ABSORPTION)
+                 it.player.removePotionEffect(PotionEffectType.ABSORPTION)
                 it.player.addPotionEffect(
                     PotionEffect(
                         PotionEffectType.ABSORPTION,
