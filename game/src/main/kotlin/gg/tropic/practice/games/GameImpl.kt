@@ -72,7 +72,7 @@ class GameImpl(
 
     var arenaWorldName: String? = null
 
-    val arenaWorld: World
+    val arenaWorld: World?
         get() = Bukkit.getWorld(this.arenaWorldName)
 
     private val audiences: BukkitAudiences
@@ -441,7 +441,7 @@ class GameImpl(
     {
         fun getOnlinePlayers() = Players.all()
             .filter {
-                it.location.world.name == arenaWorld.name
+                it.location.world.name == arenaWorldName
             }
             .filterNotNull()
             .toTypedArray()
@@ -487,7 +487,12 @@ class GameImpl(
         GameService.games.remove(this.expectation)
 
         Tasks.delayed(20L) {
-            MapReplicationService.removeReplicationMatchingWorld(arenaWorld)
+            if (arenaWorld == null)
+            {
+                return@delayed
+            }
+
+            MapReplicationService.removeReplicationMatchingWorld(arenaWorld!!)
 
             if (kickPlayers)
             {

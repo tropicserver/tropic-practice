@@ -143,11 +143,12 @@ object GameService
                             mapID = it.map.name,
                             state = it.state,
                             players = it.toPlayers(),
-                            spectators = it.arenaWorld.players
-                                .filter { player ->
+                            spectators = it.arenaWorld?.players
+                                ?.filter { player ->
                                     player.hasMetadata("spectator")
                                 }
-                                .map(Player::getUniqueId),
+                                ?.map(Player::getUniqueId)
+                                ?: listOf(),
                             kitID = it.kit.id,
                             replicationID = it.arenaWorldName!!,
                             server = ServerSync.local.id,

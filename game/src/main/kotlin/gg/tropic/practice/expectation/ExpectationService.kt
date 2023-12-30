@@ -86,7 +86,7 @@ object ExpectationService
                         .findSpawnLocationMatchingTeam(
                             game.getTeamOf(it.player).side
                         )!!
-                        .toLocation(game.arenaWorld)
+                        .toLocation(game.arenaWorld!!)
                 } else
                 {
                     game
