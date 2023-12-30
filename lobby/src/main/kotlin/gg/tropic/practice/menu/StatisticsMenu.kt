@@ -58,7 +58,7 @@ class StatisticsMenu(
                 "${CC.WHITE}Kills: ${CC.AQUA}${rankedStats.kills}",
                 "${CC.WHITE}Deaths: ${CC.AQUA}${rankedStats.deaths}",
                 "",
-                "${CC.WHITE}ELO: ${CC.AQUA}${rankedStats.elo} ${CC.GRAY}(#1)",
+                "${CC.WHITE}ELO: ${CC.AQUA}${rankedStats.elo}",
                 "${CC.WHITE} ${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Highest: ${CC.AQUA}${
                     rankedStats.highestElo
                 }",
@@ -68,7 +68,6 @@ class StatisticsMenu(
                 "${CC.WHITE}Current: ${CC.AQUA}${rankedStats.streak}",
                 "${CC.WHITE}Peak: ${CC.AQUA}${rankedStats.longestStreak}"
             )
-
 
             when (state)
             {

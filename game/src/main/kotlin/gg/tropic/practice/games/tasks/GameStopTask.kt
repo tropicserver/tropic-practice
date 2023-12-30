@@ -186,7 +186,7 @@ class GameStopTask(
                                         updates.requiredScore()
                                     }${CC.SEC} ELO to reach ${CC.GREEN}#${
                                         Numbers.format(
-                                            updates.nextPosition!!.position + 1
+                                            updates.nextPosition!!.position - 1
                                         )
                                     } ${CC.GRAY}(${
                                         updates.nextPosition!!.uniqueId.username()
