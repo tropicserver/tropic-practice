@@ -2,6 +2,7 @@ package gg.tropic.practice.hologram
 
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
+import com.google.common.cache.LoadingCache
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.services.LeaderboardManagerService
@@ -43,15 +44,25 @@ abstract class AbstractScrollingLeaderboard(
         EntityHandler.trackEntity(this)
     }
 
-    private val cache = CacheBuilder
-        .newBuilder()
-        .expireAfterWrite(1L, TimeUnit.MINUTES)
-        .build(object : CacheLoader<Pair<UUID, Reference>, Pair<Long?, Long?>>()
+    @Transient
+    private var cache: LoadingCache<Pair<UUID, Reference>, Pair<Long?, Long?>>? = null
+        get()
         {
-            override fun load(p0: Pair<UUID, Reference>) = LeaderboardManagerService
-                .getUserRankWithScore(p0.first, p0.second)
-                .join()
-        })
+            if (field == null)
+            {
+                field = CacheBuilder
+                    .newBuilder()
+                    .expireAfterWrite(1L, TimeUnit.MINUTES)
+                    .build(object : CacheLoader<Pair<UUID, Reference>, Pair<Long?, Long?>>()
+                    {
+                        override fun load(key: Pair<UUID, Reference>) = LeaderboardManagerService
+                            .getUserRankWithScore(key.first, key.second)
+                            .join()
+                    })
+            }
+
+            return field!!
+        }
 
     internal var currentReference: Reference? = null
     abstract fun getNextReference(current: Reference?): Reference
@@ -61,7 +72,9 @@ abstract class AbstractScrollingLeaderboard(
     {
         val lines = mutableListOf<String>()
         val currentRef = currentReference
-            ?: return lines
+            ?: return listOf(
+                "${CC.GRAY}Loading..."
+            )
 
         lines += "${CC.PRI}${
             currentRef.kitID
@@ -74,12 +87,15 @@ abstract class AbstractScrollingLeaderboard(
             currentRef.leaderboardType.displayName
         }"
 
-        val cacheValue = cache.get(player.uniqueId to currentRef)
+        val cacheValue = cache!!.get(player.uniqueId to currentRef)
         lines += ""
         lines += "${CC.SEC}You: ${CC.PRI}${
-            cacheValue.first?.let(Numbers::format) ?: "???"
+            cacheValue.second
+                ?.let(Numbers::format) ?: "???"
         } ${CC.GRAY}[#${
-            cacheValue.second?.let(Numbers::format) ?: "???"
+            cacheValue.first
+                ?.let { it + 1 }
+                ?.let(Numbers::format) ?: "???"
         }]"
         lines += ""
 
@@ -88,7 +104,7 @@ abstract class AbstractScrollingLeaderboard(
 
         lines += ""
         lines += "${CC.SEC}Switches in ${CC.PRI}${
-            TimeUtil.formatIntoMMSS(secondsUntilRefresh!!)
+            TimeUtil.formatIntoMMSS(secondsUntilRefresh ?: 10)
         }${CC.SEC}..."
 
         return lines
@@ -96,9 +112,9 @@ abstract class AbstractScrollingLeaderboard(
 
     internal fun invalidateCacheEntries(player: Player)
     {
-        cache.asMap().filterKeys { it.first == player.uniqueId }
+        cache!!.asMap().filterKeys { it.first == player.uniqueId }
             .forEach { (key, _) ->
-                cache.invalidate(key)
+                cache!!.invalidate(key)
             }
     }
 }

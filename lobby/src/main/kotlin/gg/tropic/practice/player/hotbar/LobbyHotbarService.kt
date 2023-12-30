@@ -112,7 +112,7 @@ object LobbyHotbarService
             .bindWith(plugin)
 
         idlePreset.addSlot(
-            2,
+            7,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.WATCH)
                     .name("${CC.D_AQUA}Navigator ${CC.GRAY}(Right Click)")
