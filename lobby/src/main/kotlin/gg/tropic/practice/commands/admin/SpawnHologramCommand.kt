@@ -49,9 +49,9 @@ object SpawnHologramCommand : ScalaCommand()
     }
 
     @AssignPermission
-    @Subcommand("scrolling-leaderboardtypes")
-    @Description("Spawn a hologram that scrolls through a list of leaderboard types.")
-    fun onScrollingLBTypes(
+    @Subcommand("scrolling-kits")
+    @Description("Spawn a hologram that scrolls through a list of kits.")
+    fun onScrollingKits(
         player: ScalaPlayer, delay: Int,
         @Single kits: String,
         leaderboardType: ReferenceLeaderboardType
