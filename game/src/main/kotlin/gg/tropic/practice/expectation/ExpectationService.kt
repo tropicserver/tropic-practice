@@ -131,9 +131,12 @@ object ExpectationService
                     )
                     it.player.updateInventory()
 
-                    game.sendMessage(
-                        "${CC.GREEN}${it.player.name}${CC.SEC} is now spectating the game."
-                    )
+                    if (!it.player.hasMetadata("vanished"))
+                    {
+                        game.sendMessage(
+                            "${CC.GREEN}${it.player.name}${CC.SEC} is now spectating the game."
+                        )
+                    }
 
                     it.player.sendMessage(
                         "${CC.GREEN}You are now spectating the game."

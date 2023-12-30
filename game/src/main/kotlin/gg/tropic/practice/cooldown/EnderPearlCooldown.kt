@@ -68,13 +68,23 @@ object EnderPearlCooldown : PlayerStaticCooldown(
                     val time = fetchRemaining(player)
                     if (time < 0)
                     {
-                        return@Runnable
+                        continue
                     }
+
+                    val game = GameService.byPlayer(player)
+                        ?: continue
+
+                    val duration = game.kit
+                        .featureConfig(
+                            FeatureFlag.EnderPearlCooldown,
+                            "duration"
+                        )
+                        .toFloat()
 
                     val seconds = round(time.toDouble() / 1000.0).toInt()
 
                     player.level = max(seconds, 0)
-                    player.exp = (time.toFloat() / 15000.0f).coerceIn(0.0f, 1.0f)
+                    player.exp = (time.toFloat() / (duration * 1000.0f)).coerceIn(0.0f, 1.0f)
                 }
             }, 0L, 1L)
 
