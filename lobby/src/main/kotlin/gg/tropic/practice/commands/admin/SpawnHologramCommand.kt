@@ -4,7 +4,9 @@ import gg.scala.commons.acf.CommandHelp
 import gg.scala.commons.acf.annotation.*
 import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
+import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
 import gg.scala.commons.command.ScalaCommand
+import gg.scala.commons.command.ScalaCommandManager
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.hologram.ScrollingKitLeaderboardHologram
 import gg.tropic.practice.hologram.ScrollingTypeLeaderboardHologram
@@ -28,8 +30,19 @@ object SpawnHologramCommand : ScalaCommand()
         help.showHelp()
     }
 
+    @CommandManagerCustomizer
+    fun customize(manager: ScalaCommandManager)
+    {
+        manager.commandCompletions.registerStaticCompletion(
+            "leaderboard-types",
+            ReferenceLeaderboardType.entries
+                .map(ReferenceLeaderboardType::name)
+        )
+    }
+
     @AssignPermission
     @Subcommand("scrolling-leaderboardtypes")
+    @CommandCompletion("* @leaderboard-types @kits")
     @Description("Spawn a hologram that scrolls through a list of leaderboard types.")
     fun onScrollingLBTypes(
         player: ScalaPlayer, delay: Int,
@@ -50,6 +63,7 @@ object SpawnHologramCommand : ScalaCommand()
 
     @AssignPermission
     @Subcommand("scrolling-kits")
+    @CommandCompletion("* @kits @leaderboard-types")
     @Description("Spawn a hologram that scrolls through a list of kits.")
     fun onScrollingKits(
         player: ScalaPlayer, delay: Int,
