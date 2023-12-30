@@ -204,7 +204,8 @@ object LobbyHotbarService
                     val profile = PracticeProfileService.find(player)
                         ?: return@context
 
-                    if (!LobbyConfigurationService.cached().rankedQueueEnabled)
+                    val configuration = LobbyConfigurationService.cached()
+                    if (!configuration.rankedQueueEnabled)
                     {
                         player.sendMessage("${CC.RED}Ranked queues are temporarily disabled. Please try again later.")
                         return@context
@@ -212,11 +213,13 @@ object LobbyHotbarService
 
                     if (
                         !player.hasPermission("practice.bypass-ranked-queue-requirements")
-                        && profile.globalStatistics.totalWins < 10
+                        && profile.globalStatistics.totalWins < configuration.minimumWinRequirement()
                     )
                     {
                         player.sendMessage(
-                            "${CC.RED}You must have at least 10 wins to queue for a Ranked kit! You currently have ${CC.BOLD}${
+                            "${CC.RED}You must have at least ${
+                                configuration.minimumWinRequirement()
+                            } wins to queue for a Ranked kit! You currently have ${CC.BOLD}${
                                 profile.globalStatistics.totalWins
                             }${CC.RED} wins."
                         )

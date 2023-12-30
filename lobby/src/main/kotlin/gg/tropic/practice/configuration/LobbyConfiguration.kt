@@ -17,5 +17,9 @@ data class LobbyConfiguration(
         "${CC.GRAY}We are currently in BETA! Report bugs in our Discord.",
         ""
     ),
-    var rankedQueueEnabled: Boolean = true
+    var rankedQueueEnabled: Boolean = true,
+    var rankedMinimumWinRequirement: Int? = 5
 )
+{
+    fun minimumWinRequirement() = rankedMinimumWinRequirement ?: 5
+}

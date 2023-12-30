@@ -162,7 +162,7 @@ class GameStopTask(
 
                             player.sendMessage(" ${CC.PRI}Leaderboards:")
                             player.sendMessage(
-                                " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Update: ${
+                                " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Moved: ${
                                     if (updates.newPosition < updates.oldPosition) CC.GREEN else CC.RED
                                 }${
                                     -(updates.newPosition - updates.oldPosition)
@@ -186,7 +186,7 @@ class GameStopTask(
                                         updates.requiredScore()
                                     }${CC.SEC} ELO to reach ${CC.GREEN}#${
                                         Numbers.format(
-                                            updates.nextPosition!!.position - 1
+                                            updates.nextPosition!!.position
                                         )
                                     } ${CC.GRAY}(${
                                         updates.nextPosition!!.uniqueId.username()

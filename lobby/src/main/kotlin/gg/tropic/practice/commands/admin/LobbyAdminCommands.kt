@@ -116,7 +116,21 @@ object LobbyAdminCommands : ScalaCommand()
 
             LobbyConfigurationService.sync(this)
         }
+    }
 
+    @AssignPermission
+    @Subcommand("ranked-queue-minimum-requirement")
+    @Description("Edit the number of wins required to queue for a ranked kit.")
+    fun onEditRankedMinimumRequirement(player: ScalaPlayer, requirement: Int)
+    {
+        with(LobbyConfigurationService.cached()) {
+            rankedMinimumWinRequirement = requirement
+            LobbyConfigurationService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have set the minimum win requirement to: ${CC.B_WHITE}$requirement"
+        )
     }
 
     @AssignPermission
