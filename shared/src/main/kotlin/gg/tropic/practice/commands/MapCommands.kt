@@ -12,6 +12,7 @@ import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.Color
 import net.evilblock.cubed.util.bukkit.FancyMessage
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Material
@@ -95,7 +96,7 @@ object MapCommands : ScalaCommand()
         val oldDisplayName = map.displayName
 
         with(MapService.cached()) {
-            map.displayName = name
+            map.displayName = Color.translate(name)
             MapService.sync(this)
         }
 
