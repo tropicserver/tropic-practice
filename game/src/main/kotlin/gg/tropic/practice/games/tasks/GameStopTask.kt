@@ -16,6 +16,7 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.TitlePart
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Bukkit
+import org.bukkit.entity.Player
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
@@ -113,20 +114,26 @@ class GameStopTask(
 
             this.game.sendMessage("")
 
-            if (game.expectedSpectators.isNotEmpty())
+            val spectators = game.expectedSpectators
+                .mapNotNull(Bukkit::getPlayer)
+                .filter {
+                    !it.hasMetadata("vanished")
+                }
+
+            if (spectators.isNotEmpty())
             {
-                // TODO: exclude those who don't want to be shown
                 game.sendMessage(
                     " ${CC.YELLOW}Spectators ${CC.GRAY}(${
-                        game.expectedSpectators.size
+                        spectators.size
                     })${CC.YELLOW}: ${CC.WHITE}${
-                        game.expectedSpectators.take(3)
-                            .joinToString(", ") {
-                                it.username()
-                            }
+                        spectators.take(3)
+                            .joinToString(
+                                separator = ", ", 
+                                transform = Player::getName
+                            )
                     }${
-                        if (game.expectedSpectators.size > 3) " ${CC.GRAY}(and ${
-                            game.expectedSpectators.size - 3
+                        if (spectators.size > 3) " ${CC.GRAY}(and ${
+                            spectators.size - 3
                         } more...)" else ""
                     }",
                     ""
