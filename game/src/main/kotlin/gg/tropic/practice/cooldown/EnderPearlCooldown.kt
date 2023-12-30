@@ -55,7 +55,9 @@ object EnderPearlCooldown : PlayerStaticCooldown(
     {
         // We need this for the exp bar
         notifyOnExpiration()
-        whenExpired { } // do nothing
+        whenExpired {
+            it.sendMessage("${CC.GRAY}Your enderpearl cooldown has expired.")
+        }
 
         Schedulers
             .async()
