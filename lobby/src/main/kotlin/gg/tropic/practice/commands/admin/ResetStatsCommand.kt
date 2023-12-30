@@ -73,7 +73,7 @@ object ResetStatsCommand : ScalaCommand()
         val profile = it.uniqueId.offlineProfile
         spec.resetFor(profile, kit)
 
-        profile.save().join()
+        profile.saveAndPropagate().join()
 
         player.sendMessage(
             "${CC.GREEN}You have reset the ${CC.BOLD}${
