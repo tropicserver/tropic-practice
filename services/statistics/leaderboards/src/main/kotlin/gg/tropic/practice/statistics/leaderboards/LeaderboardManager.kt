@@ -84,7 +84,7 @@ object LeaderboardManager : () -> Unit
                         .publish(AwareThreadContext.SYNC)
 
                     runCatching {
-                        Thread.sleep(60 * 1000L)
+                        Thread.sleep(15 * 1000L)
                     }.onFailure(Throwable::printStackTrace)
                 }
             }
