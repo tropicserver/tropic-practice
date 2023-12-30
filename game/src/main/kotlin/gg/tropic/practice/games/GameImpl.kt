@@ -119,6 +119,7 @@ class GameImpl(
         val newELOMappings = mutableMapOf<UUID, Pair<Int, Int>>()
         val positionUpdates = mutableMapOf<UUID, CompletableFuture<ScoreUpdates>>()
         val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
+        val playerFeedback = mutableMapOf<UUID, MutableList<String>>()
 
         toBukkitPlayers()
             .filterNotNull()
@@ -150,7 +151,9 @@ class GameImpl(
                         profile.addCoins(
                             coins = (queueMultiplier * (if (userIsWinner) 25 else 10)).toInt(),
                             reason = if (userIsWinner) "Winning a game" else "Playing a game",
-                            feedback = it::sendMessage
+                            feedback = { feedback ->
+                                playerFeedback.getOrPut(it.uniqueId) { mutableListOf() } += feedback
+                            }
                         )
                     }
                 }
@@ -269,7 +272,8 @@ class GameImpl(
         val stopTask =
             GameStopTask(
                 this, this.report!!, newELOMappings, positionUpdates,
-                reason
+                reason,
+                playerFeedback = playerFeedback
             )
 
         this.activeCountdown = 5

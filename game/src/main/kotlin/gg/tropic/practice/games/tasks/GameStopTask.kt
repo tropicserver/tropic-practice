@@ -29,7 +29,8 @@ class GameStopTask(
     private val report: GameReport,
     private val eloMappings: Map<UUID, Pair<Int, Int>>,
     private val positionUpdates: Map<UUID, CompletableFuture<ScoreUpdates>>,
-    private val terminationReason: String
+    private val terminationReason: String,
+    private val playerFeedback: Map<UUID, MutableList<String>>
 ) : Runnable
 {
     lateinit var task: Task
@@ -128,7 +129,7 @@ class GameStopTask(
                     })${CC.YELLOW}: ${CC.WHITE}${
                         spectators.take(3)
                             .joinToString(
-                                separator = ", ", 
+                                separator = ", ",
                                 transform = Player::getName
                             )
                     }${
@@ -160,15 +161,17 @@ class GameStopTask(
                                 ?: return@thenAcceptAsync
 
                             player.sendMessage(" ${CC.PRI}Leaderboards:")
-                            player.sendMessage(" ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Update: ${
-                                if (updates.newPosition < updates.oldPosition) CC.GREEN else CC.RED
-                            }${
-                                -(updates.newPosition - updates.oldPosition)
-                            } ${CC.GRAY}(#${
-                                Numbers.format(updates.oldPosition)
-                            } ${Constants.ARROW_RIGHT}${CC.R}${CC.GRAY} #${
-                                Numbers.format(updates.newPosition)
-                            })")
+                            player.sendMessage(
+                                " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Update: ${
+                                    if (updates.newPosition < updates.oldPosition) CC.GREEN else CC.RED
+                                }${
+                                    -(updates.newPosition - updates.oldPosition)
+                                } ${CC.GRAY}(#${
+                                    Numbers.format(updates.oldPosition)
+                                } ${Constants.ARROW_RIGHT}${CC.R}${CC.GRAY} #${
+                                    Numbers.format(updates.newPosition)
+                                })"
+                            )
 
                             if (updates.nextPosition == null)
                             {
@@ -218,6 +221,16 @@ class GameStopTask(
                     "${CC.RED}Reason: ${CC.WHITE}$terminationReason",
                     ""
                 )
+            }
+
+            playerFeedback.forEach { (user, feedback) ->
+                val player = Bukkit.getPlayer(user)
+                    ?: return@forEach
+
+                if (feedback.isNotEmpty())
+                {
+                    feedback.forEach(player::sendMessage)
+                }
             }
         }
 
