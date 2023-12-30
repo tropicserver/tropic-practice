@@ -804,7 +804,25 @@ object GameService
                 }
             }
 
-        configureMetadataProvidingEventHandler<PlayerBlockedHitEvent>("blockedHits")
+        Events
+            .subscribe(PlayerBlockedHitEvent::class.java)
+            .handler {
+                val game = byPlayer(it.player)
+                    ?: return@handler
+
+                game.counter(it.player)
+                    .apply {
+                        // TODO: configurable
+                        if (valueOf("blockedHits") >= 10)
+                        {
+                            it.isCancelled = true
+                            return@handler
+                        }
+
+                        increment("blockedHits")
+                    }
+            }
+
         configureMetadataProvidingEventHandler<PlayerCriticalHitEvent>("criticalHits")
 
         Events.subscribe(EntityDamageByEntityEvent::class.java)

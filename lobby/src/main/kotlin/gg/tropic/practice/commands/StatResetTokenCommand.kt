@@ -90,7 +90,9 @@ object StatResetTokenCommand : ScalaCommand()
         return@let ResetStatsCommand
             .onResetStats(
                 Bukkit.getConsoleSender(),
-                AsyncLemonPlayer.of(player.uniqueId)
+                spec = ResetStatsCommand.StatReset.AllStats,
+                target = AsyncLemonPlayer.of(player.uniqueId),
+                kit = null
             )
             .thenRun {
                 player.sendMessage(
