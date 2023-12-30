@@ -139,6 +139,13 @@ object GameQueueManager
             }
 
         val availableReplication = serverToReplicationMappings
+            .sortedBy {
+                val game = ServerContainer
+                    .getServer<GameServer?>(it.server)
+                    ?: return@sortedBy Int.MAX_VALUE
+
+                game.getPlayersCount() ?: Int.MAX_VALUE
+            }
             .firstOrNull {
                 !it.inUse && it.associatedMapName == map.name &&
                     // ensure server of replication is in the same region
