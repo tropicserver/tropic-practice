@@ -9,6 +9,7 @@ import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.FancyMessage
+import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.math.Numbers
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -223,13 +224,15 @@ class GameStopTask(
                 )
             }
 
-            playerFeedback.forEach { (user, feedback) ->
-                val player = Bukkit.getPlayer(user)
-                    ?: return@forEach
+            Tasks.delayed(10L) {
+                playerFeedback.forEach { (user, feedback) ->
+                    val player = Bukkit.getPlayer(user)
+                        ?: return@forEach
 
-                if (feedback.isNotEmpty())
-                {
-                    feedback.forEach(player::sendMessage)
+                    if (feedback.isNotEmpty())
+                    {
+                        feedback.forEach(player::sendMessage)
+                    }
                 }
             }
         }
