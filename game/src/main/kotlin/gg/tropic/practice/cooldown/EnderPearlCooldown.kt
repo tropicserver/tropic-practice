@@ -68,11 +68,8 @@ object EnderPearlCooldown : PlayerStaticCooldown(
                     val time = fetchRemaining(player)
                     val seconds = round(time.toDouble() / 1000.0).toInt()
 
-                    player.level = seconds
-                    player.exp = max(
-                        (time.toFloat() / 15000.0f).toDouble(),
-                        1.0
-                    ).toFloat() // math max to 1 to avoid negative/clear.
+                    player.level = max(seconds, 0)
+                    player.exp = (time.toFloat() / 15000.0f).coerceIn(0.0f, 1.0f)
                 }
             }, 0L, 1L)
 
