@@ -147,7 +147,7 @@ object DuelRequestPipeline
                     "${CC.AQUA}Click to select!"
                 )
                 .toButton { _, _ ->
-                    Button.playSuccess(player)
+                    Button.playNeutral(player)
                     stage2ASendDuelRequestRandomMap(player, target, kit, selectedRegion)
                 }
         )
@@ -167,6 +167,11 @@ object DuelRequestPipeline
     {
         private var kitSelectionLock = false
         private var regionSelection: Region? = null
+
+        init
+        {
+            updateAfterClick = true
+        }
 
         override fun getGlobalButtons(player: Player) = mapOf(
             4 to ItemBuilder
@@ -188,7 +193,8 @@ object DuelRequestPipeline
                     }EU"
                 )
                 .toButton { _, _ ->
-                    regionSelection = when (regionSelection)
+                    val oldRegionSelection = regionSelection
+                    regionSelection = when (oldRegionSelection)
                     {
                         null -> Region.NA
                         Region.NA -> Region.EU
@@ -196,7 +202,7 @@ object DuelRequestPipeline
                         Region.Both -> null
                     }
 
-                    Button.playSuccess(player)
+                    Button.playNeutral(player)
                 }
         )
 
@@ -255,7 +261,7 @@ object DuelRequestPipeline
 
                     kitSelectionLock = false
 
-                    Button.playSuccess(player)
+                    Button.playNeutral(player)
                     stage2ASendDuelRequestRandomMap(player, target, kit,
                         regionSelection)
                 }
