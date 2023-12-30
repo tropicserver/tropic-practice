@@ -14,9 +14,7 @@ import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.LobbyConfigurationService
-import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.kit.KitService
-import gg.tropic.practice.menu.CasualQueueSelectSizeMenu
 import gg.tropic.practice.menu.JoinQueueMenu
 import gg.tropic.practice.menu.LeaderboardsMenu
 import gg.tropic.practice.menu.PlayerMainMenu
@@ -25,6 +23,7 @@ import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueService
+import gg.tropic.practice.queue.QueueType
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -37,7 +36,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
-import java.util.UUID
+import java.util.*
 
 @Service
 object LobbyHotbarService
@@ -56,7 +55,6 @@ object LobbyHotbarService
         val idlePreset = HotbarPreset()
 
         data class RematchData(
-            val target: String,
             val kitID: String,
             val queueType: QueueType
         )
@@ -95,9 +93,8 @@ object LobbyHotbarService
         Events
             .subscribe(PlayerJoinWithExpectationEvent::class.java)
             .handler {
-                if (it.response.parameters.containsKey("rematch-user"))
+                if (it.response.parameters.containsKey("rematch-kit-id"))
                 {
-                    val rematchUser = it.response.parameters["rematch-user"]
                     val rematchKitID = it.response.parameters["rematch-kit-id"]
                     val rematchQueueType = it.response.parameters["rematch-queue-type"]
 
@@ -105,7 +102,7 @@ object LobbyHotbarService
                         ?: return@handler
 
                     rematches[it.uniqueId] = RematchData(
-                        rematchUser!!, rematchKitID!!,
+                        rematchKitID!!,
                         QueueType.valueOf(rematchQueueType!!)
                     )
 
@@ -115,32 +112,19 @@ object LobbyHotbarService
             .bindWith(plugin)
 
         idlePreset.addSlot(
-            3,
-            DynamicHotbarPresetEntry()
-                .apply {
-                    onBuild = build@{
-                        val rematchData = rematches[it.uniqueId]
-                            ?: return@build ItemStack(Material.AIR)
-
-                        ItemBuilder(Material.PAPER)
-                            .name("${CC.SEC}Rematch ${CC.B_PRI}${rematchData.target} ${CC.GRAY}(Right Click)")
-                            .build()
-                    }
-
-                    onClick = click@{ player ->
-                        val rematchData = rematches[player.uniqueId]
-                            ?: return@click
-
-                        rematches.remove(player.uniqueId)
-                        reset(player)
-
-                        player.performCommand("duel ${rematchData.target}")
-                    }
+            2,
+            StaticHotbarPresetEntry(
+                ItemBuilder(Material.WATCH)
+                    .name("${CC.D_AQUA}Navigator ${CC.GRAY}(Right Click)")
+            ).also {
+                it.onClick = { player ->
+                    PlayerMainMenu().openMenu(player)
                 }
+            }
         )
 
         idlePreset.addSlot(
-            5,
+            3,
             DynamicHotbarPresetEntry()
                 .apply {
                     onBuild = build@{
@@ -150,8 +134,8 @@ object LobbyHotbarService
                         val kit = KitService.cached().kits[rematchData.kitID]
                             ?: return@build ItemStack(Material.AIR)
 
-                        ItemBuilder(Material.FIREWORK_CHARGE)
-                            .name("${CC.SEC}Queue ${CC.B_PRI}${rematchData.queueType.name} ${kit.displayName} ${CC.GRAY}(Right Click)")
+                        ItemBuilder(Material.PAPER)
+                            .name("${CC.SEC}Play ${CC.PRI}${rematchData.queueType.name} ${kit.displayName} ${CC.GRAY}(Right Click)")
                             .build()
                     }
 
@@ -232,25 +216,13 @@ object LobbyHotbarService
         )
 
         idlePreset.addSlot(
-            2,
+            5,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.COMPASS)
-                    .name("${CC.D_AQUA}Navigator ${CC.GRAY}(Right Click)")
-            ).also {
-                it.onClick = { player ->
-                    PlayerMainMenu().openMenu(player)
-                }
-            }
-        )
-
-        idlePreset.addSlot(
-            4,
-            StaticHotbarPresetEntry(
-                ItemBuilder(Material.NETHER_STAR)
+                ItemBuilder(Material.NAME_TAG)
                     .name("${CC.PINK}Create a Party ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
-                    player.sendMessage("${CC.RED}Party integration is coming soon!")
+                    player.sendMessage("${CC.RED}Parties are coming soon!")
                 }
             }
         )
@@ -258,8 +230,8 @@ object LobbyHotbarService
         idlePreset.addSlot(
             6,
             StaticHotbarPresetEntry(
-                ItemBuilder(Material.QUARTZ)
-                    .name("${CC.YELLOW}Leaderboards ${CC.GRAY}(Right Click)")
+                ItemBuilder(Material.ITEM_FRAME)
+                    .name("${CC.YELLOW}View Leaderboards ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
                     LeaderboardsMenu().openMenu(player)
@@ -268,18 +240,16 @@ object LobbyHotbarService
         )
 
         idlePreset.addSlot(
-            7,
+            2,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.BOOK)
                     .name("${CC.D_AQUA}Kit Editor ${CC.GRAY}(Right Click)")
             ).also {
-                it.onClick = { player ->
+                it.onClick = context@{ player ->
                     val profile = PracticeProfileService.find(player)
+                        ?: return@context
 
-                    if (profile != null)
-                    {
-                        EditorKitSelectionMenu(profile).openMenu(player)
-                    }
+                    EditorKitSelectionMenu(profile).openMenu(player)
                 }
             }
         )
@@ -288,7 +258,7 @@ object LobbyHotbarService
             8,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.REDSTONE_COMPARATOR)
-                    .name("${CC.D_PURPLE}Edit Settings ${CC.GRAY}(Right Click)")
+                    .name("${CC.D_PURPLE}Settings ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
                     SettingMenu(player).openMenu(player)

@@ -63,14 +63,7 @@ class LeaderboardsMenu : TemplateKitMenu()
         )
 
         return personalScore + LeaderboardManagerService
-            .getCachedLeaderboards(reference)
-            .mapIndexed { index, entry ->
-                "${CC.PRI}#${index + 1}. ${CC.WHITE}${
-                    ScalaStoreUuidCache.username(entry.uniqueId)
-                } ${CC.GRAY}- ${CC.PRI}${
-                    Numbers.format(entry.value)
-                }"
-            }
+            .getCachedFormattedLeaderboards(reference)
     }
 
     override fun itemDescriptionOf(player: Player, kit: Kit) = localDescriptionOf(

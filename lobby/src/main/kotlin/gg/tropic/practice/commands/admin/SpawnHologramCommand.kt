@@ -51,10 +51,12 @@ object SpawnHologramCommand : ScalaCommand()
     )
     {
         val hologram = ScrollingTypeLeaderboardHologram(
-            scrollStates = leaderboardTypes.split(","),
+            leaderboardTypes = leaderboardTypes
+                .split(",")
+                .map(ReferenceLeaderboardType::valueOf),
             scrollTime = delay,
             location = player.bukkit().location,
-            kitID = kit?.id
+            kit = kit?.id
         )
 
         hologram.configure()
@@ -75,7 +77,7 @@ object SpawnHologramCommand : ScalaCommand()
             kits = kits.split(","),
             scrollTime = delay,
             location = player.bukkit().location,
-            scrollState = leaderboardType.name
+            leaderboardType = leaderboardType
         )
 
         hologram.configure()

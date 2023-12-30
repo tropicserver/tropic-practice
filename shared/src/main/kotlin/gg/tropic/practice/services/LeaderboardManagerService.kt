@@ -3,6 +3,7 @@ package gg.tropic.practice.services
 import gg.scala.aware.AwareBuilder
 import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
 import gg.scala.aware.message.AwareMessage
+import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
@@ -10,6 +11,8 @@ import gg.scala.flavor.service.Service
 import gg.tropic.practice.leaderboards.*
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
+import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.math.Numbers
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -35,6 +38,16 @@ object LeaderboardManagerService
 
     private var top10LeaderboardCache = mutableMapOf<Reference, List<LeaderboardEntry>>()
     private var references = LeaderboardReferences(listOf())
+
+    fun getCachedFormattedLeaderboards(reference: Reference) =
+        getCachedLeaderboards(reference)
+            .mapIndexed { index, entry ->
+                "${CC.PRI}#${index + 1}. ${CC.WHITE}${
+                    ScalaStoreUuidCache.username(entry.uniqueId)
+                } ${CC.GRAY}- ${CC.PRI}${
+                    Numbers.format(entry.value)
+                }"
+            }
 
     fun getCachedLeaderboards(reference: Reference) = top10LeaderboardCache[reference]
         ?: listOf()
@@ -94,8 +107,10 @@ object LeaderboardManagerService
                 return@thenApplyAsync null to null
 
             it to ScalaCommonsSpigot.instance.kvConnection.sync()
-                .zscore("tropicpractice:leaderboards:${reference.id()}:final",
-                    user.toString()).toLong()
+                .zscore(
+                    "tropicpractice:leaderboards:${reference.id()}:final",
+                    user.toString()
+                ).toLong()
         }
 
     fun rebuildLeaderboardCaches()
