@@ -6,6 +6,7 @@ import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
+import gg.scala.commons.agnostic.sync.server.state.ServerState
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.GameExpectation
@@ -133,9 +134,16 @@ object GameQueueManager
          * their personal queue status. If they, for some reason, LEAVE the queue at this time, then FUCK ME!
          */
         val serverStatuses = ReplicationManager.allServerStatuses()
-        val serverToReplicationMappings = serverStatuses.values
+        val serverToReplicationMappings = serverStatuses.entries
+            .filter {
+                val game = ServerContainer
+                    .getServer<GameServer?>(it.key)
+                    ?: return@filter false
+
+                game.state == ServerState.Loaded
+            }
             .flatMap {
-                it.replications.values.flatten()
+                it.value.replications.values.flatten()
             }
 
         val availableReplication = serverToReplicationMappings
