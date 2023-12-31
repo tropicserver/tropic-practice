@@ -24,4 +24,6 @@ class ScrollingKitLeaderboardHologram(
             }
             ?: kits.first()
     )
+
+    override fun getAbstractType() = ScrollingKitLeaderboardHologram::class.java
 }

@@ -7,6 +7,8 @@ import gg.scala.flavor.service.Service
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.entity.EntityHandler
+import net.evilblock.cubed.serializers.Serializers
+import net.evilblock.cubed.serializers.impl.AbstractTypeSerializer
 import org.bukkit.event.player.PlayerQuitEvent
 
 /**
@@ -22,6 +24,13 @@ object ScrollingLeaderboardService
     @Configure
     fun configure()
     {
+        Serializers.create {
+            registerTypeAdapter(
+                AbstractScrollingLeaderboard::class.java,
+                AbstractTypeSerializer<AbstractScrollingLeaderboard>()
+            )
+        }
+
         EntityHandler
             .getEntitiesOfType<AbstractScrollingLeaderboard>()
             .forEach {

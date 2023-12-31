@@ -93,6 +93,7 @@ object LobbyHotbarService
         Events
             .subscribe(PlayerJoinWithExpectationEvent::class.java)
             .handler {
+                println("${it.response.parameters}")
                 if (it.response.parameters.containsKey("requeue-kit-id"))
                 {
                     val rematchKitID = it.response.parameters["requeue-kit-id"]
@@ -100,11 +101,14 @@ object LobbyHotbarService
                         it.response.parameters["requeue-queue-type"]!!
                     )
 
+                    println("going to player")
                     val player = Bukkit.getPlayer(it.uniqueId)
                         ?: return@handler
+                    println("at player")
 
                     val kit = KitService.cached().kits[rematchKitID]
                         ?: return@handler
+                    println("at kit")
 
                     QueueService.joinQueue(
                         kit = kit,

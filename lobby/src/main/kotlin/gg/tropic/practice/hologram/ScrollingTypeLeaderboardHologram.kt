@@ -24,4 +24,6 @@ class ScrollingTypeLeaderboardHologram(
             ?: leaderboardTypes.first(),
         kitID = kit
     )
+
+    override fun getAbstractType() = ScrollingTypeLeaderboardHologram::class.java
 }
