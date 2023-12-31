@@ -31,6 +31,7 @@ import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -184,7 +185,10 @@ object LobbyPlayerService
             .bindWith(plugin)
 
         Events
-            .subscribe(PlayerJoinEvent::class.java)
+            .subscribe(
+                PlayerJoinEvent::class.java,
+                EventPriority.MONITOR
+            )
             .handler { event ->
                 val player = LobbyPlayer(event.player.uniqueId)
                 playerCache[event.player.uniqueId] = player

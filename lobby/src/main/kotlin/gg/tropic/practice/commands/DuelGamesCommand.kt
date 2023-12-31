@@ -1,15 +1,13 @@
 package gg.tropic.practice.commands
 
-import gg.scala.commons.acf.annotation.CommandAlias
-import gg.scala.commons.acf.annotation.Conditions
-import gg.scala.commons.acf.annotation.Default
+import gg.scala.commons.acf.annotation.*
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
-import gg.tropic.practice.reports.GameReportService
+import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
 import gg.tropic.practice.menu.DuelGamesMenu
+import gg.tropic.practice.reports.GameReportService
 import net.evilblock.cubed.util.bukkit.Tasks
-import org.bukkit.entity.Player
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -21,17 +19,35 @@ import java.util.concurrent.CompletableFuture
 object DuelGamesCommand : ScalaCommand()
 {
     @Default
+    @CommandCompletion("@mip-players")
     fun onDefault(
         @Conditions("cooldown:duration=10,unit=SECONDS")
-        player: ScalaPlayer
+        player: ScalaPlayer,
+        @Optional
+        @CommandPermission("practice.command.matchhistory.view-other-profiles")
+        target: AsyncLemonPlayer?
     ): CompletableFuture<Void>
     {
-        return GameReportService
-            .loadSnapshotsForParticipant(player.uniqueId)
-            .thenAccept {
-                Tasks.sync {
-                    DuelGamesMenu(it).openMenu(player.bukkit())
+        if (target == null)
+        {
+            return GameReportService
+                .loadSnapshotsForParticipant(player.uniqueId)
+                .thenAccept {
+                    Tasks.sync {
+                        DuelGamesMenu(it, player.uniqueId).openMenu(player.bukkit())
+                    }
                 }
-            }
+        }
+
+        return target.validatePlayers(player.bukkit(), false) { lemonPlayer ->
+            GameReportService
+                .loadSnapshotsForParticipant(player.uniqueId)
+                .thenAccept {
+                    Tasks.sync {
+                        DuelGamesMenu(it, lemonPlayer.uniqueId).openMenu(player.bukkit())
+                    }
+                }
+                .join()
+        }
     }
 }
