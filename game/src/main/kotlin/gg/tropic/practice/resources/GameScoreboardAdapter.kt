@@ -68,7 +68,8 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             }
 
             board += "Map: ${CC.PRI}${game.map.displayName}"
-            board += "${CC.WHITE}Duration: ${CC.PRI}${game.getDuration()}"
+            board += "Type: ${CC.PRI}${game.expectationModel.queueType ?: "Duel"}"
+            board += "Duration: ${CC.PRI}${game.getDuration()}"
         } else
         {
             when (game.state)
