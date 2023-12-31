@@ -111,6 +111,12 @@ class JoinQueueMenu(
             return
         }
 
+        if (player.hasMetadata("vanished"))
+        {
+            player.sendMessage("${CC.RED}You are currently in vanish! Use ${CC.B}/vanish${CC.RED} to be able to join a queue.")
+            return
+        }
+
         player.closeInventory()
         QueueService.joinQueue(kit, queueType, teamSize, player)
 

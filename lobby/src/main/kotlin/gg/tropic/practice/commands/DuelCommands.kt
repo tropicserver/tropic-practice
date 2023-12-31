@@ -41,6 +41,12 @@ object DuelCommands : ScalaCommand()
                 "${CC.YELLOW}${it.name}${CC.RED} has not sent you a duel request with the kit ${CC.YELLOW}${kit.displayName}${CC.RED}."
             )
 
+        if (player.bukkit().hasMetadata("vanished"))
+        {
+            player.sendMessage("${CC.RED}You are currently in vanish! Use ${CC.B}/vanish${CC.RED} to be able to accept a duel.")
+            return@validatePlayers
+        }
+
         QueueService.createMessage(
             "accept-duel",
             "request" to duelRequest
