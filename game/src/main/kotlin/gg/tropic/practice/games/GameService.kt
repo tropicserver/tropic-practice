@@ -544,7 +544,7 @@ object GameService
 
                 game.sendMessage(
                     "${CC.RED}${it.entity.name}${CC.GRAY} was ${
-                        if (killerPlayer == null) "killed" else "${
+                        if (killerPlayer == null || killerPlayer == it.entity) "killed" else "${
                             getMessageBundlePhrase(killerPlayer as Player)
                         } by ${CC.GREEN}${killerPlayer.name}${CC.GRAY}"
                     }!"
