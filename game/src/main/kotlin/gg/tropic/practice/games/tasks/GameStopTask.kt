@@ -5,10 +5,13 @@ import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.leaderboards.ScoreUpdates
 import gg.tropic.practice.serializable.Message
+import me.lucko.helper.Events
 import me.lucko.helper.scheduler.Task
+import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.FancyMessage
+import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.math.Numbers
 import net.kyori.adventure.text.Component
@@ -17,7 +20,10 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.TitlePart
 import net.md_5.bungee.api.chat.ClickEvent
 import org.bukkit.Bukkit
+import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.ItemStack
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
@@ -234,6 +240,42 @@ class GameStopTask(
                         feedback.forEach(player::sendMessage)
                     }
                 }
+            }
+        }
+
+        if (this.game.activeCountdown == 4)
+        {
+            if (game.expectationModel.queueId != null)
+            {
+                val reQueueItem = ItemBuilder
+                    .of(Material.PAPER)
+                    .name("${CC.GREEN}Click to Join Queue ${CC.GRAY}(Right-Click)")
+                    .build()
+
+                game.toBukkitPlayers()
+                    .filterNotNull()
+                    .forEach {
+                        it.itemInHand = reQueueItem
+                        it.updateInventory()
+                    }
+
+                Events
+                    .subscribe(PlayerInteractEvent::class.java)
+                    .filter {
+                        it.action.name.contains("RIGHT") &&
+                            it.hasItem() && it.item.isSimilar(reQueueItem)
+                    }
+                    .handler {
+                        it.player.itemInHand = ItemStack(Material.AIR)
+                        it.player.updateInventory()
+                        it.player.sendMessage(
+                            "${CC.GREEN}You will be queued again when you return to spawn!"
+                        )
+
+                        game.expectedQueueRejoin += it.player.uniqueId
+                        Button.playNeutral(it.player)
+                    }
+                    .bindWith(game)
             }
         }
 

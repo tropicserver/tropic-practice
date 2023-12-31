@@ -93,20 +93,25 @@ object LobbyHotbarService
         Events
             .subscribe(PlayerJoinWithExpectationEvent::class.java)
             .handler {
-                if (it.response.parameters.containsKey("rematch-kit-id"))
+                if (it.response.parameters.containsKey("requeue-kit-id"))
                 {
-                    val rematchKitID = it.response.parameters["rematch-kit-id"]
-                    val rematchQueueType = it.response.parameters["rematch-queue-type"]
+                    val rematchKitID = it.response.parameters["requeue-kit-id"]
+                    val rematchQueueType = QueueType.valueOf(
+                        it.response.parameters["requeue-queue-type"]!!
+                    )
 
                     val player = Bukkit.getPlayer(it.uniqueId)
                         ?: return@handler
 
-                    rematches[it.uniqueId] = RematchData(
-                        rematchKitID!!,
-                        QueueType.valueOf(rematchQueueType!!)
-                    )
+                    val kit = KitService.cached().kits[rematchKitID]
+                        ?: return@handler
 
-                    reset(player)
+                    QueueService.joinQueue(
+                        kit = kit,
+                        queueType = rematchQueueType,
+                        teamSize = 1,
+                        player = player
+                    )
                 }
             }
             .bindWith(plugin)
@@ -123,7 +128,8 @@ object LobbyHotbarService
             }
         )
 
-        idlePreset.addSlot(
+        // TODO: rematch item
+        /*idlePreset.addSlot(
             3,
             DynamicHotbarPresetEntry()
                 .apply {
@@ -161,7 +167,7 @@ object LobbyHotbarService
                         )
                     }
                 }
-        )
+        )*/
 
         idlePreset.addSlot(
             0,

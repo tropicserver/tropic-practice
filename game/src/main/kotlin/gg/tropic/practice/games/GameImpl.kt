@@ -84,6 +84,8 @@ class GameImpl(
     private val selectedKitLoadouts = mutableMapOf<UUID, SelectedLoadout>()
     private val playerCounters = mutableMapOf<UUID, Counter>()
 
+    val expectedQueueRejoin = mutableSetOf<UUID>()
+
     fun takeSnapshot(player: Player)
     {
         this.snapshots[player.uniqueId] =
@@ -454,29 +456,33 @@ class GameImpl(
             {
                 GameService.redirector.redirect(
                     {
-                        if (it.player.uniqueId in expectedSpectators)
+                        if (
+                            it.player.uniqueId in expectedSpectators ||
+                            it.player.uniqueId !in expectedQueueRejoin
+                        )
                         {
                             return@redirect mapOf()
                         }
 
-                        if (expectationModel.players.size != 2)
+                        /*if (expectationModel.players.size != 2)
                         {
                             return@redirect mapOf()
-                        }
+                        }*/
 
-                        val target = expectationModel.players
+                        // TODO: rematch item
+                        /*val target = expectationModel.players
                             .firstOrNull { other ->
                                 it.uniqueId != other
                             }
                             ?: return@redirect mapOf()
+                            */
 
                         val queueType = expectationModel.queueType?.name
                             ?: return@redirect mapOf()
 
                         mapOf(
-                            "rematch-user" to target.username(),
-                            "rematch-kit-id" to expectationModel.kitId,
-                            "rematch-queue-type" to queueType
+                            "requeue-kit-id" to expectationModel.kitId,
+                            "requeue-queue-type" to queueType
                         )
                     },
                     *onlinePlayers

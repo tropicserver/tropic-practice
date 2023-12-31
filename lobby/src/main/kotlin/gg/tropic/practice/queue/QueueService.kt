@@ -88,6 +88,11 @@ object QueueService
             .find(player)
             ?: return
 
+        if (lobbyPlayer.state == PlayerState.InQueue)
+        {
+            return
+        }
+
         PlayerRegionFromRedisProxy.of(player)
             .exceptionally { Region.NA }
             .thenAcceptAsync {
