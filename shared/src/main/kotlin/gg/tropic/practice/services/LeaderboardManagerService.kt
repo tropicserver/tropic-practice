@@ -8,6 +8,7 @@ import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.scala.lemon.util.QuickAccess
 import gg.tropic.practice.leaderboards.*
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
@@ -37,17 +38,11 @@ object LeaderboardManagerService
     }
 
     private var top10LeaderboardCache = mutableMapOf<Reference, List<LeaderboardEntry>>()
+    private var top10FormattedLeaderboardCache = mutableMapOf<Reference, List<String>>()
     private var references = LeaderboardReferences(listOf())
 
-    fun getCachedFormattedLeaderboards(reference: Reference) =
-        getCachedLeaderboards(reference)
-            .mapIndexed { index, entry ->
-                "${CC.PRI}#${index + 1}. ${CC.WHITE}${
-                    ScalaStoreUuidCache.username(entry.uniqueId)
-                } ${CC.GRAY}- ${CC.PRI}${
-                    Numbers.format(entry.value)
-                }"
-            }
+    fun getCachedFormattedLeaderboards(reference: Reference) = top10FormattedLeaderboardCache[reference]
+        ?: listOf()
 
     fun getCachedLeaderboards(reference: Reference) = top10LeaderboardCache[reference]
         ?: listOf()
@@ -128,6 +123,7 @@ object LeaderboardManagerService
         this.references = references
 
         val newLeaderboardCache = mutableMapOf<Reference, List<LeaderboardEntry>>()
+        val newFormattedLeaderboardCache = mutableMapOf<Reference, List<String>>()
         references.references.forEach {
             val scores = ScalaCommonsSpigot.instance.kvConnection
                 .sync()
@@ -144,9 +140,25 @@ object LeaderboardManagerService
                     )
                 }
                 .toList()
+
+            newFormattedLeaderboardCache[it] = newLeaderboardCache[it]!!
+                .mapIndexed { index, entry ->
+                    "${CC.PRI}#${index + 1}. ${CC.WHITE}${
+                        QuickAccess
+                            .computeColoredName(
+                                entry.uniqueId,
+                                ScalaStoreUuidCache.username(entry.uniqueId) ?: "???"
+                            )
+                            .join()
+                    } ${CC.GRAY}- ${CC.PRI}${
+                        Numbers.format(entry.value)
+                    }"
+                }
         }
 
+        this.top10FormattedLeaderboardCache = newFormattedLeaderboardCache
         this.top10LeaderboardCache = newLeaderboardCache
+
         plugin.logger.info("[leaderboards] Rebuilt leaderboard caches at ${Instant.now()}.")
     }
 

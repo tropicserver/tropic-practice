@@ -87,15 +87,8 @@ class JoinQueueMenu(
         )
 
         return personalScore + LeaderboardManagerService
-            .getCachedLeaderboards(reference)
+            .getCachedFormattedLeaderboards(reference)
             .take(3)
-            .mapIndexed { index, entry ->
-                "${CC.PRI}#${index + 1}. ${CC.WHITE}${
-                    ScalaStoreUuidCache.username(entry.uniqueId)
-                } ${CC.GRAY}- ${CC.PRI}${
-                    Numbers.format(entry.value)
-                }"
-            }
     }
 
 

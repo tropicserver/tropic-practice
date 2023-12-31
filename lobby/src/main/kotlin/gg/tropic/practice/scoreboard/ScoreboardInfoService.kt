@@ -5,6 +5,7 @@ import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.scala.commons.agnostic.sync.server.region.Region
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.tropic.practice.services.GameManagerService
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
@@ -22,6 +23,7 @@ object ScoreboardInfoService
         val gameServers: Int = 0,
         val queued: Int = 0,
         val meanTPS: Double = 0.0,
+        val runningGames: Int = 0,
         val availableReplications: Int = 0,
         val euServerTotalPlayers: Int = 0,
         val naServerTotalPlayers: Int = 0
@@ -65,12 +67,15 @@ object ScoreboardInfoService
                         .filter { it.region == Region.EU }
                         .sumOf { it.getPlayersCount()!! }
 
+                    val games = GameManagerService.allGames().join()
+
                     scoreboardInfo = ScoreboardInfo(
                         online = servers.sumOf { it.getPlayersCount() ?: 0 },
                         // TODO: load game impls and count from those
                         playing = gameServers.sumOf { it.getPlayersCount() ?: 0 },
                         gameServers = gameServers.size,
                         meanTPS = gameServers.map { it.getTPS()!! }.average(),
+                        runningGames = games.count(),
                         queued = ScalaCommonsSpigot
                             .instance
                             .kvConnection

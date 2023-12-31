@@ -91,6 +91,9 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Replications: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.availableReplications)
                             }"
+                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Games: ${CC.PRI}${
+                                Numbers.format(ScoreboardInfoService.scoreboardInfo.runningGames)
+                            }"
                             board += ""
                             board += "${CC.WHITE}NA Players: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.naServerTotalPlayers)
