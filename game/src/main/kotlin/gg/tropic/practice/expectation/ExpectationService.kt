@@ -57,13 +57,17 @@ object ExpectationService
             }
             .bindWith(plugin)
 
+        val returnToSpawnItem = ItemBuilder.of(XMaterial.RED_DYE)
+            .name("${CC.RED}Return to Spawn ${CC.GRAY}(Right Click)")
+            .build()
+
         Events
             .subscribe(PlayerInteractEvent::class.java)
             .filter {
                 it.hasItem() && (
                     it.action == Action.RIGHT_CLICK_BLOCK ||
                         it.action == Action.RIGHT_CLICK_AIR
-                    )
+                    ) && it.item.isSimilar(returnToSpawnItem)
             }
             .filter {
                 it.player.hasMetadata("spectator")
@@ -123,12 +127,7 @@ object ExpectationService
                     it.player.allowFlight = true
                     it.player.isFlying = true
 
-                    it.player.inventory.setItem(
-                        8,
-                        ItemBuilder.of(XMaterial.RED_DYE)
-                            .name("${CC.RED}Return to Spawn ${CC.GRAY}(Right Click)")
-                            .build()
-                    )
+                    it.player.inventory.setItem(8, returnToSpawnItem)
                     it.player.updateInventory()
 
                     if (!it.player.hasMetadata("vanished"))
