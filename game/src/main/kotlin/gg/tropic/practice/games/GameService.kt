@@ -510,8 +510,8 @@ object GameService
                     "spectator", FixedMetadataValue(plugin, true)
                 )
 
-                it.drops.removeIf {
-                    it.type == Material.POTION || it.type == Material.BOWL
+                it.drops.removeIf { stack ->
+                    stack.type == Material.POTION || stack.type == Material.BOWL
                 }
 
                 val team = game.getTeamOf(it.entity)
@@ -529,7 +529,7 @@ object GameService
                 }
 
                 val killerPlayer = killer(it)
-                val killer = if (killerPlayer !is Player)
+                val killer = if (killerPlayer !is Player || killerPlayer == it.entity)
                 {
                     game.getOpponent(it.entity)
                 } else
