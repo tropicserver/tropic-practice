@@ -6,7 +6,6 @@ import gg.scala.aware.message.AwareMessage
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.agnostic.sync.ServerSync
-import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -51,6 +50,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.*
 import kotlin.math.ceil
+import kotlin.math.min
 
 /**
  * @author GrowlyX
@@ -163,6 +163,31 @@ object GameService
                     }
             )
         }
+
+        Events
+            .subscribe(PlayerItemConsumeEvent::class.java)
+            .handler {
+                val game = byPlayer(it.player)
+                    ?: return@handler
+
+                if (!game.state(GameState.Playing))
+                {
+                    return@handler
+                }
+
+                if (
+                    !it.player.isDead &&
+                    it.player.itemInHand.type == Material.MUSHROOM_SOUP &&
+                    it.player.health < 19.0
+                )
+                {
+                    val newHealth = min(it.player.health + 7.0, 20.0)
+
+                    it.player.health = newHealth
+                    it.player.itemInHand.type = Material.BOWL
+                    it.player.updateInventory()
+                }
+            }
 
         fun overridePotionEffect(
             player: Player, effect: PotionEffect
