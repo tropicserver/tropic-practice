@@ -45,6 +45,11 @@ abstract class TemplateKitMenu : PaginatedMenu()
 
     override fun getPageButtonSlots() = 18 to 27
 
+    open fun getItemAmount(player: Player, kit: Kit): Int
+    {
+        return 1
+    }
+
     override fun getAllPagesButtons(player: Player): Map<Int, Button>
     {
         val buttons = mutableMapOf<Int, Button>()
@@ -63,6 +68,7 @@ abstract class TemplateKitMenu : PaginatedMenu()
             .forEach {
                 buttons[buttons.size] = ItemBuilder
                     .copyOf(it.displayIcon)
+                    .amount(getItemAmount(player, it))
                     .name(
                         itemTitleFor(player, it)
                     )

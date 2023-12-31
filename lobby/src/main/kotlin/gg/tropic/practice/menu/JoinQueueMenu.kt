@@ -32,6 +32,14 @@ class JoinQueueMenu(
         autoUpdate = true
     }
 
+    override fun getItemAmount(player: Player, kit: Kit): Int
+    {
+        val queueId = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
+        val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
+
+        return metadata.inGame.coerceIn(1..64)
+    }
+
     override fun getAutoUpdateTicks() = 500L
     override fun filterDisplayOfKit(player: Player, kit: Kit) = kit.queueSizes
         .any {
