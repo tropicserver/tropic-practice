@@ -63,38 +63,38 @@ class GameQueue(
                     entry.lastELORangeExpansion = System.currentTimeMillis()
                     requiresUpdates = true
                 }
+            }
 
-                val previousPingDiff = entry.leaderRangedPing.diffsBy
-                if (entry.maxPingDiff != -1)
+            val previousPingDiff = entry.leaderRangedPing.diffsBy
+            if (entry.maxPingDiff != -1)
+            {
+                if (entry.leaderRangedPing.diffsBy < entry.maxPingDiff)
                 {
-                    if (entry.leaderRangedPing.diffsBy < entry.maxPingDiff)
+                    if (RUN_RANGE_EXPANSION_UPDATES(entry.lastPingRangeExpansion))
                     {
-                        if (RUN_RANGE_EXPANSION_UPDATES(entry.lastPingRangeExpansion))
-                        {
-                            entry.leaderRangedPing.diffsBy = min(
-                                entry.maxPingDiff,
-                                (entry.leaderRangedPing.diffsBy * 1.5).toInt()
-                            )
-                            entry.lastPingRangeExpansion = System.currentTimeMillis()
-                            val differential = entry.leaderRangedPing.diffsBy - previousPingDiff
-                            entry.lastRecordedDifferential = differential
+                        entry.leaderRangedPing.diffsBy = min(
+                            entry.maxPingDiff,
+                            (entry.leaderRangedPing.diffsBy * 1.5).toInt()
+                        )
+                        entry.lastPingRangeExpansion = System.currentTimeMillis()
+                        val differential = entry.leaderRangedPing.diffsBy - previousPingDiff
+                        entry.lastRecordedDifferential = differential
 
-                            requiresUpdates = true
+                        requiresUpdates = true
 
-                            val pingRange = entry.leaderRangedPing.toIntRangeInclusive()
-                            DPSRedisShared.sendMessage(
-                                entry.players,
-                                listOf(
-                                    "{secondary}You are matchmaking in an ping range of ${
-                                        "&a[${max(0, pingRange.first)} -> ${pingRange.last}]{secondary}"
-                                    } &7(expanded by ±${
-                                        differential
-                                    }). ${
-                                        if (entry.leaderRangedPing.diffsBy == entry.maxPingDiff) "&lThe range will no longer be expanded as it has reached its maximum of ±${entry.maxPingDiff}!" else ""
-                                    }"
-                                )
+                        val pingRange = entry.leaderRangedPing.toIntRangeInclusive()
+                        DPSRedisShared.sendMessage(
+                            entry.players,
+                            listOf(
+                                "{secondary}You are matchmaking in an ping range of ${
+                                    "&a[${max(0, pingRange.first)} -> ${pingRange.last}]{secondary}"
+                                } &7(expanded by ±${
+                                    differential
+                                }). ${
+                                    if (entry.leaderRangedPing.diffsBy == entry.maxPingDiff) "&lThe range will no longer be expanded as it has reached its maximum of ±${entry.maxPingDiff}!" else ""
+                                }"
                             )
-                        }
+                        )
                     }
                 }
             }
