@@ -4,12 +4,14 @@ import com.google.gson.reflect.TypeToken
 import com.mojang.authlib.GameProfile
 import gg.scala.basics.plugin.tablist.TabListService
 import gg.scala.commons.agnostic.sync.server.ServerContainer
+import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
 import gg.scala.commons.command.ScalaCommandManager
 import gg.scala.commons.tablist.TablistPopulator
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.Lemon
+import gg.scala.lemon.command.ListCommand
 import gg.scala.lemon.handler.PlayerHandler
 import gg.scala.lemon.util.QuickAccess
 import io.github.nosequel.tab.shared.entry.TabElement
@@ -22,6 +24,8 @@ import net.evilblock.cubed.util.nms.MinecraftReflection
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
+import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -73,7 +77,7 @@ object MIPPlayerCache : TablistPopulator
 
                         val rank = QuickAccess.realRank(it)
 
-                        val strippedPrefix = ChatColor
+                        /*val strippedPrefix = ChatColor
                             .stripColor(rank.prefix)
 
                         val strippedSuffix = ChatColor
@@ -88,7 +92,7 @@ object MIPPlayerCache : TablistPopulator
 
                         val composed = "$prefix${rank.color}${
                             lemonPlayer.getColoredName()
-                        }$suffix"
+                        }$suffix"*/
 
                         val textures = gameProfile.properties
                             .get("textures").firstOrNull()
@@ -104,7 +108,7 @@ object MIPPlayerCache : TablistPopulator
                             ping = MinecraftReflection.getPing(it),
                             rankWeight = QuickAccess.realRank(it).weight,
                             username = it.name,
-                            displayName = composed
+                            displayName = lemonPlayer.getColoredName()
                         )
                     }
 
@@ -117,6 +121,8 @@ object MIPPlayerCache : TablistPopulator
 
         val typeToken = object : TypeToken<List<OnlinePracticePlayer>>()
         {}.type
+
+        var playerList = ListCommand.PlayerList(0, listOf())
 
         Schedulers
             .async()
@@ -134,13 +140,27 @@ object MIPPlayerCache : TablistPopulator
 
                 localModelCache = mappings.values.flatten().toList()
                 playerIDs = localModelCache.map { it.username }.toSet()
+
+                val maxPlayerCount = ServerContainer
+                    .getServersInGroupCasted<GameServer>("mip")
+                    .sumOf { it.getMaxPlayers()!! }
+
+                playerList = ListCommand.PlayerList(
+                    maxCount = maxPlayerCount,
+                    sortedPlayerEntries = localModelCache
+                        .sortedByDescending(OnlinePracticePlayer::rankWeight)
+                        .map(OnlinePracticePlayer::displayName)
+                )
+
             }, 0L, 5)
+
+        ListCommand.supplyCustomPlayerList { playerList }
     }
 
-    override fun displayPreProcessor(player: org.bukkit.entity.Player) =
+    override fun displayPreProcessor(player: Player) =
         CompletableFuture.completedFuture(true)!!
 
-    override fun populate(player: org.bukkit.entity.Player, element: TabElement)
+    override fun populate(player: Player, element: TabElement)
     {
         element.header = LegacyComponentSerializer
             .legacySection()
