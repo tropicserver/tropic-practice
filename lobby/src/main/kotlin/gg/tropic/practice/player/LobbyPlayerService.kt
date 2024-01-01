@@ -77,7 +77,6 @@ object LobbyPlayerService
                         val audience = audiences.player(it.player)
 
                         val shouldIncludePingRange = it.validateQueueEntry() &&
-                            it.queueState().queueType == QueueType.Ranked &&
                             it.queueEntry().maxPingDiff != -1
 
                         val shouldIncludeELORange = it.validateQueueEntry() &&
