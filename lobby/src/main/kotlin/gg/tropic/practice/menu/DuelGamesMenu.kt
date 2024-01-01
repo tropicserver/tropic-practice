@@ -96,5 +96,5 @@ class DuelGamesMenu(
 
     override fun getPrePaginatedTitle(player: Player) = "${
         if (of == player.uniqueId) "Your" else "${of.username()}'s"
-    } previous games"
+    } games"
 }
