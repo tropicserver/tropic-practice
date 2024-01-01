@@ -9,6 +9,7 @@ import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.tropic.practice.autoscale.ReplicationAutoScaleTask
 import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameService
@@ -64,6 +65,8 @@ object MapReplicationService
                     MapService.maps().count()
                 } available maps. This server currently has ${mapReplications.size} available replications."
             )
+
+            plugin.flavor().inject(ReplicationAutoScaleTask)
         }.exceptionally {
             plugin.logger.log(
                 Level.SEVERE, "Failed to pre-generate map replications", it
@@ -179,18 +182,35 @@ object MapReplicationService
     fun findScheduledReplication(expectation: UUID) = mapReplications
         .firstOrNull { it.scheduledForExpectedGame == expectation }
 
-    private const val TARGET_PRE_GEN_REPLICATIONS = 8
-    private fun preGenerateMapReplications(): CompletableFuture<Void>
+    fun findAllAvailableReplications(map: Map) = mapReplications
+        .filter {
+            !it.inUse && it.associatedMap.name == map.name
+        }
+
+    fun generateMapReplications(
+        mappings: kotlin.collections.Map<Map, Int>
+    ): CompletableFuture<Void>
     {
         return CompletableFuture.allOf(
-            *MapService.maps()
+            *mappings.entries
                 .flatMap {
-                    (0 until TARGET_PRE_GEN_REPLICATIONS)
+                    (0 until it.value)
                         .map { _ ->
-                            generateArenaWorld(it).thenAccept { mapReplications += it }
+                            generateArenaWorld(it.key)
+                                .thenAccept { replication ->
+                                    mapReplications += replication
+                                }
                         }
                 }
                 .toTypedArray()
+        )
+    }
+
+    private const val TARGET_PRE_GEN_REPLICATIONS = 16
+    private fun preGenerateMapReplications(): CompletableFuture<Void>
+    {
+        return generateMapReplications(
+            MapService.maps().associateWith { TARGET_PRE_GEN_REPLICATIONS }
         )
     }
 
