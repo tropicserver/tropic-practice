@@ -41,7 +41,7 @@ object DuelGamesCommand : ScalaCommand()
 
         return target.validatePlayers(player.bukkit(), false) { lemonPlayer ->
             GameReportService
-                .loadSnapshotsForParticipant(player.uniqueId)
+                .loadSnapshotsForParticipant(lemonPlayer.uniqueId)
                 .thenAccept {
                     Tasks.sync {
                         DuelGamesMenu(it, lemonPlayer.uniqueId).openMenu(player.bukkit())
