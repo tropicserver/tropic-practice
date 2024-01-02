@@ -316,30 +316,6 @@ class GameImpl(
                 this.audiences.player(it).apply(lambda)
             }
 
-    fun sendMessage(vararg message: String)
-    {
-        for (line in message)
-        {
-            this.sendMessage(line)
-        }
-    }
-
-    fun sendMessage(vararg message: FancyMessage)
-    {
-        for (line in message)
-        {
-            this.sendMessage(line)
-        }
-    }
-
-    fun sendMessage(vararg message: Message)
-    {
-        for (line in message)
-        {
-            this.sendMessage(line)
-        }
-    }
-
     fun playSound(sound: Sound, pitch: Float = 1.0f)
     {
         this.toBukkitPlayers()
@@ -349,48 +325,60 @@ class GameImpl(
             }
     }
 
-    fun sendMessage(message: String)
+    fun sendMessage(vararg message: String)
     {
         this.toBukkitPlayers()
             .filterNotNull()
             .forEach {
-                it.sendMessage(message)
+                message.forEach { msg ->
+                    it.sendMessage(msg)
+                }
             }
 
         this.expectedSpectators
             .mapNotNull(Bukkit::getPlayer)
             .forEach {
-                it.sendMessage(message)
+                message.forEach { msg ->
+                    it.sendMessage(msg)
+                }
             }
     }
 
-    fun sendMessage(message: Message)
+    fun sendMessage(vararg message: Message)
     {
         this.toBukkitPlayers()
             .filterNotNull()
             .forEach {
-                message.sendToPlayer(it)
+                message.forEach { msg ->
+                    msg.sendToPlayer(it)
+                }
             }
 
         this.expectedSpectators
             .mapNotNull(Bukkit::getPlayer)
             .forEach {
-                message.sendToPlayer(it)
+                message.forEach { msg ->
+                    msg.sendToPlayer(it)
+                }
             }
     }
 
-    fun sendMessage(message: FancyMessage)
+    fun sendMessage(vararg message: FancyMessage)
     {
         this.toBukkitPlayers()
             .filterNotNull()
             .forEach {
-                message.sendToPlayer(it)
+                message.forEach { msg ->
+                    msg.sendToPlayer(it)
+                }
             }
 
         this.expectedSpectators
             .mapNotNull(Bukkit::getPlayer)
             .forEach {
-                message.sendToPlayer(it)
+                message.forEach { msg ->
+                    msg.sendToPlayer(it)
+                }
             }
     }
 

@@ -7,6 +7,7 @@ import com.grinderwolf.swm.api.SlimePlugin
 import com.grinderwolf.swm.api.loaders.SlimeLoader
 import com.grinderwolf.swm.api.world.properties.SlimeProperties
 import com.grinderwolf.swm.api.world.properties.SlimePropertyMap
+import com.grinderwolf.swm.plugin.config.WorldData
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.flavor.inject.Inject
@@ -223,16 +224,21 @@ object MapReplicationService
         for (arena in MapService.maps())
         {
             kotlin.runCatching {
+                val worldData = WorldData()
+                worldData.isPvp = true
+                worldData.difficulty = "normal"
+                worldData.environment = "NORMAL"
+                worldData.worldType = "DEFAULT"
+
+                worldData.isAllowAnimals = false
+                worldData.isAllowMonsters = false
+
                 val slimeWorld = slimePlugin
                     .loadWorld(
                         loader,
                         arena.associatedSlimeTemplate,
                         true,
-                        SlimePropertyMap().apply {
-                            setString(SlimeProperties.DIFFICULTY, "normal")
-                            setString(SlimeProperties.WORLD_TYPE, "flat")
-                            setBoolean(SlimeProperties.PVP, true)
-                        }
+                        worldData.toPropertyMap()
                     )
 
                 readyMaps[arena.name] = ReadyMapTemplate(slimeWorld)
