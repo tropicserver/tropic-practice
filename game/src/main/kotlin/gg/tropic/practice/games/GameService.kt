@@ -625,6 +625,10 @@ object GameService
         Events
             .subscribe(PotionSplashEvent::class.java)
             .handler {
+                it.affectedEntities.removeIf {
+                    it.hasMetadata("spectator")
+                }
+
                 val shooter = it.entity.shooter
                 if (shooter is Player)
                 {
@@ -638,7 +642,6 @@ object GameService
                     val effect = it.potion.effects
                         .firstOrNull { effect -> effect.type == PotionEffectType.HEAL }
                         ?: return@handler
-
 
                     counter.increment("totalPots")
                     counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")
