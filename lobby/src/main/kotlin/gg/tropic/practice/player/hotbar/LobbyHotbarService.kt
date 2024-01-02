@@ -230,6 +230,12 @@ object LobbyHotbarService
                         return@context
                     }
 
+                    if (profile.hasActiveRankedBan())
+                    {
+                        profile.deliverRankedBanMessage(player)
+                        return@context
+                    }
+
                     JoinQueueMenu(QueueType.Ranked, 1).openMenu(player)
                 }
             }

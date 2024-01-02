@@ -13,6 +13,7 @@ import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.LobbyConfigurationService
+import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.serializable.Message
@@ -26,6 +27,7 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Color
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.EventUtils
+import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
@@ -87,7 +89,11 @@ object LobbyPlayerService
                                 it.queuedForKit()?.displayName ?: "???"
                             }${CC.WHITE}${
                                 if (shouldIncludeELORange && shouldIncludePingRange)
-                                    "" else " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Queued for ${TimeUtil.formatIntoMMSS((it.queuedForTime() / 1000).toInt())}"
+                                    "" else " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Queued for ${
+                                    TimeUtil.formatIntoMMSS(
+                                        (it.queuedForTime() / 1000).toInt()
+                                    )
+                                }"
                             }${
                                 if (shouldIncludePingRange)
                                 {
@@ -199,6 +205,17 @@ object LobbyPlayerService
                 }
 
                 CompletableFuture.runAsync(player::syncQueueState)
+
+                val profile = PracticeProfileService
+                    .find(event.player)
+                    ?: return@handler
+
+                if (profile.hasActiveRankedBan())
+                {
+                    Tasks.delayed(20L) {
+                        profile.deliverRankedBanMessage(event.player)
+                    }
+                }
             }
             .bindWith(plugin)
 

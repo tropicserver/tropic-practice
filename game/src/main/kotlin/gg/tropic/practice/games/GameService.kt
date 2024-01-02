@@ -625,8 +625,8 @@ object GameService
         Events
             .subscribe(PotionSplashEvent::class.java)
             .handler {
-                it.affectedEntities.removeIf {
-                    it.hasMetadata("spectator")
+                it.affectedEntities.removeIf { entity ->
+                    entity.hasMetadata("spectator")
                 }
 
                 val shooter = it.entity.shooter
