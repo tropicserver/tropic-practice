@@ -167,9 +167,7 @@ class GameStartTask(
             this.game.sendMessage("${CC.GREEN}The game has started!")
             if (game.expectationModel.queueType == QueueType.Ranked)
             {
-                this.game.sendMessage(" ")
-                this.game.sendMessage("${CC.DARK_RED}${CC.BOLD}WARNING: ${CC.RESET}${CC.RED}Double Clicking is an automated punishable offence in all Ranked Environments. Adjusting your Debounce Time to 10ms or using a DC Prevention Tools is highly recommended if you can't avoid Double Clicking. You've been warned.")
-                this.game.sendMessage(" ")
+                this.game.sendMessage(" ", "${CC.DARK_RED}${CC.BOLD}WARNING: ${CC.RESET}${CC.RED}Double Clicking is an automated punishable offence in all Ranked Environments. Adjusting your Debounce Time to 10ms or using a DC Prevention Tools is highly recommended if you can't avoid Double Clicking. You've been warned.", " ")
             }
             this.game.playSound(Sound.NOTE_PLING, pitch = 1.2f)
             this.game.audiences { it.clearTitle() }
