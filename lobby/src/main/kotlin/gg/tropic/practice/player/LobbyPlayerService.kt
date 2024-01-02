@@ -13,6 +13,7 @@ import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.LobbyConfigurationService
+import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.serializable.Message
@@ -26,11 +27,13 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.Color
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.EventUtils
+import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.util.time.TimeUtil
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.Player
+import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -59,7 +62,7 @@ object LobbyPlayerService
             .build()
     }
 
-    private fun createMessage(packet: String, vararg pairs: Pair<String, Any?>): AwareMessage =
+    fun createMessage(packet: String, vararg pairs: Pair<String, Any?>): AwareMessage =
         AwareMessage.of(packet, this.aware, *pairs)
 
     @Configure
@@ -76,7 +79,6 @@ object LobbyPlayerService
                         val audience = audiences.player(it.player)
 
                         val shouldIncludePingRange = it.validateQueueEntry() &&
-                            it.queueState().queueType == QueueType.Ranked &&
                             it.queueEntry().maxPingDiff != -1
 
                         val shouldIncludeELORange = it.validateQueueEntry() &&
@@ -87,7 +89,11 @@ object LobbyPlayerService
                                 it.queuedForKit()?.displayName ?: "???"
                             }${CC.WHITE}${
                                 if (shouldIncludeELORange && shouldIncludePingRange)
-                                    "" else " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Queued for ${TimeUtil.formatIntoMMSS((it.queuedForTime() / 1000).toInt())}"
+                                    "" else " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Queued for ${
+                                    TimeUtil.formatIntoMMSS(
+                                        (it.queuedForTime() / 1000).toInt()
+                                    )
+                                }"
                             }${
                                 if (shouldIncludePingRange)
                                 {
@@ -184,7 +190,10 @@ object LobbyPlayerService
             .bindWith(plugin)
 
         Events
-            .subscribe(PlayerJoinEvent::class.java)
+            .subscribe(
+                PlayerJoinEvent::class.java,
+                EventPriority.MONITOR
+            )
             .handler { event ->
                 val player = LobbyPlayer(event.player.uniqueId)
                 playerCache[event.player.uniqueId] = player
@@ -196,6 +205,17 @@ object LobbyPlayerService
                 }
 
                 CompletableFuture.runAsync(player::syncQueueState)
+
+                val profile = PracticeProfileService
+                    .find(event.player)
+                    ?: return@handler
+
+                if (profile.hasActiveRankedBan())
+                {
+                    Tasks.delayed(20L) {
+                        profile.deliverRankedBanMessage(event.player)
+                    }
+                }
             }
             .bindWith(plugin)
 

@@ -1,7 +1,5 @@
 package gg.tropic.practice.menu
 
-import gg.scala.cache.uuid.ScalaStoreUuidCache
-import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.Reference
@@ -10,6 +8,7 @@ import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
+import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.services.LeaderboardManagerService
 import net.evilblock.cubed.menu.Button
@@ -31,6 +30,14 @@ class JoinQueueMenu(
     {
         async = true
         autoUpdate = true
+    }
+
+    override fun getItemAmount(player: Player, kit: Kit): Int
+    {
+        val queueId = "${kit.id}:${queueType.name}:${teamSize}v${teamSize}"
+        val metadata = GameManagerService.buildQueueIdMetadataTracker(queueId)
+
+        return metadata.inGame.coerceIn(1..64)
     }
 
     override fun getAutoUpdateTicks() = 500L
@@ -101,6 +108,12 @@ class JoinQueueMenu(
         if (lobbyPlayer.state == PlayerState.InQueue)
         {
             player.sendMessage("${CC.RED}You are already in a queue!")
+            return
+        }
+
+        if (player.hasMetadata("vanished"))
+        {
+            player.sendMessage("${CC.RED}You are currently in vanish! Use ${CC.B}/vanish${CC.RED} to be able to join a queue.")
             return
         }
 

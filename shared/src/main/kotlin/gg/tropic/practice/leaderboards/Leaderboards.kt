@@ -11,7 +11,7 @@ enum class ReferenceLeaderboardType(
     val enforceRanked: Boolean = false
 )
 {
-    ELO("Ranked ELO"),
+    ELO("Ranked ELO", true),
     CasualWins("Casual Wins"),
     RankedWins("Ranked Wins", true),
     CasualWinStreak("Casual Daily Win Streak"),

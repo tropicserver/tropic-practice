@@ -1,12 +1,15 @@
 package gg.tropic.practice.games
 
+import com.comphenix.protocol.PacketType
+import com.comphenix.protocol.events.PacketAdapter
+import com.comphenix.protocol.events.PacketEvent
 import gg.scala.aware.AwareBuilder
 import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
 import gg.scala.aware.message.AwareMessage
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
+import gg.scala.basics.plugin.shutdown.ServerShutdownEvent
 import gg.scala.commons.agnostic.sync.ServerSync
-import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -29,6 +32,7 @@ import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
+import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants.HEART_SYMBOL
@@ -51,6 +55,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import java.util.*
 import kotlin.math.ceil
+import kotlin.math.min
 
 /**
  * @author GrowlyX
@@ -87,6 +92,14 @@ object GameService
     fun configure()
     {
         CosmeticLocalConfig.enableCosmeticResources = false
+
+        Events
+            .subscribe(ServerShutdownEvent::class.java)
+            .handler {
+                games.values.forEach { game ->
+                    game.complete(null, "Server rebooting")
+                }
+            }
 
         AnticheatHook.configureAlertFilter {
             if (it.type == AnticheatCheck.DOUBLE_CLICK)
@@ -163,6 +176,31 @@ object GameService
                     }
             )
         }
+
+        Events
+            .subscribe(PlayerItemConsumeEvent::class.java)
+            .handler {
+                val game = byPlayer(it.player)
+                    ?: return@handler
+
+                if (!game.state(GameState.Playing))
+                {
+                    return@handler
+                }
+
+                if (
+                    !it.player.isDead &&
+                    it.player.itemInHand.type == Material.MUSHROOM_SOUP &&
+                    it.player.health < 19.0
+                )
+                {
+                    val newHealth = min(it.player.health + 7.0, 20.0)
+
+                    it.player.health = newHealth
+                    it.player.itemInHand.type = Material.BOWL
+                    it.player.updateInventory()
+                }
+            }
 
         fun overridePotionEffect(
             player: Player, effect: PotionEffect
@@ -587,6 +625,10 @@ object GameService
         Events
             .subscribe(PotionSplashEvent::class.java)
             .handler {
+                it.affectedEntities.removeIf { entity ->
+                    entity.hasMetadata("spectator")
+                }
+
                 val shooter = it.entity.shooter
                 if (shooter is Player)
                 {
@@ -600,7 +642,6 @@ object GameService
                     val effect = it.potion.effects
                         .firstOrNull { effect -> effect.type == PotionEffectType.HEAL }
                         ?: return@handler
-
 
                     counter.increment("totalPots")
                     counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")

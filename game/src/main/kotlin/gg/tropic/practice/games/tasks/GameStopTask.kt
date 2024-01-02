@@ -180,7 +180,7 @@ class GameStopTask(
                                 })"
                             )
 
-                            if (updates.nextPosition == null)
+                            if (updates.requiredScore() < 0)
                             {
                                 player.sendMessage(" ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.GREEN}You are #1 on the leaderboards!")
                                 player.sendMessage("")

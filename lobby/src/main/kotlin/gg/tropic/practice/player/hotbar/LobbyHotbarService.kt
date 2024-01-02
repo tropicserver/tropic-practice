@@ -178,7 +178,13 @@ object LobbyHotbarService
                     .name("${CC.GREEN}Play Casual ${CC.GRAY}(Right Click)")
                     .setUnbreakable(true)
             ).also {
-                it.onClick = { player ->
+                it.onClick = context@{ player ->
+                    if (player.hasMetadata("frozen"))
+                    {
+                        player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+                        return@context
+                    }
+
                     JoinQueueMenu(QueueType.Casual, 1).openMenu(player)
 //                    CasualQueueSelectSizeMenu().openMenu(player)
                 }
@@ -203,6 +209,12 @@ object LobbyHotbarService
                         return@context
                     }
 
+                    if (player.hasMetadata("frozen"))
+                    {
+                        player.sendMessage("${CC.RED}You cannot join queues while frozen!")
+                        return@context
+                    }
+
                     if (
                         !player.hasPermission("practice.bypass-ranked-queue-requirements")
                         && profile.globalStatistics.totalWins < configuration.minimumWinRequirement()
@@ -215,6 +227,12 @@ object LobbyHotbarService
                                 profile.globalStatistics.totalWins
                             }${CC.RED} wins."
                         )
+                        return@context
+                    }
+
+                    if (profile.hasActiveRankedBan())
+                    {
+                        profile.deliverRankedBanMessage(player)
                         return@context
                     }
 

@@ -14,6 +14,7 @@ import net.evilblock.cubed.util.time.TimeUtil
 import org.apache.commons.lang3.time.DurationFormatUtils
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import java.util.UUID
 import java.util.concurrent.ForkJoinPool
 
 /**
@@ -21,7 +22,8 @@ import java.util.concurrent.ForkJoinPool
  * @since 8/5/2022
  */
 class DuelGamesMenu(
-    private val reports: List<GameReport>
+    private val reports: List<GameReport>,
+    private val of: UUID
 ) : PaginatedMenu()
 {
     init
@@ -92,5 +94,7 @@ class DuelGamesMenu(
         return buttons
     }
 
-    override fun getPrePaginatedTitle(player: Player) = "Your previous games"
+    override fun getPrePaginatedTitle(player: Player) = "${
+        if (of == player.uniqueId) "Your" else "${of.username()}'s"
+    } games"
 }

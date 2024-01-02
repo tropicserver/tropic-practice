@@ -27,6 +27,7 @@ import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.statistics.leaderboards.LeaderboardManager
 import gg.tropic.practice.tournaments.TournamentManager
 import net.evilblock.cubed.serializers.Serializers
+import kotlin.system.exitProcess
 
 class ApplicationServerArgs(parser: ArgParser)
 {
@@ -140,6 +141,12 @@ fun main(args: Array<String>) = mainBody {
     TournamentManager.load()
 
     LeaderboardManager.load()
+
+    DPSRedisShared.applicationBridge.configure {
+        listen("reboot-app") {
+            exitProcess(1)
+        }
+    }
 
     while (true)
     {

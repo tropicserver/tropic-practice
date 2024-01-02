@@ -1,5 +1,6 @@
 package gg.tropic.practice.commands.admin
 
+import gg.scala.aware.thread.AwareThreadContext
 import gg.scala.commons.acf.CommandHelp
 import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.acf.annotation.CommandPermission
@@ -18,6 +19,9 @@ import gg.scala.flavor.inject.Inject
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.map.metadata.anonymous.toPosition
+import gg.tropic.practice.player.LobbyPlayerService
+import gg.tropic.practice.services.GameManagerService
+import gg.tropic.practice.services.LeaderboardManagerService
 import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
@@ -42,6 +46,20 @@ object LobbyAdminCommands : ScalaCommand()
     fun onHelp(help: CommandHelp)
     {
         help.showHelp()
+    }
+
+    @CommandPermission("op")
+    @Subcommand("request-application-reboot")
+    @Description("Request an application reboot.")
+    fun onRequestAppReboot(player: ScalaPlayer)
+    {
+        LobbyPlayerService.createMessage("reboot-app")
+            .publish(
+                AwareThreadContext.ASYNC,
+                channel = "practice:application"
+            )
+
+        player.sendMessage("${CC.GREEN}We've requested an application reboot, please wait a moment.")
     }
 
     @AssignPermission

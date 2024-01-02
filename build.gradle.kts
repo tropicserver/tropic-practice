@@ -32,15 +32,15 @@ subprojects {
     dependencies {
         compileOnly(kotlin("stdlib"))
 
-        kapt("gg.scala.commons:bukkit:3.4.0")
-        compileOnly("gg.scala.commons:bukkit:3.4.0")
+        kapt("gg.scala.commons:bukkit:3.4.2")
+        compileOnly("gg.scala.commons:bukkit:3.4.2")
 
         compileOnly("gg.scala.store:spigot:0.1.8")
-        compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.5")
+        compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.7")
 
         compileOnly("gg.scala.spigot:server:1.1.3")
 
-        compileOnly("gg.scala.lemon:bukkit:1.6.6")
+        compileOnly("gg.scala.lemon:bukkit:1.6.7")
         compileOnly("gg.scala.cloudsync:spigot:1.0.1")
     }
 

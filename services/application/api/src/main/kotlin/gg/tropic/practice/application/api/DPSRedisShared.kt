@@ -18,6 +18,9 @@ object DPSRedisShared
     private val lobbyBridge = DPSRedisService("lobbies")
         .apply(DPSRedisService::start)
 
+    val applicationBridge = DPSRedisService("application")
+        .apply(DPSRedisService::start)
+
     fun redirect(players: List<UUID>, server: String)
     {
         lobbyBridge.createMessage(

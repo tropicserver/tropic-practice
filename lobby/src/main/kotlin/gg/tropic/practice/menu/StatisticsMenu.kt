@@ -2,6 +2,7 @@ package gg.tropic.practice.menu
 
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.profile.PracticeProfile
 import net.evilblock.cubed.menu.Button
@@ -21,7 +22,8 @@ class StatisticsMenu(
     private val state: StatisticMenuState
 ) : TemplateKitMenu()
 {
-    override fun filterDisplayOfKit(player: Player, kit: Kit) = true
+    override fun filterDisplayOfKit(player: Player, kit: Kit) =
+        state == StatisticMenuState.Casual || kit.features(FeatureFlag.Ranked)
     override fun shouldIncludeKitDescription() = false
 
     override fun itemTitleFor(player: Player, kit: Kit) = if (state == StatisticMenuState.Casual)

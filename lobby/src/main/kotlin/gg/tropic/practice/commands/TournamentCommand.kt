@@ -1,6 +1,7 @@
 package gg.tropic.practice.commands
 
 import gg.scala.commons.acf.CommandHelp
+import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.acf.annotation.CommandPermission
 import gg.scala.commons.acf.annotation.Default
@@ -44,6 +45,15 @@ object TournamentCommand : ScalaCommand()
     @Subcommand("join")
     @Description("Join the ongoing tournament!")
     fun onJoin(player: ScalaPlayer) = TournamentManagerService
+        .apply {
+            val lobbyProfile = LobbyPlayerService.find(player.bukkit())
+                ?: return@apply
+
+            if (lobbyProfile.state != PlayerState.Idle)
+            {
+                throw ConditionFailedException("You cannot join a tournament right now!")
+            }
+        }
         .publish(
             "join",
             "player" to player.uniqueId,
@@ -64,6 +74,15 @@ object TournamentCommand : ScalaCommand()
     @Subcommand("leave")
     @Description("Leave the ongoing tournament!")
     fun onLeave(player: ScalaPlayer) = TournamentManagerService
+        .apply {
+            val lobbyProfile = LobbyPlayerService.find(player.bukkit())
+                ?: return@apply
+
+            if (lobbyProfile.state != PlayerState.InTournament)
+            {
+                throw ConditionFailedException("You are not in a tournament right now!")
+            }
+        }
         .publish(
             "leave",
             "player" to player.uniqueId

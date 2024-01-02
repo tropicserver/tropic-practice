@@ -12,6 +12,8 @@ import gg.scala.lemon.util.QuickAccess
 import gg.tropic.practice.duel.DuelRequestUtilities
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.menu.pipeline.DuelRequestPipeline
+import gg.tropic.practice.player.LobbyPlayerService
+import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.settings.DuelsSettingCategory
 import net.evilblock.cubed.util.CC
@@ -40,6 +42,30 @@ object DuelCommands : ScalaCommand()
             ?: throw ConditionFailedException(
                 "${CC.YELLOW}${it.name}${CC.RED} has not sent you a duel request with the kit ${CC.YELLOW}${kit.displayName}${CC.RED}."
             )
+
+        if (player.bukkit().hasMetadata("vanished"))
+        {
+            throw ConditionFailedException(
+                "You are currently in vanish! Use ${CC.B}/vanish${CC.RED} to be able to accept a duel."
+            )
+        }
+
+        if (player.bukkit().hasMetadata("frozen"))
+        {
+            throw ConditionFailedException(
+                "You cannot accept this duel as you are frozen!"
+            )
+        }
+
+        val profile = LobbyPlayerService.find(player.bukkit())
+            ?: return@validatePlayers
+
+        if (profile.state != PlayerState.Idle)
+        {
+            throw ConditionFailedException(
+                "You are not in the right state to accept a duel!"
+            )
+        }
 
         QueueService.createMessage(
             "accept-duel",

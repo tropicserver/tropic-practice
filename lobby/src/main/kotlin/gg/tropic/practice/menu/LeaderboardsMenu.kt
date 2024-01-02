@@ -1,6 +1,5 @@
 package gg.tropic.practice.menu
 
-import gg.scala.cache.uuid.ScalaStoreUuidCache
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.Reference
@@ -16,7 +15,6 @@ import net.evilblock.cubed.util.math.Numbers
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
-import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
