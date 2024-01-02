@@ -1,5 +1,7 @@
 package gg.tropic.practice.games.tasks
 
+import dev.iiahmed.disguise.Disguise
+import gg.scala.basics.plugin.disguise.DisguiseService
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
@@ -21,6 +23,7 @@ import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.title.TitlePart
 import org.bukkit.Bukkit
 import org.bukkit.Sound
+import org.bukkit.entity.EntityType
 import org.bukkit.scoreboard.DisplaySlot
 
 /**
@@ -42,8 +45,6 @@ class GameStartTask(
             this.game.toBukkitPlayers()
                 .filterNotNull()
                 .forEach { player ->
-                    val team = this.game.getTeamOf(player).side
-
                     VisibilityHandler.update(player)
                     NametagHandler.reloadPlayer(player)
 
@@ -58,6 +59,23 @@ class GameStartTask(
 
                         objective.displaySlot = DisplaySlot.BELOW_NAME
                         objective.displayName = "${CC.D_RED}${Constants.HEART_SYMBOL}"
+                    }
+
+                    if (game.flag(FeatureFlag.EntityDisguise))
+                    {
+                        val type = game
+                            .flagMetaData(FeatureFlag.EntityDisguise, "type")
+                            ?: "PLAYER"
+
+                        DisguiseService.provider().disguise(
+                            player,
+                            Disguise
+                                .builder()
+                                .setEntityType(
+                                    EntityType.valueOf(type)
+                                )
+                                .build()
+                        )
                     }
 
                     player.resetAttributes()
@@ -165,10 +183,19 @@ class GameStartTask(
 
             this.game.completeLoadoutSelection()
             this.game.sendMessage("${CC.GREEN}The game has started!")
-            if (game.expectationModel.queueType == QueueType.Ranked)
+
+            if (
+                game.expectationModel.queueType == QueueType.Ranked ||
+                game.expectationModel.queueId == "tournament"
+            )
             {
-                this.game.sendMessage(" ", "${CC.DARK_RED}${CC.BOLD}WARNING: ${CC.RESET}${CC.RED}Double Clicking is an automated punishable offence in all Ranked Environments. Adjusting your Debounce Time to 10ms or using a DC Prevention Tools is highly recommended if you can't avoid Double Clicking. You've been warned.", " ")
+                this.game.sendMessage(
+                    " ",
+                    "${CC.BD_RED}WARNING: ${CC.RED}Double Clicking is a punishable offence in all ranked matches. Adjusting your debounce time to 10ms or using a DC-prevention tool is highly recommended if you are unable to avoid double clicking.",
+                    " "
+                )
             }
+
             this.game.playSound(Sound.NOTE_PLING, pitch = 1.2f)
             this.game.audiences { it.clearTitle() }
 

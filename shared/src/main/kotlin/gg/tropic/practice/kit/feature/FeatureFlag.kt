@@ -1,5 +1,7 @@
 package gg.tropic.practice.kit.feature
 
+import org.bukkit.entity.EntityType
+
 /**
  * @author GrowlyX
  * @since 9/17/2023
@@ -76,6 +78,9 @@ enum class FeatureFlag(
     ),
     CountDownTimeBeforeRoundStart(
         schema = mutableMapOf("value" to "5")
+    ),
+    EntityDisguise(
+        schema = mutableMapOf("type" to "IRON_GOLEM")
     ),
     FrozenOnRoundStart(
         // game start freeze is implied with round start

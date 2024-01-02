@@ -9,6 +9,7 @@ import gg.tropic.practice.menu.editor.AllowRemoveItemsWithinInventory
 import me.lucko.helper.Events
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.bukkit.ItemUtils
+import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -17,6 +18,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryDragEvent
+import org.bukkit.event.inventory.InventoryMoveItemEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -65,6 +68,35 @@ object PreventionListeners
                 it.cursor = null
             }
             .bindWith(plugin)
+
+        Events
+            .subscribe(InventoryDragEvent::class.java)
+            .handler {
+                val notContentEditor = Menu
+                    .currentlyOpenedMenus[it.viewers.first().uniqueId] !is AllowRemoveItemsWithinInventory
+
+                if (notContentEditor)
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+            }
+            .bindWith(plugin)
+
+        Events
+            .subscribe(InventoryMoveItemEvent::class.java)
+            .handler {
+                val notContentEditor = Menu
+                    .currentlyOpenedMenus[it.initiator.viewers.first().uniqueId] !is AllowRemoveItemsWithinInventory
+
+                if (notContentEditor)
+                {
+                    it.isCancelled = true
+                    return@handler
+                }
+            }
+            .bindWith(plugin)
+
 
         listOf(EntityDamageEvent::class, EntityDamageByBlockEvent::class, EntityDamageByEntityEvent::class)
             .forEach { damageEvent ->
