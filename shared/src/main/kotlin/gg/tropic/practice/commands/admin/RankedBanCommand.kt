@@ -2,6 +2,7 @@ package gg.tropic.practice.commands.admin
 
 import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.CommandAlias
+import gg.scala.commons.acf.annotation.CommandCompletion
 import gg.scala.commons.acf.annotation.CommandPermission
 import gg.scala.commons.acf.annotation.Optional
 import gg.scala.commons.annotations.commands.AutoRegister
@@ -10,7 +11,6 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
 import gg.tropic.practice.commands.offlineProfile
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.time.DateUtil
 import net.evilblock.cubed.util.time.Duration
 import net.evilblock.cubed.util.time.TimeUtil
 import java.util.*
@@ -23,6 +23,7 @@ import java.util.*
 object RankedBanCommand : ScalaCommand()
 {
     @CommandAlias("rankedbanstatus")
+    @CommandCompletion("@mip-players")
     @CommandPermission("practice.command.rankedbanstatus")
     fun onRankedBanStatus(
         player: ScalaPlayer,
@@ -49,6 +50,7 @@ object RankedBanCommand : ScalaCommand()
         }
 
     @CommandAlias("rankedunban")
+    @CommandCompletion("@mip-players")
     @CommandPermission("practice.command.rankedban")
     fun onRankedUnBan(
         player: ScalaPlayer,
@@ -72,6 +74,7 @@ object RankedBanCommand : ScalaCommand()
         }
 
     @CommandAlias("rankedban")
+    @CommandCompletion("@mip-players")
     @CommandPermission("practice.command.rankedunban")
     fun onRankedBan(
         player: ScalaPlayer,
