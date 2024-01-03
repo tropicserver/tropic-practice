@@ -51,9 +51,9 @@ object ReplicationAutoScaleTask : Thread("replication-auto-scale")
             val replications = MapReplicationService
                 .findAllAvailableReplications(map)
 
-            if (replications.count() <= TARGET_REPLICATIONS * FLOOR_REQUIRED_FOR_AUTO_SCALE)
+            if (replications.size <= TARGET_REPLICATIONS * FLOOR_REQUIRED_FOR_AUTO_SCALE)
             {
-                mappings[map] = TARGET_REPLICATIONS - replications.count()
+                mappings[map] = TARGET_REPLICATIONS - replications.size
             }
         }
 
@@ -70,15 +70,18 @@ object ReplicationAutoScaleTask : Thread("replication-auto-scale")
 
     override fun run()
     {
-        runCatching(::runSilently)
-            .onFailure {
-                plugin.logger.log(
-                    Level.SEVERE,
-                    "Failed to auto scale replications",
-                    it
-                )
-            }
+        while (true)
+        {
+            runCatching(::runSilently)
+                .onFailure {
+                    plugin.logger.log(
+                        Level.SEVERE,
+                        "Failed to auto scale replications",
+                        it
+                    )
+                }
 
-        sleep(1000L)
+            sleep(1000L)
+        }
     }
 }
