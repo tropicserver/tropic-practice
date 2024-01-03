@@ -8,13 +8,13 @@ import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.resetAttributes
 import me.lucko.helper.Events
-import me.lucko.helper.Schedulers
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
-import org.bukkit.GameMode
+import net.minecraft.server.v1_8_R3.WorldSettings
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
@@ -22,7 +22,6 @@ import org.bukkit.event.player.PlayerInitialSpawnEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.metadata.FixedMetadataValue
-import org.spigotmc.event.player.PlayerSpawnLocationEvent
 
 /**
  * @author GrowlyX
@@ -86,7 +85,8 @@ object ExpectationService
                     .byPlayerOrSpectator(it.player.uniqueId)
                     ?: return@handler
 
-                it.player.gameMode = GameMode.SURVIVAL
+                (it.player as CraftPlayer).handle.playerInteractManager
+                    .gameMode = WorldSettings.EnumGamemode.SURVIVAL
 
                 val spawnLocation = if (it.player.uniqueId !in game.expectedSpectators)
                 {
