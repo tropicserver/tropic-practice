@@ -25,6 +25,7 @@ import gg.tropic.game.extensions.cosmetics.CosmeticLocalConfig
 import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
 import gg.tropic.game.extensions.cosmetics.killeffects.KillEffectCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.KillEffect
+import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.LightningKillEffect
 import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
 import gg.tropic.practice.PracticeGame
@@ -230,29 +231,27 @@ object GameService
                     player
                 )
                 .randomOrNull()
+                ?: LightningKillEffect
 
-            if (killerCosmetic != null)
+            val killEffectCosmetic = killerCosmetic as KillEffect
+            killEffectCosmetic.applyTo(
+                game.toBukkitPlayers().filterNotNull(),
+                player, target
+            )
+
+            val configuration = killEffectCosmetic.serveConfiguration(player)
+            if (configuration.flight != false)
             {
-                val killEffectCosmetic = killerCosmetic as KillEffect
-                killEffectCosmetic.applyTo(
-                    game.toBukkitPlayers().filterNotNull(),
-                    player, target
-                )
+                player.allowFlight = true
+                player.isFlying = true
+            }
 
-                val configuration = killEffectCosmetic.serveConfiguration(player)
-                if (configuration.flight != false)
-                {
-                    player.allowFlight = true
-                    player.isFlying = true
-                }
+            if (configuration.clearInventory != false && gameIsFinished)
+            {
+                game.takeSnapshot(player)
 
-                if (configuration.clearInventory != false && gameIsFinished)
-                {
-                    game.takeSnapshot(player)
-
-                    player.inventory.clear()
-                    player.updateInventory()
-                }
+                player.inventory.clear()
+                player.updateInventory()
             }
         }
 
