@@ -14,9 +14,11 @@ import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
+import org.bukkit.GameMode
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
+import org.bukkit.event.player.PlayerInitialSpawnEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.metadata.FixedMetadataValue
@@ -78,11 +80,13 @@ object ExpectationService
             .bindWith(plugin)
 
         Events
-            .subscribe(PlayerSpawnLocationEvent::class.java)
+            .subscribe(PlayerInitialSpawnEvent::class.java)
             .handler {
                 val game = GameService
                     .byPlayerOrSpectator(it.player.uniqueId)
                     ?: return@handler
+
+                it.player.gameMode = GameMode.SURVIVAL
 
                 val spawnLocation = if (it.player.uniqueId !in game.expectedSpectators)
                 {
