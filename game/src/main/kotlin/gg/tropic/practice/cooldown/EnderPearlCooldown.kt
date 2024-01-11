@@ -106,11 +106,11 @@ object EnderPearlCooldown : PlayerStaticCooldown(
                     it.isCancelled = true
                     player.updateInventory()
 
-                    player.sendMessage("${CC.RED}You cannot throw pearls right now!")
+                    player.sendMessage("${CC.RED}You cannot throw enderpearls right now!")
                     return@handler
                 }
 
-                if (!notifyAndContinueNoBypass(this.javaClass, player, "throwing an pearl"))
+                if (!notifyAndContinueNoBypass(this.javaClass, player, "throwing an enderpearl"))
                 {
                     it.isCancelled = true
                     player.updateInventory()
