@@ -1,6 +1,11 @@
 package gg.tropic.practice.scoreboard
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.commons.scoreboard.TextAnimator
+import gg.scala.commons.scoreboard.animations.TextFadeAnimation
+import gg.scala.flavor.service.Close
+import gg.scala.flavor.service.Configure
+import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.settings.DuelsSettingCategory
@@ -14,6 +19,8 @@ import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.math.Numbers
 import net.evilblock.cubed.util.nms.MinecraftProtocol
 import net.evilblock.cubed.util.time.TimeUtil
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -21,6 +28,7 @@ import java.util.*
  * @author GrowlyX
  * @since 9/24/2023
  */
+@Service
 @ScoreboardAdapterRegister
 object LobbyScoreboardAdapter : ScoreboardAdapter()
 {
@@ -124,6 +132,33 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
     }
 
+    private val titleAnimator = TextAnimator.of(
+        TextFadeAnimation(
+            "${CC.BOLD}Practice",
+            ChatColor.AQUA,
+            ChatColor.DARK_AQUA,
+            ChatColor.WHITE
+        )
+    )
+
+    @Configure
+    fun configure()
+    {
+        titleAnimator.schedule()
+    }
+
+    @Close
+    fun close()
+    {
+        titleAnimator.dispose()
+    }
+
     override fun getTitle(player: Player) =
-        "${CC.B_PRI}Practice ${CC.GRAY}(beta)"
+        "${CC.B_PRI}${
+            LegacyComponentSerializer
+                .legacySection()
+                .serialize(
+                    titleAnimator.currentIntoTextComponent()
+                )
+        } ${CC.GRAY}(beta)"
 }
