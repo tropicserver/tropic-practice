@@ -137,7 +137,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             "${CC.BOLD}Practice",
             ChatColor.AQUA,
             ChatColor.DARK_AQUA,
-            ChatColor.WHITE
+            ChatColor.DARK_GRAY
         )
     )
 
