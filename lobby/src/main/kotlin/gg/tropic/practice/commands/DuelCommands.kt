@@ -5,6 +5,7 @@ import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.acf.annotation.CommandCompletion
 import gg.scala.commons.annotations.commands.AutoRegister
+import gg.scala.commons.annotations.commands.HighPriority
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
@@ -23,6 +24,7 @@ import net.evilblock.cubed.util.CC
  * @since 10/14/2023
  */
 @AutoRegister
+@HighPriority
 object DuelCommands : ScalaCommand()
 {
     @CommandCompletion("@mip-players")
@@ -78,7 +80,7 @@ object DuelCommands : ScalaCommand()
     }
 
     @CommandCompletion("@players")
-    @CommandAlias("duel|fight|sendduelrequest")
+    @CommandAlias("d|duel|fight|sendduelrequest")
     fun onDuelRequest(
         player: ScalaPlayer,
         target: AsyncLemonPlayer
