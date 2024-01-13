@@ -13,7 +13,7 @@ data class LobbyConfiguration(
     ),
     val loginMOTD: MutableList<String> = mutableListOf(
         "",
-        "${CC.B_PRI}Welcome to Tropic Practice ${CC.GRAY}(beta)",
+        "${CC.B_PRI}Welcome to Tropic Practice",
         "${CC.GRAY}We are currently in BETA! Report bugs in our Discord.",
         ""
     ),

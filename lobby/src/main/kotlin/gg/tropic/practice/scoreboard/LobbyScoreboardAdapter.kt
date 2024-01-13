@@ -153,12 +153,9 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         titleAnimator.dispose()
     }
 
-    override fun getTitle(player: Player) =
-        "${CC.B_PRI}${
-            LegacyComponentSerializer
-                .legacySection()
-                .serialize(
-                    titleAnimator.currentIntoTextComponent()
-                )
-        } ${CC.GRAY}(beta)"
+    override fun getTitle(player: Player) = LegacyComponentSerializer
+        .legacySection()
+        .serialize(
+            titleAnimator.currentIntoTextComponent()
+        )
 }
