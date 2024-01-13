@@ -7,6 +7,7 @@ import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.tropic.practice.commands.menu.MapRatingOverviewMenu
 import gg.tropic.practice.kit.group.KitGroup
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
@@ -138,6 +139,14 @@ object MapCommands : ScalaCommand()
                     "${CC.GREEN}You deleted the map with the ID ${CC.YELLOW}${map.name}${CC.GREEN}."
                 )
             }
+    }
+
+    @AssignPermission
+    @Subcommand("ratings")
+    @Description("View the average ratings of every map.")
+    fun onRatingOverview(player: ScalaPlayer)
+    {
+        MapRatingOverviewMenu().openMenu(player.bukkit())
     }
 
     @AssignPermission
