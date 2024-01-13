@@ -1,5 +1,6 @@
 package gg.tropic.practice.map.rating
 
+import com.mongodb.client.model.Filters
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.store.controller.DataStoreObjectControllerCache
@@ -18,8 +19,7 @@ import org.bson.Document
 @Service
 object MapRatingService
 {
-
-    val ratingMap: MutableMap<String, Int> = mutableMapOf()
+    val ratingMap: MutableMap<String, Double> = mutableMapOf()
 
     @Configure
     fun configure()
@@ -31,7 +31,8 @@ object MapRatingService
         }
     }
 
-    fun loadAverageRating(map: Map) = DataStoreObjectControllerCache.findNotNull<MapRating>()
+    fun loadAverageRating(map: Map) = DataStoreObjectControllerCache
+        .findNotNull<MapRating>()
         .mongo()
         .aggregate(
             listOf(
@@ -46,18 +47,26 @@ object MapRatingService
                     Document(
                         mapOf(
                             "_id" to "\$_id",
-                            "average" to "\$rating"
+                            "average" to Document(
+                                "\$avg", "\$rating"
+                            )
                         )
                     )
-                ),
+                )
             )
-        ).firstOrNull()?.getInteger("average") ?: 1
+        )
+        .first()
+        ?.getDouble("average")
+        ?: 0.0
 
-    fun getRatingCount(map: Map) = DataStoreObjectControllerCache.findNotNull<MapRating>()
+    fun getRatingCount(map: Map) = DataStoreObjectControllerCache
+        .findNotNull<MapRating>()
         .mongo()
-        .loadSyncRaw()
-        .count { it.getString("mapId") == map.name }
+        .loadWithFilter(
+            Filters.eq("mapID", map.name)
+        )
 
-    fun create(rating: MapRating) = DataStoreObjectControllerCache.findNotNull<MapRating>()
+    fun create(rating: MapRating) = DataStoreObjectControllerCache
+        .findNotNull<MapRating>()
         .save(rating)
 }
