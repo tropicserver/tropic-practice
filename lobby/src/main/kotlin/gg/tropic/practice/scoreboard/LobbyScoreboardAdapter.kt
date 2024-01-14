@@ -109,6 +109,10 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             board += "${CC.WHITE}EU Players: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.euServerTotalPlayers)
                             }"
+                            board += ""
+                            board += "${CC.WHITE}%age Playing: ${CC.PRI}${
+                                Numbers.format(ScoreboardInfoService.scoreboardInfo.percentagePlaying)
+                            }%"
                         }
 
                         LobbyScoreboardView.Staff ->

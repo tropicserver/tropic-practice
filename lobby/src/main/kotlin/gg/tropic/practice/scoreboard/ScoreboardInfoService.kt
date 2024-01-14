@@ -9,6 +9,7 @@ import gg.tropic.practice.services.GameManagerService
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
+import kotlin.math.absoluteValue
 
 /**
  * @author GrowlyX
@@ -24,6 +25,7 @@ object ScoreboardInfoService
         val queued: Int = 0,
         val meanTPS: Double = 0.0,
         val runningGames: Int = 0,
+        val percentagePlaying: Double = 0.0,
         val availableReplications: Int = 0,
         val euServerTotalPlayers: Int = 0,
         val naServerTotalPlayers: Int = 0
@@ -69,6 +71,9 @@ object ScoreboardInfoService
 
                     val games = GameManagerService.allGames().join()
 
+                    val online = servers.sumOf { it.getPlayersCount() ?: 0 }
+                    val playing = gameServers.sumOf { it.getPlayersCount() ?: 0 }
+
                     scoreboardInfo = ScoreboardInfo(
                         online = servers.sumOf { it.getPlayersCount() ?: 0 },
                         // TODO: load game impls and count from those
@@ -76,6 +81,9 @@ object ScoreboardInfoService
                         gameServers = gameServers.size,
                         meanTPS = gameServers.map { it.getTPS()!! }.average(),
                         runningGames = games.count(),
+                        percentagePlaying = kotlin
+                            .runCatching { (playing / online) * 100.0 }
+                            .getOrElse { 0.0 },
                         queued = ScalaCommonsSpigot
                             .instance
                             .kvConnection
