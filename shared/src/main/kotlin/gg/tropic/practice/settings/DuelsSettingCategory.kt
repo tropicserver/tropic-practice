@@ -1,5 +1,6 @@
 package gg.tropic.practice.settings
 
+import com.cryptomorin.xseries.XMaterial
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.SettingCategory
 import gg.scala.basics.plugin.settings.SettingContainer
@@ -151,6 +152,22 @@ object DuelsSettingCategory : SettingCategory
             }
 
             item = ItemBuilder.of(Material.SUGAR)
+        },
+        SettingContainer.buildEntry {
+            id = "$DUEL_SETTING_PREFIX:silent-spectator"
+            displayName = "Silent Spectator"
+
+            clazz = StateSettingValue::class.java
+            default = StateSettingValue.DISABLED
+
+            description += "Prevents other players"
+            description += "from viewing you as a spectator."
+
+            displayPredicate = {
+                it.hasPermission("practice.silent-spectator")
+            }
+
+            item = ItemBuilder.of(XMaterial.POTION)
         },
     )
 

@@ -1,12 +1,15 @@
 package gg.tropic.practice.expectation
 
 import com.cryptomorin.xseries.XMaterial
+import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.resetAttributes
+import gg.tropic.practice.settings.DuelsSettingCategory
 import me.lucko.helper.Events
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
@@ -134,11 +137,19 @@ object ExpectationService
                     it.player.inventory.setItem(8, returnToSpawnItem)
                     it.player.updateInventory()
 
-                    if (!it.player.hasMetadata("vanished"))
+                    val basicsProfile = BasicsProfileService.find(it.player)
+                    if (basicsProfile != null)
                     {
-                        game.sendMessage(
-                            "${CC.GREEN}${it.player.name}${CC.SEC} is now spectating the game."
-                        )
+                        val isASilentSpectator = basicsProfile
+                            .setting<StateSettingValue>("${DuelsSettingCategory.DUEL_SETTING_PREFIX}:silent-spectator") == StateSettingValue.ENABLED
+                            && it.player.hasPermission("practice.silent-spectator")
+
+                        if (!it.player.hasMetadata("vanished") && !isASilentSpectator)
+                        {
+                            game.sendMessage(
+                                "${CC.GREEN}${it.player.name}${CC.SEC} is now spectating the game."
+                            )
+                        }
                     }
 
                     it.player.sendMessage(
