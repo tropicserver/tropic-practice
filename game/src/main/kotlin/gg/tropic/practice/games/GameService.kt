@@ -744,6 +744,7 @@ object GameService
                         game.state(GameState.Waiting)
                     )
                     {
+                        game.state = GameState.Completed
                         game.closeAndCleanup()
                     }
                 }

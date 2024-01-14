@@ -175,7 +175,8 @@ class GameStartTask(
 
             if (event.isCancelled)
             {
-                this.game.closeAndCleanup()
+                game.state = GameState.Completed
+                game.closeAndCleanup()
                 return
             }
 

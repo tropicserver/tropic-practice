@@ -46,6 +46,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
+import java.util.logging.Logger
 
 /**
  * @author GrowlyX
@@ -116,8 +117,13 @@ class GameImpl(
             )
     }
 
-    fun complete(winner: GameTeam?, reason: String = "")
+    fun complete(winner: GameTeam?, reason: String = "") = synchronized(state)
     {
+        if (state == GameState.Completed)
+        {
+            return@synchronized
+        }
+
         val newELOMappings = mutableMapOf<UUID, Pair<Int, Int>>()
         val positionUpdates = mutableMapOf<UUID, CompletableFuture<ScoreUpdates>>()
         val extraInformation = mutableMapOf<UUID, Map<String, Map<String, String>>>()
@@ -429,6 +435,14 @@ class GameImpl(
 
     fun closeAndCleanup(kickPlayers: Boolean = true)
     {
+        if (state != GameState.Completed)
+        {
+            Logger.getAnonymousLogger().info(
+                "Game tried to close prematurely"
+            )
+            return
+        }
+
         fun getOnlinePlayers() = Players.all()
             .filter {
                 it.location.world.name == arenaWorldName

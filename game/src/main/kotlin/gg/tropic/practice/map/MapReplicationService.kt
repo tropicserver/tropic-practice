@@ -120,7 +120,9 @@ object MapReplicationService
                     { task ->
                         if (System.currentTimeMillis() >= start + 5000L)
                         {
+                            newGame.state = GameState.Completed
                             newGame.closeAndCleanup()
+
                             task.closeAndReportException()
                             return@runRepeating
                         }
