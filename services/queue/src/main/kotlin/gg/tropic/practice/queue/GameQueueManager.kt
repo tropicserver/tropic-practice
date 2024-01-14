@@ -280,6 +280,9 @@ object GameQueueManager
     fun playerIsOnline(uniqueId: UUID) = dpsRedisCache.sync()
         .hexists("player:$uniqueId", "server")
 
+    fun playerServerOf(uniqueId: UUID) = dpsRedisCache.sync()
+        .hget("player:$uniqueId", "server")
+
     fun playerIsQueued(uniqueId: UUID) = dpsRedisCache.sync()
         .hexists("tropicpractice:queue-states", uniqueId.toString())
 
@@ -330,12 +333,23 @@ object GameQueueManager
 
                 dpsRedisCache.sync().hdel(key, request.requestee.toString())
 
-                // TODO: ensure player is still on lobby
                 if (!playerIsOnline(request.requester))
                 {
                     DPSRedisShared.sendMessage(
                         listOf(request.requestee),
                         listOf("&cThe player that sent you the duel request is no longer online!")
+                    )
+                    return@listen
+                }
+
+                val server = playerServerOf(request.requester)
+                val model = ServerContainer.getServer(server)
+
+                if (model == null || "miplobby" !in model.groups)
+                {
+                    DPSRedisShared.sendMessage(
+                        listOf(request.requestee),
+                        listOf("&cThe player that sent you the duel request is no longer on a practice lobby!")
                     )
                     return@listen
                 }
