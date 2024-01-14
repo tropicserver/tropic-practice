@@ -13,7 +13,6 @@ dependencies {
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
 
     compileOnly("gg.tropic.game.extensions:tropic-core-game-extensions:1.2.8")
-    compileOnly("gg.tropic.spa.plugin:tropic-spa-plugin:1.1.1")
 
     compileOnly("com.lunarclient:apollo-api:1.0.6")
     compileOnly("com.lunarclient:apollo-extra-adventure4:1.0.6")

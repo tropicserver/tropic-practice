@@ -25,7 +25,6 @@ import org.bukkit.Bukkit
     PluginDependency("scala-commons"),
     PluginDependency("Lemon"),
     PluginDependency("SlimeWorldManager"),
-    PluginDependency("SPA"),
     PluginDependency("CoreGameExtensions"),
     PluginDependency("cloudsync", soft = true),
     PluginDependency("Apollo-Bukkit", soft = true),
