@@ -22,35 +22,18 @@ class MapRatingOverviewMenu : PaginatedMenu()
     {
         val buttons = mutableMapOf<Int, Button>()
 
-        MapService.cached().maps.values.forEach {
-            buttons[buttons.size] = ItemBuilder.of(it.displayIcon.type)
-                .name(Color.translate(it.displayName))
-                .addToLore(
-                    "${CC.GRAY}Total Ratings: ${CC.WHITE}${MapRatingService.getRatingCount(it)}",
-                    "${CC.GRAY}Average Rating: ${CC.WHITE}${MapRatingService.ratingMap[it.name] ?: 1}",
-                    "",
-                    "${CC.GREEN}Click to lock this map!"
-                ).toButton { _, _ ->
-                    with(MapService.cached()) {
-                        it.locked = !it.locked
-                        MapService.sync(this)
-                    }
-
-                    player.sendMessage(
-                        "${CC.YELLOW}You have just ${if (it.locked) "${CC.GREEN}locked" else "${CC.RED}unlocked"} ${CC.YELLOW}the map ${
-                            Color.translate(
-                                it.displayName
-                            )
-                        }"
+        MapService.cached().maps.values
+            .forEach {
+                buttons[buttons.size] = ItemBuilder.of(it.displayIcon.type)
+                    .name(Color.translate(it.displayName))
+                    .addToLore(
+                        "${CC.GRAY}Average Rating: ${CC.WHITE}${MapRatingService.ratingMap[it.name] ?: 1}"
                     )
-                }
-        }
+                    .toButton()
+            }
 
         return buttons
     }
 
-    override fun getPrePaginatedTitle(player: Player): String
-    {
-        return "Viewing Map Ratings..."
-    }
+    override fun getPrePaginatedTitle(player: Player) = "Viewing Map Ratings..."
 }

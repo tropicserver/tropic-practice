@@ -1,6 +1,7 @@
 repositories {
     maven("https://repo.glaremasters.me/repository/concuncan/")
     maven("https://repo.dmulloy2.net/repository/public/")
+    maven("https://repo.lunarclient.dev")
 }
 
 dependencies {
@@ -13,4 +14,7 @@ dependencies {
 
     compileOnly("gg.tropic.game.extensions:tropic-core-game-extensions:1.2.8")
     compileOnly("gg.tropic.spa.plugin:tropic-spa-plugin:1.1.1")
+
+    compileOnly("com.lunarclient:apollo-api:1.0.6")
+    compileOnly("com.lunarclient:apollo-extra-adventure4:1.0.6")
 }
