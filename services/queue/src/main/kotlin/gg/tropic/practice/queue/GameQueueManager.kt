@@ -40,6 +40,8 @@ import java.util.logging.Logger
  */
 object GameQueueManager
 {
+    var forceSpecificRegionGames: Region? = null
+
     private val queues = mutableMapOf<String, GameQueue>()
     private val dpsQueueRedis = DPSRedisService("queue")
         .apply(DPSRedisService::start)
@@ -156,8 +158,8 @@ object GameQueueManager
             }
             .firstOrNull {
                 !it.inUse && it.associatedMapName == map.name &&
-                    // ensure server of replication is in the same region
-                    Region.extractFrom(it.server).withinScopeOf(region)
+                    Region.extractFrom(it.server)
+                        .withinScopeOf(forceSpecificRegionGames ?: region)
             }
 
         // if there's an existing replication to house the game, we can send them directly
@@ -168,7 +170,7 @@ object GameQueueManager
                 .sortedBy(GameServer::getPlayersCount)
                 .firstOrNull {
                     // ensure server of NEW replication is in the same region
-                    Region.extractFrom(it.id).withinScopeOf(region)
+                    Region.extractFrom(it.id).withinScopeOf(forceSpecificRegionGames ?: region)
                 }
                 ?.id
                 ?: return run {
@@ -299,6 +301,17 @@ object GameQueueManager
         })
 
         dpsQueueRedis.configure {
+            listen("force-specific-region") {
+                val regionID = retrieve<String>("region-id")
+                forceSpecificRegionGames = if (regionID != "__RESET__")
+                {
+                    Region.valueOf(regionID)
+                } else
+                {
+                    null
+                }
+            }
+
             listen("spectate-ready") {
                 val requestID = retrieve<UUID>("requestID")
 

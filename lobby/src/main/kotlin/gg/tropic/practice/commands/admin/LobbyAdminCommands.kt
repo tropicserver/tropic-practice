@@ -7,6 +7,7 @@ import gg.scala.commons.acf.annotation.CommandPermission
 import gg.scala.commons.acf.annotation.Default
 import gg.scala.commons.acf.annotation.Description
 import gg.scala.commons.acf.annotation.HelpCommand
+import gg.scala.commons.acf.annotation.Optional
 import gg.scala.commons.acf.annotation.Subcommand
 import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.commons.agnostic.sync.server.ServerContainer
@@ -20,6 +21,7 @@ import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.LobbyConfigurationService
 import gg.tropic.practice.map.metadata.anonymous.toPosition
 import gg.tropic.practice.player.LobbyPlayerService
+import gg.tropic.practice.region.Region
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.services.LeaderboardManagerService
 import net.evilblock.cubed.menu.menus.TextEditorMenu
@@ -60,6 +62,28 @@ object LobbyAdminCommands : ScalaCommand()
             )
 
         player.sendMessage("${CC.GREEN}We've requested an application reboot, please wait a moment.")
+    }
+
+    @CommandPermission("op")
+    @Subcommand("restrict-game-regions")
+    @Description("Restrict games to a particular region.")
+    fun onRequestRegionRestriction(
+        player: ScalaPlayer, @Optional region: Region?
+    )
+    {
+        LobbyPlayerService
+            .createMessage(
+                "force-specific-region",
+                "region-id" to (region?.name ?: "__RESET__")
+            )
+            .publish(
+                AwareThreadContext.ASYNC,
+                channel = "practice:queue"
+            )
+
+        player.sendMessage(
+            "${CC.GREEN}We've requested a region restriction to: ${CC.WHITE}${region ?: "Unrestricted"}."
+        )
     }
 
     @AssignPermission
