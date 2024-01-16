@@ -1,6 +1,7 @@
 package gg.tropic.practice.scoreboard
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.scoreboard.TextAnimator
 import gg.scala.commons.scoreboard.animations.TextFadeAnimation
 import gg.scala.flavor.service.Close
@@ -119,11 +120,20 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             fun metadataDisplay(metadata: String) = if (player.hasMetadata(metadata))
                                 "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
 
-                            fun metadataDisplaySettingState(metadata: String) = if (player.hasMetadata(metadata))
-                                "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
-
+                            val basicsProfile = BasicsProfileService.find(player)
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Vanish: ${metadataDisplay("vanished")}"
-                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Silent Mode: ${metadataDisplaySettingState("vanished")}"
+
+                            if (basicsProfile != null)
+                            {
+                                val isASilentSpectator = basicsProfile
+                                    .setting<StateSettingValue>("${DuelsSettingCategory.DUEL_SETTING_PREFIX}:silent-spectator") == StateSettingValue.ENABLED
+                                    && player.hasPermission("practice.silent-spectator")
+
+                                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Silent Spec: ${
+                                    if (isASilentSpectator) "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
+                                }"
+                            }
+
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Mod Mode: ${metadataDisplay("mod-mode")}"
                         }
 
