@@ -26,8 +26,10 @@ import org.bukkit.Bukkit
     PluginDependency("Lemon"),
     PluginDependency("SlimeWorldManager"),
     PluginDependency("CoreGameExtensions"),
+    PluginDependency("ScBasics"),
     PluginDependency("cloudsync", soft = true),
-    PluginDependency("Apollo-Bukkit", soft = true),
+    PluginDependency("ScStaff", soft = true),
+    PluginDependency("Apollo-Bukkit", soft = true)
 )
 class PracticeGame : ExtendedScalaPlugin()
 {

@@ -4,8 +4,8 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     `maven-publish`
-    kotlin("jvm") version "1.9.10"
-    kotlin("kapt") version "1.9.10"
+    kotlin("jvm") version "1.9.20"
+    kotlin("kapt") version "1.9.20"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
@@ -36,6 +36,7 @@ subprojects {
         compileOnly("gg.scala.commons:bukkit:3.4.3")
 
         compileOnly("gg.scala.store:spigot:0.1.8")
+        compileOnly("gg.scala.staff:scala-scstaff-plugin:1.0.3")
         compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.7")
 
         compileOnly("gg.scala.spigot:server:1.1.3")
