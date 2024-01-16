@@ -472,19 +472,19 @@ class GameImpl(
                         }*/
 
                         // TODO: rematch item
-                        /*val target = expectationModel.players
+                        val target = expectationModel.players
                             .firstOrNull { other ->
                                 it.uniqueId != other
                             }
-                            ?: return@redirect mapOf()
-                            */
 
                         val queueType = expectationModel.queueType?.name
-                            ?: return@redirect mapOf()
+                            ?: return@redirect mapOf(
+                                "rematch-player-id" to target!!.toString(),
+                            )
 
                         mapOf(
                             "requeue-kit-id" to expectationModel.kitId,
-                            "requeue-queue-type" to queueType
+                            "requeue-queue-type" to queueType,
                         )
                     },
                     *onlinePlayers

@@ -91,6 +91,9 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             board += "${CC.WHITE}Game servers: ${CC.PRI}${
                                 ScoreboardInfoService.scoreboardInfo.gameServers
                             }"
+                            board += "${CC.WHITE}%age Playing: ${CC.PRI}${
+                                Numbers.format(ScoreboardInfoService.scoreboardInfo.percentagePlaying)
+                            }%"
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Mean TPS: ${CC.GREEN}${
                                 ScoreboardInfoService.scoreboardInfo.meanTPS.run {
                                     if (this > 20.0) "*20.0" else "%.1f".format(ScoreboardInfoService.scoreboardInfo.meanTPS)
@@ -103,16 +106,12 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.runningGames)
                             }"
                             board += ""
-                            board += "${CC.WHITE}NA Players: ${CC.PRI}${
+                            board += "${CC.WHITE}NA/EU Players: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.naServerTotalPlayers)
-                            }"
-                            board += "${CC.WHITE}EU Players: ${CC.PRI}${
+                            } ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.euServerTotalPlayers)
                             }"
-                            board += ""
-                            board += "${CC.WHITE}%age Playing: ${CC.PRI}${
-                                Numbers.format(ScoreboardInfoService.scoreboardInfo.percentagePlaying)
-                            }%"
+
                         }
 
                         LobbyScoreboardView.Staff ->
@@ -120,8 +119,12 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             fun metadataDisplay(metadata: String) = if (player.hasMetadata(metadata))
                                 "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
 
-                            board += "${CC.WHITE}Vanish: ${metadataDisplay("vanished")}"
-                            board += "${CC.WHITE}Mod Mode: ${metadataDisplay("mod-mode")}"
+                            fun metadataDisplaySettingState(metadata: String) = if (player.hasMetadata(metadata))
+                                "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
+
+                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Vanish: ${metadataDisplay("vanished")}"
+                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Silent Mode: ${metadataDisplaySettingState("vanished")}"
+                            board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Mod Mode: ${metadataDisplay("mod-mode")}"
                         }
 
                         LobbyScoreboardView.None ->

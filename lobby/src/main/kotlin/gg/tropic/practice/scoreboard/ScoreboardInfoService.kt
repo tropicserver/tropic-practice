@@ -76,7 +76,6 @@ object ScoreboardInfoService
 
                     scoreboardInfo = ScoreboardInfo(
                         online = servers.sumOf { it.getPlayersCount() ?: 0 },
-                        // TODO: load game impls and count from those
                         playing = gameServers.sumOf { it.getPlayersCount() ?: 0 },
                         gameServers = gameServers.size,
                         meanTPS = gameServers.map { it.getTPS()!! }.average(),
