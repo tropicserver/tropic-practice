@@ -203,7 +203,7 @@ object LobbyHotbarService
                         ?: return@context
 
                     val configuration = LobbyConfigurationService.cached()
-                    if (!configuration.rankedQueueEnabled)
+                    if (!player.isOp && !configuration.rankedQueueEnabled)
                     {
                         player.sendMessage("${CC.RED}Ranked queues are temporarily disabled. Please try again later.")
                         return@context

@@ -70,6 +70,17 @@ object PreventionListeners
             .bindWith(plugin)
 
         Events
+            .subscribe(InventoryClickEvent::class.java)
+            .filter {
+                it.clickedInventory == it.whoClicked.inventory
+                    && it.click.isKeyboardClick
+            }
+            .handler {
+                it.isCancelled = true
+            }
+            .bindWith(plugin)
+
+        Events
             .subscribe(InventoryDragEvent::class.java)
             .handler {
                 val notContentEditor = Menu
