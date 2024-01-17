@@ -25,6 +25,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerInitialSpawnEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.metadata.FixedMetadataValue
 
 /**
@@ -46,19 +47,34 @@ object ExpectationService
         Events
             .subscribe(
                 AsyncPlayerPreLoginEvent::class.java,
-                EventPriority.MONITOR
+                EventPriority.HIGHEST
             )
             .handler { event ->
                 val game = GameService
-                    .byPlayerOrSpectator(event.uniqueId)
-
-                if (game == null)
-                {
-                    event.disallow(
+                    .iterativeByPlayerOrSpectator(event.uniqueId)
+                    ?: return@handler event.disallow(
                         AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST,
                         "${CC.RED}You do not have a game to join!"
                     )
+
+                if (event.uniqueId in game.expectedSpectators)
+                {
+                    GameService.spectatorToGameMappings[event.uniqueId] = game
+                } else
+                {
+                    GameService.playerToGameMappings[event.uniqueId] = game
                 }
+            }
+            .bindWith(plugin)
+
+        Events
+            .subscribe(
+                PlayerQuitEvent::class.java,
+                EventPriority.MONITOR
+            )
+            .handler {
+                GameService.spectatorToGameMappings.remove(it.player.uniqueId)
+                GameService.playerToGameMappings.remove(it.player.uniqueId)
             }
             .bindWith(plugin)
 

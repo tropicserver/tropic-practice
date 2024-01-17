@@ -1,12 +1,7 @@
 package gg.tropic.practice.map
 
-import com.comphenix.packetwrapper.WrapperPlayServerLogin
-import com.comphenix.packetwrapper.WrapperPlayServerWorldEvent
-import com.comphenix.protocol.PacketType
 import com.grinderwolf.swm.api.SlimePlugin
 import com.grinderwolf.swm.api.loaders.SlimeLoader
-import com.grinderwolf.swm.api.world.properties.SlimeProperties
-import com.grinderwolf.swm.api.world.properties.SlimePropertyMap
 import com.grinderwolf.swm.plugin.config.WorldData
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.agnostic.sync.ServerSync
@@ -24,10 +19,8 @@ import gg.tropic.practice.replications.models.Replication
 import gg.tropic.practice.replications.models.ReplicationStatus
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
-import me.lucko.helper.protocol.Protocol
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import org.bukkit.World
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld
 import org.bukkit.event.world.WorldLoadEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -138,7 +131,7 @@ object MapReplicationService
                     0L, 1L
                 )
 
-            GameService.games[expectation.identifier] = newGame
+            GameService.gameMappings[expectation.identifier] = newGame
         }
 
         ReplicationManagerService.buildNewReplication = { map, expectation ->

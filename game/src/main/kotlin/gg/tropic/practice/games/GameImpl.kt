@@ -1,6 +1,5 @@
 package gg.tropic.practice.games
 
-import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
@@ -492,7 +491,7 @@ class GameImpl(
             }
         }
 
-        GameService.games.remove(this.expectation)
+        GameService.gameMappings.remove(this.expectation)
 
         Tasks.delayed(20L) {
             if (arenaWorld == null)

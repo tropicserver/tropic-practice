@@ -1,11 +1,5 @@
 package gg.tropic.practice.games
 
-import com.comphenix.packetwrapper.WrapperPlayClientSettings
-import com.comphenix.packetwrapper.WrapperPlayServerGameStateChange
-import com.comphenix.packetwrapper.WrapperPlayServerLogin
-import com.comphenix.protocol.PacketType
-import com.comphenix.protocol.events.PacketAdapter
-import com.comphenix.protocol.events.PacketEvent
 import gg.scala.aware.AwareBuilder
 import gg.scala.aware.codec.codecs.interpretation.AwareMessageCodec
 import gg.scala.aware.message.AwareMessage
@@ -34,16 +28,16 @@ import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
-import me.lucko.helper.protocol.Protocol
-import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants.HEART_SYMBOL
 import net.evilblock.cubed.util.bukkit.EventUtils
 import net.evilblock.cubed.util.bukkit.Tasks
 import net.evilblock.cubed.visibility.VisibilityHandler
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.block.BlockFace
@@ -83,7 +77,10 @@ object GameService
             .build()
     }
 
-    val games = mutableMapOf<UUID, GameImpl>()
+    val gameMappings = mutableMapOf<UUID, GameImpl>()
+
+    val playerToGameMappings = Object2ReferenceOpenHashMap<UUID, GameImpl>(Bukkit.getMaxPlayers(), 0.75F)
+    val spectatorToGameMappings = Object2ReferenceOpenHashMap<UUID, GameImpl>(Bukkit.getMaxPlayers(), 0.75F)
 
     private val ensureCauseDenied = listOf(
         DamageCause.BLOCK_EXPLOSION,
@@ -101,12 +98,10 @@ object GameService
         Events
             .subscribe(ServerShutdownEvent::class.java)
             .handler {
-                games.values.forEach { game ->
+                gameMappings.values.forEach { game ->
                     game.complete(null, "Server rebooting")
                 }
             }
-
-
 
         AnticheatHook.configureAlertFilter {
             if (it.type == AnticheatCheck.DOUBLE_CLICK)
@@ -126,7 +121,7 @@ object GameService
             val terminator = retrieveNullable<UUID>("terminator")
             val reason = retrieveNullable<String>("reason")
                 ?: "Ended by an administrator"
-            val game = games[matchID]
+            val game = gameMappings[matchID]
                 ?: return@listen
 
             game.complete(null, reason = reason)
@@ -148,7 +143,7 @@ object GameService
 
         GameManagerService.bindToStatusService {
             GameStatus(
-                games = games.values
+                games = gameMappings.values
                     .map {
                         val players = it.toBukkitPlayers()
                             .filterNotNull()
@@ -690,7 +685,7 @@ object GameService
         Schedulers
             .async()
             .runRepeating({ _ ->
-                games.values.forEach {
+                gameMappings.values.forEach {
                     if (it.state != GameState.Playing)
                     {
                         return@runRepeating
@@ -1151,28 +1146,22 @@ object GameService
     }
 
     fun byPlayer(player: Player) =
-        games.values
-            .find {
-                player.uniqueId in it.toPlayers()
-            }
+        playerToGameMappings[player.uniqueId]
 
     fun byPlayer(player: UUID) =
-        games.values
-            .find {
-                player in it.toPlayers()
-            }
+        playerToGameMappings[player]
 
     fun bySpectator(player: UUID) =
-        games.values
-            .find {
-                player in it.expectedSpectators
-            }
+        spectatorToGameMappings[player]
 
     fun byPlayerOrSpectator(player: UUID) =
-        games.values
-            .find {
-                player in it.toPlayers() || player in it.expectedSpectators
-            }
+        playerToGameMappings[player]
+            ?: spectatorToGameMappings[player]
+
+    fun iterativeByPlayerOrSpectator(player: UUID) = gameMappings.values
+        .find {
+            player in it.toPlayers() || player in it.expectedSpectators
+        }
 
     private inline fun <reified T : PlayerEvent> configureMetadataProvidingEventHandler(incrementing: String)
     {

@@ -44,7 +44,7 @@ object SpectateRequestService
             val game = retrieve<UUID>("game")
             val requestID = retrieve<UUID>("requestID")
 
-            val gameImpl = GameService.games[game]
+            val gameImpl = GameService.gameMappings[game]
                 ?: return@listen
 
             gameImpl.expectedSpectators += request.player
