@@ -5,6 +5,7 @@ import gg.tropic.practice.games.GameReport
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.leaderboards.ScoreUpdates
 import gg.tropic.practice.serializable.Message
+import gg.tropic.practice.settings.isASilentSpectator
 import me.lucko.helper.Events
 import me.lucko.helper.scheduler.Task
 import net.evilblock.cubed.menu.Button
@@ -125,7 +126,7 @@ class GameStopTask(
             val spectators = game.expectedSpectators
                 .mapNotNull(Bukkit::getPlayer)
                 .filter {
-                    !it.hasMetadata("vanished")
+                    !it.hasMetadata("vanished") && !it.isASilentSpectator()
                 }
 
             if (spectators.isNotEmpty())

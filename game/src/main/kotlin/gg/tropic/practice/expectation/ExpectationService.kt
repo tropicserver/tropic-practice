@@ -10,6 +10,7 @@ import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.resetAttributes
 import gg.tropic.practice.settings.DuelsSettingCategory
+import gg.tropic.practice.settings.isASilentSpectator
 import me.lucko.helper.Events
 import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
@@ -140,11 +141,7 @@ object ExpectationService
                     val basicsProfile = BasicsProfileService.find(it.player)
                     if (basicsProfile != null)
                     {
-                        val isASilentSpectator = basicsProfile
-                            .setting<StateSettingValue>("${DuelsSettingCategory.DUEL_SETTING_PREFIX}:silent-spectator") == StateSettingValue.ENABLED
-                            && it.player.hasPermission("practice.silent-spectator")
-
-                        if (!it.player.hasMetadata("vanished") && !isASilentSpectator)
+                        if (!it.player.hasMetadata("vanished") && !it.player.isASilentSpectator())
                         {
                             game.sendMessage(
                                 "${CC.GREEN}${it.player.name}${CC.SEC} is now spectating the game."

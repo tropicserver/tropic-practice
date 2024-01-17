@@ -13,6 +13,7 @@ import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.formattedDomain
+import gg.tropic.practice.settings.isASilentSpectator
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
@@ -125,12 +126,8 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
 
                             if (basicsProfile != null)
                             {
-                                val isASilentSpectator = basicsProfile
-                                    .setting<StateSettingValue>("${DuelsSettingCategory.DUEL_SETTING_PREFIX}:silent-spectator") == StateSettingValue.ENABLED
-                                    && player.hasPermission("practice.silent-spectator")
-
                                 board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Silent Spec: ${
-                                    if (isASilentSpectator) "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
+                                    if (player.isASilentSpectator()) "${CC.GREEN}Enabled" else "${CC.RED}Disabled"
                                 }"
                             }
 

@@ -34,7 +34,7 @@ object StaffReportsDataProvider
             return@provideAdditionalServerData mapOf(
                 "Kit" to gameOfPlayer.kit.displayName,
                 "Ranked" to if (gameOfPlayer.expectationModel.queueType == QueueType.Ranked)
-                    "${CC.GREEN}Yes" else "${CC.RED}No",
+                    "${CC.GREEN}Yes" else "${CC.RED}No"
             )
         }
     }

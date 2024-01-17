@@ -4,6 +4,7 @@ import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.settings.DuelsSettingCategory
+import gg.tropic.practice.settings.isASilentSpectator
 import net.evilblock.cubed.visibility.VisibilityAction
 import net.evilblock.cubed.visibility.VisibilityAdapter
 import net.evilblock.cubed.visibility.VisibilityAdapterRegister
@@ -43,14 +44,7 @@ object DuelsVisibilityImpl : VisibilityAdapter
                 refreshFor.hasMetadata("spectator")
             )
             {
-                val basicsProfile = BasicsProfileService.find(toRefresh)
-                    ?: return VisibilityAction.NEUTRAL
-
-                val isASilentSpectator = basicsProfile
-                    .setting<StateSettingValue>("${DuelsSettingCategory.DUEL_SETTING_PREFIX}:silent-spectator") == StateSettingValue.ENABLED
-                    && toRefresh.hasPermission("practice.silent-spectator")
-
-                if (isASilentSpectator)
+                if (toRefresh.isASilentSpectator())
                 {
                     return VisibilityAction.HIDE
                 }
