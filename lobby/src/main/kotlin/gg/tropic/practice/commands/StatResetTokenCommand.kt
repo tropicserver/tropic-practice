@@ -32,7 +32,7 @@ object StatResetTokenCommand : ScalaCommand()
     @Subcommand("give")
     fun onGive(sender: CommandSender, target: AsyncLemonPlayer, amount: Int) =
         target.validatePlayers(sender, true) {
-            val newValue = ScalaCommonsSpigot.instance.kvConnection
+            ScalaCommonsSpigot.instance.kvConnection
                 .sync()
                 .hincrby(
                     "tropicpractice:statreset-tokens:tokens",

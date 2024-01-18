@@ -18,7 +18,9 @@ import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.platform.bukkit.BukkitAudiences
 import net.minecraft.server.v1_8_R3.WorldSettings
+import org.bukkit.Bukkit
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer
+import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.Action
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
@@ -157,11 +159,24 @@ object ExpectationService
                     val basicsProfile = BasicsProfileService.find(it.player)
                     if (basicsProfile != null)
                     {
-                        if (!it.player.hasMetadata("vanished") && !it.player.isASilentSpectator())
+                        if (!it.player.hasMetadata("vanished"))
                         {
-                            game.sendMessage(
-                                "${CC.GREEN}${it.player.name}${CC.SEC} is now spectating the game."
-                            )
+                            if (it.player.isASilentSpectator())
+                            {
+                                game.expectedSpectators
+                                    .mapNotNull(Bukkit::getPlayer)
+                                    .filter(Player::isASilentSpectator)
+                                    .forEach { other ->
+                                        other.sendMessage(
+                                            "${CC.GRAY}(Silent) ${CC.GREEN}${it.player.name}${CC.YELLOW} is now spectating."
+                                        )
+                                    }
+                            } else
+                            {
+                                game.sendMessage(
+                                    "${CC.GREEN}${it.player.name}${CC.YELLOW} is now spectating."
+                                )
+                            }
                         }
                     }
 

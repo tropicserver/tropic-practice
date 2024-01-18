@@ -30,7 +30,7 @@ object DuelsNametagImpl : NametagProvider("practice", Int.MAX_VALUE)
         {
             if (refreshFor.hasMetadata("spectator"))
             {
-                return createNametag(CC.GRAY, "", "z")
+                return createNametag(CC.GRAY, "", "zzz")
             }
 
             return runCatching {
