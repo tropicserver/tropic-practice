@@ -32,6 +32,7 @@ object LeaderboardManager : () -> Unit
 
     private var thread: Thread? = null
     private var leaderboards = mutableListOf<Leaderboard>()
+    private var initial = true
 
     private fun rebuildLeaderboardIndexes()
     {
@@ -49,17 +50,20 @@ object LeaderboardManager : () -> Unit
 
                 leaderboards += Leaderboard(
                     leaderboardType = it,
-                    kit = kit
+                    kit = kit,
+                    initial = initial
                 )
             }
 
             leaderboards += Leaderboard(
                 leaderboardType = it,
-                kit = null
+                kit = null,
+                initial = initial
             )
         }
 
         this.leaderboards = leaderboards
+        this.initial = false
     }
 
     fun load()

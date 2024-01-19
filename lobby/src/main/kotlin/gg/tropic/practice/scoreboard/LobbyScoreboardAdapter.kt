@@ -93,9 +93,6 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             board += "${CC.WHITE}Game servers: ${CC.PRI}${
                                 ScoreboardInfoService.scoreboardInfo.gameServers
                             }"
-                            board += "${CC.WHITE}%age Playing: ${CC.PRI}${
-                                Numbers.format(ScoreboardInfoService.scoreboardInfo.percentagePlaying)
-                            }%"
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Mean TPS: ${CC.GREEN}${
                                 ScoreboardInfoService.scoreboardInfo.meanTPS.run {
                                     if (this > 20.0) "*20.0" else "%.1f".format(ScoreboardInfoService.scoreboardInfo.meanTPS)
@@ -106,7 +103,9 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             }"
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Games: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.runningGames)
-                            }"
+                            } ${CC.GRAY}(${
+                                Numbers.format(ScoreboardInfoService.scoreboardInfo.percentagePlaying)
+                            }%)"
                             board += ""
                             board += "${CC.WHITE}NA/EU Players: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.naServerTotalPlayers)

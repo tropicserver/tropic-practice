@@ -73,6 +73,7 @@ object ScoreboardInfoService
 
                     val online = servers.sumOf { it.getPlayersCount() ?: 0 }
                     val playing = gameServers.sumOf { it.getPlayersCount() ?: 0 }
+                    val percentage = if (online == 0) 0.0 else playing.toDouble() / online.toDouble()
 
                     scoreboardInfo = ScoreboardInfo(
                         online = servers.sumOf { it.getPlayersCount() ?: 0 },
@@ -80,9 +81,7 @@ object ScoreboardInfoService
                         gameServers = gameServers.size,
                         meanTPS = gameServers.map { it.getTPS()!! }.average(),
                         runningGames = games.count(),
-                        percentagePlaying = kotlin
-                            .runCatching { (playing / online) * 100.0 }
-                            .getOrElse { 0.0 },
+                        percentagePlaying = percentage,
                         queued = ScalaCommonsSpigot
                             .instance
                             .kvConnection

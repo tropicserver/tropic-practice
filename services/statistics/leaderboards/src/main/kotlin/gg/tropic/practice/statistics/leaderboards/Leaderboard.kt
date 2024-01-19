@@ -9,14 +9,18 @@ import java.util.logging.Logger
  */
 data class Leaderboard(
     val leaderboardType: LeaderboardType,
-    val kit: ImmutableKit?
+    val kit: ImmutableKit?,
+    val initial: Boolean = false
 )
 {
     init
     {
-        Logger.getGlobal().info(
-            "[leaderboards] Configured a leaderboard ${leaderboardId()}"
-        )
+        if (initial)
+        {
+            Logger.getGlobal().info(
+                "[leaderboards] Configured a leaderboard ${leaderboardId()}"
+            )
+        }
     }
 
     fun leaderboardId() = "${leaderboardType.name}:${kit?.id ?: "global"}"
