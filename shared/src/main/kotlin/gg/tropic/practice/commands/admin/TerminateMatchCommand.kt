@@ -16,6 +16,10 @@ import gg.tropic.practice.games.GameState
 import gg.tropic.practice.services.GameManagerService
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.util.CC
+import org.bukkit.command.CommandSender
+import org.bukkit.command.ConsoleCommandSender
+import org.bukkit.entity.Player
+import java.util.UUID
 
 /**
  * @author GrowlyX
@@ -27,8 +31,8 @@ object TerminateMatchCommand : ScalaCommand()
     @CommandAlias("terminatematch")
     @CommandCompletion("@mip-players")
     @CommandPermission("practice.command.terminatematch")
-    fun onTerminateMatch(player: ScalaPlayer, target: AsyncLemonPlayer, @Optional reason: String?) = target
-        .validatePlayers(player.bukkit(), false) {
+    fun onTerminateMatch(player: CommandSender, target: AsyncLemonPlayer, @Optional reason: String?) = target
+        .validatePlayers(player, false) {
             val online = QuickAccess
                 .online(it.uniqueId)
                 .join()
@@ -65,7 +69,7 @@ object TerminateMatchCommand : ScalaCommand()
                             ScalaCommonsSpigot.instance.aware,
                             "server" to reference.server,
                             "matchID" to reference.uniqueId,
-                            "terminator" to player.uniqueId,
+                            "terminator" to if (player is Player) player.uniqueId else null,
                             "reason" to reason
                         )
                         .publish(

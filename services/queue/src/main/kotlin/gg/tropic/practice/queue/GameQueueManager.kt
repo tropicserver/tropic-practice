@@ -585,7 +585,7 @@ object GameQueueManager
                             QueueEntry::class.java
                         )
 
-                    destroyQueueStates(queueId(), queueEntry)
+                    destroyQueueStates(queueId, queueEntry)
                 }
             }
         }
@@ -593,21 +593,17 @@ object GameQueueManager
 
     fun destroyQueueStates(queueID: String, entry: QueueEntry)
     {
-        runCatching {
-            dpsRedisCache.sync().hdel(
-                "tropicpractice:queues:$queueID:entries",
-                entry.leader.toString()
-            )
+        dpsRedisCache.sync().hdel(
+            "tropicpractice:queues:$queueID:entries",
+            entry.leader.toString()
+        )
 
-            for (player in entry.players)
-            {
-                dpsRedisCache.sync().hdel(
-                    "tropicpractice:queue-states",
-                    player.toString()
-                )
-            }
-        }.onFailure {
-            it.printStackTrace()
+        for (player in entry.players)
+        {
+            dpsRedisCache.sync().hdel(
+                "tropicpractice:queue-states",
+                player.toString()
+            )
         }
     }
 
