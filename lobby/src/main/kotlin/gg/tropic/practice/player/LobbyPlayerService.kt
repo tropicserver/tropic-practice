@@ -220,10 +220,12 @@ object LobbyPlayerService
             .bindWith(plugin)
 
         Events
-            .subscribe(PlayerQuitEvent::class.java)
+            .subscribe(
+                PlayerQuitEvent::class.java,
+                EventPriority.HIGHEST
+            )
             .handler { event ->
-                val profile = playerCache
-                    .remove(event.player.uniqueId)
+                val profile = playerCache[event.player.uniqueId]
                     ?: return@handler
 
                 if (profile.inQueue())
@@ -237,6 +239,9 @@ object LobbyPlayerService
                         ScalaPlayer(event.player, audiences, plugin)
                     )
                 }
+
+                playerCache.remove(event.player.uniqueId)
+
             }
             .bindWith(plugin)
 

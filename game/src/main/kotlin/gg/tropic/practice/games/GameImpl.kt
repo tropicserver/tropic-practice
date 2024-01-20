@@ -438,16 +438,21 @@ class GameImpl(
     fun generateRedirectMetadataFor(player: Player): Map<String, String>
     {
         if (
-            player.player.uniqueId in expectedSpectators ||
-            player.player.uniqueId !in expectedQueueRejoin
+            player.uniqueId in expectedSpectators ||
+            player.uniqueId !in expectedQueueRejoin
         )
         {
             if (expectationModel.players.size != 2)
             {
+                if (player.uniqueId in expectationModel.players)
+                {
+                    return mapOf("was-game-participant" to "true")
+                }
+
                 return mapOf()
             }
 
-            if (player.player.uniqueId in expectedDuelResend)
+            if (player.uniqueId in expectedDuelResend)
             {
                 val target = expectationModel.players
                     .firstOrNull { other ->
@@ -463,8 +468,14 @@ class GameImpl(
                             ServerSync.getLocalGameServer().id
                         )
                         .name,
-                    "rematch-map-id" to expectationModel.mapId
+                    "rematch-map-id" to expectationModel.mapId,
+                    "was-game-participant" to "true"
                 )
+            }
+
+            if (player.uniqueId in expectationModel.players)
+            {
+                return mapOf("was-game-participant" to "true")
             }
 
             return mapOf()
@@ -476,6 +487,7 @@ class GameImpl(
         return mapOf(
             "requeue-kit-id" to expectationModel.kitId,
             "requeue-queue-type" to queueType,
+            "was-game-participant" to "true"
         )
     }
 

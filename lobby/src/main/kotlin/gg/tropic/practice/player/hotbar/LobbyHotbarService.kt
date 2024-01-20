@@ -55,13 +55,13 @@ object LobbyHotbarService
     {
         val idlePreset = HotbarPreset()
 
-        val rematches = mutableSetOf<UUID>()
+        val wasGameParticipant = mutableSetOf<UUID>()
         val loginTasks = mutableMapOf<UUID, MutableList<(Player) -> Unit>>()
 
         Events
             .subscribe(PlayerQuitEvent::class.java)
             .handler {
-                rematches.remove(it.player.uniqueId)
+                wasGameParticipant.remove(it.player.uniqueId)
                 loginTasks.remove(it.player.uniqueId)
             }
             .bindWith(plugin)
@@ -69,9 +69,9 @@ object LobbyHotbarService
         Events
             .subscribe(PlayerJoinEvent::class.java, EventPriority.MONITOR)
             .handler {
-                if (it.player.uniqueId !in rematches)
+                println("Game participants: ${wasGameParticipant}")
+                if (it.player.uniqueId !in wasGameParticipant)
                 {
-                    println("Not in rematches")
                     with(PracticeConfigurationService.cached()) {
                         if (loginMOTD.isNotEmpty())
                         {
@@ -93,7 +93,7 @@ object LobbyHotbarService
             .handler {
                 if (it.response.parameters.containsKey("was-game-participant"))
                 {
-                    rematches += it.uniqueId
+                    wasGameParticipant += it.uniqueId
                     println("Added to rematches")
                 }
 

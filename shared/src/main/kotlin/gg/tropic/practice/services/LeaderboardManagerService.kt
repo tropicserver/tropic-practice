@@ -75,6 +75,11 @@ object LeaderboardManagerService
                     )
                     .firstOrNull()
 
+                println("Previous position: ${it.first.first ?: 0}")
+                println("Current position: ${it.second.first ?: 0}")
+                println("Next position: $nextPosition")
+                println(score)
+
                 ScoreUpdates(
                     oldScore = it.first.second ?: 0,
                     oldPosition = it.first.first ?: 0,
