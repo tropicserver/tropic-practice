@@ -104,17 +104,15 @@ object GameService
             }
 
         AnticheatFeature.configureAlertFilter {
-            val game = byPlayer(player = it.player)
+            byPlayer(player = it.player)
                 ?: return@configureAlertFilter false
 
-            if (it.type == AnticheatCheck.DOUBLE_CLICK)
-            {
-                return@configureAlertFilter false
-            }
-
-            return@configureAlertFilter (game.expectationModel.queueType == null ||
-                game.expectationModel.queueType == QueueType.Casual) &&
-                game.expectationModel.queueId != "tournament"
+            /**
+             * (game.expectationModel.queueType == null ||
+             *                 game.expectationModel.queueType == QueueType.Casual) &&
+             *                 game.expectationModel.queueId != "tournament"
+             */
+            return@configureAlertFilter !(it.type != AnticheatCheck.DOUBLE_CLICK && it.type != AnticheatCheck.AUTO_CLICKER)
         }
 
         communicationLayer.listen("terminate") {

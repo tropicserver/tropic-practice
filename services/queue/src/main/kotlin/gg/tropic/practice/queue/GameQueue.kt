@@ -383,7 +383,7 @@ class GameQueue(
             queueId = queueId()
         )
 
-        val region = first.first().queueRegion
+        val region = first.first().preferredQueueRegion
         val millis = measureTimeMillis {
             GameQueueManager.prepareGameFor(
                 map = map,

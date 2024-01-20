@@ -2,9 +2,12 @@ package gg.tropic.practice.games.tasks
 
 import dev.iiahmed.disguise.Disguise
 import gg.scala.basics.plugin.disguise.DisguiseService
+import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.lemon.util.QuickAccess.username
 import gg.scala.staff.anticheat.AnticheatCheck
 import gg.scala.staff.anticheat.AnticheatFeature
+import gg.tropic.practice.commands.admin.RankedBanCommand
+import gg.tropic.practice.commands.offlineProfile
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.queue.QueueType
@@ -18,6 +21,8 @@ import net.evilblock.cubed.nametag.NametagHandler
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.nms.MinecraftReflection
+import net.evilblock.cubed.util.time.Duration
+import net.evilblock.cubed.util.time.TimeUtil
 import net.evilblock.cubed.visibility.VisibilityHandler
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -119,7 +124,11 @@ class GameStartTask(
                     .forEach {
                         val profile = PracticeProfileService.find(it)
                             ?: return@forEach
-                        components += "  ${CC.GRAY}${Constants.SMALL_DOT_SYMBOL} ${CC.WHITE}${it.name}: ${CC.GREEN}${profile.getRankedStatsFor(game.kit).elo}"
+                        components += "  ${CC.GRAY}${Constants.SMALL_DOT_SYMBOL} ${CC.WHITE}${it.name}: ${CC.GREEN}${
+                            profile.getRankedStatsFor(
+                                game.kit
+                            ).elo
+                        }"
                     }
             } else
             {
@@ -164,9 +173,11 @@ class GameStartTask(
                     )
                 }
 
-                this.game.sendMessage("${CC.SEC}The game starts in ${CC.PRI}${this.game.activeCountdown}${CC.SEC} second${
-                    if (this.game.activeCountdown == 1) "" else "s"
-                }...")
+                this.game.sendMessage(
+                    "${CC.SEC}The game starts in ${CC.PRI}${this.game.activeCountdown}${CC.SEC} second${
+                        if (this.game.activeCountdown == 1) "" else "s"
+                    }..."
+                )
                 this.game.playSound(Sound.NOTE_STICKS)
             }
         }
@@ -203,41 +214,53 @@ class GameStartTask(
                 {
                     fun Player.runAutoBanFor(reason: String)
                     {
-                        Bukkit.dispatchCommand(
-                            Bukkit.getConsoleSender(),
-                            "ban $name 30d Unfair Advantage ($reason) -s"
-                        )
+                        val profile = uniqueId.offlineProfile
+                        if (profile.hasActiveRankedBan())
+                        {
+                            return
+                        }
+
+                        profile.applyRankedBan(Duration.parse("30d"))
+                        profile.saveAndPropagate()
                     }
 
                     game.toBukkitPlayers()
                         .filterNotNull()
                         .forEach { player ->
                             // TODO: tune and test
-                            AnticheatFeature.subscribeToSixtySecondSampleOf(
-                                player = player,
-                                check = AnticheatCheck.DOUBLE_CLICK,
-                                evaluate = { sample ->
-                                    // If the player typically gets 6 or more violations in a 10-second period,
-                                    // the player must be banned
-                                    if (sample.accumulatedMedianOf() > 6)
-                                    {
-                                        player.runAutoBanFor("RDC")
-                                    }
-                                }
-                            )
+                            AnticheatFeature
+                                .subscribeToSixtySecondSampleOf(
+                                    player = player,
+                                    check = AnticheatCheck.DOUBLE_CLICK,
+                                    evaluate = { sample ->
+                                        Bukkit.broadcastMessage("=== DC Sample (${player.name}) === Accumulated: ${sample.accumulatedMedianOf()} | Med: ${sample.medianOf()}")
 
-                            AnticheatFeature.subscribeToSixtySecondSampleOf(
-                                player = player,
-                                check = AnticheatCheck.AUTO_CLICKER,
-                                evaluate = { sample ->
-                                    // If the player typically gets 11 or more violations in a 10-second period,
-                                    // the player must be banned
-                                    if (sample.accumulatedMedianOf() > 11)
-                                    {
-                                        player.runAutoBanFor("RDC")
+                                        // If the player typically gets 6 or more violations in a 10-second period,
+                                        // the player must be banned
+                                        if (sample.accumulatedMedianOf() > 3)
+                                        {
+                                            player.runAutoBanFor("SADC")
+                                        }
                                     }
-                                }
-                            )
+                                )
+                                .bindWith(game)
+
+                            AnticheatFeature
+                                .subscribeToSixtySecondSampleOf(
+                                    player = player,
+                                    check = AnticheatCheck.AUTO_CLICKER,
+                                    evaluate = { sample ->
+                                        Bukkit.broadcastMessage("=== DC Sample (${player.name}) === Accumulated: ${sample.accumulatedMedianOf()} | Med: ${sample.medianOf()}")
+
+                                        // If the player typically gets 11 or more violations in a 10-second period,
+                                        // the player must be banned
+                                        if (sample.accumulatedMedianOf() > 11)
+                                        {
+                                            player.runAutoBanFor("SAAC")
+                                        }
+                                    }
+                                )
+                                .bindWith(game)
                         }
                 }
             }
