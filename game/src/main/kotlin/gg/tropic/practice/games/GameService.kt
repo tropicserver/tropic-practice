@@ -104,15 +104,13 @@ object GameService
             }
 
         AnticheatFeature.configureAlertFilter {
-            byPlayer(player = it.player)
-                ?: return@configureAlertFilter false
 
             /**
              * (game.expectationModel.queueType == null ||
              *                 game.expectationModel.queueType == QueueType.Casual) &&
              *                 game.expectationModel.queueId != "tournament"
              */
-            return@configureAlertFilter !(it.type != AnticheatCheck.DOUBLE_CLICK && it.type != AnticheatCheck.AUTO_CLICKER)
+            return@configureAlertFilter it.type == AnticheatCheck.DOUBLE_CLICK || it.type == AnticheatCheck.AUTO_CLICKER
         }
 
         communicationLayer.listen("terminate") {
