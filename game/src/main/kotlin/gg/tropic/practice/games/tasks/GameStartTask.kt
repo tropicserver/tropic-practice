@@ -223,12 +223,16 @@ class GameStartTask(
                         profile.applyRankedBan(Duration.parse("7d"))
                         profile.deliverRankedBanMessage(player)
                         profile.saveAndPropagate()
+
+                        Bukkit.dispatchCommand(
+                            Bukkit.getConsoleSender(),
+                            "terminatematch $name Anticheat Ban ($reason)"
+                        )
                     }
 
                     game.toBukkitPlayers()
                         .filterNotNull()
                         .forEach { player ->
-                            // TODO: tune and test
                             AnticheatFeature
                                 .subscribeToSixtySecondSampleOf(
                                     player = player,
