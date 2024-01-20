@@ -73,7 +73,7 @@ object ScoreboardInfoService
 
                     val online = servers.sumOf { it.getPlayersCount() ?: 0 }
                     val playing = gameServers.sumOf { it.getPlayersCount() ?: 0 }
-                    val percentage = if (online == 0) 0.0F else (playing.toFloat() / online.toFloat())
+                    val percentage = (if (online == 0) 0.0F else (playing.toFloat() / online.toFloat())) * 100
 
                     scoreboardInfo = ScoreboardInfo(
                         online = servers.sumOf { it.getPlayersCount() ?: 0 },

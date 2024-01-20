@@ -585,11 +585,6 @@ object GameQueueManager
                             QueueEntry::class.java
                         )
 
-                    dpsRedisCache.sync().hdel(
-                        "tropicpractice:queues:$queueId:entries",
-                        leader.toString()
-                    )
-
                     destroyQueueStates(queueId(), queueEntry)
                 }
             }
