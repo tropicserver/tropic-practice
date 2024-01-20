@@ -244,7 +244,7 @@ class GameStopTask(
             }
         }
 
-        if (this.game.activeCountdown == 4)
+        if (this.game.activeCountdown == 4 && game.expectationModel.queueId != "tournament")
         {
             if (game.expectationModel.queueId != null || game.expectationModel.players.size == 2)
             {

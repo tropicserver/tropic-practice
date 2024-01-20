@@ -96,6 +96,16 @@ object DuelCommands : ScalaCommand()
             )
         }
 
+        val profile = LobbyPlayerService.find(player.bukkit())
+            ?: return@validatePlayers
+
+        if (profile.state != PlayerState.Idle)
+        {
+            throw ConditionFailedException(
+                "You are not in the right state to accept a duel!"
+            )
+        }
+
         val basicsProfile = it.identifier.basicsProfile
         it.identifier.offlineProfile
 
