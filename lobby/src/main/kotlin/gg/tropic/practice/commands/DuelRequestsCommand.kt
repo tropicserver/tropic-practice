@@ -1,14 +1,15 @@
 package gg.tropic.practice.commands
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
-import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.acf.ConditionFailedException
 import gg.scala.commons.acf.annotation.CommandAlias
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.tropic.practice.friendship.FriendshipStateSetting
 import gg.tropic.practice.settings.DuelsSettingCategory
 import net.evilblock.cubed.util.CC
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -20,32 +21,38 @@ object DuelRequestsCommand : ScalaCommand()
     @CommandAlias(
         "tdr|toggleduelrequests|duelrequests"
     )
-    fun onDuelRequests(player: ScalaPlayer)
+    fun onDuelRequests(player: ScalaPlayer): CompletableFuture<Void>
     {
         val profile = BasicsProfileService.find(player.bukkit())
             ?: throw ConditionFailedException(
                 "Sorry, your profile did not load properly."
             )
 
-        val messagesRef = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:duel-requests"]!!
-        val mapped = messagesRef.map<StateSettingValue>()
+        val allowDuelRequests = profile.settings["${DuelsSettingCategory.DUEL_SETTING_PREFIX}:duel-requests-fr"]!!
 
-        if (mapped == StateSettingValue.ENABLED)
-        {
-            messagesRef.value = "DISABLED"
+        player.sendMessage(
+            "${CC.GREEN}You have set your duel request settings to: ${
+                when (allowDuelRequests.map<FriendshipStateSetting>())
+                {
+                    FriendshipStateSetting.Enabled ->
+                    {
+                        allowDuelRequests.value = "FriendsOnly"
+                        "${CC.GOLD}Friends Only"
+                    }
+                    FriendshipStateSetting.FriendsOnly ->
+                    {
+                        allowDuelRequests.value = "Disabled"
+                        "${CC.RED}Disabled"
+                    }
+                    FriendshipStateSetting.Disabled ->
+                    {
+                        allowDuelRequests.value = "Enabled"
+                        "${CC.GREEN}Enabled"
+                    }
+                }
+            }"
+        )
 
-            player.sendMessage(
-                "${CC.RED}You're no longer receiving duel requests."
-            )
-        } else
-        {
-            messagesRef.value = "ENABLED"
-
-            player.sendMessage(
-                "${CC.GREEN}You've now receiving duel requests."
-            )
-        }
-
-        profile.save()
+        return profile.save()
     }
 }

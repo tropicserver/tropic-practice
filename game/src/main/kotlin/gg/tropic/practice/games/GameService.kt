@@ -23,6 +23,7 @@ import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.LightningKillEf
 import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
 import gg.tropic.practice.PracticeGame
+import gg.tropic.practice.friendship.FriendshipStateSetting
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType

@@ -14,6 +14,7 @@ import gg.scala.lemon.Lemon
 import gg.scala.lemon.command.ListCommand
 import gg.scala.lemon.handler.PlayerHandler
 import gg.scala.lemon.util.QuickAccess
+import gg.tropic.practice.configuration.PracticeConfigurationService
 import io.github.nosequel.tab.shared.entry.TabElement
 import io.github.nosequel.tab.shared.entry.TabEntry
 import io.github.nosequel.tab.shared.skin.SkinType
@@ -158,7 +159,9 @@ object MIPPlayerCache : TablistPopulator
     }
 
     override fun displayPreProcessor(player: Player) =
-        CompletableFuture.completedFuture(true)!!
+        CompletableFuture.completedFuture(
+            PracticeConfigurationService.cached().enableMIPTabHandler()
+        )!!
 
     override fun populate(player: Player, element: TabElement)
     {

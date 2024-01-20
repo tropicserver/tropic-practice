@@ -8,6 +8,7 @@ import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
 import gg.scala.commons.annotations.plugin.SoftDependency
 import gg.scala.flavor.service.Service
 import gg.scala.flavor.service.ignore.IgnoreAutoScan
+import gg.tropic.practice.friendship.FriendshipStateSetting
 import gg.tropic.practice.settings.particles.FlightEffectSetting
 import gg.tropic.practice.settings.restriction.RangeRestriction
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
@@ -31,14 +32,14 @@ object DuelsSettingCategory : SettingCategory
 
     override val items = listOf(
         SettingContainer.buildEntry {
-            id = "$DUEL_SETTING_PREFIX:duel-requests"
+            id = "$DUEL_SETTING_PREFIX:duel-requests-fr"
             displayName = "Duel requests"
 
-            clazz = StateSettingValue::class.java
-            default = StateSettingValue.ENABLED
+            clazz = FriendshipStateSetting::class.java
+            default = FriendshipStateSetting.Enabled
 
-            description += "Allows you to disable"
-            description += "incoming duel requests."
+            description += "Allows you to toggle settings"
+            description += "for incoming duel requests."
 
             item = ItemBuilder.of(Material.DIAMOND_SWORD)
         },

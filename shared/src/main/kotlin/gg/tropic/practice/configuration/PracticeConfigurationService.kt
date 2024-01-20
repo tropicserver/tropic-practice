@@ -11,7 +11,7 @@ import net.kyori.adventure.key.Key
  * @since 10/13/2023
  */
 @Service
-object LobbyConfigurationService : DataSyncService<LobbyConfiguration>()
+object PracticeConfigurationService : DataSyncService<PracticeConfiguration>()
 {
     object LobbyConfigurationKeys : DataSyncKeys
     {
@@ -24,5 +24,5 @@ object LobbyConfigurationService : DataSyncService<LobbyConfiguration>()
     override fun locatedIn() = DataSyncSource.Mongo
 
     override fun keys() = LobbyConfigurationKeys
-    override fun type() = LobbyConfiguration::class.java
+    override fun type() = PracticeConfiguration::class.java
 }

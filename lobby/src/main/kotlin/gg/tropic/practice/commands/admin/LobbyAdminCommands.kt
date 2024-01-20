@@ -9,7 +9,6 @@ import gg.scala.commons.acf.annotation.Description
 import gg.scala.commons.acf.annotation.HelpCommand
 import gg.scala.commons.acf.annotation.Optional
 import gg.scala.commons.acf.annotation.Subcommand
-import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.scala.commons.annotations.commands.AssignPermission
@@ -18,12 +17,10 @@ import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.flavor.inject.Inject
 import gg.tropic.practice.PracticeLobby
-import gg.tropic.practice.configuration.LobbyConfigurationService
+import gg.tropic.practice.configuration.PracticeConfigurationService
 import gg.tropic.practice.map.metadata.anonymous.toPosition
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.region.Region
-import gg.tropic.practice.services.GameManagerService
-import gg.tropic.practice.services.LeaderboardManagerService
 import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
@@ -111,7 +108,7 @@ object LobbyAdminCommands : ScalaCommand()
     @AssignPermission
     @Subcommand("login-motd")
     @Description("Update the login MOTD lines.")
-    fun onLoginMOTDLines(player: ScalaPlayer) = with(LobbyConfigurationService.cached()) {
+    fun onLoginMOTDLines(player: ScalaPlayer) = with(PracticeConfigurationService.cached()) {
         with(
             object : TextEditorMenu(loginMOTD)
             {
@@ -128,7 +125,7 @@ object LobbyAdminCommands : ScalaCommand()
                     loginMOTD.clear()
                     loginMOTD.addAll(list)
 
-                    LobbyConfigurationService.sync(this@with)
+                    PracticeConfigurationService.sync(this@with)
                     player.sendMessage("${CC.GREEN}Saved login MOTD text!")
                 }
             }
@@ -142,7 +139,7 @@ object LobbyAdminCommands : ScalaCommand()
     @Description("Enable or disable the ability to join ranked queues.")
     fun onToggleRankedQueue(player: ScalaPlayer)
     {
-        with(LobbyConfigurationService.cached()) {
+        with(PracticeConfigurationService.cached()) {
             rankedQueueEnabled = !rankedQueueEnabled
             if (rankedQueueEnabled)
             {
@@ -156,7 +153,30 @@ object LobbyAdminCommands : ScalaCommand()
                 )
             }
 
-            LobbyConfigurationService.sync(this)
+            PracticeConfigurationService.sync(this)
+        }
+    }
+
+    @AssignPermission
+    @Subcommand("toggle-synced-tablist")
+    @Description("Enable or disable the ability for newly logged in players to see the global tablist.")
+    fun onToggleGlobalTabList(player: ScalaPlayer)
+    {
+        with(PracticeConfigurationService.cached()) {
+            enableMIPTabHandler = !enableMIPTabHandler()
+            if (enableMIPTabHandler())
+            {
+                player.sendMessage(
+                    "${CC.GREEN}Players are now able to see the global tablist."
+                )
+            } else
+            {
+                player.sendMessage(
+                    "${CC.RED}Players are now unable to see the global tablist."
+                )
+            }
+
+            PracticeConfigurationService.sync(this)
         }
     }
 
@@ -165,9 +185,9 @@ object LobbyAdminCommands : ScalaCommand()
     @Description("Edit the number of wins required to queue for a ranked kit.")
     fun onEditRankedMinimumRequirement(player: ScalaPlayer, requirement: Int)
     {
-        with(LobbyConfigurationService.cached()) {
+        with(PracticeConfigurationService.cached()) {
             rankedMinimumWinRequirement = requirement
-            LobbyConfigurationService.sync(this)
+            PracticeConfigurationService.sync(this)
         }
 
         player.sendMessage(
@@ -186,9 +206,9 @@ object LobbyAdminCommands : ScalaCommand()
         normalized.x = location.x.toInt() + 0.500
         normalized.z = location.z.toInt() + 0.500
 
-        with(LobbyConfigurationService.cached()) {
+        with(PracticeConfigurationService.cached()) {
             spawnLocation = normalized.toPosition()
-            LobbyConfigurationService.sync(this)
+            PracticeConfigurationService.sync(this)
         }
 
         player.sendMessage(

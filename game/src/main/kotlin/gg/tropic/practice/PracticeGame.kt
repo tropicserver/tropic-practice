@@ -28,6 +28,7 @@ import org.bukkit.Bukkit
     PluginDependency("CoreGameExtensions"),
     PluginDependency("ScBasics"),
     PluginDependency("cloudsync", soft = true),
+    PluginDependency("Friends", soft = true),
     PluginDependency("ScStaff", soft = true),
     PluginDependency("Apollo-Bukkit", soft = true)
 )

@@ -246,11 +246,12 @@ class GameStopTask(
 
         if (this.game.activeCountdown == 4)
         {
-            if (game.expectationModel.queueId != null)
+            if (game.expectationModel.queueId != null || game.expectationModel.players.size == 2)
             {
+                val isDuel = game.expectationModel.queueType == null && game.expectationModel.players.size == 2
                 val reQueueItem = ItemBuilder
                     .of(Material.PAPER)
-                    .name("${CC.GREEN}Click to Join Queue ${CC.GRAY}(Right-Click)")
+                    .name("${CC.GREEN}Click to ${if (isDuel) "send rematch" else "join queue"} ${CC.GRAY}(Right-Click)")
                     .build()
 
                 game.toBukkitPlayers()
@@ -270,10 +271,13 @@ class GameStopTask(
                         it.player.itemInHand = ItemStack(Material.AIR)
                         it.player.updateInventory()
                         it.player.sendMessage(
-                            "${CC.GREEN}You will be queued again when you return to spawn!"
+                            if (isDuel)
+                                "${CC.GREEN}A rematch request will be sent to your opponent at spawn!"
+                            else
+                                "${CC.GREEN}You will be queued again when you return to spawn!"
                         )
 
-                        game.expectedQueueRejoin += it.player.uniqueId
+                        (if (isDuel) game.expectedDuelResend else game.expectedQueueRejoin) += it.player.uniqueId
                         Button.playNeutral(it.player)
                     }
                     .bindWith(game)

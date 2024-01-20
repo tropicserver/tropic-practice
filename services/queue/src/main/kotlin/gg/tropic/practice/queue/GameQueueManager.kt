@@ -467,7 +467,8 @@ object GameQueueManager
                 )
 
                 DPSRedisShared.sendNotificationSound(
-                    listOf(request.requestee), "duel-sounds"
+                    listOf(request.requestee),
+                    "duel-sounds"
                 )
 
                 futureMappings[key] = executor.schedule({

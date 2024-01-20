@@ -111,6 +111,25 @@ object DuelRequestPipeline
         )
     }
 
+    fun automateDuelRequestNoUI(player: Player, target: UUID, kit: Kit, map: Map, region: Region)
+    {
+        if (player.hasPermission("practice.duel.select-custom-map"))
+        {
+            stage3SendDuelRequest(
+                target = target, kit = kit,
+                player = player, map = map,
+                selectedRegion = region
+            )
+        } else
+        {
+            stage2ASendDuelRequestRandomMap(
+                player = player, target = target,
+                kit = kit,
+                selectedRegion = region
+            )
+        }
+    }
+
     private fun stage2BSendDuelRequestCustomMap(
         target: UUID,
         kit: Kit,

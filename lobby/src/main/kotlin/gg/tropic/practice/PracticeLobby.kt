@@ -23,6 +23,7 @@ import gg.tropic.practice.services.GameManagerService
     PluginDependency("Lemon"),
     PluginDependency("ScBasics"),
     PluginDependency("ScStaff", soft = true),
+    PluginDependency("Friends", soft = true),
     PluginDependency("CoreGameExtensions", soft = true)
 )
 class PracticeLobby : ExtendedScalaPlugin()

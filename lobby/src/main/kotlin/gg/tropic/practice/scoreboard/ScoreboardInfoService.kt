@@ -25,7 +25,7 @@ object ScoreboardInfoService
         val queued: Int = 0,
         val meanTPS: Double = 0.0,
         val runningGames: Int = 0,
-        val percentagePlaying: Double = 0.0,
+        val percentagePlaying: Float = 0.0F,
         val availableReplications: Int = 0,
         val euServerTotalPlayers: Int = 0,
         val naServerTotalPlayers: Int = 0
@@ -73,7 +73,7 @@ object ScoreboardInfoService
 
                     val online = servers.sumOf { it.getPlayersCount() ?: 0 }
                     val playing = gameServers.sumOf { it.getPlayersCount() ?: 0 }
-                    val percentage = if (online == 0) 0.0 else playing.toDouble() / online.toDouble()
+                    val percentage = if (online == 0) 0.0F else (playing.toFloat() / online.toFloat())
 
                     scoreboardInfo = ScoreboardInfo(
                         online = servers.sumOf { it.getPlayersCount() ?: 0 },

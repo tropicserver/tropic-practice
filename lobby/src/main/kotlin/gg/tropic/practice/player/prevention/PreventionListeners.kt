@@ -4,12 +4,11 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeLobby
-import gg.tropic.practice.configuration.LobbyConfigurationService
+import gg.tropic.practice.configuration.PracticeConfigurationService
 import gg.tropic.practice.menu.editor.AllowRemoveItemsWithinInventory
 import me.lucko.helper.Events
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.util.bukkit.ItemUtils
-import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -117,7 +116,7 @@ object PreventionListeners
                         if (it.cause == EntityDamageEvent.DamageCause.VOID)
                         {
                             it.entity.teleport(
-                                LobbyConfigurationService.cached().spawnLocation
+                                PracticeConfigurationService.cached().spawnLocation
                                     .toLocation(it.entity.world)
                             )
                         }

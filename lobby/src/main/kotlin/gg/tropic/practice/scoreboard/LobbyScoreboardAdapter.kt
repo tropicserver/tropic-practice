@@ -1,19 +1,15 @@
 package gg.tropic.practice.scoreboard
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
-import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
-import gg.scala.commons.scoreboard.TextAnimator
-import gg.scala.commons.scoreboard.animations.TextFadeAnimation
-import gg.scala.flavor.service.Close
-import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
-import gg.tropic.practice.queue.QueueType
-import gg.tropic.practice.settings.DuelsSettingCategory
-import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.formattedDomain
+import gg.tropic.practice.queue.QueueType
+import gg.tropic.practice.services.ScoreboardTitleService
+import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.isASilentSpectator
+import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
@@ -21,8 +17,6 @@ import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.math.Numbers
 import net.evilblock.cubed.util.nms.MinecraftProtocol
 import net.evilblock.cubed.util.time.TimeUtil
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
-import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -104,7 +98,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                             board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} ${CC.WHITE}Games: ${CC.PRI}${
                                 Numbers.format(ScoreboardInfoService.scoreboardInfo.runningGames)
                             } ${CC.GRAY}(${
-                                Numbers.format(ScoreboardInfoService.scoreboardInfo.percentagePlaying)
+                                "%.2f".format(ScoreboardInfoService.scoreboardInfo.percentagePlaying)
                             }%)"
                             board += ""
                             board += "${CC.WHITE}NA/EU Players: ${CC.PRI}${
@@ -145,30 +139,5 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
     }
 
-    private val titleAnimator = TextAnimator.of(
-        TextFadeAnimation(
-            "${CC.BOLD}Practice",
-            ChatColor.AQUA,
-            ChatColor.DARK_AQUA,
-            ChatColor.DARK_GRAY
-        )
-    )
-
-    @Configure
-    fun configure()
-    {
-        titleAnimator.schedule()
-    }
-
-    @Close
-    fun close()
-    {
-        titleAnimator.dispose()
-    }
-
-    override fun getTitle(player: Player) = LegacyComponentSerializer
-        .legacySection()
-        .serialize(
-            titleAnimator.currentIntoTextComponent()
-        )
+    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
 }

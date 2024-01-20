@@ -45,7 +45,7 @@ object QueueService
             .join()
     }
 
-    fun leaveQueue(player: Player)
+    fun leaveQueue(player: Player, force: Boolean = false)
     {
         val lobbyPlayer = LobbyPlayerService
             .find(player.uniqueId)
@@ -61,6 +61,11 @@ object QueueService
         ).publish(
             context = AwareThreadContext.ASYNC
         )
+
+        if (force)
+        {
+            return
+        }
 
         // set Idle and wait until the queue server syncs
         synchronized(lobbyPlayer.stateUpdateLock) {

@@ -8,22 +8,24 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.hotbar.HotbarPreset
 import gg.scala.lemon.hotbar.HotbarPresetHandler
-import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
-import gg.tropic.practice.configuration.LobbyConfigurationService
+import gg.tropic.practice.configuration.PracticeConfigurationService
 import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.map.MapService
 import gg.tropic.practice.menu.JoinQueueMenu
 import gg.tropic.practice.menu.LeaderboardsMenu
 import gg.tropic.practice.menu.PlayerMainMenu
 import gg.tropic.practice.menu.editor.EditorKitSelectionMenu
+import gg.tropic.practice.menu.pipeline.DuelRequestPipeline
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
+import gg.tropic.practice.region.Region
 import me.lucko.helper.Events
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -35,7 +37,6 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.inventory.ItemStack
 import java.util.*
 
 @Service
@@ -54,45 +55,48 @@ object LobbyHotbarService
     {
         val idlePreset = HotbarPreset()
 
-        data class RematchData(
-            val kitID: String,
-            val queueType: QueueType
-        )
+        val rematches = mutableSetOf<UUID>()
+        val loginTasks = mutableMapOf<UUID, MutableList<(Player) -> Unit>>()
 
-        val rematches = mutableMapOf<UUID, RematchData>()
         Events
             .subscribe(PlayerQuitEvent::class.java)
             .handler {
                 rematches.remove(it.player.uniqueId)
+                loginTasks.remove(it.player.uniqueId)
             }
             .bindWith(plugin)
 
         Events
-            .subscribe(PlayerJoinEvent::class.java)
+            .subscribe(PlayerJoinEvent::class.java, EventPriority.MONITOR)
             .handler {
-                Tasks.delayed(10L) {
-                    if (rematches[it.player.uniqueId] != null)
-                    {
-                        return@delayed
-                    }
-
-                    if (!it.player.isOnline)
-                    {
-                        return@delayed
-                    }
-
-                    with(LobbyConfigurationService.cached()) {
+                if (it.player.uniqueId !in rematches)
+                {
+                    println("Not in rematches")
+                    with(PracticeConfigurationService.cached()) {
                         if (loginMOTD.isNotEmpty())
                         {
                             loginMOTD.forEach(it.player::sendMessage)
                         }
                     }
                 }
+
+                Tasks.delayed(5L) {
+                    loginTasks[it.player.uniqueId]
+                        ?.forEach { task ->
+                            task.invoke(it.player)
+                        }
+                }
             }
 
         Events
             .subscribe(PlayerJoinWithExpectationEvent::class.java)
             .handler {
+                if (it.response.parameters.containsKey("was-game-participant"))
+                {
+                    rematches += it.uniqueId
+                    println("Added to rematches")
+                }
+
                 if (it.response.parameters.containsKey("requeue-kit-id"))
                 {
                     val rematchKitID = it.response.parameters["requeue-kit-id"]
@@ -100,18 +104,38 @@ object LobbyHotbarService
                         it.response.parameters["requeue-queue-type"]!!
                     )
 
-                    val player = Bukkit.getPlayer(it.uniqueId)
-                        ?: return@handler
-
                     val kit = KitService.cached().kits[rematchKitID]
                         ?: return@handler
 
-                    Tasks.delayed(5L) {
+                    loginTasks.getOrPut(it.uniqueId, ::mutableListOf) += { player ->
                         QueueService.joinQueue(
                             kit = kit,
                             queueType = rematchQueueType,
                             teamSize = 1,
                             player = player
+                        )
+                    }
+                }
+
+                if (it.response.parameters.containsKey("rematch-kit-id"))
+                {
+                    val rematchKitID = it.response.parameters["rematch-kit-id"]
+                    val rematchMapID = it.response.parameters["rematch-map-id"]
+                    val rematchTargetID = it.response.parameters["rematch-target-id"]
+                    val rematchTargetRegion = Region.valueOf(it.response.parameters["rematch-region"]!!)
+
+                    val kit = KitService.cached().kits[rematchKitID]
+                        ?: return@handler
+
+                    val map = MapService.cached().maps[rematchMapID]
+                        ?: return@handler
+
+                    loginTasks.getOrPut(it.uniqueId, ::mutableListOf) += { player ->
+                        DuelRequestPipeline.automateDuelRequestNoUI(
+                            player = player,
+                            target = UUID.fromString(rematchTargetID!!),
+                            kit = kit, map = map,
+                            region = rematchTargetRegion
                         )
                     }
                 }
@@ -202,7 +226,7 @@ object LobbyHotbarService
                     val profile = PracticeProfileService.find(player)
                         ?: return@context
 
-                    val configuration = LobbyConfigurationService.cached()
+                    val configuration = PracticeConfigurationService.cached()
                     if (!player.isOp && !configuration.rankedQueueEnabled)
                     {
                         player.sendMessage("${CC.RED}Ranked queues are temporarily disabled. Please try again later.")

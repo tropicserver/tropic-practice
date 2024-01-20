@@ -1,5 +1,6 @@
 package gg.tropic.practice.games
 
+import gg.scala.commons.agnostic.sync.ServerSync
 import gg.tropic.game.extensions.profile.CorePlayerProfileService
 import gg.tropic.practice.expectation.ExpectationService
 import gg.tropic.practice.expectation.GameExpectation
@@ -23,6 +24,7 @@ import gg.tropic.practice.map.MapService
 import gg.tropic.practice.profile.PracticeProfile
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
+import gg.tropic.practice.region.Region
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.services.LeaderboardManagerService
 import gg.tropic.practice.services.TournamentManagerService
@@ -85,6 +87,7 @@ class GameImpl(
     private val playerCounters = mutableMapOf<UUID, Counter>()
 
     val expectedQueueRejoin = mutableSetOf<UUID>()
+    val expectedDuelResend = mutableSetOf<UUID>()
 
     fun takeSnapshot(player: Player)
     {
@@ -432,6 +435,50 @@ class GameImpl(
             it.players
         }
 
+    fun generateRedirectMetadataFor(player: Player): Map<String, String>
+    {
+        if (
+            player.player.uniqueId in expectedSpectators ||
+            player.player.uniqueId !in expectedQueueRejoin
+        )
+        {
+            if (expectationModel.players.size != 2)
+            {
+                return mapOf()
+            }
+
+            if (player.player.uniqueId in expectedDuelResend)
+            {
+                val target = expectationModel.players
+                    .firstOrNull { other ->
+                        player.uniqueId != other
+                    }
+                    ?: return mapOf()
+
+                return mapOf(
+                    "rematch-target-id" to target.toString(),
+                    "rematch-kit-id" to expectationModel.kitId,
+                    "rematch-region" to Region
+                        .extractFrom(
+                            ServerSync.getLocalGameServer().id
+                        )
+                        .name,
+                    "rematch-map-id" to expectationModel.mapId
+                )
+            }
+
+            return mapOf()
+        }
+
+        val queueType = expectationModel.queueType?.name
+            ?: return mapOf()
+
+        return mapOf(
+            "requeue-kit-id" to expectationModel.kitId,
+            "requeue-queue-type" to queueType,
+        )
+    }
+
     fun closeAndCleanup(kickPlayers: Boolean = true)
     {
         if (state != GameState.Completed)
@@ -456,36 +503,7 @@ class GameImpl(
             if (onlinePlayers.isNotEmpty())
             {
                 GameService.redirector.redirect(
-                    {
-                        if (
-                            it.player.uniqueId in expectedSpectators ||
-                            it.player.uniqueId !in expectedQueueRejoin
-                        )
-                        {
-                            return@redirect mapOf()
-                        }
-
-                        /*if (expectationModel.players.size != 2)
-                        {
-                            return@redirect mapOf()
-                        }*/
-
-                        // TODO: rematch item
-                        val target = expectationModel.players
-                            .firstOrNull { other ->
-                                it.uniqueId != other
-                            }
-
-                        val queueType = expectationModel.queueType?.name
-                            ?: return@redirect mapOf(
-                                "rematch-player-id" to target!!.toString(),
-                            )
-
-                        mapOf(
-                            "requeue-kit-id" to expectationModel.kitId,
-                            "requeue-queue-type" to queueType,
-                        )
-                    },
+                    ::generateRedirectMetadataFor,
                     *onlinePlayers
                 )
             }

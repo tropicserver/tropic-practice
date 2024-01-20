@@ -12,7 +12,7 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
-import gg.tropic.practice.configuration.LobbyConfigurationService
+import gg.tropic.practice.configuration.PracticeConfigurationService
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.queue.QueueService
@@ -126,7 +126,7 @@ object LobbyPlayerService
         Events
             .subscribe(PlayerSpawnLocationEvent::class.java)
             .handler {
-                with(LobbyConfigurationService.cached()) {
+                with(PracticeConfigurationService.cached()) {
                     it.spawnLocation = spawnLocation
                         .toLocation(
                             Bukkit.getWorlds().first()
@@ -226,9 +226,9 @@ object LobbyPlayerService
                     .remove(event.player.uniqueId)
                     ?: return@handler
 
-                if (profile.leaveQueueOnLogout && profile.inQueue())
+                if (profile.inQueue())
                 {
-                    QueueService.leaveQueue(event.player)
+                    QueueService.leaveQueue(event.player, true)
                 }
 
                 if (profile.state == PlayerState.InTournament)
@@ -310,7 +310,7 @@ object LobbyPlayerService
                 val profile = BasicsProfileService.find(this)
                     ?: return@usePlayer
 
-                if (profile.setting(setting, StateSettingValue.DISABLED) == StateSettingValue.ENABLED)
+                if (profile.setting("${DuelsSettingCategory.DUEL_SETTING_PREFIX}$setting", StateSettingValue.DISABLED) == StateSettingValue.ENABLED)
                 {
                     playSound(
                         location,

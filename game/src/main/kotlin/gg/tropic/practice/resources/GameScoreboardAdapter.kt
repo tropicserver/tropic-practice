@@ -1,23 +1,18 @@
 package gg.tropic.practice.resources
 
-import gg.scala.commons.scoreboard.TextAnimator
-import gg.scala.commons.scoreboard.animations.TextFadeAnimation
-import gg.scala.flavor.service.Close
-import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
+import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
-import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.services.ScoreboardTitleService
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.nms.MinecraftReflection
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import java.util.*
 
@@ -287,30 +282,5 @@ object GameScoreboardAdapter : ScoreboardAdapter()
         board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
     }
 
-    private val titleAnimator = TextAnimator.of(
-        TextFadeAnimation(
-            "${CC.BOLD}Practice",
-            ChatColor.AQUA,
-            ChatColor.DARK_AQUA,
-            ChatColor.DARK_GRAY
-        )
-    )
-
-    @Configure
-    fun configure()
-    {
-        titleAnimator.schedule()
-    }
-
-    @Close
-    fun close()
-    {
-        titleAnimator.dispose()
-    }
-
-    override fun getTitle(player: Player) = LegacyComponentSerializer
-        .legacySection()
-        .serialize(
-            titleAnimator.currentIntoTextComponent()
-        )
+    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
 }

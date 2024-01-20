@@ -5,7 +5,7 @@ import gg.scala.commons.acf.annotation.Conditions
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
-import gg.tropic.practice.configuration.LobbyConfigurationService
+import gg.tropic.practice.configuration.PracticeConfigurationService
 import org.bukkit.Bukkit
 
 /**
@@ -21,7 +21,7 @@ object SpawnCommand : ScalaCommand()
         player: ScalaPlayer
     )
     {
-        with(LobbyConfigurationService.cached()) {
+        with(PracticeConfigurationService.cached()) {
             player.teleport(
                 spawnLocation
                     .toLocation(

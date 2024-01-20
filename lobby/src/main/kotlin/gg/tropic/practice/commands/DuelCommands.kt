@@ -11,6 +11,8 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
 import gg.scala.lemon.util.QuickAccess
 import gg.tropic.practice.duel.DuelRequestUtilities
+import gg.tropic.practice.friendship.FriendshipStateSetting
+import gg.tropic.practice.friendship.Friendships
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.menu.pipeline.DuelRequestPipeline
 import gg.tropic.practice.player.LobbyPlayerService
@@ -98,15 +100,29 @@ object DuelCommands : ScalaCommand()
         it.identifier.offlineProfile
 
         val duelRequests = basicsProfile
-            .setting<StateSettingValue>(
-                "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:duel-requests"
+            .setting<FriendshipStateSetting>(
+                "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:duel-requests-fr"
             )
 
-        if (duelRequests != StateSettingValue.ENABLED)
+        if (duelRequests == FriendshipStateSetting.Disabled)
         {
             throw ConditionFailedException(
                 "${CC.YELLOW}${it.name}${CC.RED} has their duel requests disabled!"
             )
+        }
+
+        if (duelRequests == FriendshipStateSetting.FriendsOnly)
+        {
+            val relationshipExists = Friendships.requirements
+                .existsBetween(player.uniqueId, it.uniqueId)
+                .join()
+
+            if (!relationshipExists)
+            {
+                throw ConditionFailedException(
+                    "You must be friends with ${CC.YELLOW}${it.name}${CC.RED} to send them a duel request!"
+                )
+            }
         }
 
         val server = QuickAccess.server(it.uniqueId)

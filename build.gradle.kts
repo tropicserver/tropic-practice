@@ -14,12 +14,11 @@ allprojects {
     version = "1.0.0"
 
     repositories {
+        configureScalaRepository()
         mavenCentral()
         maven {
             url = uri("https://repo.dmulloy2.net/repository/public/")
         }
-
-        configureScalaRepository()
     }
 }
 
@@ -37,6 +36,7 @@ subprojects {
 
         compileOnly("gg.scala.store:spigot:0.1.8")
         compileOnly("gg.scala.staff:scala-scstaff-plugin:1.0.3")
+        compileOnly("gg.scala.friends:scala-friends:2.1.0")
         compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.7")
 
         compileOnly("gg.scala.spigot:server:1.1.3")

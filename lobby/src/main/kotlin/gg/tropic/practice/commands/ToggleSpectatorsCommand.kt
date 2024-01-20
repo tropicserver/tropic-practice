@@ -9,6 +9,7 @@ import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.settings.DuelsSettingCategory
 import net.evilblock.cubed.util.CC
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author Elb1to
@@ -18,9 +19,9 @@ import net.evilblock.cubed.util.CC
 object ToggleSpectatorsCommand : ScalaCommand()
 {
     @CommandAlias(
-        "togglespecs|togglespectators"
+        "tsp|togglespecs|togglespectators"
     )
-    fun onSpectationToggle(player: ScalaPlayer)
+    fun onSpectateToggle(player: ScalaPlayer): CompletableFuture<Void>
     {
         val profile = BasicsProfileService.find(player.bukkit())
             ?: throw ConditionFailedException(
@@ -44,6 +45,6 @@ object ToggleSpectatorsCommand : ScalaCommand()
             )
         }
 
-        profile.save()
+        return profile.save()
     }
 }
