@@ -58,9 +58,10 @@ data class Position(
 data class ScoreUpdates(
     val oldScore: Long,
     val oldPosition: Long,
+    val newScore: Long,
     val newPosition: Long,
     val nextPosition: Position?
 )
 {
-    fun requiredScore() = nextPosition!!.score - oldScore
+    fun requiredScore() = nextPosition!!.score - newScore
 }

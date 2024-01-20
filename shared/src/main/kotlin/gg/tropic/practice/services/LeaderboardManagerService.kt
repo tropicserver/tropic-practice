@@ -68,22 +68,24 @@ object LeaderboardManagerService
             }
             .thenApplyAsync {
                 val nextPosition = (it.second.first ?: 0) - 1
-                val score = kv()
-                    .zrevrangeWithScores(
-                        "tropicpractice:leaderboards:${reference.id()}:final",
-                        nextPosition, nextPosition
-                    )
-                    .firstOrNull()
-
-                println("Previous position: ${it.first.first ?: 0}")
-                println("Current position: ${it.second.first ?: 0}")
-                println("Next position: $nextPosition")
-                println(score)
+                val score = if (nextPosition < 0)
+                {
+                    null
+                } else
+                {
+                    kv()
+                        .zrevrangeWithScores(
+                            "tropicpractice:leaderboards:${reference.id()}:final",
+                            nextPosition, nextPosition
+                        )
+                        .firstOrNull()
+                }
 
                 ScoreUpdates(
                     oldScore = it.first.second ?: 0,
                     oldPosition = it.first.first ?: 0,
                     newPosition = it.second.first ?: 0,
+                    newScore = it.second.second ?: 0,
                     nextPosition = score?.run {
                         Position(
                             uniqueId = UUID.fromString(this.value),

@@ -25,7 +25,7 @@ import java.util.logging.Logger
  * @author GrowlyX
  * @since 9/25/2023
  */
-@Service
+@Service(priority = 1600)
 object GameManagerService
 {
     @Inject
