@@ -98,16 +98,15 @@ class JoinQueueMenu(
             .take(3)
     }
 
-
     override fun itemClicked(player: Player, kit: Kit, type: ClickType)
     {
         val lobbyPlayer = LobbyPlayerService
             .find(player.uniqueId)
             ?: return
 
-        if (lobbyPlayer.state == PlayerState.InQueue)
+        if (lobbyPlayer.state != PlayerState.Idle)
         {
-            player.sendMessage("${CC.RED}You are already in a queue!")
+            player.sendMessage("${CC.RED}You cannot join a queue right now!")
             return
         }
 

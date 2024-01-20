@@ -82,7 +82,7 @@ object DuelCommands : ScalaCommand()
     }
 
     @CommandCompletion("@players")
-    @CommandAlias("d|duel|fight|sendduelrequest")
+    @CommandAlias("duel|d|fight|sendduelrequest")
     fun onDuelRequest(
         player: ScalaPlayer,
         target: AsyncLemonPlayer

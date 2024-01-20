@@ -1,8 +1,12 @@
 package gg.tropic.practice.player
 
+import gg.scala.commons.issuer.ScalaPlayer
+import gg.scala.parties.service.PartyService
+import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.player.hotbar.LobbyHotbarService
 import gg.tropic.practice.queue.QueueEntry
+import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueState
 import gg.tropic.practice.services.TournamentManagerService
 import net.evilblock.cubed.ScalaCommonsSpigot
@@ -14,7 +18,6 @@ data class LobbyPlayer(
     val uniqueId: UUID
 )
 {
-    var leaveQueueOnLogout = true
     var maintainStateTimeout = -1L
 
     val stateUpdateLock = Any()
@@ -49,6 +52,17 @@ data class LobbyPlayer(
     fun queuedForType() = queueState!!.queueType
     fun queuedForTeamSize() = queueState!!.teamSize
 
+    var hasSyncedInitialQueueState = false
+    fun syncQueueStateIfRequired()
+    {
+        if (!hasSyncedInitialQueueState)
+        {
+            return
+        }
+
+        syncQueueState()
+    }
+
     fun syncQueueState()
     {
         queueState = ScalaCommonsSpigot.instance.kvConnection
@@ -63,9 +77,11 @@ data class LobbyPlayer(
                     .fromJson(it, QueueState::class.java)
             }
 
+        val userInParty = PartyService.findPartyByUniqueId(uniqueId) != null
         val userInTournament = TournamentManagerService.isInTournament(uniqueId)
         val newState = when (true)
         {
+            userInParty -> PlayerState.InParty
             userInTournament -> PlayerState.InTournament
             (queueState != null) -> PlayerState.InQueue
             else -> PlayerState.Idle
@@ -78,8 +94,29 @@ data class LobbyPlayer(
             syncQueueEntry()
         } else
         {
-            // determined that player is idle, so we remove their queue entry
-            queueEntry = null
+            if (
+                newState == PlayerState.InParty &&
+                state != PlayerState.InParty
+                )
+            {
+                val player = Bukkit.getPlayer(uniqueId)
+
+                when (state)
+                {
+                    PlayerState.InQueue -> QueueService
+                        .leaveQueue(
+                            player, true
+                        )
+                    PlayerState.InTournament -> TournamentCommand.onLeave(
+                        ScalaPlayer(player, LobbyPlayerService.audiences, LobbyPlayerService.plugin)
+                    )
+                    else -> { }
+                }
+            } else
+            {
+                // determined that player is idle, so we remove their queue entry
+                queueEntry = null
+            }
         }
 
         // keep current state until the server processes our queue join

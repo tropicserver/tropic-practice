@@ -22,6 +22,7 @@ import gg.tropic.practice.services.GameManagerService
     PluginDependency("scala-commons"),
     PluginDependency("Lemon"),
     PluginDependency("ScBasics"),
+    PluginDependency("Parties"),
     PluginDependency("ScStaff", soft = true),
     PluginDependency("Friends", soft = true),
     PluginDependency("CoreGameExtensions", soft = true)

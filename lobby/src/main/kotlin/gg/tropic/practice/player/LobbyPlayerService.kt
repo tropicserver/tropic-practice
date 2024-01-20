@@ -73,7 +73,7 @@ object LobbyPlayerService
             .runRepeating(Runnable {
                 Players.all()
                     .mapNotNull(::find)
-                    .onEach(LobbyPlayer::syncQueueState)
+                    .onEach(LobbyPlayer::syncQueueStateIfRequired)
                     .filter(LobbyPlayer::inQueue)
                     .onEach {
                         val audience = audiences.player(it.player)
@@ -205,6 +205,9 @@ object LobbyPlayerService
                 }
 
                 CompletableFuture.runAsync(player::syncQueueState)
+                    .thenRun {
+                        player.hasSyncedInitialQueueState = true
+                    }
 
                 val profile = PracticeProfileService
                     .find(event.player)
@@ -228,7 +231,7 @@ object LobbyPlayerService
                 val profile = playerCache[event.player.uniqueId]
                     ?: return@handler
 
-                if (profile.inQueue())
+                if (profile.state == PlayerState.InQueue)
                 {
                     QueueService.leaveQueue(event.player, true)
                 }

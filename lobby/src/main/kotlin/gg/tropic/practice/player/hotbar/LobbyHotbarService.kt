@@ -10,6 +10,7 @@ import gg.scala.lemon.hotbar.HotbarPreset
 import gg.scala.lemon.hotbar.HotbarPresetHandler
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
+import gg.scala.parties.command.PartyCommand
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.PracticeConfigurationService
@@ -27,6 +28,7 @@ import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.region.Region
 import me.lucko.helper.Events
+import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.util.bukkit.Tasks
@@ -69,7 +71,6 @@ object LobbyHotbarService
         Events
             .subscribe(PlayerJoinEvent::class.java, EventPriority.MONITOR)
             .handler {
-                println("Game participants: ${wasGameParticipant}")
                 if (it.player.uniqueId !in wasGameParticipant)
                 {
                     with(PracticeConfigurationService.cached()) {
@@ -94,7 +95,6 @@ object LobbyHotbarService
                 if (it.response.parameters.containsKey("was-game-participant"))
                 {
                     wasGameParticipant += it.uniqueId
-                    println("Added to rematches")
                 }
 
                 if (it.response.parameters.containsKey("requeue-kit-id"))
@@ -154,47 +154,6 @@ object LobbyHotbarService
             }
         )
 
-        // TODO: rematch item
-        /*idlePreset.addSlot(
-            3,
-            DynamicHotbarPresetEntry()
-                .apply {
-                    onBuild = build@{
-                        val rematchData = rematches[it.uniqueId]
-                            ?: return@build ItemStack(Material.AIR)
-
-                        val kit = KitService.cached().kits[rematchData.kitID]
-                            ?: return@build ItemStack(Material.AIR)
-
-                        ItemBuilder(Material.PAPER)
-                            .name("${CC.SEC}Play ${CC.PRI}${rematchData.queueType.name} ${kit.displayName} ${CC.GRAY}(Right Click)")
-                            .build()
-                    }
-
-                    onClick = click@{ player ->
-                        val rematchData = rematches[player.uniqueId]
-                            ?: return@click
-
-                        val kit = KitService.cached().kits[rematchData.kitID]
-                            ?: return@click
-
-                        rematches.remove(player.uniqueId)
-                        reset(player)
-
-                        QueueService.joinQueue(
-                            kit = kit,
-                            queueType = rematchData.queueType,
-                            teamSize = 1,
-                            player = player
-                        )
-
-                        player.sendMessage(
-                            "${CC.GREEN}You have joined the ${CC.PRI}${rematchData.queueType.name} 1v1 ${kit.displayName}${CC.GREEN} queue!"
-                        )
-                    }
-                }
-        )*/
-
         idlePreset.addSlot(
             0,
             StaticHotbarPresetEntry(
@@ -210,7 +169,6 @@ object LobbyHotbarService
                     }
 
                     JoinQueueMenu(QueueType.Casual, 1).openMenu(player)
-//                    CasualQueueSelectSizeMenu().openMenu(player)
                 }
             }
         )
@@ -271,8 +229,17 @@ object LobbyHotbarService
                 ItemBuilder(Material.NAME_TAG)
                     .name("${CC.PINK}Create a Party ${CC.GRAY}(Right Click)")
             ).also {
-                it.onClick = { player ->
-                    player.sendMessage("${CC.RED}Parties are coming soon!")
+                it.onClick = scope@{ player ->
+                    player.performCommand("party create")
+                    Button.playNeutral(player)
+
+                    val lobbyPlayer = LobbyPlayerService.find(player)
+                        ?: return@scope
+
+                    synchronized(lobbyPlayer.stateUpdateLock) {
+                        lobbyPlayer.state = PlayerState.InParty
+                        lobbyPlayer.maintainStateTimeout = System.currentTimeMillis() + 1000L
+                    }
                 }
             }
         )
@@ -285,6 +252,7 @@ object LobbyHotbarService
             ).also {
                 it.onClick = { player ->
                     LeaderboardsMenu().openMenu(player)
+                    Button.playNeutral(player)
                 }
             }
         )
@@ -300,6 +268,7 @@ object LobbyHotbarService
                         ?: return@context
 
                     EditorKitSelectionMenu(profile).openMenu(player)
+                    Button.playNeutral(player)
                 }
             }
         )
@@ -312,6 +281,7 @@ object LobbyHotbarService
             ).also {
                 it.onClick = { player ->
                     SettingMenu(player).openMenu(player)
+                    Button.playNeutral(player)
                 }
             }
         )
@@ -328,6 +298,7 @@ object LobbyHotbarService
             ).also {
                 it.onClick = scope@{ player ->
                     QueueService.leaveQueue(player)
+                    Button.playNeutral(player)
                     player.sendMessage(
                         "${CC.RED}You left the queue!"
                     )
@@ -341,19 +312,43 @@ object LobbyHotbarService
                 ItemBuilder(Material.BOOK)
                     .name("${CC.D_AQUA}Kit Editor ${CC.GRAY}(Right Click)")
             ).also {
-                it.onClick = { player ->
+                it.onClick = scope@{ player ->
                     val profile = PracticeProfileService.find(player)
+                        ?: return@scope
 
-                    if (profile != null)
-                    {
-                        EditorKitSelectionMenu(profile).openMenu(player)
-                    }
+                    EditorKitSelectionMenu(profile).openMenu(player)
+                    Button.playNeutral(player)
                 }
             }
         )
 
         HotbarPresetHandler.startTrackingHotbar("inQueue", inQueuePreset)
         hotbarCache[PlayerState.InQueue] = inQueuePreset
+
+        val inPartyPreset = HotbarPreset()
+        inPartyPreset.addSlot(
+            8,
+            StaticHotbarPresetEntry(
+                ItemBuilder(XMaterial.RED_DYE)
+                    .name("${CC.RED}Leave Party ${CC.GRAY}(Right Click)")
+            ).also {
+                it.onClick = scope@{ player ->
+                    player.performCommand("party leave")
+                    Button.playNeutral(player)
+
+                    val lobbyPlayer = LobbyPlayerService.find(player)
+                        ?: return@scope
+
+                    synchronized(lobbyPlayer.stateUpdateLock) {
+                        lobbyPlayer.state = PlayerState.Idle
+                        lobbyPlayer.maintainStateTimeout = System.currentTimeMillis() + 1000L
+                    }
+                }
+            }
+        )
+
+        HotbarPresetHandler.startTrackingHotbar("inParty", inPartyPreset)
+        hotbarCache[PlayerState.InParty] = inPartyPreset
 
         val inTournamentPreset = HotbarPreset()
         inTournamentPreset.addSlot(
@@ -363,6 +358,8 @@ object LobbyHotbarService
                     .name("${CC.RED}Leave Tournament ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = scope@{ player ->
+                    Button.playNeutral(player)
+
                     TournamentCommand
                         .onLeave(
                             ScalaPlayer(
@@ -371,7 +368,6 @@ object LobbyHotbarService
                                 plugin = plugin
                             )
                         )
-                        .join()
                 }
             }
         )
@@ -382,13 +378,12 @@ object LobbyHotbarService
                 ItemBuilder(Material.BOOK)
                     .name("${CC.D_AQUA}Kit Editor ${CC.GRAY}(Right Click)")
             ).also {
-                it.onClick = { player ->
+                it.onClick = scope@{ player ->
                     val profile = PracticeProfileService.find(player)
+                        ?: return@scope
 
-                    if (profile != null)
-                    {
-                        EditorKitSelectionMenu(profile).openMenu(player)
-                    }
+                    EditorKitSelectionMenu(profile).openMenu(player)
+                    Button.playNeutral(player)
                 }
             }
         )
