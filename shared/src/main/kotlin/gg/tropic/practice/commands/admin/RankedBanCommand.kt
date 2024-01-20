@@ -102,5 +102,7 @@ object RankedBanCommand : ScalaCommand()
                         )
                 }"
             )
+
+            player.bukkit().performCommand("terminatematch ${it.name}")
         }
 }

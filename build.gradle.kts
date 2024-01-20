@@ -35,7 +35,7 @@ subprojects {
         compileOnly("gg.scala.commons:bukkit:3.4.5")
 
         compileOnly("gg.scala.store:spigot:0.1.8")
-        compileOnly("gg.scala.staff:scala-scstaff-plugin:1.0.3")
+        compileOnly("gg.scala.staff:scala-scstaff-plugin:1.0.6")
         compileOnly("gg.scala.friends:scala-friends:2.1.0")
         compileOnly("gg.scala.basics.plugin:scala-basics-plugin:1.0.7")
 

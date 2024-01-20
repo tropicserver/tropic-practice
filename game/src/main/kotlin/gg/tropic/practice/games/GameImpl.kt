@@ -632,6 +632,7 @@ class GameImpl(
                 this[defaultLoadoutID.toString()] = defaultLoadout
             }
 
+        val hashCodeToItemMappings = mutableMapOf<Int, String>()
         Events
             .subscribe(PlayerInteractEvent::class.java)
             .filter {
@@ -641,11 +642,10 @@ class GameImpl(
                 it.action == Action.RIGHT_CLICK_AIR
             }
             .filter {
-                ItemUtils.itemTagHasKey(it.item, "loadout")
+                hashCodeToItemMappings.containsKey(it.item.hashCode())
             }
             .handler {
-                val itemTagValue = ItemUtils.readItemTagKey(it.item, "loadout")
-                val loadout = applicableLoadouts[itemTagValue]
+                val loadout = applicableLoadouts[hashCodeToItemMappings[it.item.hashCode()]]
                     ?: defaultLoadout
 
                 selectedKitLoadouts[player.uniqueId] = loadout
@@ -673,9 +673,8 @@ class GameImpl(
                 )
                 .build()
 
-            player.inventory.addItem(
-                ItemUtils.addToItemTag(item, "loadout", t)
-            )
+            hashCodeToItemMappings[item.hashCode()] = t
+            player.inventory.addItem(item)
         }
 
         loadoutSelection[player.uniqueId] = terminable

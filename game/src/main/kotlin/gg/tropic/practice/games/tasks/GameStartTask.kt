@@ -3,6 +3,8 @@ package gg.tropic.practice.games.tasks
 import dev.iiahmed.disguise.Disguise
 import gg.scala.basics.plugin.disguise.DisguiseService
 import gg.scala.lemon.util.QuickAccess.username
+import gg.scala.staff.anticheat.AnticheatCheck
+import gg.scala.staff.anticheat.AnticheatFeature
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.queue.QueueType
@@ -24,6 +26,7 @@ import net.kyori.adventure.title.TitlePart
 import org.bukkit.Bukkit
 import org.bukkit.Sound
 import org.bukkit.entity.EntityType
+import org.bukkit.entity.Player
 import org.bukkit.scoreboard.DisplaySlot
 
 /**
@@ -195,6 +198,48 @@ class GameStartTask(
                     "${CC.BD_RED}WARNING: ${CC.RED}Double Clicking is a punishable offence in all ranked matches. Adjusting your debounce time to 10ms or using a DC-prevention tool is highly recommended if you are unable to avoid double clicking.",
                     " "
                 )
+
+                if (Bukkit.getPluginManager().isPluginEnabled("anticheat"))
+                {
+                    fun Player.runAutoBanFor(reason: String)
+                    {
+                        Bukkit.dispatchCommand(
+                            Bukkit.getConsoleSender(),
+                            "ban $name 30d Unfair Advantage ($reason) -s"
+                        )
+                    }
+
+                    game.toBukkitPlayers()
+                        .filterNotNull()
+                        .forEach { player ->
+                            // TODO: tune and test
+                            AnticheatFeature.subscribeToSixtySecondSampleOf(
+                                player = player,
+                                check = AnticheatCheck.DOUBLE_CLICK,
+                                evaluate = { sample ->
+                                    // If the player typically gets 6 or more violations in a 10-second period,
+                                    // the player must be banned
+                                    if (sample.accumulatedMedianOf() > 6)
+                                    {
+                                        player.runAutoBanFor("RDC")
+                                    }
+                                }
+                            )
+
+                            AnticheatFeature.subscribeToSixtySecondSampleOf(
+                                player = player,
+                                check = AnticheatCheck.AUTO_CLICKER,
+                                evaluate = { sample ->
+                                    // If the player typically gets 11 or more violations in a 10-second period,
+                                    // the player must be banned
+                                    if (sample.accumulatedMedianOf() > 11)
+                                    {
+                                        player.runAutoBanFor("RDC")
+                                    }
+                                }
+                            )
+                        }
+                }
             }
 
             this.game.playSound(Sound.NOTE_PLING, pitch = 1.2f)

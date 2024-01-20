@@ -13,8 +13,8 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.redirection.aggregate.ServerAggregateHandler
 import gg.scala.lemon.util.QuickAccess
 import gg.scala.lemon.util.QuickAccess.username
-import gg.tropic.game.extensions.anticheat.AnticheatCheck
-import gg.tropic.game.extensions.anticheat.AnticheatHook
+import gg.scala.staff.anticheat.AnticheatCheck
+import gg.scala.staff.anticheat.AnticheatFeature
 import gg.tropic.game.extensions.cosmetics.CosmeticLocalConfig
 import gg.tropic.game.extensions.cosmetics.CosmeticRegistry
 import gg.tropic.game.extensions.cosmetics.killeffects.KillEffectCosmeticCategory
@@ -23,7 +23,6 @@ import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.LightningKillEf
 import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
 import gg.tropic.practice.PracticeGame
-import gg.tropic.practice.friendship.FriendshipStateSetting
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
@@ -104,17 +103,18 @@ object GameService
                 }
             }
 
-        AnticheatHook.configureAlertFilter {
+        AnticheatFeature.configureAlertFilter {
+            val game = byPlayer(player = it.player)
+                ?: return@configureAlertFilter false
+
             if (it.type == AnticheatCheck.DOUBLE_CLICK)
             {
                 return@configureAlertFilter false
             }
 
-            val game = byPlayer(player = it.player)
-                ?: return@configureAlertFilter false
-
-            return@configureAlertFilter game.expectationModel.queueType == null ||
-                game.expectationModel.queueType == QueueType.Casual
+            return@configureAlertFilter (game.expectationModel.queueType == null ||
+                game.expectationModel.queueType == QueueType.Casual) &&
+                game.expectationModel.queueId != "tournament"
         }
 
         communicationLayer.listen("terminate") {
