@@ -238,9 +238,9 @@ class GameStartTask(
                                     player = player,
                                     check = AnticheatCheck.DOUBLE_CLICK,
                                     evaluate = { sample ->
-                                        // If the player typically gets 5 or more violations in a 10-second period,
+                                        // If the player typically gets 3 or more violations in a 10-second period,
                                         // the player must be banned
-                                        if (sample.accumulatedMedianOf() > 5)
+                                        if (sample.accumulatedMedianOf() > 3)
                                         {
                                             player.runAutoBanFor("SADC")
                                         }
@@ -253,9 +253,9 @@ class GameStartTask(
                                     player = player,
                                     check = AnticheatCheck.AUTO_CLICKER,
                                     evaluate = { sample ->
-                                        // If the player typically gets 11 or more violations in a 10-second period,
+                                        // If the player typically gets 5 or more violations in a 10-second period,
                                         // the player must be banned
-                                        if (sample.accumulatedMedianOf() > 11)
+                                        if (sample.accumulatedMedianOf() > 5)
                                         {
                                             player.runAutoBanFor("SAAC")
                                         }
