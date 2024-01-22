@@ -8,6 +8,7 @@ import gg.scala.staff.anticheat.AnticheatCheck
 import gg.scala.staff.anticheat.AnticheatFeature
 import gg.tropic.practice.commands.admin.RankedBanCommand
 import gg.tropic.practice.commands.offlineProfile
+import gg.tropic.practice.configuration.PracticeConfigurationService
 import gg.tropic.practice.games.GameImpl
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.queue.QueueType
@@ -238,9 +239,11 @@ class GameStartTask(
                                     player = player,
                                     check = AnticheatCheck.DOUBLE_CLICK,
                                     evaluate = { sample ->
+                                        val thresholds = PracticeConfigurationService.cached().dataSampleThresholds()
+
                                         // If the player typically gets 3 or more violations in a 10-second period,
                                         // the player must be banned
-                                        if (sample.accumulatedMedianOf() > 3)
+                                        if (sample.accumulatedMedianOf() > thresholds.doubleClick)
                                         {
                                             player.runAutoBanFor("SADC")
                                         }
@@ -253,9 +256,11 @@ class GameStartTask(
                                     player = player,
                                     check = AnticheatCheck.AUTO_CLICKER,
                                     evaluate = { sample ->
+                                        val thresholds = PracticeConfigurationService.cached().dataSampleThresholds()
+
                                         // If the player typically gets 5 or more violations in a 10-second period,
                                         // the player must be banned
-                                        if (sample.accumulatedMedianOf() > 5)
+                                        if (sample.accumulatedMedianOf() > thresholds.autoClick)
                                         {
                                             player.runAutoBanFor("SAAC")
                                         }

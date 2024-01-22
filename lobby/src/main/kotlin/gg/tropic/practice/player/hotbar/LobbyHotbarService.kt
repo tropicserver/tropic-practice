@@ -43,6 +43,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.inventory.ItemStack
 import java.util.*
 
 @Service
@@ -141,14 +142,14 @@ object LobbyHotbarService
                                 UUID.fromString(rematchTargetID).username()
                             } ${CC.GRAY}(Right Click)")
                             .build()
-                        val itemID = rematchItem.hashCode()
 
                         val terminable = CompositeTerminable.create()
                         Events
                             .subscribe(PlayerInteractEvent::class.java)
                             .filter { event ->
                                 event.hasItem() &&
-                                    event.hashCode() == itemID
+                                    event.action.name.contains("RIGHT") &&
+                                    event.item.isSimilar(rematchItem)
                             }
                             .handler {
                                 DuelRequestPipeline.automateDuelRequestNoUI(
@@ -180,7 +181,11 @@ object LobbyHotbarService
                             }
                             .bindWith(terminable)
 
-                        player.inventory.setItem(4, rematchItem)
+                        terminable.with {
+                            player.inventory.setItem(3, ItemStack(Material.AIR))
+                        }
+
+                        player.inventory.setItem(3, rematchItem)
                     }
                 }
             }
@@ -190,7 +195,7 @@ object LobbyHotbarService
             7,
             StaticHotbarPresetEntry(
                 ItemBuilder(Material.WATCH)
-                    .name("${CC.D_AQUA}Navigator ${CC.GRAY}(Right Click)")
+                    .name("${CC.D_PURPLE}Navigator ${CC.GRAY}(Right Click)")
             ).also {
                 it.onClick = { player ->
                     PlayerMainMenu().openMenu(player)

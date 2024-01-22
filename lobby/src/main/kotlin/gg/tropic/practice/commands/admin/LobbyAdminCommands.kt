@@ -24,6 +24,7 @@ import gg.tropic.practice.region.Region
 import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
+import net.evilblock.cubed.util.bukkit.Constants
 import org.bukkit.entity.Player
 import java.io.File
 import java.util.concurrent.CompletableFuture
@@ -155,6 +156,51 @@ object LobbyAdminCommands : ScalaCommand()
 
             PracticeConfigurationService.sync(this)
         }
+    }
+
+    @Subcommand("sampling config")
+    @Description("Viewing the sampling config.")
+    fun onSamplingViewConfig(player: ScalaPlayer)
+    {
+        with(PracticeConfigurationService.cached()) {
+            with(dataSampleThresholds()) {
+                player.sendMessage(
+                    "${CC.GREEN}Sampling Config:",
+                    "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}AutoClick: ${CC.PRI}$autoClick",
+                    "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}DoubleClick: ${CC.PRI}$doubleClick",
+                )
+            }
+        }
+    }
+
+    @AssignPermission
+    @Subcommand("sampling autoclick")
+    @Description("Edit the auto click sampling threshold for autobans.")
+    fun onSamplingAutoClick(player: ScalaPlayer, requiredMedian: Int)
+    {
+        with(PracticeConfigurationService.cached()) {
+            dataSampleThresholds().autoClick = requiredMedian
+            PracticeConfigurationService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have set the AutoClick sampling threshold to: ${CC.WHITE}$requiredMedian"
+        )
+    }
+
+    @AssignPermission
+    @Subcommand("sampling doubleclick")
+    @Description("Edit the double click sampling threshold for autobans.")
+    fun onSamplingDoubleClick(player: ScalaPlayer, requiredMedian: Int)
+    {
+        with(PracticeConfigurationService.cached()) {
+            dataSampleThresholds().doubleClick = requiredMedian
+            PracticeConfigurationService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}You have set the DoubleClick sampling threshold to: ${CC.WHITE}$requiredMedian"
+        )
     }
 
     @AssignPermission

@@ -40,7 +40,7 @@ object StaffReportsService
                 ),
                 ResponseAction(
                     description = "View information on the player's game",
-                    command = "matchinformation ${playerReport.to.username()}"
+                    command = "matchinfo ${playerReport.to.username()}"
                 )
             )
         }

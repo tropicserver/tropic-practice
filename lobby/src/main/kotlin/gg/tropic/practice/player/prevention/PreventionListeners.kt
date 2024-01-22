@@ -63,8 +63,6 @@ object PreventionListeners
                         (runCatching { ItemUtils.itemTagHasKey(it.currentItem, "invokerc") }.getOrDefault(false)))
             }
             .handler {
-                println("cancelling event apparently")
-
                 it.isCancelled = true
                 it.cursor = null
             }
@@ -77,7 +75,7 @@ object PreventionListeners
                     && it.click.isKeyboardClick
             }
             .handler {
-                it.isCancelled = true
+                it.isCancelled = Menu.currentlyOpenedMenus[it.inventory.viewers.first().uniqueId] !is AllowRemoveItemsWithinInventory
             }
             .bindWith(plugin)
 
