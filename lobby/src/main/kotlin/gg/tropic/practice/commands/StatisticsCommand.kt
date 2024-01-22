@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture
 @AutoRegister
 object StatisticsCommand : ScalaCommand()
 {
-    @CommandAlias("stats|statistics")
+    @CommandAlias("stats|statistics|stat")
     @CommandCompletion("@mip-players")
     fun onStatistics(
         player: ScalaPlayer,

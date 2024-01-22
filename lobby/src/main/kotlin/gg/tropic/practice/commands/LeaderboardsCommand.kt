@@ -13,7 +13,7 @@ import gg.tropic.practice.menu.LeaderboardsMenu
 @AutoRegister
 object LeaderboardsCommand : ScalaCommand()
 {
-    @CommandAlias("leaderboards|lbs")
+    @CommandAlias("leaderboards|lbs|lb")
     fun onLeaderboards(player: ScalaPlayer)
     {
         LeaderboardsMenu().openMenu(player.bukkit())
