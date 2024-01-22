@@ -10,6 +10,7 @@ import gg.scala.lemon.hotbar.HotbarPreset
 import gg.scala.lemon.hotbar.HotbarPresetHandler
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
+import gg.scala.lemon.util.QuickAccess.username
 import gg.scala.parties.command.PartyCommand
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
@@ -28,6 +29,8 @@ import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.region.Region
 import me.lucko.helper.Events
+import me.lucko.helper.Schedulers
+import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -37,6 +40,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import java.util.*
@@ -131,12 +135,52 @@ object LobbyHotbarService
                         ?: return@handler
 
                     loginTasks.getOrPut(it.uniqueId, ::mutableListOf) += { player ->
-                        DuelRequestPipeline.automateDuelRequestNoUI(
-                            player = player,
-                            target = UUID.fromString(rematchTargetID!!),
-                            kit = kit, map = map,
-                            region = rematchTargetRegion
-                        )
+                        val rematchItem = ItemBuilder
+                            .of(Material.PAPER)
+                            .name("${CC.D_GREEN}Rematch ${
+                                UUID.fromString(rematchTargetID).username()
+                            } ${CC.GRAY}(Right Click)")
+                            .build()
+                        val itemID = rematchItem.hashCode()
+
+                        val terminable = CompositeTerminable.create()
+                        Events
+                            .subscribe(PlayerInteractEvent::class.java)
+                            .filter { event ->
+                                event.hasItem() &&
+                                    event.hashCode() == itemID
+                            }
+                            .handler {
+                                DuelRequestPipeline.automateDuelRequestNoUI(
+                                    player = player,
+                                    target = UUID.fromString(rematchTargetID!!),
+                                    kit = kit, map = map,
+                                    region = rematchTargetRegion
+                                )
+
+                                Button.playNeutral(player)
+                                terminable.closeAndReportException()
+                            }
+                            .bindWith(terminable)
+
+                        Schedulers
+                            .sync()
+                            .runLater({
+                                terminable.closeAndReportException()
+                            }, 20L * 30L)
+                            .bindWith(terminable)
+
+                        Events
+                            .subscribe(PlayerQuitEvent::class.java)
+                            .filter { event ->
+                                event.player.uniqueId == player.uniqueId
+                            }
+                            .handler {
+                                terminable.closeAndReportException()
+                            }
+                            .bindWith(terminable)
+
+                        player.inventory.setItem(4, rematchItem)
                     }
                 }
             }

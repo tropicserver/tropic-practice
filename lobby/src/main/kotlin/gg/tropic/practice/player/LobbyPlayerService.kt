@@ -251,6 +251,7 @@ object LobbyPlayerService
         fun AwareMessage.usePlayer(use: Player.() -> Unit)
         {
             val players = retrieve<List<String>>("playerIDs")
+            println(players)
             players.forEach {
                 val bukkit = Bukkit
                     .getPlayer(

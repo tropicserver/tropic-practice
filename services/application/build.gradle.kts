@@ -20,9 +20,9 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:2.20.0")
     implementation("org.apache.logging.log4j:log4j-core:2.20.0")
 
-    implementation("gg.scala.commons:store:3.2.2")
-    implementation("gg.scala.commons:serversync:3.2.2")
-    implementation("gg.scala.commons:serializers:3.2.2")
+    implementation("gg.scala.commons:store:3.5.1")
+    implementation("gg.scala.commons:serversync:3.5.1")
+    implementation("gg.scala.commons:serializers:3.5.1")
 
     implementation("net.kyori:adventure-key:4.11.0")
     implementation("net.kyori:adventure-text-serializer-gson:4.11.0")

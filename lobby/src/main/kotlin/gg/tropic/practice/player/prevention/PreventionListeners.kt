@@ -63,6 +63,8 @@ object PreventionListeners
                         (runCatching { ItemUtils.itemTagHasKey(it.currentItem, "invokerc") }.getOrDefault(false)))
             }
             .handler {
+                println("cancelling event apparently")
+
                 it.isCancelled = true
                 it.cursor = null
             }

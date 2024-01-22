@@ -7,7 +7,12 @@ import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
 import gg.scala.commons.command.ScalaCommandManager
+import gg.scala.commons.tablist.TablistPlayer
 import gg.scala.commons.tablist.TablistPopulator
+import gg.scala.commons.tablist.adapter.populator.DefaultPlayersProvider
+import gg.scala.commons.tablist.adapter.populator.PlayerTablistPopulator
+import gg.scala.commons.tablist.adapter.populator.PlayersProvider
+import gg.scala.commons.tablist.manage.TablistManager
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.Lemon
@@ -158,35 +163,35 @@ object MIPPlayerCache : TablistPopulator
         ListCommand.supplyCustomPlayerList { playerList }
     }
 
+    object NetworkPlayerProvider : PlayersProvider()
+    {
+        override fun getPlayers(viewer: Player) = localModelCache
+            .take(80)
+            .map {
+                TablistPlayer(
+                    skinValue = it.skinValue,
+                    skinSignature = it.skinSignature,
+                    ping = it.ping,
+                    displayName = it.displayName,
+                    rankWeight = it.rankWeight,
+                    username = it.username
+                )
+            }
+    }
+
     override fun displayPreProcessor(player: Player) =
-        CompletableFuture.completedFuture(
-            PracticeConfigurationService.cached().enableMIPTabHandler()
-        )!!
+        CompletableFuture.completedFuture(true)
+            .thenApply {
+                val handle = TablistManager.get().getTablist(player)
+                handle.tablistPopulator =
+                    PlayerTablistPopulator(handle, NetworkPlayerProvider)
+
+                PracticeConfigurationService.cached().enableMIPTabHandler()
+            }!!
 
     override fun populate(player: Player, element: TabElement)
     {
-        element.header = LegacyComponentSerializer
-            .legacySection()
-            .serialize(TabListService.cached().header)
-        element.footer = LegacyComponentSerializer
-            .legacySection()
-            .serialize(TabListService.cached().footer)
 
-        localModelCache
-            .sortedByDescending(OnlinePracticePlayer::rankWeight)
-            .take(80)
-            .forEachIndexed { index, other ->
-                val entry = TabEntry(
-                    index / 20, index % 20,
-                    other.displayName,
-                    other.ping, arrayOf(
-                        other.skinValue,
-                        other.skinSignature
-                    )
-                )
-
-                element.add(entry)
-            }
     }
 
     @CommandManagerCustomizer

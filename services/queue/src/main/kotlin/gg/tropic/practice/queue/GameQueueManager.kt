@@ -46,13 +46,6 @@ object GameQueueManager
     private val dpsQueueRedis = DPSRedisService("queue")
         .apply(DPSRedisService::start)
 
-    private val replicationAllocator = Executors.newSingleThreadScheduledExecutor()
-        .apply {
-            Runtime.getRuntime().addShutdownHook(Thread {
-                println("Waiting for terminating of replication allocator")
-                awaitTermination(1L, TimeUnit.SECONDS)
-            })
-        }
     private val dpsRedisCache = DPSRedisShared.keyValueCache
 
     fun useCache(
@@ -110,7 +103,7 @@ object GameQueueManager
                 )
             )
 
-            return CompletableFuture.runAsync({ cleanup() }, replicationAllocator)
+            return CompletableFuture.runAsync { cleanup() }
         }
 
         /**
@@ -126,7 +119,7 @@ object GameQueueManager
                 )
             )
 
-            return CompletableFuture.runAsync({ cleanup() }, replicationAllocator)
+            return CompletableFuture.runAsync { cleanup() }
         }
 
         /**
@@ -197,7 +190,7 @@ object GameQueueManager
         }
 
         return replication
-            .thenAcceptAsync({
+            .thenAcceptAsync {
                 if (it.status == ReplicationManager.ReplicationResultStatus.Completed)
                 {
                     Thread.sleep(100L)
@@ -217,7 +210,7 @@ object GameQueueManager
                 }
 
                 cleanup()
-            }, replicationAllocator)
+            }
             .exceptionally {
                 DPSRedisShared.sendMessage(
                     expectation.players,
@@ -585,7 +578,7 @@ object GameQueueManager
                             QueueEntry::class.java
                         )
 
-                    destroyQueueStates(queueId, queueEntry)
+                    destroyQueueStates(queueId(), queueEntry)
                 }
             }
         }
@@ -598,13 +591,12 @@ object GameQueueManager
             entry.leader.toString()
         )
 
-        for (player in entry.players)
-        {
-            dpsRedisCache.sync().hdel(
-                "tropicpractice:queue-states",
-                player.toString()
-            )
-        }
+        dpsRedisCache.sync().hdel(
+            "tropicpractice:queue-states",
+            *entry.players
+                .map { it.toString() }
+                .toTypedArray()
+        )
     }
 
     private fun buildAndValidateQueueIndexes()

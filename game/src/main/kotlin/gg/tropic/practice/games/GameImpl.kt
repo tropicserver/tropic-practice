@@ -87,7 +87,6 @@ class GameImpl(
     private val playerCounters = mutableMapOf<UUID, Counter>()
 
     val expectedQueueRejoin = mutableSetOf<UUID>()
-    val expectedDuelResend = mutableSetOf<UUID>()
 
     fun takeSnapshot(player: Player)
     {
@@ -452,7 +451,7 @@ class GameImpl(
                 return mapOf()
             }
 
-            if (player.uniqueId in expectedDuelResend)
+            if (player.uniqueId in expectationModel.players)
             {
                 val target = expectationModel.players
                     .firstOrNull { other ->
@@ -471,11 +470,6 @@ class GameImpl(
                     "rematch-map-id" to expectationModel.mapId,
                     "was-game-participant" to "true"
                 )
-            }
-
-            if (player.uniqueId in expectationModel.players)
-            {
-                return mapOf("was-game-participant" to "true")
             }
 
             return mapOf()
