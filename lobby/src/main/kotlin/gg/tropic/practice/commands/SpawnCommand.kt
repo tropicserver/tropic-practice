@@ -6,6 +6,8 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.tropic.practice.configuration.PracticeConfigurationService
+import gg.tropic.practice.player.LobbyPlayerService
+import gg.tropic.practice.player.hotbar.LobbyHotbarService
 import org.bukkit.Bukkit
 
 /**
@@ -28,6 +30,13 @@ object SpawnCommand : ScalaCommand()
                         Bukkit.getWorlds().first()
                     )
             )
+
+            LobbyPlayerService.find(player.bukkit())
+                ?.apply {
+                    LobbyHotbarService
+                        .get(state)
+                        .applyToPlayer(player.bukkit())
+                }
         }
     }
 }
