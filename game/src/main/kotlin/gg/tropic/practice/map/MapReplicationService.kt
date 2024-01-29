@@ -20,12 +20,14 @@ import gg.tropic.practice.replications.models.ReplicationStatus
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
+import org.bukkit.Bukkit
 import org.bukkit.World
 import org.bukkit.event.world.WorldLoadEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.logging.Level
+import kotlin.concurrent.thread
 
 /**
  * @author GrowlyX
@@ -177,6 +179,7 @@ object MapReplicationService
         }
 
         MapService.onPostReload = ::populateSlimeCache
+        startWorldRequestThread()
     }
 
     fun findScheduledReplication(expectation: UUID) = mapReplications
@@ -249,43 +252,68 @@ object MapReplicationService
         }
     }
 
+    fun startWorldRequestThread() = thread(isDaemon = true) {
+        while (true)
+        {
+            for (worldID in worldRequests.keys.toSet())
+            {
+                if (System.currentTimeMillis() - worldID.second >= 30_000L)
+                {
+                    worldRequests.remove(worldID)
+                        ?.completeExceptionally(
+                            IllegalStateException(
+                                "Could not load world ${worldID.first}"
+                            )
+                        )
+                    continue
+                }
+
+                val bukkitWorld = Bukkit.getWorld(worldID.first)
+                    ?: continue
+
+                worldRequests.remove(worldID)?.complete(bukkitWorld)
+            }
+
+            Thread.sleep(100L)
+        }
+    }
+
+    private val worldRequests = mutableMapOf<Pair<String, Long>, CompletableFuture<World>>()
+    fun submitWorldRequest(worldID: String): CompletableFuture<World>
+    {
+        val future = CompletableFuture<World>()
+        worldRequests[worldID to System.currentTimeMillis()] = future
+
+        return future
+    }
+
     private fun generateArenaWorld(arena: Map): CompletableFuture<BuiltMapReplication>
     {
         val worldName = "${arena.name}-${
             UUID.randomUUID().toString().substring(0..5)
         }"
+
         val readyMap = readyMaps[arena.name]
             ?: return CompletableFuture.failedFuture(
                 IllegalStateException("Map ${arena.name} does not have a ready SlimeWorld. Map changes have not propagated to this server?")
             )
 
-        val future = CompletableFuture<World>()
-        val terminable = CompositeTerminable.create()
-
-        CompletableFuture
+        return CompletableFuture
             .runAsync {
                 slimePlugin.generateWorld(
                     readyMap.slimeWorld.clone(worldName)
                 )
             }
-
-        Events
-            .subscribe(WorldLoadEvent::class.java)
-            .filter {
-                it.world.name == worldName
-            }
-            .handler {
-                future.complete(it.world)
-                terminable.closeAndReportException()
-            }
-            .bindWith(terminable)
-
-        return future
-            .thenCompose { world ->
-                arena.metadata.clearSignLocations(world)
+            .thenCompose {
+                submitWorldRequest(worldName)
             }
             .thenApply {
+                arena.metadata.clearSignLocations(it)
                 BuiltMapReplication(arena, it)
+            }
+            .exceptionally {
+                plugin.logger.log(Level.SEVERE, "Could not load/generate world $worldName", it)
+                return@exceptionally null
             }
     }
 }

@@ -5,7 +5,6 @@ import net.evilblock.cubed.util.bukkit.Tasks
 import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.util.Vector
-import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -16,9 +15,8 @@ data class MapMetadata(
     val metadata: List<AbstractMapMetadata>
 )
 {
-    fun clearSignLocations(world: World): CompletableFuture<World>
+    fun clearSignLocations(world: World)
     {
-        val future = CompletableFuture<World>()
         val blocks = metadataSignLocations
             .mapNotNull {
                 world.getBlockAt(it.blockX, it.blockY, it.blockZ)
@@ -26,13 +24,8 @@ data class MapMetadata(
 
         Tasks.sync {
             blocks.forEach {
-                world.getChunkAt(it).load()
                 it.type = Material.AIR
             }
-
-            future.complete(world)
         }
-
-        return future
     }
 }
