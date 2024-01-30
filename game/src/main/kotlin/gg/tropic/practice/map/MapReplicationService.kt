@@ -5,6 +5,7 @@ import com.grinderwolf.swm.api.loaders.SlimeLoader
 import com.grinderwolf.swm.plugin.config.WorldData
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.agnostic.sync.ServerSync
+import gg.scala.commons.agnostic.sync.server.region.Region
 import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
@@ -59,19 +60,22 @@ object MapReplicationService
         loader = slimePlugin.getLoader("mongodb")
         populateSlimeCache()
 
-        preGenerateMapReplications().thenRun {
-            plugin.logger.info(
-                "Generated $TARGET_PRE_GEN_REPLICATIONS map replications for each of the ${
-                    MapService.maps().count()
-                } available maps. This server currently has ${mapReplications.size} available replications."
-            )
+        if (ServerSync.getLocalGameServer().region == Region.NA)
+        {
+            preGenerateMapReplications().thenRun {
+                plugin.logger.info(
+                    "Generated $TARGET_PRE_GEN_REPLICATIONS map replications for each of the ${
+                        MapService.maps().count()
+                    } available maps. This server currently has ${mapReplications.size} available replications."
+                )
 
-            plugin.flavor().inject(ReplicationAutoScaleTask)
-        }.exceptionally {
-            plugin.logger.log(
-                Level.SEVERE, "Failed to pre-generate map replications", it
-            )
-            return@exceptionally null
+                plugin.flavor().inject(ReplicationAutoScaleTask)
+            }.exceptionally {
+                plugin.logger.log(
+                    Level.SEVERE, "Failed to pre-generate map replications", it
+                )
+                return@exceptionally null
+            }
         }
 
         fun startIfReady(game: GameImpl): Boolean

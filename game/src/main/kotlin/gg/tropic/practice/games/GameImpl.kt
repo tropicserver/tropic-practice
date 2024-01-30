@@ -118,7 +118,8 @@ class GameImpl(
             )
     }
 
-    fun complete(winner: GameTeam?, reason: String = "") = synchronized(state)
+    private val stateLock = Any()
+    fun complete(winner: GameTeam?, reason: String = "") = synchronized(stateLock)
     {
         if (state == GameState.Completed)
         {
