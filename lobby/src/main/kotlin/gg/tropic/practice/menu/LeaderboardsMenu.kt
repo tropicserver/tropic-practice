@@ -39,7 +39,7 @@ class LeaderboardsMenu : TemplateKitMenu()
         callback(true)
     }
 
-    override fun itemTitleFor(player: Player, kit: Kit) = "${CC.PRI}${kit.displayName}"
+    override fun itemTitleFor(player: Player, kit: Kit) = "${CC.B_PRI}${kit.displayName}"
     override fun shouldIncludeKitDescription() = false
 
     private fun localDescriptionOf(player: Player, reference: Reference): List<String>
@@ -55,8 +55,8 @@ class LeaderboardsMenu : TemplateKitMenu()
         }
 
         val personalScore = listOf(
-            "${CC.B_PRI}Your score: ${CC.WHITE}${cachedScore.second?.run { Numbers.format(this) }  ?: "${CC.D_GRAY}Loading..."} ${
-                CC.GRAY + (cachedScore.first?.run { "[#${Numbers.format(this + 1)}]" } ?: "")
+            "${CC.PRI}Your score: ${CC.WHITE}${cachedScore.second?.run { Numbers.format(this) }  ?: "${CC.D_GRAY}Loading..."} ${
+                CC.GRAY + (cachedScore.first?.run { "(#${Numbers.format(this + 1)})" } ?: "")
             }"
         )
 

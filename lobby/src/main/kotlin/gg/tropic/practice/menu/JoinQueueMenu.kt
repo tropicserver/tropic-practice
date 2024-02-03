@@ -88,8 +88,8 @@ class JoinQueueMenu(
         }
 
         val personalScore = listOf(
-            "${CC.B_PRI}Your $label: ${CC.WHITE}${cachedScore.second?.run { Numbers.format(this) } ?: "${CC.D_GRAY}..."} ${
-                CC.GRAY + (cachedScore.first?.run { "[#${Numbers.format(this + 1)}]" } ?: "")
+            "${CC.PRI}Your $label: ${CC.WHITE}${cachedScore.second?.run { Numbers.format(this) } ?: "${CC.D_GRAY}..."} ${
+                CC.GRAY + (cachedScore.first?.run { "(#${Numbers.format(this + 1)})" } ?: "")
             }"
         )
 

@@ -9,6 +9,7 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.util.QuickAccess
+import gg.tropic.practice.guilds.Guilds
 import gg.tropic.practice.leaderboards.*
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
@@ -150,6 +151,10 @@ object LeaderboardManagerService
 
             newFormattedLeaderboardCache[it] = newLeaderboardCache[it]!!
                 .mapIndexed { index, entry ->
+                    val guildName = Guilds.guildProvider
+                        .provideGuildNameFor(entry.uniqueId)
+                        .join()
+
                     "${CC.PRI}#${index + 1}. ${CC.WHITE}${
                         QuickAccess
                             .computeColoredName(
@@ -157,6 +162,8 @@ object LeaderboardManagerService
                                 ScalaStoreUuidCache.username(entry.uniqueId) ?: "???"
                             )
                             .join()
+                    }${
+                        if (guildName != null) " ${CC.GRAY}[$guildName]${CC.RESET}" else ""
                     } ${CC.GRAY}- ${CC.PRI}${
                         Numbers.format(entry.value)
                     }"
