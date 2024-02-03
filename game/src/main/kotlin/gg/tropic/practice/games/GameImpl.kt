@@ -118,12 +118,11 @@ class GameImpl(
             )
     }
 
-    private val stateLock = Any()
-    fun complete(winner: GameTeam?, reason: String = "") = synchronized(stateLock)
+    fun complete(winner: GameTeam?, reason: String = "")
     {
         if (state == GameState.Completed)
         {
-            return@synchronized
+            return
         }
 
         val newELOMappings = mutableMapOf<UUID, Pair<Int, Int>>()
