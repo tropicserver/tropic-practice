@@ -92,11 +92,11 @@ abstract class AbstractScrollingLeaderboard(
         lines += "${CC.SEC}You: ${CC.PRI}${
             cacheValue.second
                 ?.let(Numbers::format) ?: "???"
-        } ${CC.GRAY}[#${
+        } ${CC.GRAY}(#${
             cacheValue.first
                 ?.let { it + 1 }
                 ?.let(Numbers::format) ?: "???"
-        }]"
+        })"
         lines += ""
 
         lines += LeaderboardManagerService

@@ -4,6 +4,7 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.parties.service.PartyService
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.party.WParty
 import gg.tropic.practice.player.hotbar.LobbyHotbarService
 import gg.tropic.practice.queue.QueueEntry
 import gg.tropic.practice.queue.QueueService
@@ -38,6 +39,8 @@ data class LobbyPlayer(
     private var queueState: QueueState? = null
     private var queueEntry: QueueEntry? = null
 
+    private var party: WParty? = null
+
     fun buildQueueID() = queueState?.let {
         "${it.kitId}:${it.queueType.name}:${it.teamSize}v${it.teamSize}"
     }
@@ -52,6 +55,9 @@ data class LobbyPlayer(
     fun queuedForType() = queueState!!.queueType
     fun queuedForTeamSize() = queueState!!.teamSize
 
+    fun isInParty() = party != null
+    fun partyOf() = party!!
+
     var hasSyncedInitialQueueState = false
     fun syncQueueStateIfRequired()
     {
@@ -65,6 +71,9 @@ data class LobbyPlayer(
 
     fun syncQueueState()
     {
+        val player = Bukkit.getPlayer(uniqueId)
+            ?: return
+
         queueState = ScalaCommonsSpigot.instance.kvConnection
             .sync()
             .hget(
@@ -77,11 +86,19 @@ data class LobbyPlayer(
                     .fromJson(it, QueueState::class.java)
             }
 
-        val userInParty = PartyService.findPartyByUniqueId(uniqueId) != null
+        val userParty = PartyService.findPartyByUniqueId(player)
+        val userInParty = userParty != null
         val userInTournament = TournamentManagerService.isInTournament(uniqueId)
         val newState = when (true)
         {
-            userInParty -> PlayerState.InParty
+            userInParty ->
+            {
+                if (this.party != null)
+                {
+                    party?.update(userParty!!)
+                }
+                PlayerState.InParty
+            }
             userInTournament -> PlayerState.InTournament
             (queueState != null) -> PlayerState.InQueue
             else -> PlayerState.Idle
@@ -94,29 +111,8 @@ data class LobbyPlayer(
             syncQueueEntry()
         } else
         {
-            if (
-                newState == PlayerState.InParty &&
-                state != PlayerState.InParty
-                )
-            {
-                val player = Bukkit.getPlayer(uniqueId)
-
-                when (state)
-                {
-                    PlayerState.InQueue -> QueueService
-                        .leaveQueue(
-                            player, true
-                        )
-                    PlayerState.InTournament -> TournamentCommand.onLeave(
-                        ScalaPlayer(player, LobbyPlayerService.audiences, LobbyPlayerService.plugin)
-                    )
-                    else -> { }
-                }
-            } else
-            {
-                // determined that player is idle, so we remove their queue entry
-                queueEntry = null
-            }
+            // determined that player is idle, so we remove their queue entry
+            queueEntry = null
         }
 
         // keep current state until the server processes our queue join
@@ -132,6 +128,26 @@ data class LobbyPlayer(
             {
                 return
             }
+        }
+
+        if (newState == PlayerState.InParty)
+        {
+            party = WParty(userParty!!)
+
+            when (true)
+            {
+                (queueState != null) -> QueueService
+                    .leaveQueue(
+                        player, true
+                    )
+                userInTournament -> TournamentCommand.onLeave(
+                    ScalaPlayer(player, LobbyPlayerService.audiences, LobbyPlayerService.plugin)
+                )
+                else -> { }
+            }
+        } else
+        {
+            party = null
         }
 
         // don't try to acquire lock if we don't need to

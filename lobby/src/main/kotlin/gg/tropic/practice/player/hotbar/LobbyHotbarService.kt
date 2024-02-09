@@ -191,6 +191,29 @@ object LobbyHotbarService
             }
             .bindWith(plugin)
 
+        val kitEditor = StaticHotbarPresetEntry(
+            ItemBuilder(Material.BOOK)
+                .name("${CC.D_AQUA}Kit Editor ${CC.GRAY}(Right Click)")
+        ).also {
+            it.onClick = context@{ player ->
+                val profile = PracticeProfileService.find(player)
+                    ?: return@context
+
+                EditorKitSelectionMenu(profile).openMenu(player)
+                Button.playNeutral(player)
+            }
+        }
+
+        val settings = StaticHotbarPresetEntry(
+            ItemBuilder(Material.REDSTONE_COMPARATOR)
+                .name("${CC.D_PURPLE}Settings ${CC.GRAY}(Right Click)")
+        ).also {
+            it.onClick = { player ->
+                SettingMenu(player).openMenu(player)
+                Button.playNeutral(player)
+            }
+        }
+
         idlePreset.addSlot(
             7,
             StaticHotbarPresetEntry(
@@ -306,34 +329,8 @@ object LobbyHotbarService
             }
         )
 
-        idlePreset.addSlot(
-            2,
-            StaticHotbarPresetEntry(
-                ItemBuilder(Material.BOOK)
-                    .name("${CC.D_AQUA}Kit Editor ${CC.GRAY}(Right Click)")
-            ).also {
-                it.onClick = context@{ player ->
-                    val profile = PracticeProfileService.find(player)
-                        ?: return@context
-
-                    EditorKitSelectionMenu(profile).openMenu(player)
-                    Button.playNeutral(player)
-                }
-            }
-        )
-
-        idlePreset.addSlot(
-            8,
-            StaticHotbarPresetEntry(
-                ItemBuilder(Material.REDSTONE_COMPARATOR)
-                    .name("${CC.D_PURPLE}Settings ${CC.GRAY}(Right Click)")
-            ).also {
-                it.onClick = { player ->
-                    SettingMenu(player).openMenu(player)
-                    Button.playNeutral(player)
-                }
-            }
-        )
+        idlePreset.addSlot(2, kitEditor)
+        idlePreset.addSlot(8, settings)
 
         HotbarPresetHandler.startTrackingHotbar("idle", idlePreset)
         hotbarCache[PlayerState.Idle] = idlePreset
@@ -355,21 +352,7 @@ object LobbyHotbarService
             }
         )
 
-        inQueuePreset.addSlot(
-            0,
-            StaticHotbarPresetEntry(
-                ItemBuilder(Material.BOOK)
-                    .name("${CC.D_AQUA}Kit Editor ${CC.GRAY}(Right Click)")
-            ).also {
-                it.onClick = scope@{ player ->
-                    val profile = PracticeProfileService.find(player)
-                        ?: return@scope
-
-                    EditorKitSelectionMenu(profile).openMenu(player)
-                    Button.playNeutral(player)
-                }
-            }
-        )
+        inQueuePreset.addSlot(0, kitEditor)
 
         HotbarPresetHandler.startTrackingHotbar("inQueue", inQueuePreset)
         hotbarCache[PlayerState.InQueue] = inQueuePreset
@@ -395,6 +378,9 @@ object LobbyHotbarService
                 }
             }
         )
+
+        inPartyPreset.addSlot(7, kitEditor)
+        inPartyPreset.addSlot(6, settings)
 
         HotbarPresetHandler.startTrackingHotbar("inParty", inPartyPreset)
         hotbarCache[PlayerState.InParty] = inPartyPreset

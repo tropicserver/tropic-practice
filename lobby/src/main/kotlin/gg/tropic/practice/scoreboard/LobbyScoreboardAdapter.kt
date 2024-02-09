@@ -3,7 +3,9 @@ package gg.tropic.practice.scoreboard
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
+import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.player.LobbyPlayerService
+import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.player.formattedDomain
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.services.ScoreboardTitleService
@@ -64,6 +66,21 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                     .formattedDomain()
 
                 board += "${CC.WHITE}ELO Range: ${CC.PRI}$domain"
+            }
+        } else if (profile.isInParty())
+        {
+            board += ""
+            board += "${CC.PRI}Party:"
+
+            with(profile.partyOf().delegate) {
+                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Leader: ${CC.PRI}${
+                    leader.uniqueId.username()
+                }"
+                board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Members: ${CC.PRI}${
+                    "${members.size}/${
+                        if (limit == -1) "${CC.B}∞" else "$limit"
+                    }"
+                }"
             }
         } else
         {

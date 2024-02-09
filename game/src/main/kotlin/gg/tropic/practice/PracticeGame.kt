@@ -27,6 +27,7 @@ import org.bukkit.Bukkit
     PluginDependency("SlimeWorldManager"),
     PluginDependency("CoreGameExtensions"),
     PluginDependency("ScBasics"),
+    PluginDependency("Parties"),
     PluginDependency("cloudsync", soft = true),
     PluginDependency("Friends", soft = true),
     PluginDependency("ScStaff", soft = true),
