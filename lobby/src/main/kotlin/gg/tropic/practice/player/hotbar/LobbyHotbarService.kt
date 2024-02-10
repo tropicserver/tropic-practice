@@ -8,10 +8,10 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.hotbar.HotbarPreset
 import gg.scala.lemon.hotbar.HotbarPresetHandler
+import gg.scala.lemon.hotbar.entry.impl.DynamicHotbarPresetEntry
 import gg.scala.lemon.hotbar.entry.impl.StaticHotbarPresetEntry
 import gg.scala.lemon.redirection.expectation.PlayerJoinWithExpectationEvent
 import gg.scala.lemon.util.QuickAccess.username
-import gg.scala.parties.command.PartyCommand
 import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.configuration.PracticeConfigurationService
@@ -21,6 +21,7 @@ import gg.tropic.practice.menu.JoinQueueMenu
 import gg.tropic.practice.menu.LeaderboardsMenu
 import gg.tropic.practice.menu.PlayerMainMenu
 import gg.tropic.practice.menu.editor.EditorKitSelectionMenu
+import gg.tropic.practice.menu.party.PartyPlayGameSelectMenu
 import gg.tropic.practice.menu.pipeline.DuelRequestPipeline
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
@@ -138,9 +139,11 @@ object LobbyHotbarService
                     loginTasks.getOrPut(it.uniqueId, ::mutableListOf) += { player ->
                         val rematchItem = ItemBuilder
                             .of(Material.PAPER)
-                            .name("${CC.D_GREEN}Rematch ${
-                                UUID.fromString(rematchTargetID).username()
-                            } ${CC.GRAY}(Right Click)")
+                            .name(
+                                "${CC.D_GREEN}Rematch ${
+                                    UUID.fromString(rematchTargetID).username()
+                                } ${CC.GRAY}(Right Click)"
+                            )
                             .build()
 
                         val terminable = CompositeTerminable.create()
@@ -312,6 +315,15 @@ object LobbyHotbarService
                         lobbyPlayer.state = PlayerState.InParty
                         lobbyPlayer.maintainStateTimeout = System.currentTimeMillis() + 1000L
                     }
+
+                    Schedulers.sync()
+                        .runLater({
+                            if (player.isOnline && lobbyPlayer.state == PlayerState.InParty)
+                            {
+                                get(PlayerState.InParty)
+                                    .applyToPlayer(player)
+                            }
+                        }, 10L)
                 }
             }
         )
@@ -375,6 +387,72 @@ object LobbyHotbarService
                         lobbyPlayer.state = PlayerState.Idle
                         lobbyPlayer.maintainStateTimeout = System.currentTimeMillis() + 1000L
                     }
+                }
+            }
+        )
+
+        fun playerIsLeader(player: Player): Boolean
+        {
+            val lobbyPlayer = LobbyPlayerService.find(player)
+                ?: return false
+
+            if (!lobbyPlayer.isInParty())
+            {
+                return false
+            }
+
+            return lobbyPlayer.partyOf().delegate
+                .leader.uniqueId == player.uniqueId
+        }
+
+        inPartyPreset.addSlot(
+            0,
+            DynamicHotbarPresetEntry().also {
+                it.onBuild = scope@{ player ->
+                    if (!playerIsLeader(player))
+                    {
+                        return@scope ItemStack(Material.AIR)
+                    }
+
+                    return@scope ItemBuilder
+                        .of(Material.BEACON)
+                        .name("${CC.GOLD}Configure Party ${CC.GRAY}(Right Click)")
+                        .build()
+                }
+
+                it.onClick = scope@{ player ->
+                    if (!playerIsLeader(player))
+                    {
+                        return@scope
+                    }
+
+                    player.performCommand("party manage")
+                }
+            }
+        )
+
+        inPartyPreset.addSlot(
+            4,
+            DynamicHotbarPresetEntry().also {
+                it.onBuild = scope@{ player ->
+                    if (!playerIsLeader(player))
+                    {
+                        return@scope ItemStack(Material.AIR)
+                    }
+
+                    return@scope ItemBuilder
+                        .of(XMaterial.LIME_DYE)
+                        .name("${CC.B_GREEN}Party Play ${CC.GRAY}(Right Click)")
+                        .build()
+                }
+
+                it.onClick = scope@{ player ->
+                    if (!playerIsLeader(player))
+                    {
+                        return@scope
+                    }
+
+                    PartyPlayGameSelectMenu().openMenu(player)
                 }
             }
         )

@@ -416,6 +416,34 @@ object GameQueueManager
                     }
             }
 
+            listen("create-match") {
+                val config = retrieve<GameExpectation>("config")
+                val mapID = retrieveNullable<String>("map")
+                val kitID = retrieve<String>("kit")
+                val region = retrieve<Region>("region")
+
+                val kit = KitDataSync.cached().kits[kitID]
+                    ?: return@listen
+
+                // we need to do the check again, so why not
+                val map = if (mapID == null)
+                {
+                    MapDataSync
+                        .selectRandomMapCompatibleWith(kit)
+                } else
+                {
+                    MapDataSync.cached().maps[mapID]
+                } ?: return@listen
+
+                prepareGameFor(
+                    map = map,
+                    expectation = config,
+                    region = region
+                ) {
+
+                }
+            }
+
             listen("request-duel") {
                 val request = retrieve<DuelRequest>("request")
                 val key = "tropicpractice:duelrequests:${request.requester}:${request.kitID}"

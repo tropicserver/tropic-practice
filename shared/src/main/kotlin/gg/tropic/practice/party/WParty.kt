@@ -1,6 +1,8 @@
 package gg.tropic.practice.party
 
+import gg.scala.lemon.util.QuickAccess
 import gg.scala.parties.model.Party
+import java.util.concurrent.CompletableFuture
 
 /**
  * @author GrowlyX
@@ -14,5 +16,12 @@ data class WParty(var delegate: Party)
     }
 
     fun isInParty() = delegate
-    fun allPlayersOnline() = Unit
+    fun onlinePracticePlayersInLobby() = CompletableFuture.supplyAsync {
+        delegate.includedMembers()
+            .associateWith { QuickAccess.server(it).join() }
+            .filter {
+                it.value?.groups
+                    ?.contains("miplobbyDEV") == true
+            }
+    }
 }
