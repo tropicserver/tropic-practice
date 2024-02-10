@@ -15,14 +15,18 @@ import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.map.ImmutableMap
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.gameGroup
 import gg.tropic.practice.games.duels.DuelRequest
 import gg.tropic.practice.games.spectate.SpectateRequest
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.games.GameReference
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.lobbyGroup
+import gg.tropic.practice.namespace
 import gg.tropic.practice.region.Region
 import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.serializable.Message
+import gg.tropic.practice.suffixWhenDev
 import gg.tropic.practice.utilities.PingFormatter
 import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
@@ -57,10 +61,10 @@ object GameQueueManager
 
     fun queueSizeFromId(id: String) = dpsRedisCache
         .sync()
-        .llen("tropicpractice:queues:$id:queue")
+        .llen("${namespace().suffixWhenDev()}:queues:$id:queue")
 
     fun getQueueEntriesFromId(id: String) = dpsRedisCache.sync()
-        .hgetall("tropicpractice:queues:$id:entries")
+        .hgetall("${namespace().suffixWhenDev()}:queues:$id:entries")
         .mapValues {
             Serializers.gson.fromJson(
                 it.value,
@@ -70,16 +74,16 @@ object GameQueueManager
 
     fun removeQueueEntryFromId(id: String, entry: UUID) = dpsRedisCache
         .sync()
-        .lrem("tropicpractice:queues:$id:queue", 1, entry.toString())
+        .lrem("${namespace().suffixWhenDev()}:queues:$id:queue", 1, entry.toString())
 
     fun popQueueEntryFromId(id: String, amount: Int) = dpsRedisCache
         .sync()
-        .lpop("tropicpractice:queues:$id:queue", amount.toLong())
+        .lpop("${namespace().suffixWhenDev()}:queues:$id:queue", amount.toLong())
         .map {
             Serializers.gson.fromJson(
                 dpsRedisCache.sync()
                     .hget(
-                        "tropicpractice:queues:$id:entries",
+                        "${namespace().suffixWhenDev()}:queues:$id:entries",
                         it
                     ),
                 QueueEntry::class.java
@@ -159,7 +163,7 @@ object GameQueueManager
         // there. if not, we'll take the server with the least player count
         val serverToRequestReplication = availableReplication?.server
             ?: (ServerContainer
-                .getServersInGroupCasted<GameServer>("mipgame")
+                .getServersInGroupCasted<GameServer>(gameGroup().suffixWhenDev())
                 .sortedBy(GameServer::getPlayersCount)
                 .firstOrNull {
                     // ensure server of NEW replication is in the same region
@@ -263,7 +267,7 @@ object GameQueueManager
             "game" to game.uniqueId
         ).publish(
             AwareThreadContext.SYNC,
-            channel = "practice:queue-inhabitants"
+            channel = "practice:queue-inhabitants".suffixWhenDev()
         )
 
         spectateCallbacks.put(requestID, future)
@@ -277,7 +281,7 @@ object GameQueueManager
         .hget("player:$uniqueId", "server")
 
     fun playerIsQueued(uniqueId: UUID) = dpsRedisCache.sync()
-        .hexists("tropicpractice:queue-states", uniqueId.toString())
+        .hexists("${namespace().suffixWhenDev()}:queue-states", uniqueId.toString())
 
     fun load()
     {
@@ -286,7 +290,7 @@ object GameQueueManager
         }
 
         buildAndValidateQueueIndexes()
-        dpsRedisCache.sync().del("tropicpractice:duelrequests:*")
+        dpsRedisCache.sync().del("${namespace().suffixWhenDev()}:duelrequests:*")
 
         Logger.getGlobal().info("Invalidated existing duel requests")
 
@@ -321,7 +325,7 @@ object GameQueueManager
             listen("accept-duel") {
                 val request = retrieve<DuelRequest>("request")
 
-                val key = "tropicpractice:duelrequests:${request.requester}:${request.kitID}"
+                val key = "${namespace().suffixWhenDev()}:duelrequests:${request.requester}:${request.kitID}"
                 futureMappings[key]?.cancel(true)
 
                 dpsRedisCache.sync().hdel(key, request.requestee.toString())
@@ -338,7 +342,7 @@ object GameQueueManager
                 val server = playerServerOf(request.requester)
                 val model = ServerContainer.getServer(server)
 
-                if (model == null || "miplobby" !in model.groups)
+                if (model == null || lobbyGroup().suffixWhenDev() !in model.groups)
                 {
                     DPSRedisShared.sendMessage(
                         listOf(request.requestee),
@@ -446,7 +450,7 @@ object GameQueueManager
 
             listen("request-duel") {
                 val request = retrieve<DuelRequest>("request")
-                val key = "tropicpractice:duelrequests:${request.requester}:${request.kitID}"
+                val key = "${namespace().suffixWhenDev()}:duelrequests:${request.requester}:${request.kitID}"
                 dpsRedisCache.sync().hset(
                     key,
                     request.requestee.toString(),
@@ -557,13 +561,13 @@ object GameQueueManager
 
                 queues[queueId]?.apply {
                     dpsRedisCache.sync().hset(
-                        "tropicpractice:queues:$queueId:entries",
+                        "${namespace().suffixWhenDev()}:queues:$queueId:entries",
                         entry.leader.toString(),
                         Serializers.gson.toJson(entry)
                     )
 
                     dpsRedisCache.sync().lpush(
-                        "tropicpractice:queues:$queueId:queue",
+                        "${namespace().suffixWhenDev()}:queues:$queueId:queue",
                         entry.leader.toString()
                     )
 
@@ -578,7 +582,7 @@ object GameQueueManager
                     for (player in entry.players)
                     {
                         dpsRedisCache.sync().hset(
-                            "tropicpractice:queue-states",
+                            "${namespace().suffixWhenDev()}:queue-states",
                             player.toString(),
                             jsonQueueState
                         )
@@ -592,7 +596,7 @@ object GameQueueManager
 
                 queues[queueId]?.apply {
                     dpsRedisCache.sync().lrem(
-                        "tropicpractice:queues:$queueId:queue",
+                        "${namespace().suffixWhenDev()}:queues:$queueId:queue",
                         1,
                         leader.toString()
                     )
@@ -600,7 +604,7 @@ object GameQueueManager
                     val queueEntry = Serializers
                         .gson.fromJson(
                             dpsRedisCache.sync().hget(
-                                "tropicpractice:queues:$queueId:entries",
+                                "${namespace().suffixWhenDev()}:queues:$queueId:entries",
                                 leader.toString()
                             ),
                             QueueEntry::class.java
@@ -615,12 +619,12 @@ object GameQueueManager
     fun destroyQueueStates(queueID: String, entry: QueueEntry)
     {
         dpsRedisCache.sync().hdel(
-            "tropicpractice:queues:$queueID:entries",
+            "${namespace().suffixWhenDev()}:queues:$queueID:entries",
             entry.leader.toString()
         )
 
         dpsRedisCache.sync().hdel(
-            "tropicpractice:queue-states",
+            "${namespace().suffixWhenDev()}:queue-states",
             *entry.players
                 .map { it.toString() }
                 .toTypedArray()

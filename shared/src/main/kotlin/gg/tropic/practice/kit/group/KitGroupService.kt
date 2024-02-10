@@ -6,6 +6,8 @@ import gg.scala.commons.persist.datasync.DataSyncSource
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeShared
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.namespace
+import gg.tropic.practice.suffixWhenDev
 import net.kyori.adventure.key.Key
 
 /**
@@ -19,8 +21,8 @@ object KitGroupService : DataSyncService<KitGroupContainer>()
     {
         override fun newStore() = "mi-practice-kits-groups"
 
-        override fun store() = Key.key(PracticeShared.KEY, "groups")
-        override fun sync() = Key.key(PracticeShared.KEY, "gsync")
+        override fun store() = Key.key(namespace(), "groups")
+        override fun sync() = Key.key(namespace().suffixWhenDev(), "gsync")
     }
 
     override fun locatedIn() = DataSyncSource.Mongo

@@ -14,11 +14,13 @@ import gg.tropic.practice.duel.DuelRequestUtilities
 import gg.tropic.practice.friendship.FriendshipStateSetting
 import gg.tropic.practice.friendship.Friendships
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.lobbyGroup
 import gg.tropic.practice.menu.pipeline.DuelRequestPipeline
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.settings.DuelsSettingCategory
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.util.CC
 
 /**
@@ -75,7 +77,7 @@ object DuelCommands : ScalaCommand()
             "accept-duel",
             "request" to duelRequest
         ).publish(
-            channel = "practice:queue"
+            channel = "practice:queue".suffixWhenDev()
         )
 
         player.sendMessage("${CC.GREEN}Attempting to accept the duel...")
@@ -141,7 +143,7 @@ object DuelCommands : ScalaCommand()
                 "${CC.YELLOW}${it.name}${CC.RED} is not logged onto the network!"
             )
 
-        if ("miplobby" !in server.groups)
+        if (lobbyGroup().suffixWhenDev() !in server.groups)
         {
             throw ConditionFailedException(
                 "${CC.YELLOW}${it.name}${CC.RED} is not on a practice lobby!"

@@ -1,6 +1,8 @@
 package gg.tropic.practice.reports
 
 import gg.tropic.practice.games.GameReport
+import gg.tropic.practice.namespace
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
 import java.util.UUID
@@ -17,7 +19,7 @@ object GameReportService
         return CompletableFuture
             .supplyAsync {
                 ScalaCommonsSpigot.instance.kvConnection.sync()
-                    .get("tropicpractice:snapshots:matches:$matchId")
+                    .get("${namespace().suffixWhenDev()}:snapshots:matches:$matchId")
             }
             .thenApply {
                 Serializers.gson.fromJson(it, GameReport::class.java)
@@ -29,7 +31,7 @@ object GameReportService
         return CompletableFuture
             .supplyAsync {
                 ScalaCommonsSpigot.instance.kvConnection.sync()
-                    .keys("tropicpractice:snapshots:players:$uniqueId:matches:*")
+                    .keys("${namespace().suffixWhenDev()}:snapshots:players:$uniqueId:matches:*")
             }
             .thenApply {
                 it.map { key ->
@@ -41,7 +43,7 @@ object GameReportService
                 it
                     .mapNotNull { uniqueId ->
                         ScalaCommonsSpigot.instance.kvConnection.sync()
-                            .get("tropicpractice:snapshots:matches:$uniqueId")
+                            .get("${namespace().suffixWhenDev()}:snapshots:matches:$uniqueId")
                     }
                     .mapNotNull {
                         kotlin

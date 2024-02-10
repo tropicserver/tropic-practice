@@ -19,6 +19,7 @@ import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.particles.FlightEffectSetting
+import gg.tropic.practice.suffixWhenDev
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
 import me.lucko.helper.utils.Players
@@ -56,7 +57,7 @@ object LobbyPlayerService
 
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:lobbies")
+            .of<AwareMessage>("practice:lobbies".suffixWhenDev())
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()

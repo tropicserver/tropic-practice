@@ -6,6 +6,8 @@ import gg.scala.aware.thread.AwareThreadContext
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.game.GameExpectation
+import gg.tropic.practice.namespace
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.serializers.Serializers
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -18,7 +20,7 @@ import java.util.concurrent.TimeUnit
  */
 object ReplicationManager
 {
-    private val redis = DPSRedisService("replicationmanager-inhibitor")
+    private val redis = DPSRedisService("replicationmanager-inhibitor".suffixWhenDev())
         .apply(DPSRedisService::start)
 
     private val gameInstanceCache = Caffeine.newBuilder()
@@ -48,7 +50,7 @@ object ReplicationManager
     {
         ForkJoinPool.commonPool().submit {
             dpsCache.sync().set(
-                "tropicpractice:replicationmanager:status-indexes",
+                "${namespace().suffixWhenDev()}:replicationmanager:status-indexes",
                 Serializers.gson.toJson(
                     AllServerStatuses(gameInstanceCache.asMap())
                 )
@@ -63,7 +65,7 @@ object ReplicationManager
                 val server = retrieve<String>("server")
                 val status = retrieve<ReplicationStatus>("status")
 
-                val key = "tropicpractice:replicationmanager:status:$server"
+                val key = "${namespace().suffixWhenDev()}:replicationmanager:status:$server"
 
                 dpsCache.sync().psetex(
                     key, 1000 * 2,
@@ -133,7 +135,7 @@ object ReplicationManager
             "server" to server
         ).publish(
             AwareThreadContext.SYNC,
-            channel = "practice:replicationmanager-inhabitants"
+            channel = "practice:replicationmanager-inhabitants".suffixWhenDev()
         )
 
         replicationCallbacks.put(requestID, future)
@@ -162,7 +164,7 @@ object ReplicationManager
             "server" to server
         ).publish(
             AwareThreadContext.SYNC,
-            channel = "practice:replicationmanager-inhabitants"
+            channel = "practice:replicationmanager-inhabitants".suffixWhenDev()
         )
 
         replicationCallbacks.put(requestID, future)

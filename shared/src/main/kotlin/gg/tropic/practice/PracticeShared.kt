@@ -15,8 +15,6 @@ import org.bukkit.potion.PotionEffectType
  */
 object PracticeShared
 {
-    const val KEY = "tropicpractice"
-
     // i don't like this, but we need to do it
     init
     {

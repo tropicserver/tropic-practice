@@ -14,6 +14,7 @@ import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
 import gg.scala.lemon.util.QuickAccess
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.services.GameManagerService
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.util.CC
 import org.bukkit.command.CommandSender
@@ -74,7 +75,7 @@ object TerminateMatchCommand : ScalaCommand()
                         )
                         .publish(
                             AwareThreadContext.SYNC,
-                            channel = "practice:communications"
+                            channel = "practice:communications".suffixWhenDev()
                         )
 
                     player.sendMessage("${CC.GREEN}Sent the match termination request!")

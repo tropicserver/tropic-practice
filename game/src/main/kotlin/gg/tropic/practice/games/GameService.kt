@@ -28,6 +28,7 @@ import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
+import gg.tropic.practice.suffixWhenDev
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap
 import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
@@ -71,7 +72,7 @@ object GameService
 
     private val communicationLayer by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:communications")
+            .of<AwareMessage>("practice:communications".suffixWhenDev())
             .codec(AwareMessageCodec)
             .logger(plugin.logger)
             .build()

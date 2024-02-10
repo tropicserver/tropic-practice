@@ -2,6 +2,7 @@ package gg.tropic.practice
 
 import gg.scala.basics.plugin.settings.SettingMenu
 import gg.scala.commons.ExtendedScalaPlugin
+import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.commons.annotations.container.ContainerEnable
 import gg.scala.commons.core.plugin.*
 import gg.tropic.practice.provider.SettingProvider
@@ -39,6 +40,10 @@ class PracticeLobby : ExtendedScalaPlugin()
     @ContainerEnable
     fun containerEnable()
     {
+        devProvider = {
+            "miplobbyDEV" in ServerSync.getLocalGameServer().groups
+        }
+
         SettingMenu.defaultCategory = "Practice"
         GameManagerService.bindToMetadataService()
     }

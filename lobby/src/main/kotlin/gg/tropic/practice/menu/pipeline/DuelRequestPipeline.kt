@@ -13,6 +13,7 @@ import gg.tropic.practice.menu.template.TemplateMapMenu
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.region.PlayerRegionFromRedisProxy
 import gg.tropic.practice.region.Region
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.Menu
 import net.evilblock.cubed.menu.buttons.TexturedHeadButton
@@ -106,7 +107,7 @@ object DuelRequestPipeline
             "request-duel",
             "request" to request
         ).publish(
-            channel = "practice:queue",
+            channel = "practice:queue".suffixWhenDev(),
             context = AwareThreadContext.SYNC
         )
     }

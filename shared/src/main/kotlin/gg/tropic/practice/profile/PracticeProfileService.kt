@@ -12,6 +12,7 @@ import gg.scala.store.storage.type.DataStoreStorageType
 import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.statistics.KitStatistics
 import gg.tropic.practice.statistics.ranked.RankedKitStatistics
+import gg.tropic.practice.suffixWhenDev
 import org.bukkit.Bukkit
 import java.util.*
 import java.util.concurrent.CompletableFuture
@@ -54,7 +55,7 @@ object PracticeProfileService : ProfileOrchestrator<PracticeProfile>()
 
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:profiles")
+            .of<AwareMessage>("practice:profiles".suffixWhenDev())
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()

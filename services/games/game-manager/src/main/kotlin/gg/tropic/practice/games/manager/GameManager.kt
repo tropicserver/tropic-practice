@@ -5,6 +5,8 @@ import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.games.GameStatus
 import gg.tropic.practice.games.GameStatusIndexes
+import gg.tropic.practice.namespace
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.serializers.Serializers
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ForkJoinPool
@@ -51,7 +53,7 @@ object GameManager
     {
         ForkJoinPool.commonPool().submit {
             dpsCache.sync().set(
-                "tropicpractice:gamemanager:status-indexes",
+                "${namespace().suffixWhenDev()}:gamemanager:status-indexes",
                 Serializers.gson.toJson(
                     GameStatusIndexes(gameListingCache.asMap())
                 )
@@ -66,7 +68,7 @@ object GameManager
                 val server = retrieve<String>("server")
                 val status = retrieve<GameStatus>("status")
 
-                val key = "tropicpractice:gamemanager:status:$server"
+                val key = "${namespace().suffixWhenDev()}:gamemanager:status:$server"
 
                 dpsCache.sync().psetex(
                     key, 1000 * 2,

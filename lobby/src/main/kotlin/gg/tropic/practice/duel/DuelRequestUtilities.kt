@@ -1,11 +1,12 @@
 package gg.tropic.practice.duel
 
-import gg.tropic.practice.PracticeShared
 import gg.tropic.practice.games.duels.DuelRequest
 import gg.tropic.practice.kit.Kit
+import gg.tropic.practice.namespace
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -20,7 +21,7 @@ object DuelRequestUtilities
                 .instance.kvConnection
                 .sync()
                 .hexists(
-                    "${PracticeShared.KEY}:duelrequests:${sender}:${kit.id}",
+                    "${namespace().suffixWhenDev()}:duelrequests:${sender}:${kit.id}",
                     target.toString()
                 )
         }
@@ -31,7 +32,7 @@ object DuelRequestUtilities
                 .instance.kvConnection
                 .sync()
                 .hget(
-                    "${PracticeShared.KEY}:duelrequests:${sender}:${kit.id}",
+                    "${namespace().suffixWhenDev()}:duelrequests:${sender}:${kit.id}",
                     target.toString()
                 )
 

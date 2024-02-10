@@ -13,6 +13,7 @@ import gg.tropic.practice.expectation.GameExpectation
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapService
 import gg.tropic.practice.replications.models.ReplicationStatus
+import gg.tropic.practice.suffixWhenDev
 import me.lucko.helper.Schedulers
 import me.lucko.helper.terminable.composite.CompositeTerminable
 import net.evilblock.cubed.serializers.Serializers
@@ -33,7 +34,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
 
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:replicationmanager-inhabitants")
+            .of<AwareMessage>("practice:replicationmanager-inhabitants".suffixWhenDev())
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()
@@ -54,7 +55,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                         .toJson(statusService())
                 ).publish(
                     context = AwareThreadContext.SYNC,
-                    channel = "practice:replicationmanager-inhibitor"
+                    channel = "practice:replicationmanager-inhibitor".suffixWhenDev()
                 )
             }, 0L, 10L)
             .bindWith(this)
@@ -108,7 +109,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                         )
                     ).publish(
                         AwareThreadContext.SYNC,
-                        channel = "practice:replicationmanager-inhibitor"
+                        channel = "practice:replicationmanager-inhibitor".suffixWhenDev()
                     )
                 }
                 .exceptionally {
@@ -121,7 +122,7 @@ object ReplicationManagerService : CompositeTerminable by CompositeTerminable.cr
                         )
                     ).publish(
                         AwareThreadContext.SYNC,
-                        channel = "practice:replicationmanager-inhibitor"
+                        channel = "practice:replicationmanager-inhibitor".suffixWhenDev()
                     )
                     return@exceptionally null
                 }

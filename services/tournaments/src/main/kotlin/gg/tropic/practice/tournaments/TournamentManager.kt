@@ -2,7 +2,9 @@ package gg.tropic.practice.tournaments
 
 import gg.tropic.practice.application.api.DPSRedisService
 import gg.tropic.practice.application.api.DPSRedisShared
+import gg.tropic.practice.namespace
 import gg.tropic.practice.serializable.Message
+import gg.tropic.practice.suffixWhenDev
 import io.netty.util.internal.ConcurrentSet
 import net.evilblock.cubed.serializers.Serializers
 import org.apache.commons.lang3.time.DurationFormatUtils
@@ -35,7 +37,7 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
 
             DPSRedisShared.keyValueCache.sync()
                 .setex(
-                    "tropicpractice:tournaments:members",
+                    "${namespace().suffixWhenDev()}:tournaments:members",
                     5L,
                     Serializers.gson.toJson(TournamentMemberList(
                         activeTournament!!.memberSet

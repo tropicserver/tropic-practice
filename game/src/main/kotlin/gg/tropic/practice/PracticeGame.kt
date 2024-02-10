@@ -2,6 +2,7 @@ package gg.tropic.practice
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.commons.ExtendedScalaPlugin
+import gg.scala.commons.agnostic.sync.ServerSync
 import gg.scala.commons.annotations.container.ContainerEnable
 import gg.scala.commons.core.plugin.*
 import gg.scala.lemon.channel.ChatChannelService
@@ -43,6 +44,10 @@ class PracticeGame : ExtendedScalaPlugin()
     @ContainerEnable
     fun containerEnable()
     {
+        devProvider = {
+            "mipgameDEV" in ServerSync.getLocalGameServer().groups
+        }
+
         ChatChannelService.default
             .displayToPlayer { player, other ->
                 val chatVisibility = BasicsProfileService.find(other)
@@ -60,7 +65,9 @@ class PracticeGame : ExtendedScalaPlugin()
                 }
             }
 
-        val lobbyRedirector = LeastTrafficServerAggregateHandler("miplobby")
+        val lobbyRedirector = LeastTrafficServerAggregateHandler(
+            lobbyGroup().suffixWhenDev()
+        )
         lobbyRedirector.subscribe()
 
         flavor {

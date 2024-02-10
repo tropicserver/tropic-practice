@@ -21,6 +21,7 @@ import gg.tropic.practice.application.api.DPSRedisShared
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.application.api.defaults.kit.group.KitGroupDataSync
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
+import gg.tropic.practice.devProvider
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.queue.GameQueueManager
 import gg.tropic.practice.replications.manager.ReplicationManager
@@ -31,6 +32,10 @@ import kotlin.system.exitProcess
 
 class ApplicationServerArgs(parser: ArgParser)
 {
+    val dev by parser
+        .storing("--dev", help = "Whether this server is a dev server or not")
+        .default("false")
+
     val redisHost by parser
         .storing(
             "--redishost",
@@ -80,6 +85,10 @@ fun main(args: Array<String>) = mainBody {
         .parseInto {
             ApplicationServerArgs(it)
         }
+
+    devProvider = {
+        parsedArgs.dev == "true"
+    }
 
     AwareHub.configure(
         WrappedAwareUri(

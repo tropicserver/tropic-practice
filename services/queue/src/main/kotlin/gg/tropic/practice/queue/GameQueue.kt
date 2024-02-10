@@ -8,7 +8,9 @@ import gg.tropic.practice.application.api.defaults.game.GameTeamSide
 import gg.tropic.practice.application.api.defaults.kit.ImmutableKit
 import gg.tropic.practice.application.api.defaults.map.MapDataSync
 import gg.tropic.practice.games.manager.GameManager
+import gg.tropic.practice.namespace
 import gg.tropic.practice.region.Region
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.serializers.Serializers
 import java.util.*
 import java.util.concurrent.Executors
@@ -121,7 +123,7 @@ class GameQueue(
             {
                 GameQueueManager.useCache {
                     hset(
-                        "tropicpractice:queues:${queueId()}:entries",
+                        "${namespace().suffixWhenDev()}:queues:${queueId()}:entries",
                         hash, Serializers.gson.toJson(entry)
                     )
                 }
@@ -177,7 +179,7 @@ class GameQueue(
         metadataUpdateThread.scheduleAtFixedRate({
             with(DPSRedisShared.keyValueCache.sync()) {
                 val queueSize = GameQueueManager.queueSizeFromId(queueId())
-                psetex("${PracticeShared.KEY}:metadata:users-queued:${
+                psetex("${namespace().suffixWhenDev()}:metadata:users-queued:${
                     queueId()
                 }", 1000L, queueSize.toString())
 
@@ -188,7 +190,7 @@ class GameQueue(
                     .join()
                 val playersInGame = gamesMatchingQueueID.sumOf { it.players.size }
 
-                psetex("${PracticeShared.KEY}:metadata:users-playing:${
+                psetex("${namespace().suffixWhenDev()}:metadata:users-playing:${
                     queueId()
                 }", 1000L, playersInGame.toString())
             }

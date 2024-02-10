@@ -2,6 +2,8 @@ package gg.tropic.practice.party
 
 import gg.scala.lemon.util.QuickAccess
 import gg.scala.parties.model.Party
+import gg.tropic.practice.lobbyGroup
+import gg.tropic.practice.suffixWhenDev
 import java.util.concurrent.CompletableFuture
 
 /**
@@ -21,7 +23,7 @@ data class WParty(var delegate: Party)
             .associateWith { QuickAccess.server(it).join() }
             .filter {
                 it.value?.groups
-                    ?.contains("miplobbyDEV") == true
+                    ?.contains(lobbyGroup().suffixWhenDev()) == true
             }
     }
 }

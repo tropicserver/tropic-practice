@@ -8,6 +8,8 @@ import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.leaderboards.LeaderboardReferences
 import gg.tropic.practice.leaderboards.Reference
 import gg.tropic.practice.leaderboards.ReferenceLeaderboardType
+import gg.tropic.practice.namespace
+import gg.tropic.practice.suffixWhenDev
 import io.lettuce.core.LettuceFutures
 import net.evilblock.cubed.serializers.Serializers
 import java.util.concurrent.TimeUnit
@@ -101,7 +103,7 @@ object LeaderboardManager : () -> Unit
         val futures = leaderboards.map {
             connection.async()
                 .del(
-                    "tropicpractice:leaderboards:${it.leaderboardId()}:staging"
+                    "${namespace().suffixWhenDev()}:leaderboards:${it.leaderboardId()}:staging"
                 )
         }
 
@@ -121,7 +123,7 @@ object LeaderboardManager : () -> Unit
         )
 
         connection.async().set(
-            "tropicpractice:leaderboards:references",
+            "${namespace().suffixWhenDev()}:leaderboards:references",
             updatedReferences
         )
 
@@ -162,7 +164,7 @@ object LeaderboardManager : () -> Unit
                 if (value != null)
                 {
                     connection.async().zadd(
-                        "tropicpractice:leaderboards:${it.leaderboardId()}:staging",
+                        "${namespace().suffixWhenDev()}:leaderboards:${it.leaderboardId()}:staging",
                         value.toDouble(),
                         profile.identifier.toString()
                     )
@@ -174,8 +176,8 @@ object LeaderboardManager : () -> Unit
 
         val renameFutures = leaderboards.map {
             connection.async().rename(
-                "tropicpractice:leaderboards:${it.leaderboardId()}:staging",
-                "tropicpractice:leaderboards:${it.leaderboardId()}:final"
+                "${namespace().suffixWhenDev()}:leaderboards:${it.leaderboardId()}:staging",
+                "${namespace().suffixWhenDev()}:leaderboards:${it.leaderboardId()}:final"
             )
         }
 

@@ -2,14 +2,12 @@ package gg.tropic.practice.services
 
 import com.google.gson.reflect.TypeToken
 import com.mojang.authlib.GameProfile
-import gg.scala.basics.plugin.tablist.TabListService
 import gg.scala.commons.agnostic.sync.server.ServerContainer
 import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.scala.commons.annotations.commands.customizer.CommandManagerCustomizer
 import gg.scala.commons.command.ScalaCommandManager
 import gg.scala.commons.tablist.TablistPlayer
 import gg.scala.commons.tablist.TablistPopulator
-import gg.scala.commons.tablist.adapter.populator.DefaultPlayersProvider
 import gg.scala.commons.tablist.adapter.populator.PlayerTablistPopulator
 import gg.scala.commons.tablist.adapter.populator.PlayersProvider
 import gg.scala.commons.tablist.manage.TablistManager
@@ -20,17 +18,16 @@ import gg.scala.lemon.command.ListCommand
 import gg.scala.lemon.handler.PlayerHandler
 import gg.scala.lemon.util.QuickAccess
 import gg.tropic.practice.configuration.PracticeConfigurationService
+import gg.tropic.practice.namespace
+import gg.tropic.practice.practiceGroup
+import gg.tropic.practice.suffixWhenDev
 import io.github.nosequel.tab.shared.entry.TabElement
-import io.github.nosequel.tab.shared.entry.TabEntry
 import io.github.nosequel.tab.shared.skin.SkinType
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.nms.MinecraftReflection
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.Bukkit
-import org.bukkit.ChatColor
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import java.util.concurrent.CompletableFuture
 
@@ -119,7 +116,7 @@ object MIPPlayerCache : TablistPopulator
                     }
 
                 cache.sync().hset(
-                    "tropicpractice:player-sync",
+                    "${namespace().suffixWhenDev()}:player-sync",
                     Lemon.instance.settings.id,
                     Serializers.gson.toJson(localModels)
                 )
@@ -134,7 +131,7 @@ object MIPPlayerCache : TablistPopulator
             .async()
             .runRepeating({ _ ->
                 val mappings = cache.sync()
-                    .hgetall("tropicpractice:player-sync")
+                    .hgetall("${namespace().suffixWhenDev()}:player-sync")
                     .let {
                         it
                             .filterKeys { k -> ServerContainer.getServer(k) != null }
@@ -148,7 +145,7 @@ object MIPPlayerCache : TablistPopulator
                 playerIDs = localModelCache.map { it.username }.toSet()
 
                 val maxPlayerCount = ServerContainer
-                    .getServersInGroupCasted<GameServer>("mip")
+                    .getServersInGroupCasted<GameServer>(practiceGroup().suffixWhenDev())
                     .sumOf { it.getMaxPlayers()!! }
 
                 playerList = ListCommand.PlayerList(

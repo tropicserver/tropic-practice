@@ -7,6 +7,8 @@ import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.redirection.impl.VelocityRedirectSystem
+import gg.tropic.practice.lobbyGroup
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.menu.Button
 import net.evilblock.cubed.menu.pagination.PaginatedMenu
 import net.evilblock.cubed.util.CC
@@ -34,7 +36,7 @@ object SwitchLobbyServerCommand : ScalaCommand()
         {
             val buttons = mutableMapOf<Int, Button>()
 
-            getServersInGroup("miplobby")
+            getServersInGroup(lobbyGroup().suffixWhenDev())
                 .sortedBy {
                     extractNumbers(it.id)
                 }

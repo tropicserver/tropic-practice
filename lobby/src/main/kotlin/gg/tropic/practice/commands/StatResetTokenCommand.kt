@@ -11,6 +11,7 @@ import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.lemon.player.wrapper.AsyncLemonPlayer
 import gg.tropic.practice.commands.admin.ResetStatsCommand
+import gg.tropic.practice.namespace
 import gg.tropic.practice.statresets.StatResetTokens
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.util.CC
@@ -35,7 +36,7 @@ object StatResetTokenCommand : ScalaCommand()
             ScalaCommonsSpigot.instance.kvConnection
                 .sync()
                 .hincrby(
-                    "tropicpractice:statreset-tokens:tokens",
+                    "${namespace()}:statreset-tokens:tokens",
                     it.uniqueId.toString(),
                     amount.toLong()
                 )
@@ -82,7 +83,7 @@ object StatResetTokenCommand : ScalaCommand()
         ScalaCommonsSpigot.instance.kvConnection
             .sync()
             .hincrby(
-                "statreset-tokens:tokens",
+                "${namespace()}:statreset-tokens:tokens",
                 player.uniqueId.toString(),
                 -1L
             )

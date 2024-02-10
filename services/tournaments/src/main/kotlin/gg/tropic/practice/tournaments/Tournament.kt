@@ -8,6 +8,7 @@ import gg.tropic.practice.application.api.defaults.game.GameExpectation
 import gg.tropic.practice.application.api.defaults.kit.KitDataSync
 import gg.tropic.practice.games.manager.GameManager
 import gg.tropic.practice.serializable.Message
+import gg.tropic.practice.suffixWhenDev
 import net.md_5.bungee.api.chat.ClickEvent
 import java.util.*
 import java.util.concurrent.ScheduledFuture
@@ -128,7 +129,7 @@ class Tournament(val config: TournamentConfig) : () -> Unit
                 )
                 .publish(
                     AwareThreadContext.ASYNC,
-                    channel = "practice:communications"
+                    channel = "practice:communications".suffixWhenDev()
                 )
         }
 

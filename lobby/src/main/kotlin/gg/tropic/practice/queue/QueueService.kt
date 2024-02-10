@@ -14,6 +14,7 @@ import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.region.PlayerRegionFromRedisProxy
 import gg.tropic.practice.region.Region
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.entity.Player
@@ -28,7 +29,7 @@ object QueueService
 {
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:queue")
+            .of<AwareMessage>("practice:queue".suffixWhenDev())
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()

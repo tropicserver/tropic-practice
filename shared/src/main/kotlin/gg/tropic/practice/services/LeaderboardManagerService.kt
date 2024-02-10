@@ -11,6 +11,8 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.util.QuickAccess
 import gg.tropic.practice.guilds.Guilds
 import gg.tropic.practice.leaderboards.*
+import gg.tropic.practice.namespace
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
@@ -32,7 +34,7 @@ object LeaderboardManagerService
 
     private val redis by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:leaderboards")
+            .of<AwareMessage>("practice:leaderboards".suffixWhenDev())
             .codec(AwareMessageCodec)
             .logger(plugin.logger)
             .build()
@@ -55,7 +57,7 @@ object LeaderboardManagerService
             .thenApplyAsync {
                 kv()
                     .zadd(
-                        "tropicpractice:leaderboards:${reference.id()}:final",
+                        "${namespace().suffixWhenDev()}:leaderboards:${reference.id()}:final",
                         newScore.toDouble(),
                         user.toString()
                     )
@@ -76,7 +78,7 @@ object LeaderboardManagerService
                 {
                     kv()
                         .zrevrangeWithScores(
-                            "tropicpractice:leaderboards:${reference.id()}:final",
+                            "${namespace().suffixWhenDev()}:leaderboards:${reference.id()}:final",
                             nextPosition, nextPosition
                         )
                         .firstOrNull()
@@ -102,7 +104,7 @@ object LeaderboardManagerService
             ScalaCommonsSpigot
                 .instance.kvConnection.sync()
                 .zrevrank(
-                    "tropicpractice:leaderboards:${reference.id()}:final",
+                    "${namespace().suffixWhenDev()}:leaderboards:${reference.id()}:final",
                     user.toString()
                 )
         }.thenApplyAsync {
@@ -111,7 +113,7 @@ object LeaderboardManagerService
 
             it to ScalaCommonsSpigot.instance.kvConnection.sync()
                 .zscore(
-                    "tropicpractice:leaderboards:${reference.id()}:final",
+                    "${namespace().suffixWhenDev()}:leaderboards:${reference.id()}:final",
                     user.toString()
                 ).toLong()
         }
@@ -122,7 +124,7 @@ object LeaderboardManagerService
             Serializers.gson.fromJson(
                 ScalaCommonsSpigot.instance.kvConnection
                     .sync()
-                    .get("tropicpractice:leaderboards:references"),
+                    .get("${namespace().suffixWhenDev()}:leaderboards:references"),
                 LeaderboardReferences::class.java
             )
         }.getOrNull()
@@ -136,7 +138,7 @@ object LeaderboardManagerService
             val scores = ScalaCommonsSpigot.instance.kvConnection
                 .sync()
                 .zrevrangeWithScores(
-                    "tropicpractice:leaderboards:${it.id()}:final",
+                    "${namespace().suffixWhenDev()}:leaderboards:${it.id()}:final",
                     0, 9
                 )
 

@@ -1,5 +1,6 @@
 package gg.tropic.practice.statresets
 
+import gg.tropic.practice.namespace
 import net.evilblock.cubed.ScalaCommonsSpigot
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -15,7 +16,7 @@ object StatResetTokens
             ScalaCommonsSpigot.instance.kvConnection
                 .sync()
                 .hget(
-                    "tropicpractice:statreset-tokens:tokens",
+                    "${namespace()}:statreset-tokens:tokens",
                     user.toString()
                 )
                 ?.toIntOrNull()

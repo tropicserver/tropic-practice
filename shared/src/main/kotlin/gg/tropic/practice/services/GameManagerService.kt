@@ -12,6 +12,8 @@ import gg.scala.flavor.service.Service
 import gg.tropic.practice.PracticeShared
 import gg.tropic.practice.games.GameStatus
 import gg.tropic.practice.games.GameStatusIndexes
+import gg.tropic.practice.namespace
+import gg.tropic.practice.suffixWhenDev
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
@@ -33,7 +35,7 @@ object GameManagerService
 
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:gamemanager")
+            .of<AwareMessage>("practice:gamemanager".suffixWhenDev())
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()
@@ -52,7 +54,7 @@ object GameManagerService
             .kvConnection
             .sync()
             .get(
-                "${PracticeShared.KEY}:metadata:$key:$queueId"
+                "${namespace().suffixWhenDev()}:metadata:$key:$queueId"
             )
             ?.toIntOrNull()
             ?: 0
@@ -122,7 +124,7 @@ object GameManagerService
         .supplyAsync {
             ScalaCommonsSpigot.instance.kvConnection
                 .sync()
-                .get("tropicpractice:gamemanager:status-indexes")
+                .get("${namespace().suffixWhenDev()}:gamemanager:status-indexes")
                 .let {
                     Serializers.gson.fromJson(
                         it, GameStatusIndexes::class.java

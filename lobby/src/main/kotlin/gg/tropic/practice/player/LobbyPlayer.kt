@@ -4,12 +4,14 @@ import gg.scala.commons.issuer.ScalaPlayer
 import gg.scala.parties.service.PartyService
 import gg.tropic.practice.commands.TournamentCommand
 import gg.tropic.practice.kit.KitService
+import gg.tropic.practice.namespace
 import gg.tropic.practice.party.WParty
 import gg.tropic.practice.player.hotbar.LobbyHotbarService
 import gg.tropic.practice.queue.QueueEntry
 import gg.tropic.practice.queue.QueueService
 import gg.tropic.practice.queue.QueueState
 import gg.tropic.practice.services.TournamentManagerService
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
 import org.bukkit.Bukkit
@@ -77,7 +79,7 @@ data class LobbyPlayer(
         queueState = ScalaCommonsSpigot.instance.kvConnection
             .sync()
             .hget(
-                "tropicpractice:queue-states",
+                "${namespace().suffixWhenDev()}:queue-states",
                 uniqueId.toString()
             )
             ?.let {
@@ -175,7 +177,7 @@ data class LobbyPlayer(
         queueEntry = ScalaCommonsSpigot.instance.kvConnection
             .sync()
             .hget(
-                "tropicpractice:queues:$queueId:entries",
+                "${namespace().suffixWhenDev()}:queues:$queueId:entries",
                 uniqueId.toString()
             )
             ?.let {

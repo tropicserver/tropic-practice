@@ -20,7 +20,9 @@ import gg.tropic.practice.PracticeLobby
 import gg.tropic.practice.configuration.PracticeConfigurationService
 import gg.tropic.practice.map.metadata.anonymous.toPosition
 import gg.tropic.practice.player.LobbyPlayerService
+import gg.tropic.practice.practiceGroup
 import gg.tropic.practice.region.Region
+import gg.tropic.practice.suffixWhenDev
 import net.evilblock.cubed.menu.menus.TextEditorMenu
 import net.evilblock.cubed.serializers.Serializers
 import net.evilblock.cubed.util.CC
@@ -56,7 +58,7 @@ object LobbyAdminCommands : ScalaCommand()
         LobbyPlayerService.createMessage("reboot-app")
             .publish(
                 AwareThreadContext.ASYNC,
-                channel = "practice:application"
+                channel = "practice:application".suffixWhenDev()
             )
 
         player.sendMessage("${CC.GREEN}We've requested an application reboot, please wait a moment.")
@@ -76,7 +78,7 @@ object LobbyAdminCommands : ScalaCommand()
             )
             .publish(
                 AwareThreadContext.ASYNC,
-                channel = "practice:queue"
+                channel = "practice:queue".suffixWhenDev()
             )
 
         player.sendMessage(
@@ -90,7 +92,7 @@ object LobbyAdminCommands : ScalaCommand()
     fun onExportPlayerList(player: ScalaPlayer) = CompletableFuture
         .supplyAsync {
             ServerContainer
-                .getServersInGroupCasted<GameServer>("mip")
+                .getServersInGroupCasted<GameServer>(practiceGroup().suffixWhenDev())
                 .flatMap {
                     it.getPlayers()!!
                 }

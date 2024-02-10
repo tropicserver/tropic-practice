@@ -9,6 +9,7 @@ import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.spectate.SpectateRequest
+import gg.tropic.practice.suffixWhenDev
 import java.util.*
 import java.util.logging.Logger
 
@@ -21,7 +22,7 @@ object SpectateRequestService
 {
     private val aware by lazy {
         AwareBuilder
-            .of<AwareMessage>("practice:queue-inhabitants")
+            .of<AwareMessage>("practice:queue-inhabitants".suffixWhenDev())
             .codec(AwareMessageCodec)
             .logger(Logger.getAnonymousLogger())
             .build()
@@ -54,7 +55,7 @@ object SpectateRequestService
                 "requestID" to requestID
             ).publish(
                 AwareThreadContext.SYNC,
-                "practice:queue"
+                "practice:queue".suffixWhenDev()
             )
         }
         aware.connect().toCompletableFuture().join()

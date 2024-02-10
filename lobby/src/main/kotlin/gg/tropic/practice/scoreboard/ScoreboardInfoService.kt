@@ -5,7 +5,11 @@ import gg.scala.commons.agnostic.sync.server.impl.GameServer
 import gg.scala.commons.agnostic.sync.server.region.Region
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
+import gg.tropic.practice.gameGroup
+import gg.tropic.practice.namespace
+import gg.tropic.practice.practiceGroup
 import gg.tropic.practice.services.GameManagerService
+import gg.tropic.practice.suffixWhenDev
 import me.lucko.helper.Schedulers
 import net.evilblock.cubed.ScalaCommonsSpigot
 import net.evilblock.cubed.serializers.Serializers
@@ -56,10 +60,10 @@ object ScoreboardInfoService
             .runRepeating(Runnable {
                 runCatching {
                     val gameServers = ServerContainer
-                        .getServersInGroupCasted<GameServer>("mipgame")
+                        .getServersInGroupCasted<GameServer>(gameGroup().suffixWhenDev())
 
                     val servers = ServerContainer
-                        .getServersInGroupCasted<GameServer>("mip")
+                        .getServersInGroupCasted<GameServer>(practiceGroup().suffixWhenDev())
 
                     val naServersTotalPlayerCount = servers
                         .filter { it.region == Region.NA }
@@ -86,13 +90,13 @@ object ScoreboardInfoService
                             .instance
                             .kvConnection
                             .sync()
-                            .hlen("tropicpractice:queue-states")
+                            .hlen("${namespace().suffixWhenDev()}:queue-states")
                             .toInt(),
                         availableReplications = ScalaCommonsSpigot
                             .instance
                             .kvConnection
                             .sync()
-                            .get("tropicpractice:replicationmanager:status-indexes")
+                            .get("${namespace().suffixWhenDev()}:replicationmanager:status-indexes")
                             .let {
                                 Serializers.gson.fromJson(
                                     it, ReplicationIndexes::class.java
