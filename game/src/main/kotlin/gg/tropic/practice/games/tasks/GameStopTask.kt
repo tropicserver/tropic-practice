@@ -118,7 +118,15 @@ class GameStopTask(
                 game.sendMessage(consolidatedMessage)
             } else
             {
-                this.game.sendMessage(winnerComponent, loserComponent)
+                val consolidatedMessage = Message()
+                consolidatedMessage.components += winnerComponent.components
+                consolidatedMessage.consolidate()
+                game.sendMessage(consolidatedMessage)
+
+                val secondMessage = Message()
+                secondMessage.components += loserComponent.components
+                secondMessage.consolidate()
+                game.sendMessage(secondMessage)
             }
 
             this.game.sendMessage("")
