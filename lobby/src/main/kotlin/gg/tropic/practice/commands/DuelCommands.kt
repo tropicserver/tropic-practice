@@ -104,7 +104,7 @@ object DuelCommands : ScalaCommand()
         if (profile.state != PlayerState.Idle)
         {
             throw ConditionFailedException(
-                "You are not in the right state to accept a duel!"
+                "You cannot send a duel request right now!"
             )
         }
 

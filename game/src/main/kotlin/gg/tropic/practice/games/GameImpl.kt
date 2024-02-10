@@ -459,6 +459,11 @@ class GameImpl(
                     }
                     ?: return mapOf()
 
+                if (expectationModel.queueId == "party")
+                {
+                    return mapOf("was-game-participant" to "true")
+                }
+
                 return mapOf(
                     "rematch-target-id" to target.toString(),
                     "rematch-kit-id" to expectationModel.kitId,

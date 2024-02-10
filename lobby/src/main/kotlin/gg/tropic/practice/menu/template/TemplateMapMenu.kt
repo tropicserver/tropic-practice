@@ -45,6 +45,7 @@ abstract class TemplateMapMenu : PaginatedMenu()
             !it.locked && filterDisplayOfMap(it)
         }
 
+    fun getAvailableMaps() = filteredMaps
     fun ensureMapsAvailable() = filteredMaps.isNotEmpty()
 
     override fun getAllPagesButtons(player: Player): Map<Int, Button>

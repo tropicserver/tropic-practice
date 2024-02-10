@@ -424,7 +424,7 @@ object GameQueueManager
                 val config = retrieve<GameExpectation>("config")
                 val mapID = retrieveNullable<String>("map")
                 val kitID = retrieve<String>("kit")
-                val region = retrieve<Region>("region")
+                val region = Region.valueOf(retrieve<String>("region"))
 
                 val kit = KitDataSync.cached().kits[kitID]
                     ?: return@listen

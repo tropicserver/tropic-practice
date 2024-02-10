@@ -131,7 +131,7 @@ class GameStartTask(
                             ).elo
                         }"
                     }
-            } else
+            }/* else
             {
                 components += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.B_WHITE} Pings:"
 
@@ -143,7 +143,7 @@ class GameStartTask(
                             MinecraftReflection.getPing(it)
                         }ms"
                     }
-            }
+            }*/
 
             components += listOf(
                 "${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}",

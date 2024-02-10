@@ -77,7 +77,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                     leader.uniqueId.username()
                 }"
                 board += "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Members: ${CC.PRI}${
-                    "${members.size}/${
+                    "${includedMembers().size}/${
                         if (limit == -1) "${CC.B}∞" else "$limit"
                     }"
                 }"
