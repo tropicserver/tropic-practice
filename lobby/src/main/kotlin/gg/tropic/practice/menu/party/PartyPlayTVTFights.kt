@@ -53,18 +53,20 @@ class PartyPlayTVTFights(private val onlinePlayerList: List<UUID>) : PaginatedMe
                         CC.B_GREEN else CC.GREEN
                 }${uuid.username()}")
                 .toButton { _, _ ->
-                    Button.playNeutral(player)
                     if (uuid in selectedPlayerList)
                     {
+                        Button.playNeutral(player)
                         selectedPlayerList -= uuid
                     } else
                     {
                         if (selectedPlayerList.size >= onlinePlayerList.size - 1)
                         {
+                            Button.playFail(player)
                             player.sendMessage("${CC.RED}You must leave at least one player for the other team!")
                             return@toButton
                         }
 
+                        Button.playNeutral(player)
                         selectedPlayerList += uuid
                     }
                 }
