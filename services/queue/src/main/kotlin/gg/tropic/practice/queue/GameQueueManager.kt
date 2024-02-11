@@ -610,7 +610,10 @@ object GameQueueManager
                             QueueEntry::class.java
                         )
 
-                    destroyQueueStates(queueId(), queueEntry)
+                    if (queueEntry != null)
+                    {
+                        destroyQueueStates(queueId(), queueEntry)
+                    }
                 }
             }
         }
