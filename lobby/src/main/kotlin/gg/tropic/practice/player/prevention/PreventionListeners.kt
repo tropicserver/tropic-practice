@@ -12,10 +12,7 @@ import net.evilblock.cubed.util.bukkit.ItemUtils
 import org.bukkit.event.Event
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.entity.EntityDamageByBlockEvent
-import org.bukkit.event.entity.EntityDamageByEntityEvent
-import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.entity.FoodLevelChangeEvent
+import org.bukkit.event.entity.*
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.inventory.InventoryMoveItemEvent
@@ -36,6 +33,13 @@ object PreventionListeners
             .subscribe(PlayerInteractEvent::class.java)
             .handler {
                 it.setUseInteractedBlock(Event.Result.DENY)
+            }
+            .bindWith(plugin)
+
+        Events
+            .subscribe(ProjectileLaunchEvent::class.java)
+            .handler {
+                it.isCancelled = true
             }
             .bindWith(plugin)
 
