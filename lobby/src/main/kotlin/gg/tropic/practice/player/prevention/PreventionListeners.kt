@@ -17,13 +17,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.inventory.InventoryDragEvent
 import org.bukkit.event.inventory.InventoryMoveItemEvent
 import org.bukkit.event.inventory.InventoryType
-import org.bukkit.event.player.PlayerBucketEvent
-import org.bukkit.event.player.PlayerDropItemEvent
-import org.bukkit.event.player.PlayerEggThrowEvent
-import org.bukkit.event.player.PlayerFishEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerItemConsumeEvent
-import org.bukkit.event.player.PlayerPickupItemEvent
+import org.bukkit.event.player.*
 
 @Service
 object PreventionListeners
@@ -34,25 +28,29 @@ object PreventionListeners
     @Configure
     fun configure()
     {
-        listOf(
-            PlayerItemConsumeEvent::class,
-            ProjectileLaunchEvent::class,
-            PlayerFishEvent::class,
-            PlayerBucketEvent::class,
-            PlayerLeashEntityEvent::class,
-            PlayerPickupItemEvent::class
-        ).forEach {
-            Events.subscribe(it.java)
-                .handler { event ->
-                    event.isCancelled = true
-                }
-                .bindWith(plugin)
-        }
+        Events.subscribe(PlayerItemConsumeEvent::class.java)
+            .handler { event ->
+                event.isCancelled = true
+            }
+            .bindWith(plugin)
+
+        Events.subscribe(ProjectileLaunchEvent::class.java)
+            .handler { event ->
+                event.isCancelled = true
+            }
+            .bindWith(plugin)
 
         Events
             .subscribe(PlayerInteractEvent::class.java)
             .handler {
                 it.setUseInteractedBlock(Event.Result.DENY)
+            }
+            .bindWith(plugin)
+
+        Events
+            .subscribe(PlayerPickupItemEvent::class.java)
+            .handler {
+                it.isCancelled = true
             }
             .bindWith(plugin)
 
