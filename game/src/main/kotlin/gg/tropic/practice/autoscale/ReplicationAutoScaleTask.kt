@@ -5,7 +5,6 @@ import gg.scala.flavor.inject.Inject
 import gg.scala.flavor.service.Close
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
-import gg.scala.flavor.service.ignore.IgnoreAutoScan
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
@@ -16,7 +15,6 @@ import java.util.logging.Level
  * @since 1/1/2024
  */
 @Service
-@IgnoreAutoScan
 object ReplicationAutoScaleTask : Thread("replication-auto-scale")
 {
     @Inject
@@ -62,7 +60,7 @@ object ReplicationAutoScaleTask : Thread("replication-auto-scale")
             MapReplicationService
                 .generateMapReplications(mappings)
                 .thenAccept {
-                    plugin.logger.info("Generated ${mappings.values.sum()} new map replications.")
+                    plugin.logger.info("Generated ${mappings.values.sum()} new map replications to comply with auto-scale policy of $FLOOR_REQUIRED_FOR_AUTO_SCALE.")
                 }
                 .join()
         }

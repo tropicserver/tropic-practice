@@ -105,7 +105,7 @@ object ReplicationManager
                 value?.complete(
                     ReplicationResult(
                         status = ReplicationResultStatus.Unavailable,
-                        message = "We weren't able to allocate a map for you!"
+                        message = "Expired"
                     )
                 )
             }

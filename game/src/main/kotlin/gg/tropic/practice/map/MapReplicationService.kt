@@ -60,24 +60,6 @@ object MapReplicationService
         loader = slimePlugin.getLoader("mongodb")
         populateSlimeCache()
 
-        if (ServerSync.getLocalGameServer().region == Region.NA)
-        {
-            preGenerateMapReplications().thenRun {
-                plugin.logger.info(
-                    "Generated $TARGET_PRE_GEN_REPLICATIONS map replications for each of the ${
-                        MapService.maps().count()
-                    } available maps. This server currently has ${mapReplications.size} available replications."
-                )
-
-                plugin.flavor().inject(ReplicationAutoScaleTask)
-            }.exceptionally {
-                plugin.logger.log(
-                    Level.SEVERE, "Failed to pre-generate map replications", it
-                )
-                return@exceptionally null
-            }
-        }
-
         fun startIfReady(game: GameImpl): Boolean
         {
             if (
