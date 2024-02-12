@@ -237,12 +237,12 @@ object LobbyPlayerService
                     QueueService.leaveQueue(event.player, true)
                 }
 
-                if (profile.state == PlayerState.InTournament)
+                /*if (profile.state == PlayerState.InTournament)
                 {
                     TournamentCommand.onLeave(
                         ScalaPlayer(event.player, audiences, plugin)
                     )
-                }
+                }*/
 
                 playerCache.remove(event.player.uniqueId)
 

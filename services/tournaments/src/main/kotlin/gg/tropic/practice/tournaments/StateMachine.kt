@@ -129,18 +129,21 @@ sealed class SideEffect : (Tournament) -> Unit
         override fun invoke(tournament: Tournament)
         {
             // TODO: someone make this better please
+            println(tournament.memberSet)
+
             DPSRedisShared.sendBroadcast(
                 Message()
                     .withMessage("&a&lThe tournament has ended!")
                     .withMessage(
                         "&aWinners: &f${
-                            tournament.memberSet.first().players
-                                .joinToString(
+                            tournament.memberSet.firstOrNull()?.players
+                                ?.joinToString(
                                     separator = ", ",
                                     transform = {
                                         ScalaStoreUuidCache.username(it) ?: "??"
                                     }
                                 )
+                                ?: "Someone"
                         }"
                     )
             )

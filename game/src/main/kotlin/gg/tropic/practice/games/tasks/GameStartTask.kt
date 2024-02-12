@@ -96,12 +96,17 @@ class GameStartTask(
                 .map { it.players.size }
                 .joinToString("v")
 
-            val maybePossiblyADuel = game.expectationModel.queueType == null
+            val gameType = when (true)
+            {
+                (game.expectationModel.queueType != null) -> game.expectationModel.queueType!!.name
+                (game.expectationModel.queueId == "tournament") -> "Tournament"
+                (game.expectationModel.queueId == "party") -> "Party"
+                else -> "Private"
+            }
+
             val components = mutableListOf(
                 "",
-                "${CC.PRI}${
-                    if (maybePossiblyADuel) "Private" else game.expectationModel.queueType!!.name
-                } $teamVersus ${game.kit.displayName}:",
+                "${CC.PRI}$gameType $teamVersus ${game.kit.displayName}:",
                 "${CC.GRAY}${Constants.THIN_VERTICAL_LINE}${CC.WHITE} Players: ${CC.PRI}${
                     this.game.teams[GameTeamSide.A]!!.players
                         .joinToString(", ") {

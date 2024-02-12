@@ -44,7 +44,7 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
                             .flatMap(TournamentMember::players)
                     ))
                 )
-        }, 0L, 50L, TimeUnit.MILLISECONDS)
+        }, 0L, 100L, TimeUnit.MILLISECONDS)
 
         redis.configure {
             listen("end") {
