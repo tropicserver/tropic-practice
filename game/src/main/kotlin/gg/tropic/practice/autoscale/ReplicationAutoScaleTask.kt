@@ -8,6 +8,8 @@ import gg.scala.flavor.service.Service
 import gg.tropic.practice.map.Map
 import gg.tropic.practice.map.MapReplicationService
 import gg.tropic.practice.map.MapService
+import me.lucko.helper.Events
+import me.lucko.helper.Schedulers
 import java.util.logging.Level
 
 /**
@@ -27,7 +29,12 @@ object ReplicationAutoScaleTask : Thread("replication-auto-scale")
     fun configure()
     {
         isDaemon = true
-        start()
+
+        // Ensure maps are loaded after the server is completely loaded
+        Schedulers
+            .sync()
+            .runLater(::start, 1L)
+            .bindWith(plugin)
     }
 
     @Close
