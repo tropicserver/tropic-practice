@@ -177,18 +177,15 @@ object GameService
             )
         }
 
-        fun killer(event: PlayerDeathEvent?): Entity?
+        fun Player.killedBy(): Entity?
         {
-            val entityDamageEvent = event
-                ?.entity?.lastDamageCause
-
             if (
-                entityDamageEvent != null &&
-                !entityDamageEvent.isCancelled &&
-                entityDamageEvent is EntityDamageByEntityEvent
+                lastDamageCause != null &&
+                !lastDamageCause.isCancelled &&
+                lastDamageCause is EntityDamageByEntityEvent
             )
             {
-                val damager = entityDamageEvent.damager
+                val damager = (lastDamageCause as EntityDamageByEntityEvent).damager
 
                 if (damager is Projectile)
                 {
@@ -263,8 +260,7 @@ object GameService
 
         data class GameRemovalEvent(
             val drops: MutableList<ItemStack>,
-            val shouldRespawn: Boolean = true,
-            val deathEvent: PlayerDeathEvent? = null
+            val shouldRespawn: Boolean = true
         )
 
         fun Player.gracefullyRemoveFromGame(event: GameRemovalEvent)
@@ -307,7 +303,7 @@ object GameService
                     }
             }
 
-            val killerPlayer = killer(event.deathEvent)
+            val killerPlayer = killedBy()
             val killer = if (killerPlayer !is Player || killerPlayer == this)
             {
                 game.getOpponent(this)
@@ -607,8 +603,7 @@ object GameService
                 it.deathMessage = null
                 it.entity.gracefullyRemoveFromGame(event = GameRemovalEvent(
                     drops = it.drops,
-                    shouldRespawn = true,
-                    deathEvent = it
+                    shouldRespawn = true
                 ))
             }
             .bindWith(plugin)
