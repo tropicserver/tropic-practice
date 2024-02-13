@@ -512,9 +512,9 @@ object GameService
                 if (it.itemDrop.itemStack.type.name.contains("SWORD"))
                 {
                     val amountOfSwordsInInventory = it.player.inventory
-                        .count { stack -> stack.type.name.contains("SWORD") }
+                        .count { stack -> stack != null && stack.type.name.contains("SWORD") }
 
-                    if (amountOfSwordsInInventory == 1)
+                    if (amountOfSwordsInInventory <= 1)
                     {
                         it.isCancelled = true
                         it.player.sendMessage("${CC.RED}You cannot drop your sword!")
