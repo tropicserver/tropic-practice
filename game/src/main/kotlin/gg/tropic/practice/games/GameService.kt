@@ -604,6 +604,7 @@ object GameService
 
         Events.subscribe(PlayerDeathEvent::class.java)
             .handler {
+                it.deathMessage = null
                 it.entity.gracefullyRemoveFromGame(event = GameRemovalEvent(
                     drops = it.drops,
                     shouldRespawn = true,
