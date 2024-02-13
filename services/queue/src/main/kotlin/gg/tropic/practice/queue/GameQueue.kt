@@ -196,6 +196,25 @@ class GameQueue(
             }
         }, 0L, 50L, TimeUnit.MILLISECONDS)
 
+        metadataUpdateThread.scheduleAtFixedRate({
+            GameQueueManager.getQueueEntriesFromId(queueId())
+                .forEach { (t, u) ->
+                    if (System.currentTimeMillis() - u.joinQueueTimestamp >= 60_000L)
+                    {
+                        val isPlayerOnline = DPSRedisShared.keyValueCache.sync()
+                            .hexists(
+                                "player:${u.leader}",
+                                "instance"
+                            )
+
+                        if (!isPlayerOnline)
+                        {
+                            GameQueueManager.removeQueueEntryFromId(queueId(), u.leader)
+                        }
+                    }
+                }
+        }, 0L, 1L, TimeUnit.SECONDS)
+
         Logger.getGlobal()
             .info(
                 "[queue] Built queue with ID: ${queueId()}"
@@ -208,7 +227,6 @@ class GameQueue(
             .getQueueEntriesFromId(queueId())
             .forEach { (_, value) ->
                 GameQueueManager.removeQueueEntryFromId(queueId(), value.leader)
-
                 GameQueueManager.destroyQueueStates(
                     queueID = queueId(),
                     entry = value

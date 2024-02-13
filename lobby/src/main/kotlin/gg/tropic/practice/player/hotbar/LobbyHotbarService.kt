@@ -155,10 +155,11 @@ object LobbyHotbarService
                                     event.item.isSimilar(rematchItem)
                             }
                             .handler {
-                                DuelRequestPipeline.automateDuelRequestNoUI(
+
+                                DuelRequestPipeline.automateDuelRequestWithMapSelectUI(
                                     player = player,
                                     target = UUID.fromString(rematchTargetID!!),
-                                    kit = kit, map = map,
+                                    kit = kit,
                                     region = rematchTargetRegion
                                 )
 

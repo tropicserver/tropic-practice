@@ -112,20 +112,22 @@ object DuelRequestPipeline
         )
     }
 
-    fun automateDuelRequestNoUI(player: Player, target: UUID, kit: Kit, map: Map, region: Region)
+    fun automateDuelRequestWithMapSelectUI(player: Player, target: UUID, kit: Kit, region: Region)
     {
         if (player.hasPermission("practice.duel.select-custom-map"))
         {
-            stage3SendDuelRequest(
+            with(stage2BSendDuelRequestCustomMap(
                 target = target, kit = kit,
-                player = player, map = map,
+                previous = null,
                 selectedRegion = region
-            )
+            )) {
+                openMenu(player)
+            }
         } else
         {
             stage2ASendDuelRequestRandomMap(
-                player = player, target = target,
-                kit = kit,
+                player = player,
+                target = target, kit = kit,
                 selectedRegion = region
             )
         }
@@ -134,7 +136,7 @@ object DuelRequestPipeline
     private fun stage2BSendDuelRequestCustomMap(
         target: UUID,
         kit: Kit,
-        previous: Menu,
+        previous: Menu?,
         // weird initialization issues from parent/super class requires us to pass this through
         kitGroups: Set<String> = KitGroupService.groupsOf(kit)
             .map(KitGroup::id)
@@ -176,6 +178,11 @@ object DuelRequestPipeline
 
         override fun onClose(player: Player, manualClose: Boolean)
         {
+            if (previous == null)
+            {
+                return
+            }
+
             if (manualClose)
             {
                 Tasks.sync { previous.openMenu(player) }
