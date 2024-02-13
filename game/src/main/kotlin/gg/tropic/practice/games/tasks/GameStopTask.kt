@@ -27,6 +27,7 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
+import kotlin.math.abs
 
 /**
  * @author GrowlyX
@@ -186,7 +187,7 @@ class GameStopTask(
                                         else -> "${CC.RED}${CC.BOLD}▼${CC.RED}"
                                     }
                                 }${
-                                    -(updates.newPosition - updates.oldPosition)
+                                    abs(updates.newPosition - updates.oldPosition)
                                 } ${CC.GRAY}(#${
                                     Numbers.format(updates.oldPosition + 1)
                                 } ${Constants.ARROW_RIGHT}${CC.R}${CC.GRAY} #${
