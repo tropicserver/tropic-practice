@@ -177,6 +177,191 @@ object GameService
             )
         }
 
+        fun killer(event: PlayerDeathEvent?): Entity?
+        {
+            val entityDamageEvent = event
+                ?.entity?.lastDamageCause
+
+            if (
+                entityDamageEvent != null &&
+                !entityDamageEvent.isCancelled &&
+                entityDamageEvent is EntityDamageByEntityEvent
+            )
+            {
+                val damager = entityDamageEvent.damager
+
+                if (damager is Projectile)
+                {
+                    val shooter = damager.shooter
+
+                    if (shooter != null)
+                    {
+                        return shooter as Entity
+                    }
+                }
+
+                return damager
+            }
+
+            return null
+        }
+
+        fun runDeathEffectsFor(
+            player: Player, target: Player, game: GameImpl, gameIsFinished: Boolean
+        )
+        {
+            val killerCosmetic = CosmeticRegistry
+                .getAllEquipped(
+                    KillEffectCosmeticCategory,
+                    player
+                )
+                .randomOrNull()
+                ?: LightningKillEffect
+
+            val killEffectCosmetic = killerCosmetic as KillEffect
+            killEffectCosmetic.applyTo(
+                game.toBukkitPlayers().filterNotNull(),
+                player, target
+            )
+
+            val configuration = killEffectCosmetic.serveConfiguration(player)
+            if (configuration.flight != false && gameIsFinished)
+            {
+                player.allowFlight = true
+                player.isFlying = true
+            }
+
+            target.allowFlight = true
+            target.isFlying = true
+
+            if (configuration.clearInventory != false && gameIsFinished)
+            {
+                game.takeSnapshot(player)
+
+                player.inventory.clear()
+                player.updateInventory()
+            }
+        }
+
+        fun getMessageBundlePhrase(player: Player): String
+        {
+            val bundle = CosmeticRegistry
+                .findRelatedTo(KillMessageBundleCosmeticCategory)
+                .filter { like ->
+                    like.equipped(player)
+                }
+                .filterIsInstance<MessageBundle>()
+                .flatMap { bundle -> bundle.phrases }
+
+            if (bundle.isEmpty())
+            {
+                return "slain"
+            }
+
+            return "${CC.GOLD}${bundle.random()}${CC.GRAY}"
+        }
+
+        data class GameRemovalEvent(
+            val drops: MutableList<ItemStack>,
+            val shouldRespawn: Boolean = true,
+            val deathEvent: PlayerDeathEvent? = null
+        )
+
+        fun Player.gracefullyRemoveFromGame(event: GameRemovalEvent)
+        {
+            val game = byPlayer(this)
+                ?: return kotlin.run {
+                    event.drops.clear()
+                }
+
+            game.takeSnapshot(this)
+
+            health = maxHealth
+            foodLevel = 20
+            saturation = 20.0F
+
+            if (event.shouldRespawn)
+            {
+                spigot().respawn()
+            }
+
+            setMetadata(
+                "spectator", FixedMetadataValue(plugin, true)
+            )
+
+            event.drops.removeIf { stack ->
+                stack.type == Material.POTION || stack.type == Material.BOWL
+            }
+
+            val team = game.getTeamOf(this)
+            val noAlive = if (team.players.size > 1)
+                team.nonSpectators().isEmpty() else true
+
+            if (!noAlive)
+            {
+                game.toBukkitPlayers()
+                    .filterNotNull()
+                    .forEach { other ->
+                        VisibilityHandler.update(other)
+                        NametagHandler.reloadPlayer(this, other)
+                    }
+            }
+
+            val killerPlayer = killer(event.deathEvent)
+            val killer = if (killerPlayer !is Player || killerPlayer == this)
+            {
+                game.getOpponent(this)
+            } else
+            {
+                game.getTeamOf(killerPlayer)
+            }
+
+            if (killerPlayer is Player)
+            {
+                runDeathEffectsFor(killerPlayer, this, game, noAlive)
+            }
+
+            game.sendMessage(
+                "${CC.RED}$name${CC.GRAY} was ${
+                    if (killerPlayer == null || killerPlayer == this) "killed" else "${
+                        getMessageBundlePhrase(killerPlayer as Player)
+                    } by ${CC.GREEN}${killerPlayer.name}${CC.GRAY}"
+                }!"
+            )
+
+            if (killerPlayer is Player)
+            {
+                with(PracticeProfileService.find(killerPlayer)) {
+                    if (this != null)
+                    {
+                        useKitStatistics(game) {
+                            kills += 1
+                        }
+
+                        globalStatistics.userKilledOpponent().apply()
+                        save()
+                    }
+                }
+            }
+
+            with(PracticeProfileService.find(this)) {
+                if (this != null)
+                {
+                    useKitStatistics(game) {
+                        deaths += 1
+                    }
+
+                    globalStatistics.userWasKilled().apply()
+                    save()
+                }
+            }
+
+            if (noAlive)
+            {
+                game.complete(killer)
+            }
+        }
+
         Events
             .subscribe(PlayerItemConsumeEvent::class.java)
             .handler {
@@ -212,58 +397,6 @@ object GameService
             }
 
             player.addPotionEffect(effect)
-        }
-
-        fun runDeathEffectsFor(
-            player: Player, target: Player, game: GameImpl, gameIsFinished: Boolean
-        )
-        {
-            val killerCosmetic = CosmeticRegistry
-                .getAllEquipped(
-                    KillEffectCosmeticCategory,
-                    player
-                )
-                .randomOrNull()
-                ?: LightningKillEffect
-
-            val killEffectCosmetic = killerCosmetic as KillEffect
-            killEffectCosmetic.applyTo(
-                game.toBukkitPlayers().filterNotNull(),
-                player, target
-            )
-
-            val configuration = killEffectCosmetic.serveConfiguration(player)
-            if (configuration.flight != false)
-            {
-                player.allowFlight = true
-                player.isFlying = true
-            }
-
-            if (configuration.clearInventory != false && gameIsFinished)
-            {
-                game.takeSnapshot(player)
-
-                player.inventory.clear()
-                player.updateInventory()
-            }
-        }
-
-        fun getMessageBundlePhrase(player: Player): String
-        {
-            val bundle = CosmeticRegistry
-                .findRelatedTo(KillMessageBundleCosmeticCategory)
-                .filter { like ->
-                    like.equipped(player)
-                }
-                .filterIsInstance<MessageBundle>()
-                .flatMap { bundle -> bundle.phrases }
-
-            if (bundle.isEmpty())
-            {
-                return "slain"
-            }
-
-            return "${CC.GOLD}${bundle.random()}${CC.GRAY}"
         }
 
         Events
@@ -411,47 +544,15 @@ object GameService
 
                 if (game.ensurePlaying())
                 {
-                    fun completeGameArbitraryKiller()
-                    {
-                        val previousDamager = it.player.lastDamageCause
-                        if (previousDamager is EntityDamageByEntityEvent)
-                        {
-                            if (previousDamager.damager is Player)
-                            {
-                                val team = game.getTeamOf(it.player)
-                                val noAlive = if (team.players.size > 1)
-                                    team.nonSpectators().isEmpty() else true
-                                runDeathEffectsFor(
-                                    previousDamager.damager as Player,
-                                    it.player, game, noAlive
-                                )
-
-                                game.sendMessage(
-                                    "${CC.RED}${it.player.name}${CC.GRAY} was ${
-                                        "${
-                                            getMessageBundlePhrase(previousDamager.damager as Player)
-                                        } by ${CC.GREEN}${previousDamager.damager.name}${CC.GRAY}"
-                                    }!"
-                                )
-                            }
-                        } else
-                        {
-                            game.sendMessage(
-                                "${CC.RED}${it.player.name}${CC.GRAY} was killed!"
-                            )
-                        }
-
-                        game.complete(
-                            game.getOpponent(it.player)
-                        )
-                    }
-
                     if (
                         game.flag(FeatureFlag.DeathOnLiquidInteraction) &&
                         it.to.block.isLiquid
                     )
                     {
-                        completeGameArbitraryKiller()
+                        it.player.gracefullyRemoveFromGame(event = GameRemovalEvent(
+                            drops = mutableListOf(),
+                            shouldRespawn = false
+                        ))
                         return@handler
                     }
 
@@ -463,7 +564,10 @@ object GameService
 
                     if (yAxis != null && it.to.y < yAxis)
                     {
-                        completeGameArbitraryKiller()
+                        it.player.gracefullyRemoveFromGame(event = GameRemovalEvent(
+                            drops = mutableListOf(),
+                            shouldRespawn = false
+                        ))
                         return@handler
                     }
 
@@ -479,35 +583,6 @@ object GameService
                 }
             }
             .bindWith(plugin)
-
-        fun killer(event: PlayerDeathEvent): Entity?
-        {
-            val entityDamageEvent = event
-                .entity.lastDamageCause
-
-            if (
-                entityDamageEvent != null &&
-                !entityDamageEvent.isCancelled &&
-                entityDamageEvent is EntityDamageByEntityEvent
-            )
-            {
-                val damager = entityDamageEvent.damager
-
-                if (damager is Projectile)
-                {
-                    val shooter = damager.shooter
-
-                    if (shooter != null)
-                    {
-                        return shooter as Entity
-                    }
-                }
-
-                return damager
-            }
-
-            return null
-        }
 
         Events.subscribe(FoodLevelChangeEvent::class.java)
             .handler {
@@ -529,94 +604,11 @@ object GameService
 
         Events.subscribe(PlayerDeathEvent::class.java)
             .handler {
-                val game = byPlayer(it.entity)
-                    ?: return@handler kotlin.run {
-                        it.drops.clear()
-                    }
-
-                game.takeSnapshot(it.entity)
-                it.deathMessage = null
-
-                it.entity.health = it.entity.maxHealth
-                it.entity.foodLevel = 20
-                it.entity.saturation = 20.0F
-
-                it.entity.spigot().respawn()
-                it.entity.setMetadata(
-                    "spectator", FixedMetadataValue(plugin, true)
-                )
-
-                it.drops.removeIf { stack ->
-                    stack.type == Material.POTION || stack.type == Material.BOWL
-                }
-
-                val team = game.getTeamOf(it.entity)
-                val noAlive = if (team.players.size > 1)
-                    team.nonSpectators().isEmpty() else true
-
-                if (!noAlive)
-                {
-                    game.toBukkitPlayers()
-                        .filterNotNull()
-                        .forEach { other ->
-                            VisibilityHandler.update(other)
-                            NametagHandler.reloadPlayer(it.entity, other)
-                        }
-                }
-
-                val killerPlayer = killer(it)
-                val killer = if (killerPlayer !is Player || killerPlayer == it.entity)
-                {
-                    game.getOpponent(it.entity)
-                } else
-                {
-                    game.getTeamOf(killerPlayer)
-                }
-
-                if (killerPlayer is Player)
-                {
-                    runDeathEffectsFor(killerPlayer, it.entity, game, noAlive)
-                }
-
-                game.sendMessage(
-                    "${CC.RED}${it.entity.name}${CC.GRAY} was ${
-                        if (killerPlayer == null || killerPlayer == it.entity) "killed" else "${
-                            getMessageBundlePhrase(killerPlayer as Player)
-                        } by ${CC.GREEN}${killerPlayer.name}${CC.GRAY}"
-                    }!"
-                )
-
-                if (killerPlayer is Player)
-                {
-                    with(PracticeProfileService.find(killerPlayer)) {
-                        if (this != null)
-                        {
-                            useKitStatistics(game) {
-                                kills += 1
-                            }
-
-                            globalStatistics.userKilledOpponent().apply()
-                            save()
-                        }
-                    }
-                }
-
-                with(PracticeProfileService.find(it.entity)) {
-                    if (this != null)
-                    {
-                        useKitStatistics(game) {
-                            deaths += 1
-                        }
-
-                        globalStatistics.userWasKilled().apply()
-                        save()
-                    }
-                }
-
-                if (noAlive)
-                {
-                    game.complete(killer)
-                }
+                it.entity.gracefullyRemoveFromGame(event = GameRemovalEvent(
+                    drops = it.drops,
+                    shouldRespawn = true,
+                    deathEvent = it
+                ))
             }
             .bindWith(plugin)
 

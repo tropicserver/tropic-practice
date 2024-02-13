@@ -212,9 +212,9 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                                     ""
                                 else
                                     if (hitsDiff > 0)
-                                        "${CC.GREEN}(+$hitsDiff)"
+                                        " ${CC.GREEN}(+$hitsDiff)"
                                     else
-                                        "${CC.RED}($hitsDiff)"
+                                        " ${CC.RED}($hitsDiff)"
                             }"
 
                             board += "${CC.RED}Opponent:"
