@@ -53,6 +53,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import org.bukkit.scoreboard.Objective
 import java.util.*
 import kotlin.math.ceil
 import kotlin.math.min
@@ -275,6 +276,12 @@ object GameService
             health = maxHealth
             foodLevel = 20
             saturation = 20.0F
+
+            scoreboard
+                .getObjective("commonsHealth")
+                ?.apply {
+                    displaySlot = null
+                }
 
             if (event.shouldRespawn)
             {

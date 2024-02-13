@@ -179,7 +179,9 @@ class GameStopTask(
                             player.sendMessage(" ${CC.PRI}Leaderboards:")
                             player.sendMessage(
                                 " ${CC.GRAY}${Constants.THIN_VERTICAL_LINE} ${CC.SEC}Moved: ${
-                                    if (updates.newPosition < updates.oldPosition) CC.GREEN else CC.RED
+                                    if (updates.newPosition < updates.oldPosition) 
+                                        "${CC.GREEN}${CC.BOLD}▲${CC.GREEN}" else
+                                            "${CC.RED}${CC.BOLD}▼${CC.RED}"
                                 }${
                                     -(updates.newPosition - updates.oldPosition)
                                 } ${CC.GRAY}(#${

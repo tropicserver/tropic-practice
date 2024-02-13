@@ -1,7 +1,5 @@
 package gg.tropic.practice.kit.feature
 
-import org.bukkit.entity.EntityType
-
 /**
  * @author GrowlyX
  * @since 9/17/2023
