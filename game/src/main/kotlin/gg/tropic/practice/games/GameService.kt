@@ -551,6 +551,11 @@ object GameService
                 val game = byPlayer(it.player)
                     ?: return@handler
 
+                if (it.player.hasMetadata("spectator"))
+                {
+                    return@handler
+                }
+
                 if (game.ensurePlaying())
                 {
                     if (
