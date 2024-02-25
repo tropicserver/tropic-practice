@@ -146,7 +146,7 @@ class GameImpl(
                 extraInformation = extraInformation
             )
 
-            sendInfoToTournamentService(losers = toPlayers())
+            sendInfoToTournamentService(losers = listOf())
         } else
         {
             this.toBukkitPlayers()
@@ -459,7 +459,7 @@ class GameImpl(
                     }
                     ?: return mapOf()
 
-                if (expectationModel.queueId == "party")
+                if (expectationModel.queueId == "party" || expectationModel.queueId == "tournament")
                 {
                     return mapOf("was-game-participant" to "true")
                 }

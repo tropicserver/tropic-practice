@@ -75,6 +75,11 @@ object TournamentManager : ScheduledExecutorService by Executors.newScheduledThr
                 }
 
                 val losers = retrieve<List<String>>("losers").toSet()
+                if (losers.isEmpty())
+                {
+                    return@listen
+                }
+
                 activeTournament!!.currentRoundLosers += losers
                     .map {
                         UUID.fromString(it)
