@@ -35,10 +35,10 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             ?: return
         val layout: ScoreboardStyle = layout(player)
 
-        if (layout == ScoreboardStyle.Default) {
-            board += ""
+        board += if (layout == ScoreboardStyle.Default) {
+            ""
         } else {
-            board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
+            CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
         }
 
         if (player.uniqueId in game.expectedSpectators)
@@ -285,10 +285,9 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             }
         }
 
-
-
         if (layout == ScoreboardStyle.Default) {
             board += ""
+            board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
         } else {
             board += ""
             board += CC.PRI + LemonConstants.WEB_LINK

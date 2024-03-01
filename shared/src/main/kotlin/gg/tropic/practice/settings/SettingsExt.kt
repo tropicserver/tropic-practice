@@ -24,7 +24,7 @@ fun layout(player: Player): ScoreboardStyle
     return BasicsProfileService
         .find(player)
         ?.setting(
-            "${DuelsSettingCategory.DUEL_SETTING_PREFIX}scoreboard-style",
+            "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:scoreboard-style",
             ScoreboardStyle.Default
         )
         ?: ScoreboardStyle.Default

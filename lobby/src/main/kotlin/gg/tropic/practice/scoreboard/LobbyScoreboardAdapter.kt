@@ -35,13 +35,14 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
     {
         val profile = LobbyPlayerService.find(player.uniqueId)
             ?: return
-        val layout: ScoreboardStyle = layout(player)
 
-        if (layout == ScoreboardStyle.Default) {
-            board += ""
+        val layout = layout(player)
+        board += if (layout == ScoreboardStyle.Default) {
+            ""
         } else {
-            board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
+            CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
         }
+
         board += "${CC.WHITE}Online: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.online)
         }"
@@ -159,9 +160,9 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                 }
         }
 
-
         if (layout == ScoreboardStyle.Default) {
             board += ""
+            board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
         } else {
             board += ""
             board += CC.PRI + LemonConstants.WEB_LINK
