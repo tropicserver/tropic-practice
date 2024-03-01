@@ -8,7 +8,6 @@ import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.services.ScoreboardTitleService
-import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.layout
 import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
@@ -36,7 +35,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             ?: return
         val layout: ScoreboardStyle = layout(player)
 
-        if (layout == ScoreboardStyle.DEFAULT) {
+        if (layout == ScoreboardStyle.Default) {
             board += ""
         } else {
             board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
@@ -288,11 +287,11 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
 
 
-        if (layout == ScoreboardStyle.DEFAULT) {
+        if (layout == ScoreboardStyle.Default) {
             board += ""
         } else {
             board += ""
-            board += CC.PRI + LemonConstants.getWEB_LINK()
+            board += CC.PRI + LemonConstants.WEB_LINK
             board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
         }
     }

@@ -1,7 +1,6 @@
 package gg.tropic.practice.settings
 
 import com.cryptomorin.xseries.XMaterial
-import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.SettingCategory
 import gg.scala.basics.plugin.settings.SettingContainer
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
@@ -14,7 +13,6 @@ import gg.tropic.practice.settings.restriction.RangeRestriction
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.visibility.VisibilityHandler
 import org.bukkit.Material
@@ -176,7 +174,7 @@ object DuelsSettingCategory : SettingCategory
             displayName = "Scoreboard Style"
 
             clazz = ScoreboardStyle::class.java
-            default = ScoreboardStyle.DEFAULT
+            default = ScoreboardStyle.Default
 
             description += "Allows you to"
             description += "change your scoreboard style."

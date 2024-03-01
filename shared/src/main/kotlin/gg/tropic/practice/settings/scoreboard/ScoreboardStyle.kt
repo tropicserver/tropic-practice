@@ -8,7 +8,7 @@ import org.bukkit.entity.Player
  * @since 2/29/2024
  */
 enum class ScoreboardStyle : SettingValue {
-    DEFAULT, LEGACY;
+    Default, Legacy;
 
     override val displayName: String
         get() = name.lowercase().capitalize()

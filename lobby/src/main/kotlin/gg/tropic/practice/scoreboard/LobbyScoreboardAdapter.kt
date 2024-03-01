@@ -5,7 +5,6 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.player.LobbyPlayerService
-import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.player.formattedDomain
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.services.ScoreboardTitleService
@@ -38,7 +37,7 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
             ?: return
         val layout: ScoreboardStyle = layout(player)
 
-        if (layout == ScoreboardStyle.DEFAULT) {
+        if (layout == ScoreboardStyle.Default) {
             board += ""
         } else {
             board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
@@ -161,11 +160,11 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         }
 
 
-        if (layout == ScoreboardStyle.DEFAULT) {
+        if (layout == ScoreboardStyle.Default) {
             board += ""
         } else {
             board += ""
-            board += CC.PRI + LemonConstants.getWEB_LINK()
+            board += CC.PRI + LemonConstants.WEB_LINK
             board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
         }
     }
