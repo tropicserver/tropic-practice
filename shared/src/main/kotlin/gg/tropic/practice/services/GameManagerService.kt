@@ -119,6 +119,7 @@ object GameManagerService
             it.values
                 .flatMap(GameStatus::games)
         }
+    // how many libs do we have wtf, its retrying repeatedly on the ones that are failing. I DIDNT SEE OMG
 
     fun allGameStatuses() = CompletableFuture
         .supplyAsync {

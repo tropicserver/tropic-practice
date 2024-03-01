@@ -5,13 +5,15 @@ import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.player.LobbyPlayerService
-import gg.tropic.practice.player.PlayerState
 import gg.tropic.practice.player.formattedDomain
 import gg.tropic.practice.queue.QueueType
+import gg.tropic.practice.region.PlayerRegionFromRedisProxy
 import gg.tropic.practice.services.ScoreboardTitleService
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.isASilentSpectator
+import gg.tropic.practice.settings.layout
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
+import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
@@ -32,9 +34,23 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
 {
     override fun getLines(board: LinkedList<String>, player: Player)
     {
+
+
+        val layout: ScoreboardStyle = layout(player)
         val profile = LobbyPlayerService.find(player.uniqueId)
             ?: return
-        board += ""
+
+        if (layout == ScoreboardStyle.Disabled)
+        {
+            return
+        }
+
+        board += if (layout == ScoreboardStyle.Default) {
+            ""
+        } else {
+            CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
+        }
+
         board += "${CC.WHITE}Online: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.online)
         }"
@@ -152,9 +168,15 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                 }
         }
 
-        board += ""
-        board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
+        if (layout == ScoreboardStyle.Default) {
+            board += ""
+            board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
+        } else {
+            board += ""
+            board += CC.PRI + LemonConstants.WEB_LINK
+            board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
+        }
     }
 
-    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
+    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default) ScoreboardTitleService.getCurrentTitle() else CC.B_PRI + "NA Practice"
 }

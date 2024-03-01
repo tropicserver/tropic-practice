@@ -1,7 +1,6 @@
 package gg.tropic.practice.settings
 
 import com.cryptomorin.xseries.XMaterial
-import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.SettingCategory
 import gg.scala.basics.plugin.settings.SettingContainer
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
@@ -12,8 +11,8 @@ import gg.tropic.practice.friendship.FriendshipStateSetting
 import gg.tropic.practice.settings.particles.FlightEffectSetting
 import gg.tropic.practice.settings.restriction.RangeRestriction
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
+import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
 import net.evilblock.cubed.util.CC
-import net.evilblock.cubed.util.bukkit.Constants
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.visibility.VisibilityHandler
 import org.bukkit.Material
@@ -170,12 +169,29 @@ object DuelsSettingCategory : SettingCategory
 
             item = ItemBuilder.of(XMaterial.POTION)
         },
+        SettingContainer.buildEntry {
+            id = "$DUEL_SETTING_PREFIX:scoreboard-style"
+            displayName = "Scoreboard Style"
+
+            clazz = ScoreboardStyle::class.java
+            default = ScoreboardStyle.Default
+
+            description += "Allows you to"
+            description += "change your scoreboard style."
+
+            displayPredicate = {
+                it.hasPermission("practice.style.donator")
+            }
+
+            item = ItemBuilder.of(Material.BREWING_STAND_ITEM)
+        },
     )
 
     override fun display(player: Player) = true
 
     override val displayName = "Practice"
     override val description = listOf(
-        "Practice settings."
+        "Practice style, privacy, matchmaking,",
+        "perks, and other options."
     )
 }

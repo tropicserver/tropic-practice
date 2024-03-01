@@ -12,6 +12,7 @@ class GameReport(
     val losers: List<UUID>,
     val snapshots: Map<UUID, GameReportSnapshot>,
     val duration: Long,
+    val kit: String,
     val map: String,
     val status: GameReportStatus,
     val matchDate: Date = Date(),

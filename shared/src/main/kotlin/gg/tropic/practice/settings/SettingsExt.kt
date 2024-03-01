@@ -2,6 +2,7 @@ package gg.tropic.practice.settings
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
 import gg.scala.basics.plugin.settings.defaults.values.StateSettingValue
+import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
 import org.bukkit.entity.Player
 
 /**
@@ -16,4 +17,15 @@ fun Player.isASilentSpectator(): Boolean
     return basicsProfile
         .setting<StateSettingValue>("${DuelsSettingCategory.DUEL_SETTING_PREFIX}:silent-spectator") == StateSettingValue.ENABLED
         && hasPermission("practice.silent-spectator")
+}
+
+fun layout(player: Player): ScoreboardStyle
+{
+    return BasicsProfileService
+        .find(player)
+        ?.setting(
+            "${DuelsSettingCategory.DUEL_SETTING_PREFIX}:scoreboard-style",
+            ScoreboardStyle.Default
+        )
+        ?: ScoreboardStyle.Default
 }
