@@ -7,6 +7,7 @@ import gg.scala.lemon.util.QuickAccess.username
 import gg.tropic.practice.player.LobbyPlayerService
 import gg.tropic.practice.player.formattedDomain
 import gg.tropic.practice.queue.QueueType
+import gg.tropic.practice.region.PlayerRegionFromRedisProxy
 import gg.tropic.practice.services.ScoreboardTitleService
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.isASilentSpectator
@@ -170,5 +171,5 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         }
     }
 
-    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
+    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default) ScoreboardTitleService.getCurrentTitle() else CC.PRI + PlayerRegionFromRedisProxy.of(player) + " PRACTICE"
 }

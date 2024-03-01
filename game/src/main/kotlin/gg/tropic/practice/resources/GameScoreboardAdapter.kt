@@ -3,10 +3,12 @@ package gg.tropic.practice.resources
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
+import gg.tropic.practice.commands.RegionCommand
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.region.PlayerRegionFromRedisProxy
 import gg.tropic.practice.services.ScoreboardTitleService
 import gg.tropic.practice.settings.layout
 import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
@@ -295,5 +297,5 @@ object GameScoreboardAdapter : ScoreboardAdapter()
         }
     }
 
-    override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
+    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default) ScoreboardTitleService.getCurrentTitle() else CC.PRI + PlayerRegionFromRedisProxy.of(player) + " PRACTICE"
 }
