@@ -141,6 +141,7 @@ class GameImpl(
                 winners = listOf(), losers = listOf(),
                 snapshots = snapshots,
                 duration = this.durationMillis(),
+                kit = this.kit.displayName,
                 map = this.mapId,
                 status = GameReportStatus.ForcefullyClosed,
                 extraInformation = extraInformation
@@ -270,6 +271,7 @@ class GameImpl(
                 snapshots = snapshots,
                 duration = this.durationMillis(),
                 map = this.mapId,
+                kit = this.kit.displayName,
                 status = GameReportStatus.Completed,
                 extraInformation = extraInformation
             )
