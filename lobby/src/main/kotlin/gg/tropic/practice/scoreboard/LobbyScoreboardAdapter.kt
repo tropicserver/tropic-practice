@@ -171,5 +171,5 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         }
     }
 
-    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default) ScoreboardTitleService.getCurrentTitle() else CC.PRI + "NA Practice"
+    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default) ScoreboardTitleService.getCurrentTitle() else CC.B_PRI + "NA Practice"
 }

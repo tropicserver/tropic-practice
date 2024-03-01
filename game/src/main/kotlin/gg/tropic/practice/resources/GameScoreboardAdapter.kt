@@ -96,8 +96,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                     val opponent = game.getOpponent(player)
                         ?: return
 
-                    board += "${CC.WHITE}The game is starting!"
-                    board += ""
+                    board += "Starting in: ${CC.PRI}${game.activeCountdown}s"
 
                     if (opponent.players.size == 1)
                     {
@@ -120,8 +119,18 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                         board += ""
                     }
+//                    board += "${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}"
+                    board += ""
 
-                    board += "${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}"
+                    val opponentPlayer = opponent.players.first()
+
+                    board += "${CC.WHITE}Your ping: ${CC.GREEN}${MinecraftReflection.getPing(player)}ms"
+                    board += "${CC.WHITE}Their ping: ${CC.RED}${
+                        if (Bukkit.getPlayer(opponentPlayer) != null)
+                            MinecraftReflection.getPing(
+                                Bukkit.getPlayer(opponentPlayer)
+                            ) else "0"
+                    }ms"
                 }
 
                 GameState.Playing ->
@@ -255,22 +264,25 @@ object GameScoreboardAdapter : ScoreboardAdapter()
 
                     if (report != null)
                     {
-                        board += "${CC.WHITE}Winner: ${CC.GREEN}${
+                        board += "${CC.WHITE}Winner:"
+                        board += " ${CC.GREEN}${
                             when (report.winners.size)
                             {
                                 0 -> "N/A"
-                                1 -> report.winners.first().username()
+                                1 -> report.winners.first().username() + CC.GRAY + " (" + MinecraftReflection.getPing(Bukkit.getPlayer(report.winners.first())) + "ms)"
                                 else ->
                                 {
                                     "${report.winners.first().username()}'s Team"
                                 }
                             }
                         }"
-                        board += "${CC.WHITE}Loser: ${CC.RED}${
+
+                        board += "${CC.WHITE}Loser:"
+                        board += " ${CC.RED}${
                             when (report.losers.size)
                             {
                                 0 -> "N/A"
-                                1 -> report.losers.first().username()
+                                1 -> report.losers.first().username() + CC.GRAY + " (" + MinecraftReflection.getPing(Bukkit.getPlayer(report.losers.first())) + "ms)"
                                 else ->
                                 {
                                     "${report.losers.first().username()}'s Team"
@@ -278,7 +290,8 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             }
                         }"
                         board += ""
-                        board += "${CC.WHITE}Thanks for playing!"
+                        board += "Duration: ${CC.PRI}${game.getDuration()}"
+                        board += "Gamemode: ${CC.PRI}${report.kit}"
                     } else
                     {
                         board += "${CC.D_GRAY}Loading game report..."
@@ -298,5 +311,5 @@ object GameScoreboardAdapter : ScoreboardAdapter()
     }
 
     override fun getTitle(player: Player) =
-        if (layout(player) == ScoreboardStyle.Default) ScoreboardTitleService.getCurrentTitle() else CC.PRI + "NA Practice"
+        if (layout(player) == ScoreboardStyle.Default) ScoreboardTitleService.getCurrentTitle() else CC.B_PRI + "NA Practice"
 }
