@@ -8,6 +8,9 @@ import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.services.ScoreboardTitleService
+import gg.tropic.practice.settings.DuelsSettingCategory
+import gg.tropic.practice.settings.layout
+import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
@@ -31,8 +34,13 @@ object GameScoreboardAdapter : ScoreboardAdapter()
         val game = GameService
             .byPlayerOrSpectator(player.uniqueId)
             ?: return
+        val layout: ScoreboardStyle = layout(player)
 
-        board += ""
+        if (layout == ScoreboardStyle.DEFAULT) {
+            board += ""
+        } else {
+            board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
+        }
 
         if (player.uniqueId in game.expectedSpectators)
         {
@@ -278,8 +286,15 @@ object GameScoreboardAdapter : ScoreboardAdapter()
             }
         }
 
-        board += ""
-        board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
+
+
+        if (layout == ScoreboardStyle.DEFAULT) {
+            board += ""
+        } else {
+            board += ""
+            board += CC.PRI + LemonConstants.getWEB_LINK()
+            board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
+        }
     }
 
     override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()

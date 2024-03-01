@@ -11,7 +11,9 @@ import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.services.ScoreboardTitleService
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.settings.isASilentSpectator
+import gg.tropic.practice.settings.layout
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
+import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
@@ -34,7 +36,13 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
     {
         val profile = LobbyPlayerService.find(player.uniqueId)
             ?: return
-        board += ""
+        val layout: ScoreboardStyle = layout(player)
+
+        if (layout == ScoreboardStyle.DEFAULT) {
+            board += ""
+        } else {
+            board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
+        }
         board += "${CC.WHITE}Online: ${CC.PRI}${
             Numbers.format(ScoreboardInfoService.scoreboardInfo.online)
         }"
@@ -152,8 +160,14 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
                 }
         }
 
-        board += ""
-        board += CC.GRAY + LemonConstants.WEB_LINK + "          " + CC.GRAY + "      " + CC.GRAY + "  " + CC.GRAY
+
+        if (layout == ScoreboardStyle.DEFAULT) {
+            board += ""
+        } else {
+            board += ""
+            board += CC.PRI + LemonConstants.getWEB_LINK()
+            board += CC.GRAY + CC.STRIKE_THROUGH.toString() + "------------------"
+        }
     }
 
     override fun getTitle(player: Player) = ScoreboardTitleService.getCurrentTitle()
