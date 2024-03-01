@@ -34,10 +34,17 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
 {
     override fun getLines(board: LinkedList<String>, player: Player)
     {
+
+
+        val layout: ScoreboardStyle = layout(player)
         val profile = LobbyPlayerService.find(player.uniqueId)
             ?: return
 
-        val layout = layout(player)
+        if (layout == ScoreboardStyle.Disabled)
+        {
+            return
+        }
+
         board += if (layout == ScoreboardStyle.Default) {
             ""
         } else {

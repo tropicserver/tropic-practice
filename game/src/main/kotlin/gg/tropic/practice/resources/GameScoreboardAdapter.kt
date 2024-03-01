@@ -3,12 +3,10 @@ package gg.tropic.practice.resources
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
-import gg.tropic.practice.commands.RegionCommand
 import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
-import gg.tropic.practice.region.PlayerRegionFromRedisProxy
 import gg.tropic.practice.services.ScoreboardTitleService
 import gg.tropic.practice.settings.layout
 import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
@@ -32,10 +30,17 @@ object GameScoreboardAdapter : ScoreboardAdapter()
         board: LinkedList<String>, player: Player
     )
     {
+
+        val layout: ScoreboardStyle = layout(player)
+
+        if (layout == ScoreboardStyle.Disabled)
+        {
+            return
+        }
+
         val game = GameService
             .byPlayerOrSpectator(player.uniqueId)
             ?: return
-        val layout: ScoreboardStyle = layout(player)
 
         board += if (layout == ScoreboardStyle.Default) {
             ""
