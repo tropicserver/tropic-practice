@@ -44,7 +44,7 @@ object MapReplicationService
     private lateinit var loader: SlimeLoader
 
     private val readyMaps = mutableMapOf<String, ReadyMapTemplate>()
-    private val mapReplications = CopyOnWriteArrayList<BuiltMapReplication>()
+    internal val mapReplications = CopyOnWriteArrayList<BuiltMapReplication>()
 
     fun removeReplicationMatchingWorld(world: World) = mapReplications
         .removeIf {
