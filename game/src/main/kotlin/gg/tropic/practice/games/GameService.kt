@@ -649,10 +649,13 @@ object GameService
                         ?: return@handler
                     val potion = it.potion.effects.equals(PotionEffectType.HEAL)
 
-                    if (potion) {
-                        counter.increment("totalPots")
-                        counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")
-                    }
+//                    if (potion) {
+//                        counter.increment("totalPots")
+//                        counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")
+//                    }
+
+                    counter.increment("totalPots")
+                    counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")
 
                     val amountHealed = (intensity * (4 shl effect.amplifier) + 0.5)
                     if (shooter.health + amountHealed > shooter.maxHealth)
