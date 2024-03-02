@@ -274,7 +274,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             when (report.winners.size)
                             {
                                 0 -> "N/A"
-                                1 -> report.winners.first().username() + CC.GRAY + " (" + MinecraftReflection.getPing(Bukkit.getPlayer(report.winners.first())) + "ms)"
+                                1 -> report.winners.first().username() + CC.GRAY + (Bukkit.getPlayer(report.winners.first())?.let { " (" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
                                 else ->
                                 {
                                     "${report.winners.first().username()}'s Team"
@@ -287,7 +287,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             when (report.losers.size)
                             {
                                 0 -> "N/A"
-                                1 -> report.losers.first().username() + CC.GRAY + " (" + MinecraftReflection.getPing(Bukkit.getPlayer(report.losers.first())) + "ms)"
+                                1 -> report.losers.first().username() + CC.GRAY + (Bukkit.getPlayer(report.losers.first())?.let { " (" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
                                 else ->
                                 {
                                     "${report.losers.first().username()}'s Team"
