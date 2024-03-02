@@ -138,6 +138,21 @@ object LobbyAdminCommands : ScalaCommand()
     }
 
     @AssignPermission
+    @Subcommand("set blockedhits")
+    @Description("Edit the Blocked Hit cap for Matches.")
+    fun onSetBlockedHits(player: ScalaPlayer, blockedhits: Int)
+    {
+        with(PracticeConfigurationService.cached()) {
+            blockedHitCap = blockedhits
+            PracticeConfigurationService.sync(this)
+        }
+
+        player.sendMessage(
+            "${CC.GREEN}Global Blocked Hits limit has been set to: ${CC.PRI}$blockedhits"
+        )
+    }
+
+    @AssignPermission
     @Subcommand("toggle-ranked-queue")
     @Description("Enable or disable the ability to join ranked queues.")
     fun onToggleRankedQueue(player: ScalaPlayer)

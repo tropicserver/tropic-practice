@@ -21,6 +21,7 @@ data class PracticeConfiguration(
     var rankedQueueEnabled: Boolean = true,
     var enableMIPTabHandler: Boolean? = true,
     var rankedMinimumWinRequirement: Int? = 5,
+    var blockedHitCap: Int? = 10,
     var sampleThresholds: DataSampleThresholds? = DataSampleThresholds()
 )
 {

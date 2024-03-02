@@ -633,6 +633,7 @@ object GameService
                     entity.hasMetadata("spectator")
                 }
 
+
                 val shooter = it.entity.shooter
                 if (shooter is Player)
                 {
@@ -646,9 +647,12 @@ object GameService
                     val effect = it.potion.effects
                         .firstOrNull { effect -> effect.type == PotionEffectType.HEAL }
                         ?: return@handler
+                    val potion = it.potion.effects.equals(PotionEffectType.HEAL)
 
-                    counter.increment("totalPots")
-                    counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")
+                    if (potion) {
+                        counter.increment("totalPots")
+                        counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")
+                    }
 
                     val amountHealed = (intensity * (4 shl effect.amplifier) + 0.5)
                     if (shooter.health + amountHealed > shooter.maxHealth)
