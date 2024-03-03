@@ -70,7 +70,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                 if (bukkitPlayers.size > 1)
                 {
                     bukkitPlayers
-                        .take(3)
+                        .take(2)
                         .forEach {
                             board += "- ${it.format()}"
                         }
@@ -121,10 +121,8 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         {
                             board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
                         }
-
-                        board += ""
                     }
-//                    board += "${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}"
+
                     board += ""
 
                     val opponentPlayer = opponent.players.first()
