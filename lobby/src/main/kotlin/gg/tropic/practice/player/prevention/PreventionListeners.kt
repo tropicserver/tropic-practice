@@ -34,6 +34,18 @@ object PreventionListeners
             }
             .bindWith(plugin)
 
+        Events.subscribe(PlayerBucketEmptyEvent::class.java)
+            .handler { event ->
+                event.isCancelled = true
+            }
+            .bindWith(plugin)
+
+        Events.subscribe(PlayerBucketFillEvent::class.java)
+            .handler { event ->
+                event.isCancelled = true
+            }
+            .bindWith(plugin)
+
         Events.subscribe(ProjectileLaunchEvent::class.java)
             .handler { event ->
                 event.isCancelled = true
