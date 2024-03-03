@@ -23,6 +23,7 @@ import gg.tropic.game.extensions.cosmetics.killeffects.cosmetics.LightningKillEf
 import gg.tropic.game.extensions.cosmetics.messagebundles.KillMessageBundleCosmeticCategory
 import gg.tropic.game.extensions.cosmetics.messagebundles.cosmetics.MessageBundle
 import gg.tropic.practice.PracticeGame
+import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
 import gg.tropic.practice.queue.QueueType
@@ -448,7 +449,7 @@ object GameService
                     it.player.location, Sound.EAT, 10f, 1f
                 )
 
-                 it.player.removePotionEffect(PotionEffectType.ABSORPTION)
+                it.player.removePotionEffect(PotionEffectType.ABSORPTION)
                 it.player.addPotionEffect(
                     PotionEffect(
                         PotionEffectType.ABSORPTION,
@@ -563,10 +564,12 @@ object GameService
                         it.to.block.isLiquid
                     )
                     {
-                        it.player.gracefullyRemoveFromGame(event = GameRemovalEvent(
-                            drops = mutableListOf(),
-                            shouldRespawn = false
-                        ))
+                        it.player.gracefullyRemoveFromGame(
+                            event = GameRemovalEvent(
+                                drops = mutableListOf(),
+                                shouldRespawn = false
+                            )
+                        )
                         return@handler
                     }
 
@@ -578,10 +581,12 @@ object GameService
 
                     if (yAxis != null && it.to.y < yAxis)
                     {
-                        it.player.gracefullyRemoveFromGame(event = GameRemovalEvent(
-                            drops = mutableListOf(),
-                            shouldRespawn = false
-                        ))
+                        it.player.gracefullyRemoveFromGame(
+                            event = GameRemovalEvent(
+                                drops = mutableListOf(),
+                                shouldRespawn = false
+                            )
+                        )
                         return@handler
                     }
 
@@ -619,10 +624,12 @@ object GameService
         Events.subscribe(PlayerDeathEvent::class.java)
             .handler {
                 it.deathMessage = null
-                it.entity.gracefullyRemoveFromGame(event = GameRemovalEvent(
-                    drops = it.drops,
-                    shouldRespawn = true
-                ))
+                it.entity.gracefullyRemoveFromGame(
+                    event = GameRemovalEvent(
+                        drops = it.drops,
+                        shouldRespawn = true
+                    )
+                )
             }
             .bindWith(plugin)
 
@@ -1091,6 +1098,29 @@ object GameService
                 {
                     it.isCancelled = true
                     return@handler
+                }
+
+                val buildLimit = game
+                    .flagMetaData(
+                        FeatureFlag.BuildLimit,
+                        key = "blocks"
+                    )
+                    ?.toIntOrNull()
+
+                if (buildLimit != null)
+                {
+                    val maxBuildLimit = (game.map
+                        .findSpawnLocationMatchingTeam(GameTeamSide.A)?.y
+                        ?: 0.0) + buildLimit
+
+                    if (it.block.y > maxBuildLimit)
+                    {
+                        it.isCancelled = true
+                        it.player.sendMessage(
+                            "${CC.RED}You cannot build in this area!"
+                        )
+                        return@handler
+                    }
                 }
 
                 val zone = game.map.findZoneContainingEntity(it.player)

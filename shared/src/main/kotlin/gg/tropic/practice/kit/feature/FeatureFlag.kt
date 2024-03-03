@@ -27,6 +27,11 @@ enum class FeatureFlag(
             "level" to "95"
         )
     ),
+    BuildLimit(
+        schema = mutableMapOf(
+            "blocks" to "16"
+        )
+    ),
     PlaceBlocks,
     BreakAllBlocks(
         incompatibleWith = { setOf(BreakPlacedBlocks, BreakSpecificBlockTypes) },
