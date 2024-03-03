@@ -1,4 +1,4 @@
-package gg.tropic.practice
+package gg.tropic.practice.utilities
 
 import org.bukkit.inventory.ItemStack
 

@@ -1,6 +1,6 @@
 package gg.tropic.practice.menu.editor
 
-import gg.tropic.practice.deepClone
+import gg.tropic.practice.utilities.deepClone
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.profile.PracticeProfile

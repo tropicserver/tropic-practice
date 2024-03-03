@@ -7,7 +7,7 @@ import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
-import gg.tropic.practice.deepClone
+import gg.tropic.practice.utilities.deepClone
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService

@@ -1,6 +1,6 @@
 package gg.tropic.practice.games.loadout
 
-import gg.tropic.practice.deepClone
+import gg.tropic.practice.utilities.deepClone
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.profile.loadout.Loadout
 import org.bukkit.entity.Player
