@@ -68,7 +68,7 @@ class EditorKitSelectionMenu(
                 name = "Loadout #${loadouts.size + 1}",
                 kit.id,
                 System.currentTimeMillis(),
-                inventoryContents = kit.contents
+                inventoryContents = kit.contents.map { it?.clone() }.toTypedArray()
             )
 
             practiceProfile.customLoadouts[kit.id]?.add(loadout)
