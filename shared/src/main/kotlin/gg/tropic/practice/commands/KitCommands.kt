@@ -7,6 +7,7 @@ import gg.scala.commons.annotations.commands.AssignPermission
 import gg.scala.commons.annotations.commands.AutoRegister
 import gg.scala.commons.command.ScalaCommand
 import gg.scala.commons.issuer.ScalaPlayer
+import gg.tropic.practice.deepClone
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.kit.KitService
@@ -381,8 +382,8 @@ object KitCommands : ScalaCommand()
     @Description("Equips the current kit contents to your player.")
     fun onLoadContents(sender: ScalaPlayer, kit: Kit)
     {
-        val inventory = kit.contents
-        val armor = kit.armorContents
+        val inventory = kit.contents.deepClone()
+        val armor = kit.armorContents.deepClone()
         val player = sender.bukkit()
 
         player.inventory.contents = inventory
@@ -401,8 +402,8 @@ object KitCommands : ScalaCommand()
         val inventory = player.inventory.contents
         val armor = player.inventory.armorContents
 
-        kit.contents = inventory
-        kit.armorContents = armor
+        kit.contents = inventory.deepClone()
+        kit.armorContents = armor.deepClone()
 
         with(KitService.cached()) {
             KitService.cached().kits[kit.id] = kit

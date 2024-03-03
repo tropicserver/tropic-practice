@@ -1,5 +1,6 @@
 package gg.tropic.practice.kit
 
+import gg.tropic.practice.deepClone
 import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.kit.feature.FeatureFlag
 import net.evilblock.cubed.util.bukkit.ItemBuilder
@@ -87,8 +88,8 @@ data class Kit(
     fun populate(player: Player)
     {
         player.inventory.clear()
-        player.inventory.armorContents = armorContents
-        player.inventory.contents = contents
+        player.inventory.armorContents = armorContents.deepClone()
+        player.inventory.contents = contents.deepClone()
 
         if (player.activePotionEffects.isNotEmpty())
         {
@@ -120,29 +121,8 @@ data class Kit(
         if (javaClass != other?.javaClass) return false
 
         other as Kit
-
-        if (id != other.id) return false
-        if (displayName != other.displayName) return false
-        if (displayIcon != other.displayIcon) return false
-        if (enabled != other.enabled) return false
-        if (!armorContents.contentEquals(other.armorContents)) return false
-        if (!contents.contentEquals(other.contents)) return false
-        if (!additionalContents.contentEquals(other.additionalContents)) return false
-        if (features != other.features) return false
-
-        return true
+        return other.id == id
     }
 
-    override fun hashCode(): Int
-    {
-        var result = id.hashCode()
-        result = 31 * result + displayName.hashCode()
-        result = 31 * result + displayIcon.hashCode()
-        result = 31 * result + enabled.hashCode()
-        result = 31 * result + armorContents.contentHashCode()
-        result = 31 * result + contents.contentHashCode()
-        result = 31 * result + additionalContents.contentHashCode()
-        result = 31 * result + features.hashCode()
-        return result
-    }
+    override fun hashCode() = id.hashCode()
 }

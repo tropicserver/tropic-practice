@@ -1,5 +1,6 @@
 package gg.tropic.practice.games.loadout
 
+import gg.tropic.practice.deepClone
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.profile.loadout.Loadout
 import org.bukkit.entity.Player
@@ -17,7 +18,7 @@ class CustomLoadout(
     override fun apply(player: Player)
     {
         kit.populate(player)
-        player.inventory.contents = loadout.inventoryContents
+        player.inventory.contents = loadout.inventoryContents.deepClone()
         player.updateInventory()
     }
 }

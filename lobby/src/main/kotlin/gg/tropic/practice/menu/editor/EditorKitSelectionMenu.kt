@@ -1,5 +1,6 @@
 package gg.tropic.practice.menu.editor
 
+import gg.tropic.practice.deepClone
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.menu.template.TemplateKitMenu
 import gg.tropic.practice.profile.PracticeProfile
@@ -68,7 +69,7 @@ class EditorKitSelectionMenu(
                 name = "Loadout #${loadouts.size + 1}",
                 kit.id,
                 System.currentTimeMillis(),
-                inventoryContents = kit.contents.map { it?.clone() }.toTypedArray()
+                inventoryContents = kit.contents.deepClone()
             )
 
             practiceProfile.customLoadouts[kit.id]?.add(loadout)

@@ -2,6 +2,7 @@ package gg.tropic.practice.menu.editor
 
 import com.cryptomorin.xseries.XMaterial
 import gg.scala.lemon.filter.ChatMessageFilterHandler
+import gg.tropic.practice.deepClone
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.player.hotbar.LobbyHotbarService
 import gg.tropic.practice.profile.PracticeProfile
@@ -64,7 +65,7 @@ class EditLoadoutContentsMenu(
             )
             .toButton { _, _ ->
                 // handle player inventory reset first
-                val deepClone = kit.contents.map { it?.clone() }.toTypedArray()
+                val deepClone = kit.contents.deepClone()
                 player.inventory.contents = deepClone
                 player.updateInventory()
 
