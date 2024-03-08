@@ -129,8 +129,6 @@ sealed class SideEffect : (Tournament) -> Unit
         override fun invoke(tournament: Tournament)
         {
             // TODO: someone make this better please
-            println(tournament.memberSet)
-
             DPSRedisShared.sendBroadcast(
                 Message()
                     .withMessage("&a&lThe tournament has ended!")

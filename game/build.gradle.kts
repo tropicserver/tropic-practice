@@ -9,6 +9,7 @@ dependencies {
     api(project(":services:statistics"))
     api(project(":services:replications:replication-models"))
 
+    compileOnly("dev.cubxity.plugins:unifiedmetrics-api:0.3.8")
     compileOnly("com.grinderwolf:slimeworldmanager-plugin:2.2.1")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.7.0")
 

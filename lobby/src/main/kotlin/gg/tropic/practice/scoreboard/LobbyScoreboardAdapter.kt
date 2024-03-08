@@ -1,6 +1,7 @@
 package gg.tropic.practice.scoreboard
 
 import gg.scala.basics.plugin.profile.BasicsProfileService
+import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
@@ -14,6 +15,8 @@ import gg.tropic.practice.settings.isASilentSpectator
 import gg.tropic.practice.settings.layout
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
+import me.lucko.helper.Events
+import me.lucko.helper.Helper
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
@@ -22,6 +25,9 @@ import net.evilblock.cubed.util.math.Numbers
 import net.evilblock.cubed.util.nms.MinecraftProtocol
 import net.evilblock.cubed.util.time.TimeUtil
 import org.bukkit.entity.Player
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.metadata.FixedMetadataValue
 import java.util.*
 
 /**
@@ -178,5 +184,30 @@ object LobbyScoreboardAdapter : ScoreboardAdapter()
         }
     }
 
-    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default) ScoreboardTitleService.getCurrentTitle() else CC.B_PRI + "NA Practice"
+    @Configure
+    fun configure()
+    {
+        Events
+            .subscribe(PlayerJoinEvent::class.java)
+            .handler {
+                PlayerRegionFromRedisProxy.of(it.player)
+                    .thenAccept { region ->
+                        it.player.setMetadata(
+                            "region",
+                            FixedMetadataValue(Helper.hostPlugin(), region.name)
+                        )
+                    }
+            }
+
+        Events
+            .subscribe(PlayerQuitEvent::class.java)
+            .handler {
+                it.player.removeMetadata("region", Helper.hostPlugin())
+            }
+    }
+
+    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default)
+        ScoreboardTitleService.getCurrentTitle() else "${CC.B_PRI}${
+        player.getMetadata("region").firstOrNull()?.value() ?: "NA"
+    } Practice"
 }

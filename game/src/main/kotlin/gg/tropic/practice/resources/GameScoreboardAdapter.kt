@@ -1,5 +1,6 @@
 package gg.tropic.practice.resources
 
+import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.scala.lemon.LemonConstants
 import gg.scala.lemon.util.QuickAccess.username
@@ -7,15 +8,21 @@ import gg.tropic.practice.games.GameService
 import gg.tropic.practice.games.GameState
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
+import gg.tropic.practice.region.PlayerRegionFromRedisProxy
 import gg.tropic.practice.services.ScoreboardTitleService
 import gg.tropic.practice.settings.layout
 import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
+import me.lucko.helper.Events
+import me.lucko.helper.Helper
 import net.evilblock.cubed.scoreboard.ScoreboardAdapter
 import net.evilblock.cubed.scoreboard.ScoreboardAdapterRegister
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.nms.MinecraftReflection
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.metadata.FixedMetadataValue
 import java.util.*
 
 /**
@@ -70,7 +77,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                 if (bukkitPlayers.size > 1)
                 {
                     bukkitPlayers
-                        .take(3)
+                        .take(2)
                         .forEach {
                             board += "- ${it.format()}"
                         }
@@ -121,10 +128,8 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                         {
                             board += "${CC.GRAY}(and ${opponent.players.size - 3} more...)"
                         }
-
-                        board += ""
                     }
-//                    board += "${CC.WHITE}Map: ${CC.PRI}${game.map.displayName}"
+
                     board += ""
 
                     val opponentPlayer = opponent.players.first()
@@ -274,7 +279,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             when (report.winners.size)
                             {
                                 0 -> "N/A"
-                                1 -> report.winners.first().username() + CC.GRAY + " (" + MinecraftReflection.getPing(Bukkit.getPlayer(report.winners.first())) + "ms)"
+                                1 -> report.winners.first().username() + CC.GRAY + (Bukkit.getPlayer(report.winners.first())?.let { " (" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
                                 else ->
                                 {
                                     "${report.winners.first().username()}'s Team"
@@ -287,7 +292,7 @@ object GameScoreboardAdapter : ScoreboardAdapter()
                             when (report.losers.size)
                             {
                                 0 -> "N/A"
-                                1 -> report.losers.first().username() + CC.GRAY + " (" + MinecraftReflection.getPing(Bukkit.getPlayer(report.losers.first())) + "ms)"
+                                1 -> report.losers.first().username() + CC.GRAY + (Bukkit.getPlayer(report.losers.first())?.let { " (" + MinecraftReflection.getPing(it) + "ms)" } ?: "")
                                 else ->
                                 {
                                     "${report.losers.first().username()}'s Team"
@@ -315,6 +320,30 @@ object GameScoreboardAdapter : ScoreboardAdapter()
         }
     }
 
-    override fun getTitle(player: Player) =
-        if (layout(player) == ScoreboardStyle.Default) ScoreboardTitleService.getCurrentTitle() else CC.B_PRI + "NA Practice"
+    @Configure
+    fun configure()
+    {
+        Events
+            .subscribe(PlayerJoinEvent::class.java)
+            .handler {
+                PlayerRegionFromRedisProxy.of(it.player)
+                    .thenAccept { region ->
+                        it.player.setMetadata(
+                            "region",
+                            FixedMetadataValue(Helper.hostPlugin(), region.name)
+                        )
+                    }
+            }
+
+        Events
+            .subscribe(PlayerQuitEvent::class.java)
+            .handler {
+                it.player.removeMetadata("region", Helper.hostPlugin())
+            }
+    }
+
+    override fun getTitle(player: Player) = if (layout(player) == ScoreboardStyle.Default)
+        ScoreboardTitleService.getCurrentTitle() else "${CC.B_PRI}${
+        player.getMetadata("region").firstOrNull()?.value() ?: "NA"
+    } Practice"
 }

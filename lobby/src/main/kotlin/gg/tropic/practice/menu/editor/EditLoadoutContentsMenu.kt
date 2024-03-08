@@ -2,6 +2,7 @@ package gg.tropic.practice.menu.editor
 
 import com.cryptomorin.xseries.XMaterial
 import gg.scala.lemon.filter.ChatMessageFilterHandler
+import gg.tropic.practice.utilities.deepClone
 import gg.tropic.practice.kit.Kit
 import gg.tropic.practice.player.hotbar.LobbyHotbarService
 import gg.tropic.practice.profile.PracticeProfile
@@ -64,15 +65,14 @@ class EditLoadoutContentsMenu(
             )
             .toButton { _, _ ->
                 // handle player inventory reset first
-                player.inventory.contents = kit.contents
+                val deepClone = kit.contents.deepClone()
+                player.inventory.contents = deepClone
                 player.updateInventory()
 
                 // then handle saving
                 for (int in 0 until 36)
                 {
-                    val defaultContent = kit.contents[int]
-
-                    loadout.inventoryContents[int] = defaultContent
+                    loadout.inventoryContents[int] = deepClone[int]
                 }
 
                 loadout.timestamp = System.currentTimeMillis()
@@ -237,12 +237,10 @@ class EditLoadoutContentsMenu(
         for (i in 0 until 36)
         {
             val edited = player.inventory.getItem(i)
-
             loadout.inventoryContents[i] = edited
         }
 
         loadout.timestamp = System.currentTimeMillis()
-
         return practiceProfile.save()
     }
 

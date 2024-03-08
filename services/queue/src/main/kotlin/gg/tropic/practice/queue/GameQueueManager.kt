@@ -28,6 +28,7 @@ import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.suffixWhenDev
 import gg.tropic.practice.utilities.PingFormatter
+import gg.tropic.practice.utilities.formatPlayerPing
 import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
 import net.md_5.bungee.api.chat.ClickEvent
@@ -466,7 +467,7 @@ object GameQueueManager
                 val requesterName = ScalaStoreUuidCache.username(request.requester)
                 val requesterRegion = request.region
 
-                val pingColor = PingFormatter.format(request.requesterPing)
+                val pingColor = formatPlayerPing(request.requesterPing)
 
                 DPSRedisShared.sendMessage(
                     listOf(request.requestee),
