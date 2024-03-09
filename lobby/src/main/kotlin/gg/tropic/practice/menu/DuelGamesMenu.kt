@@ -82,6 +82,7 @@ class DuelGamesMenu(
                             )
                     }",
                     "${CC.WHITE}Map: ${CC.PRI}${report.map}",
+                    "${CC.WHITE}Kit: ${CC.PRI}${report.kit}",
                     "",
                     "${CC.GREEN}Click to view inventories!"
                 )

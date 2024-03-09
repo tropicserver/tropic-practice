@@ -26,7 +26,6 @@ import gg.tropic.practice.PracticeGame
 import gg.tropic.practice.games.team.GameTeamSide
 import gg.tropic.practice.kit.feature.FeatureFlag
 import gg.tropic.practice.profile.PracticeProfileService
-import gg.tropic.practice.queue.QueueType
 import gg.tropic.practice.services.GameManagerService
 import gg.tropic.practice.settings.DuelsSettingCategory
 import gg.tropic.practice.suffixWhenDev
@@ -54,7 +53,6 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
-import org.bukkit.scoreboard.Objective
 import java.util.*
 import kotlin.math.ceil
 import kotlin.math.min
@@ -654,12 +652,6 @@ object GameService
                     val effect = it.potion.effects
                         .firstOrNull { effect -> effect.type == PotionEffectType.HEAL }
                         ?: return@handler
-                    val potion = it.potion.effects.equals(PotionEffectType.HEAL)
-
-//                    if (potion) {
-//                        counter.increment("totalPots")
-//                        counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")
-//                    }
 
                     counter.increment("totalPots")
                     counter.increment(if (intensity <= 0.5) "missedPots" else "hitPots")
