@@ -12,11 +12,17 @@ import gg.tropic.practice.settings.particles.FlightEffectSetting
 import gg.tropic.practice.settings.restriction.RangeRestriction
 import gg.tropic.practice.settings.scoreboard.LobbyScoreboardView
 import gg.tropic.practice.settings.scoreboard.ScoreboardStyle
+import net.evilblock.cubed.scoreboard.Scoreboard
+import net.evilblock.cubed.scoreboard.ScoreboardHandler
+import net.evilblock.cubed.scoreboard.ScoreboardListeners
 import net.evilblock.cubed.util.CC
 import net.evilblock.cubed.util.bukkit.ItemBuilder
 import net.evilblock.cubed.visibility.VisibilityHandler
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.scoreboard.DisplaySlot
 
 /**
  * @author GrowlyX
@@ -181,6 +187,23 @@ object DuelsSettingCategory : SettingCategory
 
             displayPredicate = {
                 it.hasPermission("practice.style.donator")
+            }
+
+            postChange = {
+                if (layout(it) == ScoreboardStyle.Disabled)
+                {
+                    it.scoreboard = Bukkit
+                        .getScoreboardManager()
+                        .newScoreboard
+                } else
+                {
+                    if (it.scoreboard.getObjective(DisplaySlot.SIDEBAR) == null)
+                    {
+                        ScoreboardListeners.onPlayerJoinEvent(
+                            event = PlayerJoinEvent(it, "")
+                        )
+                    }
+                }
             }
 
             item = ItemBuilder.of(Material.BREWING_STAND_ITEM)
