@@ -34,8 +34,8 @@ class PlayerMainMenu : Menu("Navigator")
                 player.performCommand("cosmetics")
             },
         13 to ItemBuilder
-            .of(Material.SLIME_BLOCK)
-            .name("${CC.BLUE}Statistics")
+            .of(Material.FIREBALL)
+            .name("${CC.GREEN}Statistics")
             .addToLore(
                 "${CC.GRAY}View practice statistics",
                 "${CC.GRAY}in all categories!",
@@ -46,15 +46,18 @@ class PlayerMainMenu : Menu("Navigator")
                 player.performCommand("statistics")
             },
         15 to ItemBuilder
-            .of(Material.DIAMOND_BLOCK)
-            .name("${CC.AQUA}Tournaments")
+            .of(Material.LEASH)
+            .name("${CC.D_PURPLE}Events")
             .addToLore(
-                "${CC.GRAY}Host or join a tournament!",
+                "${CC.GRAY}Host or join an event!",
+                "",
+                "${CC.GRAY}Events include:",
+                "${CC.WHITE}- Sumo",
                 "",
                 "${CC.GREEN}Click to open!"
             )
             .toButton { _, _ ->
-                      // TODO: Tournament join
+                player.performCommand("events")
             },
     )
 }
