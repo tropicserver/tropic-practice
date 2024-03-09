@@ -133,9 +133,6 @@ object LobbyHotbarService
                     val kit = KitService.cached().kits[rematchKitID]
                         ?: return@handler
 
-                    val map = MapService.cached().maps[rematchMapID]
-                        ?: return@handler
-
                     loginTasks.getOrPut(it.uniqueId, ::mutableListOf) += { player ->
                         val rematchItem = ItemBuilder
                             .of(Material.PAPER)

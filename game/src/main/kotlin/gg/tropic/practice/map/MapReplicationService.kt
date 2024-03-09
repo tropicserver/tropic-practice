@@ -5,8 +5,8 @@ import com.grinderwolf.swm.api.loaders.SlimeLoader
 import com.grinderwolf.swm.plugin.config.WorldData
 import gg.scala.commons.ExtendedScalaPlugin
 import gg.scala.commons.agnostic.sync.ServerSync
-import gg.scala.commons.agnostic.sync.server.region.Region
 import gg.scala.flavor.inject.Inject
+import gg.scala.flavor.service.Close
 import gg.scala.flavor.service.Configure
 import gg.scala.flavor.service.Service
 import gg.tropic.practice.autoscale.ReplicationAutoScaleTask
@@ -18,14 +18,13 @@ import gg.tropic.practice.kit.KitService
 import gg.tropic.practice.services.ReplicationManagerService
 import gg.tropic.practice.replications.models.Replication
 import gg.tropic.practice.replications.models.ReplicationStatus
-import me.lucko.helper.Events
 import me.lucko.helper.Schedulers
-import me.lucko.helper.terminable.composite.CompositeTerminable
+import net.minecraft.server.v1_8_R3.MinecraftServer
 import org.bukkit.Bukkit
 import org.bukkit.World
-import org.bukkit.event.world.WorldLoadEvent
 import java.util.*
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionException
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.logging.Level
 import kotlin.concurrent.thread
@@ -34,7 +33,7 @@ import kotlin.concurrent.thread
  * @author GrowlyX
  * @since 9/21/2023
  */
-@Service
+@Service(priority = 20)
 object MapReplicationService
 {
     @Inject
@@ -166,6 +165,14 @@ object MapReplicationService
 
         MapService.onPostReload = ::populateSlimeCache
         startWorldRequestThread()
+
+        ReplicationAutoScaleTask.start()
+    }
+
+    @Close
+    fun close()
+    {
+        ReplicationAutoScaleTask.interrupt()
     }
 
     fun findScheduledReplication(expectation: UUID) = mapReplications
@@ -239,28 +246,56 @@ object MapReplicationService
     }
 
     fun startWorldRequestThread() = thread(isDaemon = true) {
+        var lastRecordedTick = MinecraftServer.currentTick
+        var lastTickSwitch = System.currentTimeMillis()
+        var lastBroadcastTick = System.currentTimeMillis()
+
         while (true)
         {
-            for (worldID in worldRequests.keys.toSet())
+            if (MinecraftServer.currentTick != lastRecordedTick)
             {
-                if (System.currentTimeMillis() - worldID.second >= 30_000L)
+                if (System.currentTimeMillis() - lastTickSwitch > 5000L)
                 {
-                    worldRequests.remove(worldID)
-                        ?.completeExceptionally(
-                            IllegalStateException(
-                                "Could not load world ${worldID.first}"
-                            )
-                        )
-                    continue
+                    plugin.logger.info("Pausing generation checks for 3s to let the server catch up...")
+                    Thread.sleep(3000L)
                 }
 
+                lastRecordedTick = MinecraftServer.currentTick
+                lastTickSwitch = System.currentTimeMillis()
+            }
+
+            if (System.currentTimeMillis() - lastTickSwitch > 5000L)
+            {
+                if (System.currentTimeMillis() - lastBroadcastTick > 5000L)
+                {
+                    lastBroadcastTick = System.currentTimeMillis()
+                    plugin.logger.info("Server is halted at tick $lastRecordedTick... Waiting before expiring any pending generations")
+                }
+                continue
+            }
+
+            for (worldID in worldRequests.toMap().keys)
+            {
                 val bukkitWorld = Bukkit.getWorld(worldID.first)
-                    ?: continue
+                if (bukkitWorld == null)
+                {
+                    if (System.currentTimeMillis() - worldID.second >= 15_000L)
+                    {
+                        worldRequests.remove(worldID)
+                            ?.completeExceptionally(
+                                IllegalStateException(
+                                    "Could not load world ${worldID.first}"
+                                )
+                            )
+                        continue
+                    }
+                    continue
+                }
 
                 worldRequests.remove(worldID)?.complete(bukkitWorld)
             }
 
-            Thread.sleep(100L)
+            Thread.sleep(350L)
         }
     }
 
@@ -298,7 +333,11 @@ object MapReplicationService
                 BuiltMapReplication(arena, it)
             }
             .exceptionally {
-                plugin.logger.log(Level.SEVERE, "Could not load/generate world $worldName", it)
+                plugin.logger.log(
+                    Level.SEVERE,
+                    "Could not load/generate world $worldName",
+                    (it as CompletionException).cause ?: it
+                )
                 return@exceptionally null
             }
     }

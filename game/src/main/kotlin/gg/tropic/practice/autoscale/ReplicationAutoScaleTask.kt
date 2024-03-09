@@ -16,32 +16,19 @@ import java.util.logging.Level
  * @author GrowlyX
  * @since 1/1/2024
  */
-@Service
+@Service(priority = 30)
 object ReplicationAutoScaleTask : Thread("replication-auto-scale")
 {
     @Inject
     lateinit var plugin: ExtendedScalaPlugin
 
     private const val TARGET_REPLICATIONS = 16
-    private const val FLOOR_REQUIRED_FOR_AUTO_SCALE = 0.45
+    private const val FLOOR_REQUIRED_FOR_AUTO_SCALE = 0.85
 
-    @Configure
-    fun configure()
-    {
-        isDaemon = true
+    var lastAutoScaleCheck = 0L
 
-        // Ensure maps are loaded after the server is completely loaded
-        Schedulers
-            .sync()
-            .runLater(::start, 1L)
-            .bindWith(plugin)
-    }
-
-    @Close
-    fun close()
-    {
-        interrupt()
-    }
+    var lastAutoScaleEvent = 0L
+    var lastAutoScaleEventCount = 0
 
     private fun runSilently()
     {
@@ -67,10 +54,16 @@ object ReplicationAutoScaleTask : Thread("replication-auto-scale")
             MapReplicationService
                 .generateMapReplications(mappings)
                 .thenAccept {
-                    plugin.logger.info("Generated ${mappings.values.sum()} new map replications to comply with auto-scale policy of $FLOOR_REQUIRED_FOR_AUTO_SCALE.")
+                    val generated = mappings.values.sum()
+                    lastAutoScaleEvent = System.currentTimeMillis()
+                    lastAutoScaleEventCount = generated
+
+                    plugin.logger.info("Generated $generated new map replications to comply with auto-scale policy of $FLOOR_REQUIRED_FOR_AUTO_SCALE.")
                 }
                 .join()
         }
+
+        lastAutoScaleCheck = System.currentTimeMillis()
     }
 
     override fun run()

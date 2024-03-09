@@ -181,10 +181,19 @@ object LeaderboardManagerService
     @Configure
     fun configure()
     {
-        rebuildLeaderboardCaches()
+        val leaderboardIndexRefresh = System.currentTimeMillis()
+        CompletableFuture.runAsync {
+            rebuildLeaderboardCaches()
+        }.thenRun {
+            plugin.logger.info("Built initial indexes for leaderboard caches... took ${
+                System.currentTimeMillis() - leaderboardIndexRefresh
+            }ms")
+        }
 
         redis.listen("rebuild-cache") {
-            rebuildLeaderboardCaches()
+            CompletableFuture.runAsync {
+                rebuildLeaderboardCaches()
+            }
         }
         redis.connect().toCompletableFuture().join()
     }

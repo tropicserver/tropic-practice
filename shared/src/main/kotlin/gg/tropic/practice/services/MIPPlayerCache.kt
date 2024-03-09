@@ -179,16 +179,16 @@ object MIPPlayerCache : TablistPopulator
     override fun displayPreProcessor(player: Player) =
         CompletableFuture.completedFuture(true)
             .thenApply {
-                val handle = TablistManager.get().getTablist(player)
+                /*val handle = TablistManager.get().getTablist(player)
                 handle.tablistPopulator =
-                    PlayerTablistPopulator(handle, NetworkPlayerProvider)
+                    PlayerTablistPopulator(handle, NetworkPlayerProvider)*/
 
                 PracticeConfigurationService.cached().enableMIPTabHandler()
             }!!
 
     override fun populate(player: Player, element: TabElement)
     {
-
+        element.add(3, "test")
     }
 
     @CommandManagerCustomizer
