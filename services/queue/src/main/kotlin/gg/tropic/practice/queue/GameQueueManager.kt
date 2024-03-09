@@ -27,7 +27,6 @@ import gg.tropic.practice.region.Region
 import gg.tropic.practice.replications.manager.ReplicationManager
 import gg.tropic.practice.serializable.Message
 import gg.tropic.practice.suffixWhenDev
-import gg.tropic.practice.utilities.PingFormatter
 import gg.tropic.practice.utilities.formatPlayerPing
 import io.lettuce.core.api.sync.RedisCommands
 import net.evilblock.cubed.serializers.Serializers
@@ -73,9 +72,23 @@ object GameQueueManager
             )
         }
 
+    fun getQueueEntryFromId(id: String, player: String) = Serializers.gson
+        .fromJson(
+            dpsRedisCache.sync()
+                .hget(
+                    "${namespace().suffixWhenDev()}:queues:$id:entries",
+                    player
+                ),
+            QueueEntry::class.java
+        )
+
     fun removeQueueEntryFromId(id: String, entry: UUID) = dpsRedisCache
         .sync()
         .lrem("${namespace().suffixWhenDev()}:queues:$id:queue", 1, entry.toString())
+
+    fun getAllQueuePlayers(id: String) = dpsRedisCache
+        .sync()
+        .lrange("${namespace().suffixWhenDev()}:queues:$id:queue", 0, -1)
 
     fun popQueueEntryFromId(id: String, amount: Int) = dpsRedisCache
         .sync()

@@ -197,22 +197,40 @@ class GameQueue(
         }, 0L, 50L, TimeUnit.MILLISECONDS)
 
         metadataUpdateThread.scheduleAtFixedRate({
-            GameQueueManager.getQueueEntriesFromId(queueId())
-                .forEach { (t, u) ->
-                    if (System.currentTimeMillis() - u.joinQueueTimestamp >= 60_000L)
-                    {
-                        val isPlayerOnline = DPSRedisShared.keyValueCache.sync()
-                            .hexists(
-                                "player:${u.leader}",
-                                "instance"
-                            )
-
-                        if (!isPlayerOnline)
+            kotlin.runCatching {
+                GameQueueManager.getAllQueuePlayers(queueId())
+                    .forEach {
+                        val entry = GameQueueManager.getQueueEntryFromId(queueId(), it)
+                        if (entry != null)
                         {
-                            GameQueueManager.removeQueueEntryFromId(queueId(), u.leader)
+                            return@forEach
+                        }
+
+                        GameQueueManager
+                            .removeQueueEntryFromId(queueId(), UUID.fromString(it))
+
+                        Logger.getGlobal().info("Removing $it as the player does not have a queue entry")
+                    }
+
+                GameQueueManager.getQueueEntriesFromId(queueId())
+                    .forEach { (t, u) ->
+                        if (System.currentTimeMillis() - u.joinQueueTimestamp >= 60_000L)
+                        {
+                            val isPlayerOnline = DPSRedisShared.keyValueCache.sync()
+                                .hexists(
+                                    "player:${u.leader}",
+                                    "instance"
+                                )
+
+                            if (!isPlayerOnline)
+                            {
+                                GameQueueManager.removeQueueEntryFromId(queueId(), u.leader)
+                            }
                         }
                     }
-                }
+            }.onFailure {
+                it.printStackTrace()
+            }
         }, 0L, 1L, TimeUnit.SECONDS)
 
         Logger.getGlobal()
