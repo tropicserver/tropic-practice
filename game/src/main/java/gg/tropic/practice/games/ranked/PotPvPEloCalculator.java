@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public final class PotPvPEloCalculator implements EloCalculator {
 
     public static final PotPvPEloCalculator INSTANCE =
-            new PotPvPEloCalculator(35.0, 3, 29, 3, 29);
+            new PotPvPEloCalculator(35.0, 7, 25, 7, 25);
 
     private final double kPower;
     private final int minEloGain;
