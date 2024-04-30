@@ -147,7 +147,7 @@ object ExpectationService
                         FixedMetadataValue(plugin, true)
                     )
 
-                    NametagHandler.reloadPlayer(it.player)
+//                    NametagHandler.reloadPlayer(it.player)
                     VisibilityHandler.update(it.player)
 
                     it.player.allowFlight = true

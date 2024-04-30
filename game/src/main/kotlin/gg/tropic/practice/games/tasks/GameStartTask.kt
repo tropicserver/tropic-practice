@@ -55,7 +55,7 @@ class GameStartTask(
                 .filterNotNull()
                 .forEach { player ->
                     VisibilityHandler.update(player)
-                    NametagHandler.reloadPlayer(player)
+//                    NametagHandler.reloadPlayer(player)
 
                     if (game.flag(FeatureFlag.HeartsBelowNameTag))
                     {

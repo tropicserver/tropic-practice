@@ -23,6 +23,8 @@ object RomanNumerals
         mappings[9] = "IX"
         mappings[5] = "V"
         mappings[4] = "IV"
+        mappings[3] = "III"
+        mappings[2] = "II"
         mappings[1] = "I"
     }
 
